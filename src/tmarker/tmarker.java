@@ -7,7 +7,7 @@
  * tmarker.java
  *
  * Created on 11.10.2011, 17:20:23
- *
+ * author:pschüffler
  */
 package tmarker;
 
