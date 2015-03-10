@@ -1,4 +1,4 @@
-/*
+﻿/*
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
@@ -7,6 +7,7 @@
  * tmarker.java
  *
  * Created on 11.10.2011, 17:20:23
+ *
  */
 package tmarker;
 
