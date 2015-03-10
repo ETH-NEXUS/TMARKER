@@ -1,0 +1,99 @@
+/*
+ * To change this template, choose Tools | Templates
+ * and open the template in the editor.
+ */
+package stainingestimation;
+
+import java.awt.Cursor;
+import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import plugins.TMARKERPluginManager;
+import tmarker.TMAspot.TMAspot;
+import tmarker.tmarker;
+
+/**
+ *
+ * @author Peter J. Schueffler
+ */
+public class StainingEstimationThread extends Thread {    
+    
+    TMARKERPluginManager tpm;
+    StainingEstimation se;
+    List<TMAspot> aTMAspots;
+    int radius;
+    double blur;
+    int tolerance;
+    int t_hema;
+    int t_dab;
+    boolean delete_cur_gs_spots;
+    boolean delete_cur_es_spots;
+    boolean hide_legend;
+    boolean markCancerous;
+    String myStain;
+    public boolean continu = true;
+    int TMblur_hema;
+    int TMblur_dab;
+    
+    /**
+     * Performs the staining estimation of all given TMAspots in a separate thread.
+     * @param tpm The TMARKERPluginManager with access to the main program.
+     * @param se The StainingEstimation instance, used for User chosen colors which are stored in the StainingEstimation instance.
+     * @param aTMAspots The TMAspots to be processed.
+     * @param radius The radius of the nuclei.
+     * @param blur The blurring applied to the channels prior to local maxima finding.
+     * @param tolerance The tolerance used for local maxima finding.
+     * @param TMblur_hema The blurring for the dynamic threshold map for the channel 1 (if any).
+     * @param TMblur_dab The blurring for the dynamic threshold map for the channel 2 (if any).
+     * @param t_hema The fixed channel 1 threshold (between 0-255).
+     * @param t_dab The fixed channel 2 threshold (between 0-255).
+     * @param delete_cur_gs_spots If true, current gold standard nuclei will be deleted.
+     * @param delete_cur_es_spots If true, current estimated nuclei will be deleted.
+     * @param hide_legend If false, a legend of the color deconvolution algorithm will appear.
+     * @param markCancerous If true, all found nuclei will be labeled as "cancerous" nuclei
+     * @param myStain String of the staining protocol (e.g. "H&E" or "H DAB").
+     */
+    public StainingEstimationThread (TMARKERPluginManager tpm, StainingEstimation se, List<TMAspot> aTMAspots, int radius, double blur, int tolerance, int TMblur_hema, int TMblur_dab, int t_hema, int t_dab, boolean delete_cur_gs_spots, boolean delete_cur_es_spots, boolean hide_legend, boolean markCancerous, String myStain) {
+        this.tpm = tpm;
+        this.se = se;
+        this.aTMAspots = aTMAspots;
+        this.radius = radius;
+        this.blur = blur;
+        this.tolerance = tolerance;
+        this.t_hema = t_hema;
+        this.t_dab = t_dab;
+        this.delete_cur_gs_spots = delete_cur_gs_spots;
+        this.delete_cur_es_spots = delete_cur_es_spots;
+        this.hide_legend = hide_legend;
+        this.markCancerous = markCancerous;
+        this.myStain = myStain;
+        this.TMblur_hema = TMblur_hema;
+        this.TMblur_dab = TMblur_dab;
+    }
+    
+    @Override
+    public void run() {
+        try{ 
+            se.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+            /*for (TMAspot ts : aTMAspots) {
+                if (continu) {
+                    ts.doStainingEstimation(t, radius, blur, tolerance, TMblur_hema, TMblur_dab, t_hema, t_dab, delete_cur_gs_spots, delete_cur_es_spots, hide_legend, markCancerous, myStain, true);
+                }
+            }
+            t.setState_stainingEstimation();
+            */
+            StainingEstimationFork.StainingEstimation_Fork(tpm, se, aTMAspots, radius, blur, tolerance, TMblur_hema, TMblur_dab, t_hema, t_dab, delete_cur_gs_spots, delete_cur_es_spots, hide_legend, markCancerous, myStain);
+            
+            tpm.setStatusMessageLabel("Performing Staining Estimation ... Done.");
+            tpm.setProgressbar(0);
+            se.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+        } catch (Exception e) {
+            continu = false;
+            tpm.setStatusMessageLabel("Staining Estimation Stopped."); tpm.setProgressbar(0);
+            se.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+            if (tmarker.DEBUG>0) {
+                Logger.getLogger(StainingEstimation.class.getName()).log(Level.WARNING, e.getMessage(), e);
+            }
+        }
+    }
+}
