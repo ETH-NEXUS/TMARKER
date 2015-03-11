@@ -79,7 +79,7 @@ import tmarker.misc.ZoomableImagePanel;
  */
 public final class tmarker extends javax.swing.JFrame {
 
-    /** Creates new form tmarker
+    /** Creates the new form tmarker
      * @param tmp_dir The TMARKER temp directory which is deleted on exit. Temporary files can be written here.
      */
     public tmarker(String tmp_dir) {
