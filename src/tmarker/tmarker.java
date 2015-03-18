@@ -85,7 +85,7 @@ public final class tmarker extends javax.swing.JFrame {
         initComponents();
         setTmpDir(tmp_dir);
         initComponents2();
-    }
+    } 
 
     /** Revision number*/
     public static String REVISION = "2." + "$Revision: 21611 $".replaceAll("\\$", "").replaceAll("\\D", "");
