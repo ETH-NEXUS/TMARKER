@@ -18,7 +18,6 @@ import javax.imageio.ImageIO;
 import javax.swing.JOptionPane;
 import tmarker.TMAspot.TMALabel;
 import tmarker.TMAspot.TMAspot;
-import tmarker.misc.CoForest;
 import tmarker.tmarker;
 import weka.classifiers.Classifier;
 import weka.classifiers.bayes.BayesNet;
