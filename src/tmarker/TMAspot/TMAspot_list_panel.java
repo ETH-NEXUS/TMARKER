@@ -349,10 +349,10 @@ public class TMAspot_list_panel extends javax.swing.JPanel {
                 formKeyReleased(evt);
             }
         });
-        setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
+        setLayout(new java.awt.FlowLayout(java.awt.FlowLayout.LEADING, 0, 0));
 
         jLabel6.setIcon(new javax.swing.ImageIcon(getClass().getResource("/tmarker/img/nopreview.png"))); // NOI18N
-        add(jLabel6, new org.netbeans.lib.awtextra.AbsoluteConstraints(1, 1, -1, -1));
+        add(jLabel6);
     }// </editor-fold>//GEN-END:initComponents
 
     private void formMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_formMouseClicked
