@@ -53,3 +53,4 @@ tmarker.conf
 /tutorial/
 Classifier.tma
 Datasets_TMARKER.lnk
+/plugins/*.jar
