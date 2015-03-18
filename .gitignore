@@ -44,3 +44,12 @@ plugins/CancerNucleusClassification/nbproject/private/private.properties
 *private.properties
 tmarker.conf
 *preview-application.html
+/demonstration_dataset/
+/img/
+/izpack/
+/labeled_data/
+/Leila/
+/Licenses/
+/tutorial/
+Classifier.tma
+Datasets_TMARKER.lnk
