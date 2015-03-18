@@ -551,19 +551,24 @@ public class Misc {
      * @param filename The image file to be written.
      */
     public static void writeImage(double[][] I, boolean normalize, String filename) {
+        double min = 0;
         double max = 255.0;
         if (normalize) {
+            min = Double.MAX_VALUE;
             max = Double.MIN_VALUE;
-            for (int x=0; x<I.length; x++) {
-                for (int y=0; y<I[x].length; y++) {
-                    max = Math.max(max, I[x][y]);
+            for (double[] I1 : I) {
+                for (int y = 0; y < I1.length; y++) {
+                    min = Math.min(min, I1[y]);
+                    max = Math.max(max, I1[y]);
                 }
             }
         }
         BufferedImage BI = new BufferedImage(I.length, I[0].length, BufferedImage.TYPE_BYTE_GRAY);
+        int value; 
         for (int x=0; x<I.length; x++) {
             for (int y=0; y<I[x].length; y++) {
-                BI.setRGB(x, y, (int)(Math.pow(2,16)*(I[x][y]*255/max) + Math.pow(2,8)*(I[x][y]*255/max) + (I[x][y]*255/max)));
+                value = (int) ((I[x][y]-min)*255/(max-min));
+                BI.setRGB(x, y, (int)(Math.pow(2,16)*value + Math.pow(2,8)*value + value));
             }
         }
         writeImage(BI, filename);

@@ -7,7 +7,6 @@
  * tmarker.java
  *
  * Created on 11.10.2011, 17:20:23
- * author:pschüffler
  */
 package tmarker;
 
@@ -79,7 +78,7 @@ import tmarker.misc.ZoomableImagePanel;
  */
 public final class tmarker extends javax.swing.JFrame {
 
-    /** Creates the new form tmarker
+    /** Creates new form tmarker
      * @param tmp_dir The TMARKER temp directory which is deleted on exit. Temporary files can be written here.
      */
     public tmarker(String tmp_dir) {
@@ -89,7 +88,7 @@ public final class tmarker extends javax.swing.JFrame {
     }
 
     /** Revision number*/
-    public static String REVISION = "2." + "$Revision: 21603 $".replaceAll("\\$", "").replaceAll("\\D", "");
+    public static String REVISION = "2." + "$Revision: 21611 $".replaceAll("\\$", "").replaceAll("\\D", "");
     
     /** Unique Identifier*/
     public static UUID UID = UUID.randomUUID();
