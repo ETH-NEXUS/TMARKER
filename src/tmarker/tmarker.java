@@ -49,6 +49,7 @@ import java.awt.Graphics2D;
 import java.awt.RenderingHints;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.net.URISyntaxException;
 import java.net.URL;
 import javax.swing.event.HyperlinkEvent;
 import javax.swing.event.HyperlinkListener;
@@ -1559,6 +1560,7 @@ public final class tmarker extends javax.swing.JFrame {
      */
     public static void main(String args[]) {
         int debug = 5; // SET THIS TO 0 IF YOU COMPILE FOR PUBLIC DISTRIBUTION OTHERWISE 1-5 FOR LESS OR MORE DEBUG INFO
+        
         if (args.length>0) {
             try {
                 String helpOption = weka.core.Utils.getOption('h', args);
@@ -1577,6 +1579,20 @@ public final class tmarker extends javax.swing.JFrame {
                 printHelp();
                 System.exit(0);
             }
+        }
+        
+        Properties prop = new Properties();
+        InputStream is;
+        try {
+            is = new FileInputStream(new File(tmarker.class.getResource("/tmarker/version.txt").toURI()));
+            prop.load(is);
+            REVISION = "2.0." + prop.getProperty("build").replace("'", "");
+        } catch (FileNotFoundException ex) {
+            Logger.getLogger(tmarker.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (IOException ex) {
+            Logger.getLogger(tmarker.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (URISyntaxException ex) {
+            Logger.getLogger(tmarker.class.getName()).log(Level.SEVERE, null, ex);
         }
         
         DEBUG = debug;
@@ -1599,13 +1615,14 @@ public final class tmarker extends javax.swing.JFrame {
             java.util.logging.Logger.getLogger(tmarker.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         }
         //</editor-fold>
-
+        
         /* Create and display the form */
         java.awt.EventQueue.invokeLater(new Runnable() {
 
             @Override
             public void run() {
                 tmarker frame = new tmarker(System.getProperty("user.home") + fs + "TMARKER_tmp");
+                
                 frame.setExtendedState(frame.getExtendedState()|JFrame.MAXIMIZED_BOTH);
                 frame.setVisible(true);
 

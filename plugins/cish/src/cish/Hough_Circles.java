@@ -319,13 +319,13 @@ public class Hough_Circles {
      * Performs a median filter to the 2D matrix.
      *
      * @param accum_matrix The image matrix to be filtered.
-     * @param n The width of the filter.
-     * @param m The height of the filter.
+     * @param m The width of the filter.
+     * @param n The height of the filter.
      * @return The filtered image matrix.
      */
-    private static double[][] MedianFilter(double[][] accum_matrix, int n, int m) {
-        int n_half = (int) Math.floor(n / 2.0);
+    private static double[][] MedianFilter(double[][] accum_matrix, int m, int n) {
         int m_half = (int) Math.floor(m / 2.0);
+        int n_half = (int) Math.floor(n / 2.0);
 
         double[][] accum_matrix_new = new double[accum_matrix.length][accum_matrix[0].length];
 
@@ -333,10 +333,10 @@ public class Hough_Circles {
         int k;
         for (int i = 0; i < accum_matrix.length; i++) {
             for (int j = 0; j < accum_matrix[i].length; j++) {
-                window = new double[(2 * n_half + 1) * (2 * m_half + 1)];
+                window = new double[(2 * m_half + 1) * (2 * n_half + 1)];
                 k = 0;
-                for (int x = i - n_half; x <= i + n_half; x++) {
-                    for (int y = j - m_half; y <= j + m_half; y++) {
+                for (int x = i - m_half; x <= i + m_half; x++) {
+                    for (int y = j - n_half; y <= j + n_half; y++) {
                         if (x < 0 || y < 0 || x >= accum_matrix.length || y >= accum_matrix[i].length) {
                             window[k] = 0;
                         } else {
