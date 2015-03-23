@@ -14,7 +14,7 @@ import java.util.logging.Logger;
 import javax.swing.JFrame;
 
 /**
- * The Window that pops up if the user choses to update MethMarker.
+ * The Window that pops up if the user choses to update TMARKER.
  * @author Peter Schueffler
  */
 public class UpdateDialog extends javax.swing.JDialog {
@@ -38,8 +38,8 @@ public class UpdateDialog extends javax.swing.JDialog {
      * @param remoteRevision The remote version of TMARKER.
      */
     private void setButtons(String thisRevision, String remoteRevision) {
-        int thisRevisionInt = Integer.parseInt(thisRevision.replaceAll("\\.", ""));
-        int remoteRevisionInt = Integer.parseInt(remoteRevision.replaceAll("\\.", ""));
+        int thisRevisionInt = Integer.parseInt(thisRevision.replaceAll("\\.", "").replaceAll("'", ""));
+        int remoteRevisionInt = Integer.parseInt(remoteRevision.replaceAll("\\.", "").replaceAll("'", ""));
         boolean connectionFailure = remoteRevisionInt < 0;
         boolean newAvailable = remoteRevisionInt > thisRevisionInt;
         if (connectionFailure) {
@@ -47,8 +47,8 @@ public class UpdateDialog extends javax.swing.JDialog {
             jLabel5.setText("");
         }
         else {
-            jLabel4.setText("Local Version: TMARKER Light v" + thisRevision);
-            jLabel5.setText("Online Version: TMARKER Light v" + remoteRevision);
+            jLabel4.setText("Local Version: TMARKER v" + thisRevision);
+            jLabel5.setText("Online Version: TMARKER v" + remoteRevision);
         }
         jLabel1.setVisible(!connectionFailure && !newAvailable);
         jLabel2.setVisible(!connectionFailure && newAvailable);
@@ -74,24 +74,24 @@ public class UpdateDialog extends javax.swing.JDialog {
         jLabel5 = new javax.swing.JLabel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
-        setTitle("TMARKER Update-Checker");
+        setTitle("TMARKER Update Check");
         getContentPane().setLayout(new java.awt.GridBagLayout());
 
-        jLabel1.setText("You are using the latest version of TMARKER Light. Enjoy!");
+        jLabel1.setText("You are using the latest version of TMARKER. Enjoy!");
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
         gridBagConstraints.gridy = 2;
         gridBagConstraints.insets = new java.awt.Insets(10, 20, 10, 20);
         getContentPane().add(jLabel1, gridBagConstraints);
 
-        jLabel2.setText("A new TMARKER Light version is available. Please load the latest version.");
+        jLabel2.setText("A new TMARKER version is available. Please load the latest version.");
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
         gridBagConstraints.gridy = 3;
         gridBagConstraints.insets = new java.awt.Insets(10, 20, 10, 20);
         getContentPane().add(jLabel2, gridBagConstraints);
 
-        jButton1.setText("Go to TMARKER Light Download");
+        jButton1.setText("Go to TMARKER Download");
         jButton1.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 jButton1ActionPerformed(evt);
@@ -140,8 +140,8 @@ public class UpdateDialog extends javax.swing.JDialog {
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
         try {
             BrowserLauncher bl = new BrowserLauncher();
-            bl.openURLinBrowser("http://www.comp-path.inf.ethz.ch/#page=Home");
-            java.util.logging.Logger.getLogger(getClass().getName()).log(java.util.logging.Level.INFO, "Trying to open http://www.comp-path.inf.ethz.ch/#page=Home");
+            bl.openURLinBrowser("http://www.nexus.ethz.ch");
+            java.util.logging.Logger.getLogger(getClass().getName()).log(java.util.logging.Level.INFO, "Trying to open http://www.nexus.ethz.ch/#page=Home");
         } catch (BrowserLaunchingInitializingException ex) {
             Logger.getLogger(UpdateDialog.class.getName()).log(Level.SEVERE, null, ex);
         } catch (UnsupportedOperatingSystemException ex) {

@@ -51,6 +51,7 @@ import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.util.jar.JarInputStream;
 import javax.swing.event.HyperlinkEvent;
 import javax.swing.event.HyperlinkListener;
 import plugins.TMARKERPluginManager;
@@ -1468,7 +1469,7 @@ public final class tmarker extends javax.swing.JFrame {
     }//GEN-LAST:event_jMenuItem24ActionPerformed
 
     private void jMenuItem25ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem25ActionPerformed
-        openWebsite("http://www.comp-path.inf.ethz.ch");
+        openWebsite("http://www.nexus.ethz.ch");
     }//GEN-LAST:event_jMenuItem25ActionPerformed
 
     private void jCheckBoxMenuItem1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jCheckBoxMenuItem1ActionPerformed
@@ -1584,14 +1585,12 @@ public final class tmarker extends javax.swing.JFrame {
         Properties prop = new Properties();
         InputStream is;
         try {
-            is = new FileInputStream(new File(tmarker.class.getResource("/tmarker/version.txt").toURI()));
+            is = tmarker.class.getResourceAsStream("/tmarker/version.txt");
             prop.load(is);
-            REVISION = "2.0." + prop.getProperty("build").replace("'", "");
+            REVISION = "2." + prop.getProperty("build").replace("'", "");
         } catch (FileNotFoundException ex) {
             Logger.getLogger(tmarker.class.getName()).log(Level.SEVERE, null, ex);
         } catch (IOException ex) {
-            Logger.getLogger(tmarker.class.getName()).log(Level.SEVERE, null, ex);
-        } catch (URISyntaxException ex) {
             Logger.getLogger(tmarker.class.getName()).log(Level.SEVERE, null, ex);
         }
         
@@ -2146,10 +2145,12 @@ public final class tmarker extends javax.swing.JFrame {
      * @param annotation_props The names of the four whole image annotations (should be 4 Strings).
      */
     public void setAnnotationProperties(List<String> annotation_props) {
-        if (annotation_props.size()>0 && !annotation_props.get(0).equals("My_Percentage")) jXTextField1.setText(annotation_props.get(0));
-        if (annotation_props.size()>1 && !annotation_props.get(1).equals("My_Mitotic_Count")) jXTextField2.setText(annotation_props.get(1));
-        if (annotation_props.size()>2 && !annotation_props.get(2).equals("My_Pleomorphism")) jXTextField4.setText(annotation_props.get(2));
-        if (annotation_props.size()>3 && !annotation_props.get(3).equals("My_Comment")) jXTextField3.setText(annotation_props.get(3));
+        if (annotation_props!=null) {
+            if (annotation_props.size()>0 && annotation_props.get(0)!=null && !annotation_props.get(0).equals("My_Percentage")) jXTextField1.setText(annotation_props.get(0));
+            if (annotation_props.size()>1 && annotation_props.get(1)!=null && !annotation_props.get(1).equals("My_Mitotic_Count")) jXTextField2.setText(annotation_props.get(1));
+            if (annotation_props.size()>2 && annotation_props.get(2)!=null && !annotation_props.get(2).equals("My_Pleomorphism")) jXTextField4.setText(annotation_props.get(2));
+            if (annotation_props.size()>3 && annotation_props.get(3)!=null && !annotation_props.get(3).equals("My_Comment")) jXTextField3.setText(annotation_props.get(3));
+        }
     }
     
     /**
@@ -2294,14 +2295,6 @@ public final class tmarker extends javax.swing.JFrame {
     }
      
     /**
-     * Returns the current working directory (e.g. for saving temporary files).
-     * @return The current working directory.
-     */
-    public String getWorkingDir() {
-        return System.getProperty("user.dir");
-    }
-    
-    /**
      * Returns the option dialog.
      * @return The option dialog.
      */
@@ -2416,7 +2409,7 @@ public final class tmarker extends javax.swing.JFrame {
                 }
             }
 
-            // second: try to find the spots that could not be mached on the location specified in the xml
+            // second: try to find the spots that could not be mached on the absolute location specified in the xml
             for (int i=newspots.size()-1; i>=0; i--) {
                 if (new File(newspots.get(i).getOriginalImagename()).exists()) {
                     TMAspot ts = new TMAspot(t, newspots.get(i).getOriginalImagename());
@@ -2429,6 +2422,25 @@ public final class tmarker extends javax.swing.JFrame {
                     t.addTMAspot(ts);
                     t.updateTMATable(ts, true);
                     newspots.remove(i);
+                }
+            }
+            
+            // second-and-a-half: try to find the spots that could not be mached on the relative location specified in the xml
+            if (!newspots.isEmpty()) {
+                for (int i=newspots.size()-1; i>=0; i--) {
+                    logger.log(java.util.logging.Level.INFO, file.getParent() + File.separator + newspots.get(i).getOriginalImagename());
+                    if (new File(file.getParent() + File.separator + newspots.get(i).getOriginalImagename()).exists()) {
+                        TMAspot ts = new TMAspot(t, file.getParent() + File.separator + newspots.get(i).getOriginalImagename());
+                        for (int j=0; j<newspots.get(i).getPoints().size(); j++) {
+                            newspots.get(i).getPoints().get(j).setTMAspot(ts);
+                            ts.addPoint(newspots.get(i).getPoints().get(j));
+                        }
+                        ts.adoptParams(newspots.get(i));
+                        ts.doBgCorrection();
+                        t.addTMAspot(ts);
+                        t.updateTMATable(ts, true);
+                        newspots.remove(i);
+                    }
                 }
             }
 
@@ -2474,10 +2486,10 @@ public final class tmarker extends javax.swing.JFrame {
 
             // fifth: ask the user to select a path to the images
             if (!newspots.isEmpty()) {
-                JOptionPane.showMessageDialog(t, "Some images specified in " + file.getName() + " could not be found.\n"
+                JOptionPane.showMessageDialog(t, "Some images specified in " + file.getName() + " could not be found, e.g.\n"
+                        + newspots.get(0).getName() + ".\n"
                         + "After this dialog, you will be asked to specify a path to the images.\n"
-                        + "Note, that the images must have the same name as saved in " + file.getName() + ".\n"
-                        + "e.g. " + newspots.get(0).getName(), "Images not found", JOptionPane.INFORMATION_MESSAGE);
+                        , "Images not found", JOptionPane.INFORMATION_MESSAGE);
                 JFileChooser chooser = new JFileChooser(t.getCurrentDir());
                 chooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
                 int approve = chooser.showOpenDialog(t);
@@ -3248,7 +3260,7 @@ public final class tmarker extends javax.swing.JFrame {
         infoText = "<html><font size=\"3\" face=\"Arial\"><h1><strong>Welcome to TMARKER</strong></h1></strong>"
                 + "TMARKER is a program for the analysis of tissue microarry (TMA) images. Example usages are <b>cell nucleus counting</b>, "
                 + "<b>cell nucleus classification</b> or <b>staining estimation</b>.<br><br>"
-                + "<a href=\"http://www.comp-path.inf.ethz.ch\"><b>Plugins</b></a> can add functionalities to TMARKER and can be accessed by <i>\"Tools -> Plugins\"</i><br><br>"
+                + "<a href=\"http://www.nexus.ethz.ch\"><b>Plugins</b></a> can add functionalities to TMARKER and can be accessed by <i>\"Tools -> Plugins\"</i><br><br>"
                 + "There are three ways to get started:<br>"
                 + "<ol style=\"margin:5; padding:10;\">"
                 + "<li><b>Load TMA images into TMARKER</b> (drag'n'drop image files or open with <i>\"File -> Open...\"</i>).<br><br></li>"
@@ -3847,7 +3859,7 @@ public final class tmarker extends javax.swing.JFrame {
             }
         });
         
-        logger.log(java.util.logging.Level.INFO, "Current Working Directory: {0}", getCurrentDir());
+        //logger.log(java.util.logging.Level.INFO, "Current Working Directory: {0}", getCurrentDir());
     }
     
     /**
@@ -4512,7 +4524,7 @@ public final class tmarker extends javax.swing.JFrame {
             outputText += "<table width=\"100%\">" + linebreak
                     + " <tr>" + linebreak
                     + "  <td><h1>TMARKER Report</h1></td>" + linebreak
-                    + "  <td align=\"right\"><a href=\"http://comp-path.inf.ethz.ch\"><img alt=\"TMARKER Report\" src = \"" + folderName + "_logo.png\"></a><br><br><br></td>" + linebreak
+                    + "  <td align=\"right\"><a href=\"http://www.nexus.ethz.ch\"><img alt=\"TMARKER Report\" src = \"" + folderName + "_logo.png\"></a><br><br><br></td>" + linebreak
                     + " </tr> "
                     + "</table>";
             
@@ -5279,7 +5291,7 @@ public final class tmarker extends javax.swing.JFrame {
       * Restores the parameter values saved in the given properties.
       * Also restores the plugin parameter values saved in the given properties.
       * @param appProps The properties to be restored.
-      * @param only_plugins If true, the plugin parameters are restored. If false, only the TMARKER paramters.
+      * @param only_plugins If true, only the plugin parameters are restored. If false, only the TMARKER paramters.
       */
      private void restoreParameterValues(Properties appProps, boolean only_plugins) {
         if (!only_plugins) {    
@@ -5311,6 +5323,10 @@ public final class tmarker extends javax.swing.JFrame {
             value = appProps.getProperty("OD.useLocalPlugins"); if (value!=null) { od.setUseLocalPlugins(Boolean.parseBoolean(value)); }
             value = appProps.getProperty("OD.localPluginFolder"); if (value!=null) { od.setLocalPluginFolder(value); }
             value = appProps.getProperty("BCD.useColor"); if (value!=null) { bcd.setUseColor(Boolean.parseBoolean(value)); }
+            
+            //update toolbar according to new colors
+            jToolBar1.repaint();
+            jToolBar2.repaint();
         } else {
             // Set the plugin parameters
             for (Pluggable p: plugins) {
@@ -5393,7 +5409,7 @@ public final class tmarker extends javax.swing.JFrame {
         String remoteRevision = "-1";
         try {
             WebConversation wc = new WebConversation();
-            WebResponse resp = wc.getResponse("http://www.comp-path.inf.ethz.ch/tmarker/vnuc.txt");
+            WebResponse resp = wc.getResponse("http://www.nexus.ethz.ch/content/dam/ethz/special-interest/dual/nexus-dam/software/TMARKER/vnuc.txt");
             
             // output is website with version number
             String output = resp.getText();
