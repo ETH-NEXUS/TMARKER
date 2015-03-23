@@ -1469,7 +1469,7 @@ public final class tmarker extends javax.swing.JFrame {
     }//GEN-LAST:event_jMenuItem24ActionPerformed
 
     private void jMenuItem25ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem25ActionPerformed
-        openWebsite("http://www.nexus.ethz.ch");
+        openWebsite("http://www.nexus.ethz.ch/equipment_tools/software/tmarker/Plugins.html");
     }//GEN-LAST:event_jMenuItem25ActionPerformed
 
     private void jCheckBoxMenuItem1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jCheckBoxMenuItem1ActionPerformed
@@ -5496,9 +5496,9 @@ public final class tmarker extends javax.swing.JFrame {
             } else {
                 // online plugins
                 try {
-                    plugins = PluginLoader.loadPlugins(new URL("https://people.inf.ethz.ch/peschuef/TMARKERDEV/plugins"), getTmpDir(), Thread.currentThread().getContextClassLoader());
+                    plugins = PluginLoader.loadPlugins(new URL("http://www.nexus.ethz.ch/equipment_tools/software/tmarker/Plugins.html"), getTmpDir(), Thread.currentThread().getContextClassLoader());
                 } catch (Exception e) {
-                    
+                    //e.printStackTrace();
                 }
             }
             

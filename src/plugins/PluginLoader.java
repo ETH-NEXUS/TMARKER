@@ -43,6 +43,7 @@ import org.apache.commons.io.FileUtils;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
+import tmarker.misc.Misc;
 import tmarker.tmarker;
 
 /**
@@ -71,7 +72,7 @@ public class PluginLoader {
     public static List<Pluggable> loadPlugins(URL plugURL, String tmp_dir, ClassLoader parentClassLoader) throws IOException {
         if (tmarker.DEBUG>0) Logger.getLogger(PluginLoader.class.getName()).log(Level.INFO, "  Try to load plugins from " + plugURL);
         
-        File[] plugJars = listFilesFromURL(plugURL, tmp_dir);
+        File[] plugJars = listFilesFromURL2(plugURL, tmp_dir);
         
         if (tmarker.DEBUG>0) Logger.getLogger(PluginLoader.class.getName()).log(Level.INFO, "  " + plugJars.length + " plugin(s) listed.");
         
@@ -84,6 +85,13 @@ public class PluginLoader {
         return PluginLoader.createPluggableObjects(plugClasses);
     }
     
+    /**
+     * Use this to list the jar files in an online URL, if the server supports listing of contents.
+     * @param url The URL (folder) of the jar files.
+     * @param tmp_dir The jar files are copied to the local tmp_dir to load them into TMARKER.
+     * @return A list of jar files (plugins) which can be loaded into TMARKER.
+     * @throws IOException From the function "copyURLToFile".
+     */
     public static File[] listFilesFromURL(URL url, String tmp_dir) throws IOException {
         Document doc = Jsoup.connect(url.toString()).get();
         List<File> files = new ArrayList<>();
@@ -102,6 +110,33 @@ public class PluginLoader {
         }
         File[] filearray = new File[files.size()];
         for (i=0; i<files.size(); i++) {
+            filearray[i] = files.get(i);
+        }
+        return filearray;
+    }
+    
+    /**
+     * Use this to list the jar files in an online URL, if the server does not support folder content listing.
+     * @param url The URL of a webpage which lists the jar files as links.
+     * @param tmp_dir The jar files are copied to the local tmp_dir to load them into TMARKER.
+     * @return A list of jar files (plugins) which can be loaded into TMARKER.
+     * @throws IOException From the function "copyURLToFile".
+     */
+    public static File[] listFilesFromURL2(URL url, String tmp_dir) throws IOException {
+        Document doc = Jsoup.connect(url.toString()).get();
+        List<File> files = new ArrayList<>();
+        for (Element elem : doc.select("a[href*=.jar]")) {
+            String link = elem.attr("href");
+            String fname = tmp_dir + Misc.FilePathStringtoFilename(link);
+            if (fname.toLowerCase().endsWith(".jar")) {
+                File file_tmp = new File(fname);
+                FileUtils.copyURLToFile(new URL(url.getProtocol() + "://" + url.getHost() + "/" + link), file_tmp);
+                file_tmp.deleteOnExit();
+                files.add(file_tmp);
+            }
+        }
+        File[] filearray = new File[files.size()];
+        for (int i=0; i<files.size(); i++) {
             filearray[i] = files.get(i);
         }
         return filearray;
