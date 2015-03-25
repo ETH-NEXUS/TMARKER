@@ -38,6 +38,7 @@ import java.awt.*;
 import java.awt.event.MouseWheelEvent;
 import java.awt.event.MouseWheelListener;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
 
 /**
  * <p><code>ZoomableImagePanel</code> is a generic lightweight container
@@ -154,6 +155,9 @@ public class ZoomableImagePanel extends JPanel {
     // mouse wheel support
     MouseWheelListener mouseWheelSupport = null;
     
+    // parent scroll panel
+    JScrollPane parentScrollPane = null;
+    
     /**
      * <p>Creates a new zoomable panel with a flow layout, no default image and
      * mouse wheel support.</p>
@@ -180,6 +184,15 @@ public class ZoomableImagePanel extends JPanel {
         setMouseWheelEnabled(true);
         setOpaque(false);
         setImage(image);
+    }
+    
+    /**
+     * Sets the parent JScrollPane. It can be used to determine the region of
+     * the image which is visible (can speed up scrolling).
+     * @param parent The parent JScrollPane. Can be null if there is none.
+     */
+    public void setParentScrollPane(JScrollPane parent) {
+        this.parentScrollPane = parent;
     }
     
     /**
@@ -461,7 +474,25 @@ public class ZoomableImagePanel extends JPanel {
             Graphics2D g2 = (Graphics2D) g;
             g2.setRenderingHint(RenderingHints.KEY_INTERPOLATION,
                                 RenderingHints.VALUE_INTERPOLATION_BILINEAR);
-            g.drawImage(image, image_x, image_y, cachedWidth, cachedHeight, this);
+            if (parentScrollPane == null) {
+                g.drawImage(image, image_x, image_y, cachedWidth, cachedHeight, this);
+            } else {
+                // do only draw the visible part of the image to save time
+                
+                // the coordinates of the visible rectangle in the zoomed preview image
+                Rectangle rect = parentScrollPane.getViewport().getViewRect();
+                
+                // the coordinates of the visible rectangle in the original image (source image).
+                int sx = (int)(rect.x/getZoom());
+                int sy = (int)(rect.y/getZoom());
+                int sw = (int)(rect.width/getZoom());
+                int sh = (int)(rect.height/getZoom());
+                
+                // draw the source rectangle into the destination rectangle
+                g.drawImage(image, rect.x, rect.y, rect.x + rect.width, rect.y + rect.height, sx, sy, sx+sw, sy+sh, this);
+                
+                
+            }
         }
     }
 

@@ -49,9 +49,7 @@ import java.awt.Graphics2D;
 import java.awt.RenderingHints;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
-import java.net.URISyntaxException;
 import java.net.URL;
-import java.util.jar.JarInputStream;
 import javax.swing.event.HyperlinkEvent;
 import javax.swing.event.HyperlinkListener;
 import plugins.TMARKERPluginManager;
@@ -195,8 +193,8 @@ public final class tmarker extends javax.swing.JFrame {
     private final List<TMAspot> AnnotationSkipped = new ArrayList<>();
     
     // For the zoom window
+    public static final double ZOOMFACTOR = 2;
     private final ZoomableImagePanel zipl = new ZoomableImagePanel();
-    private final double zoomfactor = 2;
     
     /**
      * The File separator (mostly slash or backslash).
@@ -1560,7 +1558,7 @@ public final class tmarker extends javax.swing.JFrame {
      * @param args the command line arguments
      */
     public static void main(String args[]) {
-        int debug = 5; // SET THIS TO 0 IF YOU COMPILE FOR PUBLIC DISTRIBUTION OTHERWISE 1-5 FOR LESS OR MORE DEBUG INFO
+        int debug = 0; // SET THIS TO 0 IF YOU COMPILE FOR PUBLIC DISTRIBUTION OTHERWISE 1-5 FOR LESS OR MORE DEBUG INFO
         
         if (args.length>0) {
             try {
@@ -3083,7 +3081,7 @@ public final class tmarker extends javax.swing.JFrame {
             
         } catch (Exception e) {
             if (DEBUG>0) {
-                e.printStackTrace();
+                logger.log(Level.SEVERE, e.getMessage(), e);
             }
         }
     } 
@@ -3093,14 +3091,14 @@ public final class tmarker extends javax.swing.JFrame {
      */
     public void showTMAspotPreview() { 
         if (jPanel11.getComponents().length<1) {
-            zip.setZoomMin(Double.MIN_VALUE);
             jPanel11.add(zip, java.awt.BorderLayout.WEST);
         }
-        zip.setImage(getVisibleTMAspot()==null?null:getVisibleTMAspot().getBufferedImage());
         if (tvp.getImage()!=null) {
             double zf = Math.min((double)jPanel11.getWidth()/(double)((BufferedImage)(tvp.getImage())).getWidth(), (double)jPanel11.getHeight()/(double)((BufferedImage)(tvp.getImage())).getHeight());
-            zip.setZoom(zf);
+            zip.setImage(tvp.getImage().getScaledInstance((int)(zf*tvp.getImage().getWidth(null)), (int)(zf*tvp.getImage().getHeight(null)), java.awt.Image.SCALE_DEFAULT));
+            zip.revalidate();
         } else {
+            zip.setImage(null);
             zipl.setImage(null);
         }
     }
@@ -3113,13 +3111,15 @@ public final class tmarker extends javax.swing.JFrame {
     public void showTMAspotLocalZoom(int x, int y) { 
         if (jScrollPane3.getViewport().getComponents().length==0) {
             zipl.setZoomMax(Double.MAX_VALUE);
+            zipl.setParentScrollPane(jScrollPane3);
             jScrollPane3.getViewport().add(zipl);
         } 
         if (zipl.getImage() != tvp.getImage()) {
             zipl.setImage(tvp.getImage());
+            zipl.setZoom(ZOOMFACTOR); // re-adjusts some sizes to the zipl and the new image.
         }
-        zipl.scrollRectToVisible(new java.awt.Rectangle((int)(zoomfactor*x-jScrollPane3.getWidth()/2.0), (int)(zoomfactor*y-jScrollPane3.getHeight()/2.0), jScrollPane3.getWidth(), jScrollPane3.getHeight()));
-        zipl.setZoom(zoomfactor);
+        
+        zipl.scrollRectToVisible(new java.awt.Rectangle((int)(ZOOMFACTOR*x-jScrollPane3.getWidth()/2.0), (int)(ZOOMFACTOR*y-jScrollPane3.getHeight()/2.0), jScrollPane3.getWidth(), jScrollPane3.getHeight()));
     }
     
     /**
@@ -3131,8 +3131,8 @@ public final class tmarker extends javax.swing.JFrame {
         zip.update(zip.getGraphics());
         Graphics2D g = (Graphics2D) zip.getGraphics();
         g.setColor(Color.RED);
-        java.awt.Rectangle rect = new java.awt.Rectangle((int)(zoomfactor*x-jScrollPane3.getWidth()/2.0), (int)(zoomfactor*y-jScrollPane3.getHeight()/2.0), jScrollPane3.getWidth(), jScrollPane3.getHeight());
-        double zf = Math.min((double)jPanel11.getWidth()/(double)((BufferedImage)(tvp.getImage())).getWidth(), (double)jPanel11.getHeight()/(double)((BufferedImage)(tvp.getImage())).getHeight()) / zoomfactor;
+        java.awt.Rectangle rect = new java.awt.Rectangle((int)(ZOOMFACTOR*x-jScrollPane3.getWidth()/2.0), (int)(ZOOMFACTOR*y-jScrollPane3.getHeight()/2.0), jScrollPane3.getWidth(), jScrollPane3.getHeight());
+        double zf = Math.min((double)jPanel11.getWidth()/(double)((BufferedImage)(tvp.getImage())).getWidth(), (double)jPanel11.getHeight()/(double)((BufferedImage)(tvp.getImage())).getHeight()) / ZOOMFACTOR;
         
         // the size of the preview image
         int img_w = (int)(zip.getZoom()*zip.getImage().getWidth(null));
@@ -3242,6 +3242,10 @@ public final class tmarker extends javax.swing.JFrame {
      * Displays the user info visible after loading the images.
      */
     public void setState_ImagesLoaded() {
+        jPanel15.setOpaque(true);
+        jPanel15.repaint();
+        jPanel11.setOpaque(true);
+        jPanel11.repaint();
         infoText = "<html><font size=\"3\" face=\"Arial\"><h2><strong>The images have been loaded successfully.</strong></h2></strong>"
                 + "Use the <i><b>View Controls</b></i> on bottom of TMARKER to zoom the image or to hide or unhide groups of found nuclei.<br><br>"
                 + "Please continue with following options:<br>"
@@ -3277,6 +3281,11 @@ public final class tmarker extends javax.swing.JFrame {
         if (tsd.isShowing()) {
             tsd.setVisible(false);
         }
+        jPanel15.setOpaque(false);
+        jPanel15.repaint();
+        jPanel11.setOpaque(false);
+        jPanel11.repaint();
+        
         
         infoText = "<html><font size=\"3\" face=\"Arial\"><h1><strong>Welcome to TMARKER</strong></h1></strong>"
                 + "TMARKER is a program for the analysis of tissue microarry (TMA) images. Example usages are <b>cell nucleus counting</b>, "
@@ -3806,8 +3815,12 @@ public final class tmarker extends javax.swing.JFrame {
         lp.add(jPanel11, java.awt.BorderLayout.CENTER);
         lp.add(jPanel15, java.awt.BorderLayout.EAST);
         jScrollPane3.getViewport().setOpaque(false);
+        jPanel11.setOpaque(false);
+        jPanel15.setOpaque(false);
         jPanel1.remove(jPanel7);
         jPanel1.add(lp, java.awt.BorderLayout.PAGE_START);
+        
+        tvp.setParentScrollPane(jScrollPane1);
         
         // jXStatusBar1
         jXStatusBar1.removeAll();
