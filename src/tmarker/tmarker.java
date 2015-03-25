@@ -178,7 +178,7 @@ public final class tmarker extends javax.swing.JFrame {
     /**
      * DEBUG: 0 for little output information, 5 for much output information. You can start TMARKER with the option -d 0 or -d 5.
      */
-    public static int DEBUG = 0;
+    public static int DEBUG = 5;
     
     private JDialog aboutBox = null;
     private final OptionDialog od = new OptionDialog(this, false);
@@ -1560,7 +1560,7 @@ public final class tmarker extends javax.swing.JFrame {
      * @param args the command line arguments
      */
     public static void main(String args[]) {
-        int debug = 5; // SET THIS TO 0 IF YOU COMPILE FOR PUBLIC DISTRIBUTION OTHERWISE 1-5 FOR LESS OR MORE DEBUG INFO
+        int debug = 0; // SET THIS TO 0 IF YOU COMPILE FOR PUBLIC DISTRIBUTION OTHERWISE 1-5 FOR LESS OR MORE DEBUG INFO
         
         if (args.length>0) {
             try {
@@ -3133,7 +3133,28 @@ public final class tmarker extends javax.swing.JFrame {
         g.setColor(Color.RED);
         java.awt.Rectangle rect = new java.awt.Rectangle((int)(zoomfactor*x-jScrollPane3.getWidth()/2.0), (int)(zoomfactor*y-jScrollPane3.getHeight()/2.0), jScrollPane3.getWidth(), jScrollPane3.getHeight());
         double zf = Math.min((double)jPanel11.getWidth()/(double)((BufferedImage)(tvp.getImage())).getWidth(), (double)jPanel11.getHeight()/(double)((BufferedImage)(tvp.getImage())).getHeight()) / zoomfactor;
-        g.drawRect((int)(zf*rect.x), (int)(zf*rect.y), (int)(zf*rect.width), (int)(zf*rect.height));
+        
+        // the size of the preview image
+        int img_w = (int)(zip.getZoom()*zip.getImage().getWidth(null));
+        int img_h = (int)(zip.getZoom()*zip.getImage().getHeight(null));
+        
+        // the offset of the preview image in its panel
+        int offset_x = (jPanel11.getWidth() - img_w)/2;
+        int offset_y = (jPanel11.getHeight() - img_h)/2;
+        
+        // the red rectangle must at least start in the offset
+        int r_x = Math.max(offset_x, (int)(offset_x + zf*rect.x));
+        int r_y = Math.max(offset_y, (int)(offset_y + zf*rect.y));
+        
+        // the red rectangle's size
+        int r_w = (int)(zf*rect.width);
+        int r_h = (int)(zf*rect.height);
+        
+        // the red rectangle must not go beyond the preview image.
+        r_x = Math.min(r_x, offset_x + img_w - r_w - 1);
+        r_y = Math.min(r_y, offset_y + img_h - r_h - 1);
+        
+        g.drawRect(r_x, r_y, r_w, r_h);
         g.dispose();
     }
     

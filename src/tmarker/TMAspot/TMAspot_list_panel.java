@@ -1291,6 +1291,11 @@ public class TMAspot_list_panel extends javax.swing.JPanel {
             if (I==null) {
                 I = ts.getBufferedImage();
             }
+            if (I==null) { // if I still is null, since the image could not be loaded..
+                if (tmarker.DEBUG==0) {
+                    return;
+                }
+            }
             BufferedImage T;
             T = Scalr.resize(I, Method.SPEED, HEIGHT_UNEXPANDED-2);
             jLabel6.setIcon(new ImageIcon(T));

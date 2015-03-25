@@ -6,12 +6,17 @@ package tmarker.misc;
 
 import com.sun.media.jai.codec.ByteArraySeekableStream;
 import com.sun.media.jai.codec.ImageCodec;
+import com.sun.media.jai.codec.ImageDecodeParam;
 import com.sun.media.jai.codec.ImageDecoder;
 import com.sun.media.jai.codec.SeekableStream;
+import com.sun.media.jai.codec.TIFFDecodeParam;
+import com.sun.media.jai.codec.TIFFEncodeParam;
+import com.sun.media.jai.codec.TIFFField;
 import ij.gui.PolygonRoi;
 import ij.gui.Roi;
 import java.awt.Color;
 import java.awt.Graphics;
+import java.awt.Graphics2D;
 import java.awt.GraphicsConfiguration;
 import java.awt.GraphicsDevice;
 import java.awt.GraphicsEnvironment;
@@ -39,8 +44,13 @@ import java.util.List;
 import java.util.Random;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.imageio.IIOImage;
 import javax.imageio.ImageIO;
+import javax.imageio.ImageReader;
+import javax.imageio.metadata.IIOMetadata;
 import javax.media.jai.Histogram;
+import javax.media.jai.JAI;
+import javax.media.jai.NullOpImage;
 import javax.media.jai.PlanarImage;
 import javax.media.jai.ROI;
 import javax.swing.AbstractButton;
@@ -1081,47 +1091,10 @@ public class Misc {
     }
     
     /**
-     * Load an image with standard extension and also TIF.
-     * @param path The full path of the image file.
-     * @return The read image.
-     * @throws Exception If the file is not readable.
-     */
-    public static Image loadImage(String path) throws Exception {
-        FileInputStream in = new FileInputStream(path);
-        FileChannel channel = in.getChannel();
-        ByteBuffer buffer = ByteBuffer.allocate((int)channel.size());
-        channel.read(buffer);
-        Image image;
-        try { 
-            image = load(buffer.array());
-        } catch (Exception e) {
-            image=null;
-        }
-        return image;
-    }
-    
-    /**
-     * Load an image with standard extension and also TIF.
-     * @param data The data stream of the image file.
-     * @return The image of the data stream.
-     * @throws Exception If data are not readable.
-     */
-    public static Image load(byte[] data) throws Exception {
-        Image image = null;
-        SeekableStream stream = new ByteArraySeekableStream(data);
-        String[] names = ImageCodec.getDecoderNames(stream);
-        ImageDecoder dec = ImageCodec.createImageDecoder(names[0], stream, null);
-        RenderedImage im = dec.decodeAsRenderedImage();
-        image = PlanarImage.wrapRenderedImage(im).getAsBufferedImage();
-        return image;
-    }
-    
-    /**
      * A fast version to load a BufferedImage from a file.
      * @param file The image location on harddisk.
      * @return A new BufferedImage.
      */
-    
     public static BufferedImage loadImageFast(String file) {
       try {
         FileInputStream in = new FileInputStream(file);
@@ -1137,8 +1110,16 @@ public class Misc {
         return argbImg;*/
       }
       catch (Exception e) {
-        java.util.logging.Logger.getLogger(Misc.class.getName()).log(java.util.logging.Level.WARNING, "Error loading images: " + e);
-        return null;
+        if (tmarker.DEBUG>0) {
+            Logger.getLogger(Misc.class.getName()).log(Level.SEVERE, null, e);
+            e.printStackTrace();
+        }
+          try {
+              return ImageIO.read(new File(file));
+          } catch (IOException ex) {
+              Logger.getLogger(Misc.class.getName()).log(Level.SEVERE, null, ex);
+              return null;
+          }
       }
     }
     
@@ -1152,11 +1133,11 @@ public class Misc {
         Image image = null;
         SeekableStream stream = new ByteArraySeekableStream(data);
         String[] names = ImageCodec.getDecoderNames(stream);
-        ImageDecoder dec
-                = ImageCodec.createImageDecoder(names[0], stream, null);
+        ImageDecoder dec = ImageCodec.createImageDecoder(names[0], stream, null);
         RenderedImage im = dec.decodeAsRenderedImage();
         image = PlanarImage.wrapRenderedImage(im).getAsBufferedImage();
         return (BufferedImage) image;
+        
     }
 
     /**
