@@ -1560,7 +1560,7 @@ public final class tmarker extends javax.swing.JFrame {
      * @param args the command line arguments
      */
     public static void main(String args[]) {
-        int debug = 0; // SET THIS TO 0 IF YOU COMPILE FOR PUBLIC DISTRIBUTION OTHERWISE 1-5 FOR LESS OR MORE DEBUG INFO
+        int debug = 5; // SET THIS TO 0 IF YOU COMPILE FOR PUBLIC DISTRIBUTION OTHERWISE 1-5 FOR LESS OR MORE DEBUG INFO
         
         if (args.length>0) {
             try {
@@ -3139,7 +3139,7 @@ public final class tmarker extends javax.swing.JFrame {
         int img_h = (int)(zip.getZoom()*zip.getImage().getHeight(null));
         
         // the offset of the preview image in its panel
-        int offset_x = (jPanel11.getWidth() - img_w)/2;
+        int offset_x = 0; //(jPanel11.getWidth() - img_w)/2; // offset is 0 in horizontal direction (alignment is left).
         int offset_y = (jPanel11.getHeight() - img_h)/2;
         
         // the red rectangle must at least start in the offset
