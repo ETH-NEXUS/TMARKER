@@ -255,7 +255,34 @@ public class Hough_Circles {
      * @param array The array to be written.
      * @param filename The filename.
      */
-    private static void writeCSV(double[][] array, String filename) {
+    static void writeCSV(double[][] array, String filename) {
+        try {
+            File file = new File(filename);
+            file.deleteOnExit();
+
+            String out = "";
+            for (int i = 0; i < array.length; i++) {
+                for (int j = 0; j < array[i].length; j++) {
+                    out += array[i][j] + ";";
+                }
+                out += "\n";
+            }
+
+            FileWriter fw = new FileWriter(file);
+            fw.write(out);
+            fw.close();
+        } catch (IOException ex) {
+            Logger.getLogger(Hough_Circles.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
+    
+    /**
+     * For Debugging: Write a int[][] into a .csv file
+     *
+     * @param array The array to be written.
+     * @param filename The filename.
+     */
+    static void writeCSV(int[][] array, String filename) {
         try {
             File file = new File(filename);
             file.deleteOnExit();
@@ -299,10 +326,13 @@ public class Hough_Circles {
                         // add this center
                         centers.add(new Point(i, j));
                         // clear neighbors
+                        if (i == 515 || j == 515) {
+                            int z = 4;
+                        }
                         for (int m = i - r_half; m <= i + r_half; m++) {
                             if (m >= 0 && m < img.length) {
                                 for (int n = j - r_half; n <= j + r_half; n++) {
-                                    if (n >= 0 && m < img[i].length) {
+                                    if (n >= 0 && n < img[i].length) {
                                         img[m][n] = 0;
                                     }
                                 }

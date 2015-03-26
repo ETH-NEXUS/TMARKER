@@ -1558,7 +1558,7 @@ public final class tmarker extends javax.swing.JFrame {
      * @param args the command line arguments
      */
     public static void main(String args[]) {
-        int debug = 0; // SET THIS TO 0 IF YOU COMPILE FOR PUBLIC DISTRIBUTION OTHERWISE 1-5 FOR LESS OR MORE DEBUG INFO
+        int debug = 5; // SET THIS TO 0 IF YOU COMPILE FOR PUBLIC DISTRIBUTION OTHERWISE 1-5 FOR LESS OR MORE DEBUG INFO
         
         if (args.length>0) {
             try {
@@ -5402,8 +5402,8 @@ public final class tmarker extends javax.swing.JFrame {
         od.setLabelsShape_Est(LABELS_SHAPE_CROSS);
         od.setAutomaticESGSConversion(true);
         od.setUseParallelProgramming(true);
-        od.setUseLocalPlugins(false);
         od.setLocalPluginFolder(System.getProperty("user.dir") + File.separator + "plugins");
+        od.setUseLocalPlugins(false);
         
         bcd.setUseColor(true);
         

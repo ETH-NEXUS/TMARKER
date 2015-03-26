@@ -11,9 +11,11 @@ import java.awt.Color;
 import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.Graphics;
+import java.awt.Graphics2D;
 import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.awt.image.BufferedImage;
+import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -23,8 +25,11 @@ import java.util.logging.Logger;
 import javax.imageio.ImageIO;
 import javax.swing.Icon;
 import javax.swing.ImageIcon;
+import javax.swing.table.DefaultTableModel;
+import javax.swing.table.TableModel;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
+import org.jfree.chart.ChartUtilities;
 import org.jfree.chart.JFreeChart;
 import org.jfree.chart.plot.PlotOrientation;
 import org.jfree.data.xy.DefaultXYDataset;
@@ -50,6 +55,12 @@ public class CISH extends javax.swing.JFrame implements TMARKERPluginInterface.P
     PluginManager manager = null;
     private static final String PLUGINNAME = "CISH";
     
+    /**
+     * 5 classes of Colors for CISH Points
+     */
+    final static int[][] COLORS = new int[][]{new int[] {255, 0, 0}, new int[] {0, 0, 0}, new int[] {230, 230, 230}, new int[] {0, 0, 255}, new int[] {0, 255, 0}};
+
+    
     LibSVM classifier = null;
     Instances dataset = null;
     StringToIntConverter stic = new StringToIntConverter();
@@ -68,6 +79,7 @@ public class CISH extends javax.swing.JFrame implements TMARKERPluginInterface.P
         } catch (IOException ex) {
             Logger.getLogger(CISH.class.getName()).log(Level.SEVERE, null, ex);
         }
+        initComponents2();
         drawRatioPlot();
     }
     
@@ -93,6 +105,12 @@ public class CISH extends javax.swing.JFrame implements TMARKERPluginInterface.P
         jPanel1 = new javax.swing.JPanel();
         jCheckBox1 = new javax.swing.JCheckBox();
         jCheckBox2 = new javax.swing.JCheckBox();
+        jScrollPane1 = new javax.swing.JScrollPane();
+        jXTable1 = new org.jdesktop.swingx.JXTable();
+        jPanel2 = new javax.swing.JPanel();
+        jLabel3 = new javax.swing.JLabel();
+        jLabel4 = new javax.swing.JLabel();
+        jLabel5 = new javax.swing.JLabel();
 
         setTitle("CISH Analysis");
         getContentPane().setLayout(new java.awt.GridBagLayout());
@@ -105,8 +123,8 @@ public class CISH extends javax.swing.JFrame implements TMARKERPluginInterface.P
         });
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 10;
-        gridBagConstraints.gridwidth = 2;
+        gridBagConstraints.gridy = 6;
+        gridBagConstraints.gridwidth = java.awt.GridBagConstraints.REMAINDER;
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
         gridBagConstraints.insets = new java.awt.Insets(5, 5, 0, 5);
@@ -117,8 +135,9 @@ public class CISH extends javax.swing.JFrame implements TMARKERPluginInterface.P
         jTextField1.setText("3");
         jTextField1.setEnabled(false);
         gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 1;
-        gridBagConstraints.gridy = 3;
+        gridBagConstraints.gridx = 2;
+        gridBagConstraints.gridy = 1;
+        gridBagConstraints.gridwidth = java.awt.GridBagConstraints.REMAINDER;
         gridBagConstraints.ipadx = 32;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
         gridBagConstraints.insets = new java.awt.Insets(0, 0, 0, 5);
@@ -128,8 +147,9 @@ public class CISH extends javax.swing.JFrame implements TMARKERPluginInterface.P
         jTextField2.setHorizontalAlignment(javax.swing.JTextField.TRAILING);
         jTextField2.setText("300");
         gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 1;
-        gridBagConstraints.gridy = 5;
+        gridBagConstraints.gridx = 2;
+        gridBagConstraints.gridy = 3;
+        gridBagConstraints.gridwidth = java.awt.GridBagConstraints.REMAINDER;
         gridBagConstraints.ipadx = 32;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
         gridBagConstraints.insets = new java.awt.Insets(0, 0, 0, 5);
@@ -156,7 +176,8 @@ public class CISH extends javax.swing.JFrame implements TMARKERPluginInterface.P
         });
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 3;
+        gridBagConstraints.gridy = 1;
+        gridBagConstraints.gridwidth = 2;
         gridBagConstraints.ipadx = 164;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
         gridBagConstraints.insets = new java.awt.Insets(0, 5, 0, 0);
@@ -182,7 +203,8 @@ public class CISH extends javax.swing.JFrame implements TMARKERPluginInterface.P
         });
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 5;
+        gridBagConstraints.gridy = 3;
+        gridBagConstraints.gridwidth = 2;
         gridBagConstraints.ipadx = 164;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
         gridBagConstraints.insets = new java.awt.Insets(0, 5, 0, 0);
@@ -191,8 +213,8 @@ public class CISH extends javax.swing.JFrame implements TMARKERPluginInterface.P
         jLabel1.setText("Point / Signal Radius: (at the moment only trained and tested on points with radius 3)");
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 2;
-        gridBagConstraints.gridwidth = 2;
+        gridBagConstraints.gridy = 0;
+        gridBagConstraints.gridwidth = java.awt.GridBagConstraints.REMAINDER;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
         gridBagConstraints.insets = new java.awt.Insets(5, 5, 0, 5);
         getContentPane().add(jLabel1, gridBagConstraints);
@@ -200,8 +222,8 @@ public class CISH extends javax.swing.JFrame implements TMARKERPluginInterface.P
         jLabel2.setText("Number Random Points for Local Ratio:");
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 4;
-        gridBagConstraints.gridwidth = 2;
+        gridBagConstraints.gridy = 2;
+        gridBagConstraints.gridwidth = java.awt.GridBagConstraints.REMAINDER;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
         gridBagConstraints.insets = new java.awt.Insets(5, 5, 0, 5);
         getContentPane().add(jLabel2, gridBagConstraints);
@@ -209,7 +231,7 @@ public class CISH extends javax.swing.JFrame implements TMARKERPluginInterface.P
         jPanel1.setLayout(new java.awt.BorderLayout());
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 11;
+        gridBagConstraints.gridy = 8;
         gridBagConstraints.gridwidth = java.awt.GridBagConstraints.REMAINDER;
         gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
         gridBagConstraints.insets = new java.awt.Insets(10, 0, 5, 5);
@@ -224,9 +246,8 @@ public class CISH extends javax.swing.JFrame implements TMARKERPluginInterface.P
         });
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 9;
-        gridBagConstraints.gridwidth = 2;
-        gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
+        gridBagConstraints.gridy = 5;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
         gridBagConstraints.insets = new java.awt.Insets(5, 5, 0, 0);
         getContentPane().add(jCheckBox1, gridBagConstraints);
 
@@ -234,11 +255,77 @@ public class CISH extends javax.swing.JFrame implements TMARKERPluginInterface.P
         jCheckBox2.setText("Selected to find black points, instead of white points.");
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 6;
-        gridBagConstraints.gridwidth = 2;
+        gridBagConstraints.gridy = 4;
+        gridBagConstraints.gridwidth = java.awt.GridBagConstraints.REMAINDER;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
         gridBagConstraints.insets = new java.awt.Insets(5, 5, 0, 0);
         getContentPane().add(jCheckBox2, gridBagConstraints);
+
+        jScrollPane1.setPreferredSize(new java.awt.Dimension(377, 150));
+
+        jXTable1.setModel(new javax.swing.table.DefaultTableModel(
+            new Object [][] {
+
+            },
+            new String [] {
+                "Image", "# cep", "# gene", "global ratio", "local ratio"
+            }
+        ) {
+            Class[] types = new Class [] {
+                java.lang.String.class, java.lang.Integer.class, java.lang.Integer.class, java.lang.Double.class, java.lang.Double.class
+            };
+            boolean[] canEdit = new boolean [] {
+                false, false, false, false, false
+            };
+
+            public Class getColumnClass(int columnIndex) {
+                return types [columnIndex];
+            }
+
+            public boolean isCellEditable(int rowIndex, int columnIndex) {
+                return canEdit [columnIndex];
+            }
+        });
+        jScrollPane1.setViewportView(jXTable1);
+
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 7;
+        gridBagConstraints.gridwidth = java.awt.GridBagConstraints.REMAINDER;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
+        gridBagConstraints.insets = new java.awt.Insets(10, 5, 5, 5);
+        getContentPane().add(jScrollPane1, gridBagConstraints);
+
+        jPanel2.setLayout(new java.awt.FlowLayout(java.awt.FlowLayout.LEFT, 10, 5));
+
+        jLabel3.setText("centromer");
+
+        binding = org.jdesktop.beansbinding.Bindings.createAutoBinding(org.jdesktop.beansbinding.AutoBinding.UpdateStrategy.READ, jCheckBox1, org.jdesktop.beansbinding.ELProperty.create("${selected}"), jLabel3, org.jdesktop.beansbinding.BeanProperty.create("enabled"), "jLabel3Binding");
+        bindingGroup.addBinding(binding);
+
+        jPanel2.add(jLabel3);
+
+        jLabel4.setText("gene");
+
+        binding = org.jdesktop.beansbinding.Bindings.createAutoBinding(org.jdesktop.beansbinding.AutoBinding.UpdateStrategy.READ, jCheckBox1, org.jdesktop.beansbinding.ELProperty.create("${selected}"), jLabel4, org.jdesktop.beansbinding.BeanProperty.create("enabled"), "jLabel4Binding");
+        bindingGroup.addBinding(binding);
+
+        jPanel2.add(jLabel4);
+
+        jLabel5.setText("both");
+
+        binding = org.jdesktop.beansbinding.Bindings.createAutoBinding(org.jdesktop.beansbinding.AutoBinding.UpdateStrategy.READ, jCheckBox1, org.jdesktop.beansbinding.ELProperty.create("${selected}"), jLabel5, org.jdesktop.beansbinding.BeanProperty.create("enabled"), "jLabel5Binding");
+        bindingGroup.addBinding(binding);
+
+        jPanel2.add(jLabel5);
+
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 1;
+        gridBagConstraints.gridy = 5;
+        gridBagConstraints.gridwidth = java.awt.GridBagConstraints.REMAINDER;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
+        gridBagConstraints.insets = new java.awt.Insets(4, 5, 0, 0);
+        getContentPane().add(jPanel2, gridBagConstraints);
 
         bindingGroup.bind();
 
@@ -306,11 +393,17 @@ public class CISH extends javax.swing.JFrame implements TMARKERPluginInterface.P
     private javax.swing.JCheckBox jCheckBox2;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
+    private javax.swing.JLabel jLabel3;
+    private javax.swing.JLabel jLabel4;
+    private javax.swing.JLabel jLabel5;
     private javax.swing.JPanel jPanel1;
+    private javax.swing.JPanel jPanel2;
+    private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JSlider jSlider1;
     private javax.swing.JSlider jSlider2;
     private javax.swing.JTextField jTextField1;
     private javax.swing.JTextField jTextField2;
+    private org.jdesktop.swingx.JXTable jXTable1;
     private org.jdesktop.beansbinding.BindingGroup bindingGroup;
     // End of variables declaration//GEN-END:variables
 
@@ -375,7 +468,83 @@ public class CISH extends javax.swing.JFrame implements TMARKERPluginInterface.P
 
     @Override
     public String getHTMLReport(String HTMLFolderName) {
-        return "";
+        String output = "<html>";
+        String lb = "\n";
+        
+        if (!tss.isEmpty()) {
+            
+            // Save the parameters
+            output += "<table><tr>" + lb
+                + "  <td colspan=2><i><u>CISH Parameters</u></i></td>" + lb
+                + " </tr>" + lb
+                + " <tr>" + lb
+                + "  <td><b>Point Radius:</b></td>" + lb
+                + "  <td>" + getParam_PointSignalRadius() + "</td>" + lb
+                + " </tr>" + lb
+                + " <tr>" + lb
+                + "  <td><b>Number of Random Points for Local Ratio:</b></td>" + lb
+                + "  <td>" + getParam_nPts()+ "</td>" + lb
+                + " </tr>" + lb
+                + " <tr>" + lb
+                + "  <td><b>Polarity:</b></td>" + lb
+                + "  <td>" + (getParam_darkpoints()? "Detect Dark Points" : "Detect Light Points") + "</td>" + lb
+                + " </tr>" + lb;
+            output += "</table><br>" + lb;
+   
+            // Save the CISH Table
+            output += "<table>" + lb
+                    + "  <tr>" + lb;
+            for (int i = 0; i<jXTable1.getColumnCount(); i++) {
+                output += "    <th>" + jXTable1.getColumnName(i) + "</th>" + lb;
+            }
+            output += "  </tr>" + lb;
+            for (int i = 0; i<jXTable1.getRowCount(); i++) {
+                output += "  <tr>" + lb;
+                for (int j = 0; j<jXTable1.getColumnCount(); j++) {
+                    output += "    <td>" + jXTable1.getStringAt(i, j) + "</td>" + lb;
+                }
+                output += "  </tr>" + lb;
+            }
+            output += "</table>" + lb;                    
+            
+            // Save the CISH plot image
+            ChartPanel chartpanel = (ChartPanel) jPanel1.getComponent(0);
+            if (chartpanel != null) {
+                File file_tmp = new File(HTMLFolderName + "CISHPlot.png");
+                try {
+                    ChartUtilities.saveChartAsPNG(file_tmp, chartpanel.getChart(), chartpanel.getWidth(), chartpanel.getHeight());
+                } catch (IOException ex) {
+                    Logger.getLogger(CISH.class.getName()).log(Level.SEVERE, null, ex);
+                }
+                output += "<br><br>" + lb;
+                output += "<img src=\"" + HTMLFolderName + "CISHPlot.png\" alt=\"Global vs. Local Ratio Plot\"><br><br>" + lb;
+            }
+            
+            // Save the TMA spot images with CISH marks
+            for (TMAspot ts: tss) {
+                try {
+                    File file_tmp = new File(HTMLFolderName + ts.getName() + "_CISH.jpg");
+                    BufferedImage bi = ts.getBufferedImage();
+                    drawInformationPreNuclei(ts, bi.createGraphics(), 1, 0, 0, bi.getWidth(), bi.getHeight());
+                    ImageIO.write(bi, "jpg", file_tmp);
+                    output += "<a href=\"" + HTMLFolderName + ts.getName() + "_CISH.jpg\">"
+                            + "<img src=\"" + HTMLFolderName + ts.getName() + "_CISH.jpg\" alt=\"" + ts.getName() + " CISH Points\" width=\"100\">"
+                            + "</a>&nbsp;&nbsp;&nbsp;" + lb;
+                } catch (IOException ex) {
+                    Logger.getLogger(CISH.class.getName()).log(Level.SEVERE, null, ex);
+                }
+            }
+            
+            output += "<br>"
+                    + "<font color=\"" + Misc.Color2HTML(COLORS[0]) + "\"><b>centromer</b></font> "
+                    + "<font color=\"" + Misc.Color2HTML(COLORS[1]) + "\"><b>gene</b></font> "
+                    + "<font color=\"" + Misc.Color2HTML(COLORS[4]) + "\"><b>both</b></font> "
+                    + "<br><br>" + lb;
+        }
+        
+        output += "</html>";
+        
+        return output;
     }
 
     @Override
@@ -408,6 +577,29 @@ public class CISH extends javax.swing.JFrame implements TMARKERPluginInterface.P
     @Override
     public BufferedImage showAlternativeImage(TMAspot ts) {
         return null;
+    }
+    
+    /**
+     * Inits some icons
+     */
+    private void initComponents2() {
+        BufferedImage bi = new BufferedImage(8, 8, BufferedImage.TYPE_INT_ARGB);
+        Graphics2D g = bi.createGraphics();
+        g.setColor(new Color(COLORS[0][0], COLORS[0][1], COLORS[0][2]));
+        g.drawRect(0, 0, 7, 7);
+        jLabel3.setIcon(new ImageIcon(bi));
+        
+        bi = new BufferedImage(8, 8, BufferedImage.TYPE_INT_ARGB);
+        g = bi.createGraphics();
+        g.setColor(new Color(COLORS[1][0], COLORS[1][1], COLORS[1][2]));
+        g.drawRect(0, 0, 7, 7);
+        jLabel4.setIcon(new ImageIcon(bi));
+        
+        bi = new BufferedImage(8, 8, BufferedImage.TYPE_INT_ARGB);
+        g = bi.createGraphics();
+        g.setColor(new Color(COLORS[4][0], COLORS[4][1], COLORS[4][2]));
+        g.drawRect(0, 0, 7, 7);
+        jLabel5.setIcon(new ImageIcon(bi));
     }
     
     /**
@@ -470,11 +662,33 @@ public class CISH extends javax.swing.JFrame implements TMARKERPluginInterface.P
         
         if (!tss.isEmpty()) { 
             CISH_Fork.doCISH_Fork((TMARKERPluginManager) manager, this.tss, getParam_PointSignalRadius(), getParam_nPts(), getParam_darkpoints(), gRatios, lRatios, ps, classifier, dataset);
+            updateCISHTable();
             drawRatioPlot();
             manager.repaintVisibleTMAspot();
         }
         
         this.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+    }
+    
+    void updateCISHTable() {
+        
+        DefaultTableModel tm =  (DefaultTableModel) jXTable1.getModel();
+        tm.setRowCount(0);
+        for (int i=0; i<tss.size(); i++) {
+            int n_cep = 0;
+            int n_gene = 0;
+            for (int[] cp: ps[i]) {
+                if (cp[2] == COLORS[0][0] && cp[3] == COLORS[0][1] && cp[4] == COLORS[0][2]) {
+                    n_cep++;
+                } else if (cp[2] == COLORS[1][0] && cp[3] == COLORS[1][1] && cp[4] == COLORS[1][2]) {
+                    n_gene++;
+                } else if (cp[2] == COLORS[4][0] && cp[3] == COLORS[4][1] && cp[4] == COLORS[4][2]) {
+                    n_cep++;
+                    n_gene++;
+                }
+            }
+            tm.addRow(new Object[]{tss.get(i).getName(), n_cep, n_gene, gRatios[i], lRatios[i]});
+        }
     }
     
     /**
@@ -545,10 +759,9 @@ public class CISH extends javax.swing.JFrame implements TMARKERPluginInterface.P
     }
     
     static List<List> getPoints(ImageProcessor ip, Point[] circles, int r, Classifier classifier, Instances dataset) {
-        int[][] colors = new int[][]{new int[] {255, 0, 0}, new int[] {0, 0, 0}, new int[] {230, 230, 230}, new int[] {0, 0, 255}, new int[] {0, 255, 0}}; // 5 classes of color
-        
         List<int[]> ceps = new ArrayList<>();
         List<int[]> genes = new ArrayList<>();
+        List<int[]> both = new ArrayList<>();
         
         int x, y;
         Instance inst;
@@ -573,11 +786,11 @@ public class CISH extends javax.swing.JFrame implements TMARKERPluginInterface.P
                 inst = new Instance(1, attValues);
                 inst.setDataset(dataset);
                 c = classifier.classifyInstance(inst);
-                int[] entry = Misc.concat(new int[]{x, y}, colors[(int)c]);
+                int[] entry = Misc.concat(new int[]{x, y}, COLORS[(int)c]);
                 switch ((int) c) {
                     case 0: ceps.add(entry); break;
                     case 1: genes.add(entry); break;
-                    case 4: ceps.add(entry); genes.add(entry); break;
+                    case 4: both.add(entry); break;
                     default: break;
                 }
             } catch (Exception ex) {
@@ -588,6 +801,7 @@ public class CISH extends javax.swing.JFrame implements TMARKERPluginInterface.P
         List<List> out = new ArrayList<>();
         out.add(ceps);
         out.add(genes);
+        out.add(both);
         return out;
     }
 

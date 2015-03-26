@@ -4,9 +4,6 @@
  */
 package cish;
 
-import MATLABCISH.MCISH;
-import com.mathworks.toolbox.javabuilder.MWArray;
-import com.mathworks.toolbox.javabuilder.MWException;
 import ij.ImagePlus;
 import java.awt.Point;
 import java.util.ArrayList;
@@ -103,7 +100,7 @@ public class CISH_Fork extends RecursiveAction {
         }
     }
     
-    
+    /*
     protected void computeDirectly2() {
         try {
             MCISH mc = new MCISH();
@@ -165,7 +162,7 @@ public class CISH_Fork extends RecursiveAction {
         } catch (Exception ex) {
             Logger.getLogger(CISH_Fork.class.getName()).log(Level.SEVERE, null, ex);
         }
-    }
+    }*/
     
     protected void computeDirectly() {
         try {
@@ -194,22 +191,25 @@ public class CISH_Fork extends RecursiveAction {
                 progress_container[0]++;
                 tpm.setProgressbar((int)(100.0*(progress_container[0])/(8*tss.size())));
                 
-                // get final classified points
-                int[][] all_ps = new int[cepsgenes.get(0).size() + cepsgenes.get(1).size()][5];
+                // get final classified points as int[][]
+                int[][] all_ps = new int[cepsgenes.get(0).size() + cepsgenes.get(1).size() + cepsgenes.get(2).size()][5];
                 for (int j = 0; j<cepsgenes.get(0).size(); j++) {
                     all_ps[j] = (int[]) cepsgenes.get(0).get(j);
                 }
                 for (int j = 0; j<cepsgenes.get(1).size(); j++) {
                     all_ps[cepsgenes.get(0).size()+j] = (int[]) cepsgenes.get(1).get(j);
                 }
+                for (int j = 0; j<cepsgenes.get(2).size(); j++) {
+                    all_ps[cepsgenes.get(0).size()+cepsgenes.get(1).size()+j] = (int[]) cepsgenes.get(2).get(j);
+                }
                 ps[i] = all_ps;
                 progress_container[0]++;
                 tpm.setProgressbar((int)(100.0*(progress_container[0])/(8*tss.size())));
                 
                 // get global ratio
-                if (!cepsgenes.get(0).isEmpty()) {
+                if (!cepsgenes.get(0).isEmpty() || !cepsgenes.get(2).isEmpty()) {
                     gRatios[i] = globalRatio(cepsgenes);
-                } else if (!cepsgenes.get(1).isEmpty()) {
+                } else if (!cepsgenes.get(1).isEmpty() || !cepsgenes.get(2).isEmpty()) {
                     gRatios[i] = Double.MAX_VALUE;
                 } else {
                     gRatios[i] = 1;
@@ -219,9 +219,9 @@ public class CISH_Fork extends RecursiveAction {
                 
                 // get local ratio
                 int local_radius = 20*psr;
-                if (!cepsgenes.get(0).isEmpty()) {
+                if (!cepsgenes.get(0).isEmpty() || !cepsgenes.get(2).isEmpty()) {
                     lRatios[i] = localRatio(ip.getWidth(), ip.getHeight(), cepsgenes, local_radius, nPts);
-                } else if (!cepsgenes.get(1).isEmpty()) {
+                } else if (!cepsgenes.get(1).isEmpty() || !cepsgenes.get(2).isEmpty()) {
                     lRatios[i] = Double.MAX_VALUE;
                 } else {
                     lRatios[i] = 1;
@@ -266,7 +266,7 @@ public class CISH_Fork extends RecursiveAction {
      * @return The global ceps to genes ratio.
      */
     private double globalRatio(List<List> cepsgenes) {
-        return 1.0 * cepsgenes.get(1).size() / cepsgenes.get(0).size();
+        return 1.0 * (cepsgenes.get(1).size()+cepsgenes.get(2).size()) / (cepsgenes.get(0).size()+cepsgenes.get(2).size());
     }
     
     /**
@@ -281,23 +281,43 @@ public class CISH_Fork extends RecursiveAction {
         
         Random rand = new Random(1);
         
-        if (cepsgenes.isEmpty() || cepsgenes.get(0).isEmpty()) {
+        if (cepsgenes.isEmpty() || (cepsgenes.get(0).isEmpty()&&cepsgenes.get(2).isEmpty())) {
             return 0;
         }
         
         // pre-compute the distance of all ceps to all ceps and all genes
         int n_ceps = cepsgenes.get(0).size();
         int n_genes = cepsgenes.get(1).size();
-        double[][] distances = new double[n_ceps][n_ceps + n_genes];
+        int n_both = cepsgenes.get(2).size();
+        double[][] distances = new double[n_ceps + n_both][n_ceps + n_both + n_genes];
         for (int i=0; i<n_ceps; i++) {
             int[] cep1 = (int[]) cepsgenes.get(0).get(i);
             for (int j=0; j<n_ceps; j++) {
                 int[] cep2 = (int[]) cepsgenes.get(0).get(j);
                 distances[i][j] = dist(cep1[0], cep1[1], cep2[0], cep2[1]);
             }
+            for (int j=0; j<n_both; j++) {
+                int[] cep2 = (int[]) cepsgenes.get(2).get(j);
+                distances[i][n_ceps+j] = dist(cep1[0], cep1[1], cep2[0], cep2[1]);
+            }
             for (int j=0; j<n_genes; j++) {
                 int[] gene = (int[]) cepsgenes.get(1).get(j);
-                distances[i][n_ceps+j] = dist(cep1[0], cep1[1], gene[0], gene[1]);
+                distances[i][n_ceps+n_both+j] = dist(cep1[0], cep1[1], gene[0], gene[1]);
+            }
+        }
+        for (int i=0; i<n_both; i++) {
+            int[] cep1 = (int[]) cepsgenes.get(2).get(i);
+            for (int j=0; j<n_ceps; j++) {
+                int[] cep2 = (int[]) cepsgenes.get(0).get(j);
+                distances[n_ceps+i][j] = dist(cep1[0], cep1[1], cep2[0], cep2[1]);
+            }
+            for (int j=0; j<n_both; j++) {
+                int[] cep2 = (int[]) cepsgenes.get(2).get(j);
+                distances[n_ceps+i][n_ceps+j] = dist(cep1[0], cep1[1], cep2[0], cep2[1]);
+            }
+            for (int j=0; j<n_genes; j++) {
+                int[] gene = (int[]) cepsgenes.get(1).get(j);
+                distances[n_ceps+i][n_ceps+n_both+j] = dist(cep1[0], cep1[1], gene[0], gene[1]);
             }
         }
 
@@ -309,11 +329,11 @@ public class CISH_Fork extends RecursiveAction {
             // find a random point in the image
             int[] xyrand = cirrdnPt(width/2, height/2, (width+height)/5, rand);
             
-            // find the closest cep to that point
+            // find the closest cep/both to that point
             double closest_dist = Double.MAX_VALUE;
             double current_dist;
             int ind = 0;
-            for (int k=1; k<cepsgenes.get(0).size(); k++) {
+            for (int k=0; k<cepsgenes.get(0).size(); k++) {
                 int[] cep = (int[]) cepsgenes.get(0).get(k);
                 current_dist = dist(xyrand[0], xyrand[1], cep[0], cep[1]);
                 if (current_dist < closest_dist) {
@@ -321,8 +341,16 @@ public class CISH_Fork extends RecursiveAction {
                     ind = k;
                 }
             }
+            for (int k=0; k<cepsgenes.get(2).size(); k++) {
+                int[] cep = (int[]) cepsgenes.get(2).get(k);
+                current_dist = dist(xyrand[0], xyrand[1], cep[0], cep[1]);
+                if (current_dist < closest_dist) {
+                    closest_dist = current_dist;
+                    ind = n_ceps + k;
+                }
+            }
             
-            // from the closest cep, calculate the local ratio within local radius
+            // from the closest cep/both, calculate the local ratio within local radius
             int n_lceps = 0;
             int n_lgenes = 0;
             for (int k=0; k<n_ceps; k++) {
@@ -330,7 +358,13 @@ public class CISH_Fork extends RecursiveAction {
                     n_lceps++;
                 }
             }
-            for (int k=n_ceps; k<n_ceps+n_genes; k++) {
+            for (int k=n_ceps; k<n_ceps+n_both; k++) {
+                if (distances[ind][k]<local_radius) {
+                    n_lceps++;
+                    n_lgenes++;
+                }
+            }
+            for (int k=n_ceps+n_both; k<n_ceps+n_both+n_genes; k++) {
                 if (distances[ind][k]<local_radius) {
                     n_lgenes++;
                 }
