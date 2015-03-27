@@ -6,17 +6,12 @@ package tmarker.misc;
 
 import com.sun.media.jai.codec.ByteArraySeekableStream;
 import com.sun.media.jai.codec.ImageCodec;
-import com.sun.media.jai.codec.ImageDecodeParam;
 import com.sun.media.jai.codec.ImageDecoder;
 import com.sun.media.jai.codec.SeekableStream;
-import com.sun.media.jai.codec.TIFFDecodeParam;
-import com.sun.media.jai.codec.TIFFEncodeParam;
-import com.sun.media.jai.codec.TIFFField;
 import ij.gui.PolygonRoi;
 import ij.gui.Roi;
 import java.awt.Color;
 import java.awt.Graphics;
-import java.awt.Graphics2D;
 import java.awt.GraphicsConfiguration;
 import java.awt.GraphicsDevice;
 import java.awt.GraphicsEnvironment;
@@ -44,13 +39,8 @@ import java.util.List;
 import java.util.Random;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javax.imageio.IIOImage;
 import javax.imageio.ImageIO;
-import javax.imageio.ImageReader;
-import javax.imageio.metadata.IIOMetadata;
 import javax.media.jai.Histogram;
-import javax.media.jai.JAI;
-import javax.media.jai.NullOpImage;
 import javax.media.jai.PlanarImage;
 import javax.media.jai.ROI;
 import javax.swing.AbstractButton;
@@ -743,8 +733,8 @@ public class Misc {
      * @return the convex hull of the roi as a new ij.​gui.Roi.
      */
     public static Roi ROIToRoi(ROI roi) {
-        List<Integer> xpts_list = new ArrayList<Integer>();
-        List<Integer> ypts_list = new ArrayList<Integer>();
+        List<Integer> xpts_list = new ArrayList<>();
+        List<Integer> ypts_list = new ArrayList<>();
         for (int i=0; i<roi.getAsImage().getWidth(); i++) {
             for (int j=0; j<roi.getAsImage().getHeight(); j++) {
                 if (roi.contains(i,j)) {

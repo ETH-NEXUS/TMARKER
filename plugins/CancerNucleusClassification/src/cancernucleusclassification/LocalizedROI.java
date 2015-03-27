@@ -17,12 +17,37 @@ import tmarker.misc.Misc;
  */
 public final class LocalizedROI {
     
+    /**
+     * The actual region of interest, pixelwise.
+     */
     ROI roi;
+    /**
+     * The convex hull (generated with Misc.ROIToRoi()).
+     */
     Polygon p;
+    /**
+     * The TMALabel with the coordinates.
+     */
     TMALabel tp;
+    /**
+     * The TMAspot on which the TMALabel is.
+     */
     TMAspot ts;
+    /**
+     * The radius of the patch of the ROI.
+     */
     int r;
     
+    /**
+     * Creates a localized ROI. It is localized on a specific TMAspot and on a 
+     * specific TMALabel. A Polygon p is created as the convex hull of the ROI.
+     * P can be used for faster access (e.g. drawing) or to get the boundary of 
+     * the ROI.
+     * @param ts The TMAspot on which the TMALabel is.
+     * @param tp The TMALabel with the coordinates.
+     * @param roi The actual region of interest, pixelwise.
+     * @param r The radius of the patch of the ROI.
+     */
     LocalizedROI(TMAspot ts, TMALabel tp, ROI roi, int r) {
         this.ts = ts;
         this.tp = tp;

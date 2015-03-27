@@ -36,7 +36,7 @@ import tmarker.tmarker;
 public class Superpixel implements Comparable {
 
     private final static int[] lbp_rotinv = {0, 1, 3, 5, 7, 9, 11, 13, 15, 17, 19, 21, 23, 25, 27, 29, 31, 37, 39, 43, 45, 47, 51, 53, 55, 59, 61, 63, 85, 87, 91, 95, 111, 119, 127, 255};
-    
+
     private final String id;
     private byte label;
     private boolean stained = false;
@@ -354,6 +354,9 @@ public class Superpixel implements Comparable {
         if (CNC.getParam_useFeature_Entropy()) {
             fv_size += 1;
         }
+        if (CNC.getParam_useFeature_Segmentation() && CNC.getParam_useFeature_FGBGColor()) {
+            fv_size += 6;
+        }
         if (CNC.getParam_useFeature_Segmentation() && CNC.getParam_useFeature_1DSignature()) {
             fv_size += 16;
         }
@@ -451,6 +454,12 @@ public class Superpixel implements Comparable {
                 double[] fv_tmp = image2Entropy(bi_gray.getBufferedImage(), roi, sp);
                 System.arraycopy(fv_tmp, 0, fvl, pos, fv_tmp.length);
                 pos += 1;
+            }
+            // FG / BG Color Ratio as featurevector
+            if (CNC.getParam_useFeature_Segmentation() && CNC.getParam_useFeature_FGBGColor()) {
+                double[] fv_tmp = image2FGBGColor(bi_col, roi);
+                System.arraycopy(fv_tmp, 0, fvl, pos, fv_tmp.length);
+                pos += 6;
             }
             // 1D-Signature as featurevector
             if (CNC.getParam_useFeature_Segmentation() && CNC.getParam_useFeature_1DSignature()) {
@@ -802,6 +811,83 @@ public class Superpixel implements Comparable {
             }
         }
         return fvl;
+    }
+    
+    /**
+     * Calculates the feature vector which sets the foregound color in relation to the
+     * background color. This can be used for cytoplasm staining classification.
+     * The median R, G and B values are calculated for the ROI (Foreground FG) 
+     * and the region not in ROI (Background BG). These values are concatenated:
+     * [ R_FG, G_FG, B_FG, R_BG, G_BG, B_BG ]
+     * @param bi_col The colored nucleus patch.
+     * @param roi The segmented nucleus as region of interest.
+     * @return The feature vector of the foreground (nucleus) and background color.
+     */
+    private static double[] image2FGBGColor(ImagePlus bi_col, ROI roi) {
+        
+        // get the number of pixels in FG and BG
+        int n_FG = 0;
+        int n_BG = 0;
+        for (int i=0; i<bi_col.getWidth(); i++) {
+            for (int j=0; j<bi_col.getHeight(); j++) {
+                if (roi.contains(i, j)) {
+                    n_FG++;
+                } else {
+                    n_BG++;
+                }
+            }
+        }
+        
+        int[] R_FG = new int[n_FG];
+        int[] G_FG = new int[n_FG];
+        int[] B_FG = new int[n_FG];
+        
+        int[] R_BG = new int[n_BG];
+        int[] G_BG = new int[n_BG];
+        int[] B_BG = new int[n_BG];
+        
+        int i_FG = 0;
+        int i_BG = 0;
+        int[] col;
+        for (int i=0; i<bi_col.getWidth(); i++) {
+            for (int j=0; j<bi_col.getHeight(); j++) {
+                col = bi_col.getPixel(i, j);
+                if (roi.contains(i, j)) {
+                    R_FG[i_FG] = col[0];
+                    G_FG[i_FG] = col[1];
+                    B_FG[i_FG] = col[2];
+                    i_FG++;
+                } else {
+                    R_BG[i_BG] = col[0];
+                    G_BG[i_BG] = col[1];
+                    B_BG[i_BG] = col[2];
+                    i_BG++;
+                }
+            }
+        }
+        
+        Arrays.sort(R_FG);
+        Arrays.sort(R_BG);
+        Arrays.sort(G_FG);
+        Arrays.sort(G_BG);
+        Arrays.sort(B_FG);
+        Arrays.sort(B_BG);
+        
+        return new double[]{median(R_FG), median(G_FG), median(B_FG), median(R_BG), median(G_BG), median(B_BG)};
+    }
+    
+    /**
+     * Calculates the median from an int[].
+     * @param m The int[] MUST BE SORTED.
+     * @return The median of the array.
+     */
+    public static double median(int[] m) {
+        int middle = m.length/2;
+        if (m.length%2 == 1) {
+            return m[middle];
+        } else {
+            return (m[middle-1] + m[middle]) / 2.0;
+        }
     }
     
     /**

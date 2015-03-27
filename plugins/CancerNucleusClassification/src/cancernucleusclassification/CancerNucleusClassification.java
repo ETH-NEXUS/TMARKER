@@ -181,6 +181,7 @@ public class CancerNucleusClassification extends javax.swing.JFrame implements T
         jSeparator5 = new javax.swing.JSeparator();
         jButton1 = new javax.swing.JButton();
         jButton5 = new javax.swing.JButton();
+        jCheckBox1 = new javax.swing.JCheckBox();
         jPanel8 = new javax.swing.JPanel();
         jPanel3 = new javax.swing.JPanel();
         jRadioButton1 = new javax.swing.JRadioButton();
@@ -240,7 +241,7 @@ public class CancerNucleusClassification extends javax.swing.JFrame implements T
         jSeparator1.setName("jSeparator1"); // NOI18N
 
         setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
-        setTitle("Superpixel Options"); // NOI18N
+        setTitle("Nucleus Classification Options"); // NOI18N
         setName("Form"); // NOI18N
 
         jScrollPane7.setName("jScrollPane7"); // NOI18N
@@ -345,7 +346,7 @@ public class CancerNucleusClassification extends javax.swing.JFrame implements T
 
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 17;
+        gridBagConstraints.gridy = 18;
         gridBagConstraints.gridwidth = 21;
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_START;
@@ -359,7 +360,7 @@ public class CancerNucleusClassification extends javax.swing.JFrame implements T
 
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 19;
+        gridBagConstraints.gridy = 20;
         gridBagConstraints.gridwidth = 21;
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_START;
@@ -379,7 +380,7 @@ public class CancerNucleusClassification extends javax.swing.JFrame implements T
         jSeparator2.setName("jSeparator2"); // NOI18N
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 23;
+        gridBagConstraints.gridy = 24;
         gridBagConstraints.gridwidth = 21;
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
         gridBagConstraints.insets = new java.awt.Insets(10, 0, 10, 0);
@@ -428,8 +429,8 @@ public class CancerNucleusClassification extends javax.swing.JFrame implements T
 
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 18;
-        gridBagConstraints.gridwidth = 3;
+        gridBagConstraints.gridy = 19;
+        gridBagConstraints.gridwidth = 4;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_START;
         gridBagConstraints.insets = new java.awt.Insets(0, 20, 0, 0);
         jPanel12.add(jCheckBox21, gridBagConstraints);
@@ -443,8 +444,8 @@ public class CancerNucleusClassification extends javax.swing.JFrame implements T
         bindingGroup.addBinding(binding);
 
         gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 3;
-        gridBagConstraints.gridy = 18;
+        gridBagConstraints.gridx = 4;
+        gridBagConstraints.gridy = 19;
         gridBagConstraints.gridwidth = 6;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_START;
         jPanel12.add(jCheckBox22, gridBagConstraints);
@@ -457,9 +458,9 @@ public class CancerNucleusClassification extends javax.swing.JFrame implements T
         bindingGroup.addBinding(binding);
 
         gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 9;
-        gridBagConstraints.gridy = 18;
-        gridBagConstraints.gridwidth = 12;
+        gridBagConstraints.gridx = 11;
+        gridBagConstraints.gridy = 19;
+        gridBagConstraints.gridwidth = 6;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_START;
         jPanel12.add(jCheckBox23, gridBagConstraints);
 
@@ -472,7 +473,7 @@ public class CancerNucleusClassification extends javax.swing.JFrame implements T
 
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 20;
+        gridBagConstraints.gridy = 21;
         gridBagConstraints.gridwidth = 21;
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_START;
@@ -487,7 +488,7 @@ public class CancerNucleusClassification extends javax.swing.JFrame implements T
 
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 21;
+        gridBagConstraints.gridy = 22;
         gridBagConstraints.gridwidth = 21;
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_START;
@@ -507,7 +508,7 @@ public class CancerNucleusClassification extends javax.swing.JFrame implements T
         jCheckBox32.setName("jCheckBox32"); // NOI18N
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 24;
+        gridBagConstraints.gridy = 25;
         gridBagConstraints.gridwidth = 21;
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_START;
@@ -807,10 +808,10 @@ public class CancerNucleusClassification extends javax.swing.JFrame implements T
         });
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 22;
+        gridBagConstraints.gridy = 23;
         gridBagConstraints.gridwidth = 3;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_START;
-        gridBagConstraints.insets = new java.awt.Insets(5, 3, 0, 0);
+        gridBagConstraints.insets = new java.awt.Insets(5, 3, 0, 5);
         jPanel12.add(jButton1, gridBagConstraints);
 
         jButton5.setText(bundle.getString("CancerNucleusClassification.jButton5.text")); // NOI18N
@@ -825,12 +826,26 @@ public class CancerNucleusClassification extends javax.swing.JFrame implements T
             }
         });
         gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 3;
-        gridBagConstraints.gridy = 22;
-        gridBagConstraints.gridwidth = java.awt.GridBagConstraints.REMAINDER;
+        gridBagConstraints.gridx = 4;
+        gridBagConstraints.gridy = 23;
+        gridBagConstraints.gridwidth = 17;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_START;
-        gridBagConstraints.insets = new java.awt.Insets(5, 0, 0, 0);
+        gridBagConstraints.insets = new java.awt.Insets(5, 5, 0, 0);
         jPanel12.add(jButton5, gridBagConstraints);
+
+        jCheckBox1.setText(bundle.getString("CancerNucleusClassification.jCheckBox1.text")); // NOI18N
+        jCheckBox1.setToolTipText(bundle.getString("CancerNucleusClassification.jCheckBox1.toolTipText")); // NOI18N
+        jCheckBox1.setName("jCheckBox1"); // NOI18N
+
+        binding = org.jdesktop.beansbinding.Bindings.createAutoBinding(org.jdesktop.beansbinding.AutoBinding.UpdateStrategy.READ, jCheckBox19, org.jdesktop.beansbinding.ELProperty.create("${selected}"), jCheckBox1, org.jdesktop.beansbinding.BeanProperty.create("enabled"), "jCheckBox1Binding");
+        bindingGroup.addBinding(binding);
+
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 17;
+        gridBagConstraints.gridwidth = 21;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_START;
+        jPanel12.add(jCheckBox1, gridBagConstraints);
 
         jPanel11.add(jPanel12);
 
@@ -1626,6 +1641,7 @@ public class CancerNucleusClassification extends javax.swing.JFrame implements T
     private javax.swing.JButton jButton30;
     private javax.swing.JButton jButton4;
     private javax.swing.JButton jButton5;
+    private javax.swing.JCheckBox jCheckBox1;
     private javax.swing.JCheckBox jCheckBox11;
     private javax.swing.JCheckBox jCheckBox12;
     private javax.swing.JCheckBox jCheckBox13;
@@ -1787,6 +1803,7 @@ public class CancerNucleusClassification extends javax.swing.JFrame implements T
         setParam_useFeature_PathSegmentCode(false);
         setParam_useFeature_Segmentation(false);
         setParam_useFeature_Segmentation_Graphcut(false);
+        setParam_useFeature_FGBGColor(false);
         setParam_useFeature_Circularity(false);
         setParam_useFeature_Roundness(false);
         setParam_useFeature_RotatedPatches(false);
@@ -1821,6 +1838,7 @@ public class CancerNucleusClassification extends javax.swing.JFrame implements T
         value = parameters.getProperty("useFeature_PathSegmentCode"); if (value!=null) { setParam_useFeature_PathSegmentCode(Boolean.parseBoolean(value)); }
         value = parameters.getProperty("useFeature_Segmentation"); if (value!=null) { setParam_useFeature_Segmentation(Boolean.parseBoolean(value)); }
         value = parameters.getProperty("useFeature_Segmentation_Graphcut"); if (value!=null) { setParam_useFeature_Segmentation_Graphcut(Boolean.parseBoolean(value)); }
+        value = parameters.getProperty("useFeature_FGBGColor"); if (value!=null) { setParam_useFeature_FGBGColor(Boolean.parseBoolean(value)); }
         value = parameters.getProperty("useFeature_Circularity"); if (value!=null) { setParam_useFeature_Circularity(Boolean.parseBoolean(value)); }
         value = parameters.getProperty("useFeature_Roundness"); if (value!=null) { setParam_useFeature_Roundness(Boolean.parseBoolean(value)); }
         value = parameters.getProperty("useFeature_RotatedPatches"); if (value!=null) { setParam_useFeature_RotatedPatches(Boolean.parseBoolean(value)); }
@@ -1855,6 +1873,7 @@ public class CancerNucleusClassification extends javax.swing.JFrame implements T
         parameters.setProperty("useFeature_PathSegmentCode", Boolean.toString(getParam_useFeature_PathSegmentCode())); 
         parameters.setProperty("useFeature_Segmentation", Boolean.toString(getParam_useFeature_Segmentation())); 
         parameters.setProperty("useFeature_Segmentation_Graphcut", Boolean.toString(getParam_useFeature_Segmentation_Graphcut())); 
+        parameters.setProperty("useFeature_FGBGColor", Boolean.toString(getParam_useFeature_FGBGColor())); 
         parameters.setProperty("useFeature_Circularity", Boolean.toString(getParam_useFeature_Circularity())); 
         parameters.setProperty("useFeature_Roundness", Boolean.toString(getParam_useFeature_Roundness()));
         parameters.setProperty("useFeature_RotatedPatches", Boolean.toString(getParam_useFeature_RotatedPatches()));
@@ -1929,7 +1948,6 @@ public class CancerNucleusClassification extends javax.swing.JFrame implements T
             
             // draw the segmentations
             if (getParam_ShowSegmentations()) {
-                g.setColor(Color.RED);
                 Stroke old_stroke = ((Graphics2D)g).getStroke();
                 BasicStroke bs = new BasicStroke(2);
                 ((Graphics2D)g).setStroke(bs);
@@ -1937,6 +1955,17 @@ public class CancerNucleusClassification extends javax.swing.JFrame implements T
                 for (LocalizedROI lroi: segmentations) {
                     if (lroi.tp.x >= x_min && lroi.tp.y >= y_min && lroi.tp.x < x_max && lroi.tp.y < y_max) {
                         if (lroi.ts==ts) {
+                            // draw the actual segmentation
+                            /*g.setColor(Color.YELLOW);
+                            for (int i=lroi.tp.x-r; i<lroi.tp.x+r; i++) {
+                                for (int j=lroi.tp.y-r; j<lroi.tp.y+r; j++) {
+                                    if (lroi.roi.contains(i-lroi.tp.x+r, j-lroi.tp.y+r)) {
+                                        ((Graphics2D)g).fillRect((int)(z*i), (int)(z*j), (int)Math.max(1,z), (int)Math.max(1, z));
+                                    }
+                                }
+                            }*/
+                            // Draw the boundary
+                            g.setColor(Color.RED);
                             Shape s = (Shape) scaling.createTransformedShape(lroi.p);
                             ((Graphics2D)g).draw(s);
                         }
@@ -2248,6 +2277,14 @@ public class CancerNucleusClassification extends javax.swing.JFrame implements T
         } else {
             jRadioButton14.setSelected(true);
         }
+    }
+    
+    public boolean getParam_useFeature_FGBGColor() {
+        return jCheckBox1.isSelected();
+    }
+    
+    public void setParam_useFeature_FGBGColor(boolean b) {
+        jCheckBox1.setSelected(b);
     }
     
     public boolean getParam_useFeature_Circularity() {

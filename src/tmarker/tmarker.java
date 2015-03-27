@@ -2737,7 +2737,6 @@ public final class tmarker extends javax.swing.JFrame {
         List<String> allowed_ext = new ArrayList<>();
         allowed_ext.add("xml");
         allowed_ext.add("csv");
-        allowed_ext.add("tma");
         allowed_ext.add("tif");
         allowed_ext.add("tiff");
         String[] its = ImageIO.getReaderFormatNames();
