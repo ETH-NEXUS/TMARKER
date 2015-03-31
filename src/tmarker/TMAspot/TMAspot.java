@@ -297,8 +297,30 @@ public final class TMAspot {
         this.tc = tc;
         setImagename(imagename);
         this.tlp = new TMAspot_list_panel(this);
+        createThumbnail();
     }
 
+    /**
+     * Creates the thumbnail image in the TMAList panel.
+     */
+    void createThumbnail() {
+        Thread thumbnailsThread = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try { 
+                    getTLP().setThumbnailImage(null);
+                } catch (OutOfMemoryError e) {
+                   Logger.getLogger(TMAspot.class.getName()).log(java.util.logging.Level.INFO, "Not enough memory for thumbnail creation.");
+                } catch (Exception e) {
+                    if (tmarker.DEBUG>0) {
+                         Logger.getLogger(TMAspot.class.getName()).log(Level.WARNING, e.getMessage(), e);
+                    }
+                }
+            }
+        });
+        thumbnailsThread.start();
+    }
+    
     /**
      * Sets the name of this TMAspot and creates a temporary work folder on hard disk.
      * @param original_filename The filename where this TMAspot originates.
@@ -1788,7 +1810,7 @@ public final class TMAspot {
     }
     
     /**
-     * Adds properties (parameters) of this TMAspot.
+     * Adds properties (parameters) to this TMAspot.
      * @param prop The properties (parameters) to be added.
      */
     public void addProperties(SortedProperties prop) {
@@ -1796,6 +1818,18 @@ public final class TMAspot {
             this.prop = new SortedProperties();
         }
         this.prop.putAll(prop);
+    }
+    
+    /**
+     * Adds a property (parameter) to this TMAspot.
+     * @param key The property name (parameter) to be added.
+     * @param value The property value (parameter) to be added.
+     */
+    public void addProperty(String key, String value) {
+        if (this.prop==null) {
+            this.prop = new SortedProperties();
+        }
+        this.prop.put(key, value);
     }
     
     /**

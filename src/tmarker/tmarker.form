@@ -565,7 +565,6 @@
                                 </Property>
                               </Properties>
                               <Events>
-                                <EventHandler event="componentMoved" listener="java.awt.event.ComponentListener" parameters="java.awt.event.ComponentEvent" handler="jPanel36ComponentMoved"/>
                                 <EventHandler event="mouseDragged" listener="java.awt.event.MouseMotionListener" parameters="java.awt.event.MouseEvent" handler="jPanel36MouseDragged"/>
                               </Events>
 

@@ -38,6 +38,7 @@ public class StainingEstimationFork extends RecursiveAction {
     private final int mLength;
     private final boolean doFork;
     private final int[] progress_container;
+    private final long startTime;
     
     /**
      * Creates a new StainingEstimationFork.
@@ -81,6 +82,7 @@ public class StainingEstimationFork extends RecursiveAction {
         this.mLength = mLength;
         this.doFork = doFork;
         this.progress_container = progress_value;
+        this.startTime = System.currentTimeMillis();
     }
     
     
@@ -109,10 +111,13 @@ public class StainingEstimationFork extends RecursiveAction {
             TMAspot ts = tss.get(i);
             tpm.setStatusMessageLabel("Performing Staining Estimation ...");
             tpm.setProgressbar((int)(1.0*progress_container[0]/mLength));
+            se.setProgressNumber(progress_container[0], tss.size(), startTime);
             
             StainingEstimation.doStainingEstimation(se, ts, radius, blur, tolerance, TMblur_hema, TMblur_dab, t_hema, t_dab, delete_cur_gs_spots, delete_cur_es_spots, hide_legend, markCancerous, myStain, true);
             
             progress_container[0]++;
+            
+            
         }
     }
     
@@ -126,7 +131,10 @@ public class StainingEstimationFork extends RecursiveAction {
         long startTime = System.currentTimeMillis();
         pool.invoke(fb);
         long endTime = System.currentTimeMillis();
+        pool.shutdown();
 
+        se.setProgressNumber(0, 0, 0);
+        
         System.out.println("StainingEstimation_Fork took " + (endTime - startTime) + 
                 " milliseconds.");
         

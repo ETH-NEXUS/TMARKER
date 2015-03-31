@@ -47,6 +47,7 @@ import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
+import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.imageio.ImageIO;
@@ -54,6 +55,7 @@ import javax.media.jai.ROI;
 import javax.swing.Icon;
 import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
+import plugins.TMARKERPluginManager;
 import tmarker.FileChooser;
 import tmarker.TMAspot.TMALabel;
 import tmarker.TMAspot.TMApoint;
@@ -78,6 +80,8 @@ public class CancerNucleusClassification extends javax.swing.JFrame implements T
     // For Plugin handling
     PluginManager manager = null;
     private static final String PLUGINNAME = "Cancer Nucleus Classification";
+    
+    private CancerNucleusClassificationThread thread = null;
     
     private final StringToIntConverter stic = new StringToIntConverter();
     
@@ -237,6 +241,7 @@ public class CancerNucleusClassification extends javax.swing.JFrame implements T
         jLabel23 = new javax.swing.JLabel();
         jLabel24 = new javax.swing.JLabel();
         jLabel29 = new javax.swing.JLabel();
+        jLabel31 = new javax.swing.JLabel();
 
         jSeparator1.setName("jSeparator1"); // NOI18N
 
@@ -1320,6 +1325,7 @@ public class CancerNucleusClassification extends javax.swing.JFrame implements T
         jPanel18.add(jButton26, gridBagConstraints);
 
         jButton30.setText(bundle.getString("CancerNucleusClassification.jButton30.text")); // NOI18N
+        jButton30.setToolTipText(bundle.getString("CancerNucleusClassification.jButton30.toolTipText")); // NOI18N
         jButton30.setActionCommand(bundle.getString("CancerNucleusClassification.jButton30.actionCommand")); // NOI18N
         jButton30.setEnabled(false);
         jButton30.setName("jButton30"); // NOI18N
@@ -1495,6 +1501,16 @@ public class CancerNucleusClassification extends javax.swing.JFrame implements T
         gridBagConstraints.insets = new java.awt.Insets(5, 42, 0, 0);
         jPanel18.add(jLabel29, gridBagConstraints);
 
+        jLabel31.setText(bundle.getString("CancerNucleusClassification.jLabel31.text")); // NOI18N
+        jLabel31.setName("jLabel31"); // NOI18N
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 1;
+        gridBagConstraints.gridy = 14;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.VERTICAL;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_START;
+        gridBagConstraints.insets = new java.awt.Insets(5, 25, 0, 0);
+        jPanel18.add(jLabel31, gridBagConstraints);
+
         jPanel16.add(jPanel18);
 
         jTabbedPane1.addTab(bundle.getString("CancerNucleusClassification.jPanel16.TabConstraints.tabTitle"), jPanel16); // NOI18N
@@ -1513,7 +1529,7 @@ public class CancerNucleusClassification extends javax.swing.JFrame implements T
     }// </editor-fold>//GEN-END:initComponents
 
     private void jButton30ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton30ActionPerformed
-        performNucleusClassification();
+        performNucleusClassification(true);
         manager.repaintVisibleTMAspot();
     }//GEN-LAST:event_jButton30ActionPerformed
 
@@ -1688,6 +1704,7 @@ public class CancerNucleusClassification extends javax.swing.JFrame implements T
     private javax.swing.JLabel jLabel29;
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel30;
+    private javax.swing.JLabel jLabel31;
     private javax.swing.JLabel jLabel4;
     private javax.swing.JLabel jLabel5;
     private javax.swing.JLabel jLabel6;
@@ -2953,16 +2970,26 @@ public class CancerNucleusClassification extends javax.swing.JFrame implements T
      * If 1-step is selected, only the classifier benign/malignant is used.
      * If 2-step is selected, the classifier foreground/background is used beforehand.
      */
-     private void performNucleusClassification() {
-         setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
-         List<TMAspot> tss = manager.getSelectedTMAspots();
-         for (TMAspot ts: tss) {
-            if (getParam_2StepClassification()) {
-                classifyNuclei(ts, classifier_FG_BG, true);
+     private void performNucleusClassification(boolean asParallelThread) {
+        List<TMAspot> tss = manager.getSelectedTMAspots();
+        if (asParallelThread) {
+            if (thread!=null) {
+                if (thread.isAlive()) {
+                    thread.interrupt();
+                }
             }
-            classifyNuclei(ts, classifier_BEN_MAL, false);
-         }
-         setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+            thread = new CancerNucleusClassificationThread((TMARKERPluginManager) manager, this, tss, classifier_FG_BG, classifier_BEN_MAL, getParam_2StepClassification());
+            thread.start();
+        } else {
+            setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+            for (TMAspot ts: tss) {
+               if (getParam_2StepClassification()) {
+                   classifyNuclei(this, ts, classifier_FG_BG, true, manager, asParallelThread);
+               }
+               classifyNuclei(this, ts, classifier_BEN_MAL, false, manager, asParallelThread);
+            }
+            setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+        }
     }
     
     /**
@@ -2971,8 +2998,9 @@ public class CancerNucleusClassification extends javax.swing.JFrame implements T
      * @param classifier The classifier to be used.
      * @param foregroundDetection If true, the classifer is interpreted as foreground / background classifier. Nuclei are classified as TMALabel.LABEL_BG or LABEL_UNK.
      * Otherwise, the classifier is used as benign / malignant classifier and nuclei will have the label LABEL_NEG and LABEL_POS.
+     * @param asParallelThread If true, the progressbar is not updated (it is updated in the thread).
      */
-    private void classifyNuclei(TMAspot ts, Classifier classifier, boolean foregroundDetection) {
+    static void classifyNuclei(CancerNucleusClassification cnc, TMAspot ts, Classifier classifier, boolean foregroundDetection, PluginManager manager, boolean asParallelThread) {
         if (classifier != null && ts != null) {
             List<TMApoint> tps;
             if (foregroundDetection) {
@@ -2983,12 +3011,14 @@ public class CancerNucleusClassification extends javax.swing.JFrame implements T
                 tps.addAll(ts.getPoints_Estimated(TMALabel.LABEL_UNK));
             }
             if (!tps.isEmpty()) {
-                if (foregroundDetection) {
-                    manager.setStatusMessageLabel(getName() + ": Classify Foreground / Background ...");
-                } else {
-                    manager.setStatusMessageLabel(getName() + ": Classify Malignant / Benign Nuclei ...");
+                if (!asParallelThread) {
+                    if (foregroundDetection) {
+                        manager.setStatusMessageLabel(cnc.getName() + ": Classify Foreground / Background ...");
+                    } else {
+                        manager.setStatusMessageLabel(cnc.getName() + ": Classify Malignant / Benign Nuclei ...");
+                    }
+                    manager.setProgressbar(10);
                 }
-                manager.setProgressbar(10);
 
                 // create arff data
                 FastVector atts = new FastVector();
@@ -3002,7 +3032,7 @@ public class CancerNucleusClassification extends javax.swing.JFrame implements T
                 }
                 atts.addElement(new Attribute("class", attVals));
 
-                double[] f = Superpixel.getFeaturevectorWithLabel(this, null, null);
+                double[] f = Superpixel.getFeaturevectorWithLabel(cnc, null, null);
                 for (int i=1; i<f.length; i++) {
                     atts.addElement(new Attribute(Integer.toString(i)));
                 }
@@ -3020,7 +3050,7 @@ public class CancerNucleusClassification extends javax.swing.JFrame implements T
                 //Blur the image for smoother features
                 ImagePlus ip = new ImagePlus(" ", I_col);
                 GaussianBlur blur = new GaussianBlur();
-                blur.blurGaussian(ip.getProcessor(), getParam_blur(), getParam_blur(), 0.02);
+                blur.blurGaussian(ip.getProcessor(), cnc.getParam_blur(), cnc.getParam_blur(), 0.02);
                 I_col = ip.getBufferedImage();
 
                 // I_gray
@@ -3030,23 +3060,23 @@ public class CancerNucleusClassification extends javax.swing.JFrame implements T
                 g.dispose();
                 try {
                     for (int i=0; i<tps.size(); i++) {
-                        if (i%10==0) {
+                        if (!asParallelThread && i%10==0) {
                             if (foregroundDetection) {
-                                manager.setStatusMessageLabel(getName() + ": Classify Classify Foreground / Background (" + Integer.toString(i) + "/" + Integer.toString(tps.size()) + ") ...");
+                                manager.setStatusMessageLabel(cnc.getName() + ": Classify Classify Foreground / Background (" + Integer.toString(i) + "/" + Integer.toString(tps.size()) + ") ...");
                             } else {
-                                manager.setStatusMessageLabel(getName() + ": Classify Classify Malignant / Benign Nuclei (" + Integer.toString(i) + "/" + Integer.toString(tps.size()) + ") ...");
+                                manager.setStatusMessageLabel(cnc.getName() + ": Classify Classify Malignant / Benign Nuclei (" + Integer.toString(i) + "/" + Integer.toString(tps.size()) + ") ...");
                             }
                             manager.setProgressbar((int)(10 + (1.0*i/tps.size())*90));
                         }
                         TMApoint tp = tps.get(i);
-                        Rectangle rect = PatchRectangle(tp, getParam_patchsize());
+                        Rectangle rect = PatchRectangle(tp, cnc.getParam_patchsize());
                         if (rect.x>=0 && rect.y>=0 && rect.x + rect.width<I_col.getWidth() && rect.y + rect.height<I_col.getHeight()) {
                             List<Object> patches = new ArrayList<>(3);
                             BufferedImage patch_col = I_col.getSubimage(rect.x, rect.y, rect.width, rect.height);
                             BufferedImage patch_gray = I_gray.getSubimage(rect.x, rect.y, rect.width, rect.height);
                             ROI roi; 
-                            if (getParam_useFeature_Segmentation()) {
-                                roi = PatchToShape(patch_col, ts, getParam_useFeature_Segmentation_Graphcut(), 0);
+                            if (cnc.getParam_useFeature_Segmentation()) {
+                                roi = PatchToShape(patch_col, ts, cnc.getParam_useFeature_Segmentation_Graphcut(), 0);
                             } else {
                                 roi = null;
                             }
@@ -3061,7 +3091,7 @@ public class CancerNucleusClassification extends javax.swing.JFrame implements T
                             patches.add(patch_col);
                             patches.add(patch_gray);
                             patches.add(roi);
-                            double[] vals = Superpixel.getFeaturevectorWithLabel(this, patches, null);
+                            double[] vals = Superpixel.getFeaturevectorWithLabel(cnc, patches, null);
                             if (tmarker.DEBUG > 4) {
                                 System.out.println("Feature vector:");
                                 for (double d: vals) {
@@ -3087,17 +3117,27 @@ public class CancerNucleusClassification extends javax.swing.JFrame implements T
                             }
                         }
                     }
-                    manager.setStatusMessageLabel(getName() + ": Done."); manager.setProgressbar(100);
+                    if (!asParallelThread) {
+                        manager.setStatusMessageLabel(cnc.getName() + ": Done.");
+                        manager.setProgressbar(100);
+                    } 
                     if (foregroundDetection) {
                         ts.deleteAllPoints(TMALabel.LABEL_BG, false);
                     }
-                    manager.updateTMAspot(ts);
+                    
+                    manager.updateTMAspot(ts, ts == ts.getCenter().getVisibleTMAspot());
+                    
+                    ts.addProperty("TMARKERStainingEstimation", Integer.toString(ts.getStainingEstimation()));
+                    
                 } catch (Exception ex) {
                     if (tmarker.DEBUG>3) {
                         Logger.getLogger(TMAspot.class.getName()).log(Level.SEVERE, null, ex);
                     }
                 }
-                manager.setStatusMessageLabel(""); manager.setProgressbar(0);
+                if (!asParallelThread) {
+                    manager.setStatusMessageLabel("");
+                    manager.setProgressbar(0);
+                }
             }
         }
     }
@@ -3178,6 +3218,10 @@ public class CancerNucleusClassification extends javax.swing.JFrame implements T
         }
     }
 
+    /**
+     * Saves the black white mask of nucleus segmentation as PNG File. The file can be chosen
+     * with the FileChooser (pops up).
+     */
     private void saveSegmentationMask() {
         JFileChooser chooser = new JFileChooser();
         chooser.setDialogTitle("Choose a Folder to Save the Masks");
@@ -3217,5 +3261,20 @@ public class CancerNucleusClassification extends javax.swing.JFrame implements T
         }
     }
     
+    void setProgressNumber(int processed, int total, long startTimeMillis) {
+        if (processed<=0 || total <=0) {
+            jLabel31.setText("");
+        } else {
+            String text = "Processed  " + processed + "/" + total + "  (" + 100*processed/total + " %)";
+            if (startTimeMillis>0) {
+                long time = (total-processed) * (System.currentTimeMillis() - startTimeMillis) / processed;
+                text += "    (est. " + String.format("%d min, %d sec", 
+                TimeUnit.MILLISECONDS.toMinutes(time),
+                TimeUnit.MILLISECONDS.toSeconds(time) - 
+                TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS.toMinutes(time))) + ")";
+            }
+            jLabel31.setText(text);
+        }
+    }
     
 }

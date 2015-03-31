@@ -92,7 +92,7 @@ public class StainingEstimationThread extends Thread {
             tpm.setStatusMessageLabel("Staining Estimation Stopped."); tpm.setProgressbar(0);
             se.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
             if (tmarker.DEBUG>0) {
-                Logger.getLogger(StainingEstimation.class.getName()).log(Level.WARNING, e.getMessage(), e);
+                Logger.getLogger(StainingEstimationThread.class.getName()).log(Level.WARNING, e.getMessage(), e);
             }
         }
     }

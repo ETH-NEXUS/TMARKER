@@ -936,10 +936,12 @@ public class SurvivalAnalysisFrame extends javax.swing.JFrame implements TMARKER
                     if (prop!=null) {
                         try {
                             value = (String) prop.get(covariate);
-                            if (numeric && th!=null && th.length==1) {
-                                value = (Double.parseDouble(value.replaceAll(",", ".").trim())) < th[0] ? "< " + th[0] : ">= " + th[0];
-                            } else if (numeric && th!=null && th.length==2) {
-                                value = (Double.parseDouble(value.replaceAll(",", ".").trim())) < th[0] ? "< " + th[0] : ((Double.parseDouble(value.replaceAll(",", ".").trim())) < th[1] ? th[0] + "<= x <" + th[1] : ">= " + th[1]);
+                            if (value != null) {
+                                if (numeric && th!=null && th.length==1) {
+                                    value = (Double.parseDouble(value.replaceAll(",", ".").trim())) < th[0] ? "< " + th[0] : ">= " + th[0];
+                                } else if (numeric && th!=null && th.length==2) {
+                                    value = (Double.parseDouble(value.replaceAll(",", ".").trim())) < th[0] ? "< " + th[0] : ((Double.parseDouble(value.replaceAll(",", ".").trim())) < th[1] ? th[0] + "<= x <" + th[1] : ">= " + th[1]);
+                                }
                             }
                         } catch (NumberFormatException e) {
                             value = null;
@@ -965,22 +967,24 @@ public class SurvivalAnalysisFrame extends javax.swing.JFrame implements TMARKER
                         String eventvaluestring = null;
                         try {
                             targetvalue = (String) prop.get(covariate);
-                            if (numeric && th!=null && th.length==1) {
-                                targetvalue = (Double.parseDouble(targetvalue.replaceAll(",", ".").trim())) < th[0] ? "< " + th[0] : ">= " + th[0];
-                            } else if (numeric && th!=null && th.length==2) {
-                                targetvalue = (Double.parseDouble(targetvalue.replaceAll(",", ".").trim())) < th[0] ? "< " + th[0] : ((Double.parseDouble(targetvalue.replaceAll(",", ".").trim())) < th[1] ? th[0] + "<= x <" + th[1] : ">= " + th[1]);
-                            }
-                            timevalue = Double.parseDouble((((String)prop.get(time_variable_name))).replaceAll(",", ".").trim());
-                            try {
-                                eventvaluestring = ((String) prop.get(event_variable_name)).replaceAll(",", ".").trim();
-                                censorvalue = Double.parseDouble(eventvaluestring) > 0;
-                            } catch (NumberFormatException e) {
-                                if (eventvaluestring != null && (eventvaluestring.equalsIgnoreCase("true") || eventvaluestring.equalsIgnoreCase("yes"))) {
-                                    censorvalue = true;
-                                } else if (eventvaluestring != null && (eventvaluestring.equalsIgnoreCase("false") || eventvaluestring.equalsIgnoreCase("no"))) {
-                                    censorvalue = false;
-                                } else {
-                                    targetvalue = null;
+                            if (targetvalue != null) {
+                                if (numeric && th!=null && th.length==1) {
+                                    targetvalue = (Double.parseDouble(targetvalue.replaceAll(",", ".").trim())) < th[0] ? "< " + th[0] : ">= " + th[0];
+                                } else if (numeric && th!=null && th.length==2) {
+                                    targetvalue = (Double.parseDouble(targetvalue.replaceAll(",", ".").trim())) < th[0] ? "< " + th[0] : ((Double.parseDouble(targetvalue.replaceAll(",", ".").trim())) < th[1] ? th[0] + "<= x <" + th[1] : ">= " + th[1]);
+                                }
+                                timevalue = Double.parseDouble((((String)prop.get(time_variable_name))).replaceAll(",", ".").trim());
+                                try {
+                                    eventvaluestring = ((String) prop.get(event_variable_name)).replaceAll(",", ".").trim();
+                                    censorvalue = Double.parseDouble(eventvaluestring) > 0;
+                                } catch (NumberFormatException e) {
+                                    if (eventvaluestring != null && (eventvaluestring.equalsIgnoreCase("true") || eventvaluestring.equalsIgnoreCase("yes"))) {
+                                        censorvalue = true;
+                                    } else if (eventvaluestring != null && (eventvaluestring.equalsIgnoreCase("false") || eventvaluestring.equalsIgnoreCase("no"))) {
+                                        censorvalue = false;
+                                    } else {
+                                        targetvalue = null;
+                                    }
                                 }
                             }
                         } catch (NumberFormatException e) {

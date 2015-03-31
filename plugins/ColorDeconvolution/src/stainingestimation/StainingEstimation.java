@@ -15,7 +15,6 @@ import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Image;
-import java.awt.KeyboardFocusManager;
 import java.awt.Polygon;
 import java.awt.image.BufferedImage;
 import java.io.BufferedReader;
@@ -25,17 +24,15 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Properties;
-import java.util.Set;
+import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.imageio.ImageIO;
 import javax.swing.Icon;
 import javax.swing.ImageIcon;
 import javax.swing.JOptionPane;
-import javax.swing.KeyStroke;
 import javax.swing.table.DefaultTableModel;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
@@ -112,7 +109,12 @@ public class StainingEstimation extends javax.swing.JFrame implements TMARKERPlu
         jXTable1.removeColumn(jXTable1.getColumn(7));
         jXTable1.packTable(0);
         jScrollPane4.setPreferredSize(new Dimension(jXTable1.getPreferredSize().width, jScrollPane4.getPreferredSize().height));
-        pack();
+        jScrollPane4.getHorizontalScrollBar().setUnitIncrement(20);
+        jScrollPane4.getVerticalScrollBar().setUnitIncrement(20);
+        jScrollPane1.getHorizontalScrollBar().setUnitIncrement(20);
+        jScrollPane1.getVerticalScrollBar().setUnitIncrement(20);
+        calculateFScore();
+        toggleAdvancedView(); // pack();
         try {
             this.setIconImage(ImageIO.read((getClass().getResource("/stainingestimation/ColorDeconvolution24.png"))));
         } catch (IOException ex) {
@@ -132,6 +134,7 @@ public class StainingEstimation extends javax.swing.JFrame implements TMARKERPlu
         bindingGroup = new org.jdesktop.beansbinding.BindingGroup();
 
         buttonGroup1 = new javax.swing.ButtonGroup();
+        jScrollPane1 = new javax.swing.JScrollPane();
         jPanel1 = new javax.swing.JPanel();
         jLabel3 = new javax.swing.JLabel();
         jSlider1 = new javax.swing.JSlider();
@@ -143,7 +146,6 @@ public class StainingEstimation extends javax.swing.JFrame implements TMARKERPlu
         jLabel4 = new javax.swing.JLabel();
         jTextField5 = new javax.swing.JTextField();
         jLabel1 = new javax.swing.JLabel();
-        jButton3 = new javax.swing.JButton();
         jCheckBox4 = new javax.swing.JCheckBox();
         jLabel6 = new javax.swing.JLabel();
         jLabel7 = new javax.swing.JLabel();
@@ -170,7 +172,6 @@ public class StainingEstimation extends javax.swing.JFrame implements TMARKERPlu
         jTextField6 = new javax.swing.JTextField();
         jSlider5 = new javax.swing.JSlider();
         jLabel16 = new javax.swing.JLabel();
-        jLabel17 = new javax.swing.JLabel();
         jLabel18 = new javax.swing.JLabel();
         jLabel19 = new javax.swing.JLabel();
         jLabel20 = new javax.swing.JLabel();
@@ -178,7 +179,23 @@ public class StainingEstimation extends javax.swing.JFrame implements TMARKERPlu
         jXLabel10 = new org.jdesktop.swingx.JXLabel();
         jXLabel11 = new org.jdesktop.swingx.JXLabel();
         jLabel26 = new javax.swing.JLabel();
-        jPanel10 = new javax.swing.JPanel();
+        jPanel3 = new javax.swing.JPanel();
+        jScrollPane4 = new javax.swing.JScrollPane();
+        jXTable1 = new org.jdesktop.swingx.JXTable();
+        jPanel6 = new javax.swing.JPanel();
+        jLabel27 = new javax.swing.JLabel();
+        jPanel7 = new javax.swing.JPanel();
+        jButton12 = new javax.swing.JButton();
+        jButton11 = new javax.swing.JButton();
+        jComboBox1 = new javax.swing.JComboBox();
+        jLabel5 = new javax.swing.JLabel();
+        jRadioButton1 = new javax.swing.JRadioButton();
+        jRadioButton2 = new javax.swing.JRadioButton();
+        jRadioButton3 = new javax.swing.JRadioButton();
+        jRadioButton4 = new javax.swing.JRadioButton();
+        jLabel30 = new javax.swing.JLabel();
+        jButton3 = new javax.swing.JButton();
+        jLabel17 = new javax.swing.JLabel();
         jPanel14 = new javax.swing.JPanel();
         jCheckBox12 = new javax.swing.JCheckBox();
         jTextField14 = new javax.swing.JTextField();
@@ -213,20 +230,7 @@ public class StainingEstimation extends javax.swing.JFrame implements TMARKERPlu
         jLabel33 = new javax.swing.JLabel();
         jTextField23 = new javax.swing.JTextField();
         jToggleButton2 = new javax.swing.JToggleButton();
-        jPanel3 = new javax.swing.JPanel();
-        jScrollPane4 = new javax.swing.JScrollPane();
-        jXTable1 = new org.jdesktop.swingx.JXTable();
-        jPanel6 = new javax.swing.JPanel();
-        jLabel27 = new javax.swing.JLabel();
-        jPanel7 = new javax.swing.JPanel();
-        jButton12 = new javax.swing.JButton();
-        jButton11 = new javax.swing.JButton();
-        jComboBox1 = new javax.swing.JComboBox();
-        jLabel5 = new javax.swing.JLabel();
-        jRadioButton1 = new javax.swing.JRadioButton();
-        jRadioButton2 = new javax.swing.JRadioButton();
-        jRadioButton3 = new javax.swing.JRadioButton();
-        jRadioButton4 = new javax.swing.JRadioButton();
+        jButton1 = new javax.swing.JButton();
 
         setTitle(PLUGINNAME);
 
@@ -262,6 +266,7 @@ public class StainingEstimation extends javax.swing.JFrame implements TMARKERPlu
         gridBagConstraints.gridx = 0;
         gridBagConstraints.gridy = 7;
         gridBagConstraints.gridwidth = 2;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
         gridBagConstraints.insets = new java.awt.Insets(0, 5, 0, 0);
         jPanel1.add(jSlider1, gridBagConstraints);
@@ -299,6 +304,7 @@ public class StainingEstimation extends javax.swing.JFrame implements TMARKERPlu
         gridBagConstraints.gridy = 7;
         gridBagConstraints.gridwidth = 2;
         gridBagConstraints.gridheight = 2;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
         jPanel1.add(jSlider3, gridBagConstraints);
 
@@ -334,6 +340,7 @@ public class StainingEstimation extends javax.swing.JFrame implements TMARKERPlu
         gridBagConstraints.gridx = 4;
         gridBagConstraints.gridy = 7;
         gridBagConstraints.gridwidth = 2;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
         jPanel1.add(jSlider2, gridBagConstraints);
 
@@ -370,24 +377,10 @@ public class StainingEstimation extends javax.swing.JFrame implements TMARKERPlu
         gridBagConstraints.gridx = 0;
         gridBagConstraints.gridy = 0;
         gridBagConstraints.gridwidth = 3;
-        gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
-        gridBagConstraints.insets = new java.awt.Insets(5, 5, 5, 0);
-        jPanel1.add(jLabel1, gridBagConstraints);
-
-        jButton3.setText("Calculate F-Score"); // NOI18N
-        jButton3.setToolTipText(bundle.getString("StainingEstimationDialog.jButton3.toolTipText")); // NOI18N
-        jButton3.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButton3ActionPerformed(evt);
-            }
-        });
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 8;
-        gridBagConstraints.gridy = 3;
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
-        gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_START;
-        gridBagConstraints.insets = new java.awt.Insets(0, 15, 0, 0);
-        jPanel1.add(jButton3, gridBagConstraints);
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
+        gridBagConstraints.insets = new java.awt.Insets(10, 5, 5, 0);
+        jPanel1.add(jLabel1, gridBagConstraints);
 
         jCheckBox4.setSelected(true);
         jCheckBox4.setText(bundle.getString("StainingEstimationDialog.jCheckBox4.text")); // NOI18N
@@ -398,6 +391,7 @@ public class StainingEstimation extends javax.swing.JFrame implements TMARKERPlu
         gridBagConstraints.gridx = 0;
         gridBagConstraints.gridy = 17;
         gridBagConstraints.gridwidth = 8;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
         gridBagConstraints.insets = new java.awt.Insets(0, 5, 0, 0);
         jPanel1.add(jCheckBox4, gridBagConstraints);
@@ -443,7 +437,7 @@ public class StainingEstimation extends javax.swing.JFrame implements TMARKERPlu
         gridBagConstraints.gridwidth = 2;
         gridBagConstraints.gridheight = 3;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.FIRST_LINE_START;
-        gridBagConstraints.insets = new java.awt.Insets(0, 3, 0, 0);
+        gridBagConstraints.insets = new java.awt.Insets(0, 3, 0, 5);
         jPanel1.add(jLabel9, gridBagConstraints);
 
         jLabel10.setIcon(new javax.swing.ImageIcon(getClass().getResource("/stainingestimation/nopreview.png"))); // NOI18N
@@ -483,7 +477,7 @@ public class StainingEstimation extends javax.swing.JFrame implements TMARKERPlu
         gridBagConstraints.gridy = 12;
         gridBagConstraints.gridwidth = 2;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.FIRST_LINE_START;
-        gridBagConstraints.insets = new java.awt.Insets(0, 3, 0, 0);
+        gridBagConstraints.insets = new java.awt.Insets(0, 3, 0, 5);
         jPanel1.add(jLabel13, gridBagConstraints);
 
         jXLabel1.setText(bundle.getString("StainingEstimationDialog.jXLabel1.text")); // NOI18N
@@ -491,6 +485,7 @@ public class StainingEstimation extends javax.swing.JFrame implements TMARKERPlu
         gridBagConstraints.gridx = 0;
         gridBagConstraints.gridy = 4;
         gridBagConstraints.gridwidth = 2;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.FIRST_LINE_START;
         gridBagConstraints.insets = new java.awt.Insets(0, 5, 0, 0);
         jPanel1.add(jXLabel1, gridBagConstraints);
@@ -500,6 +495,7 @@ public class StainingEstimation extends javax.swing.JFrame implements TMARKERPlu
         gridBagConstraints.gridx = 2;
         gridBagConstraints.gridy = 4;
         gridBagConstraints.gridwidth = 2;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.FIRST_LINE_START;
         gridBagConstraints.insets = new java.awt.Insets(0, 5, 0, 0);
         jPanel1.add(jXLabel2, gridBagConstraints);
@@ -529,7 +525,7 @@ public class StainingEstimation extends javax.swing.JFrame implements TMARKERPlu
         gridBagConstraints.gridwidth = 8;
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.FIRST_LINE_START;
-        gridBagConstraints.insets = new java.awt.Insets(0, 5, 5, 0);
+        gridBagConstraints.insets = new java.awt.Insets(0, 5, 5, 5);
         jPanel1.add(jPanel13, gridBagConstraints);
 
         jXLabel3.setText(bundle.getString("StainingEstimationDialog.jXLabel3.text")); // NOI18N
@@ -537,6 +533,7 @@ public class StainingEstimation extends javax.swing.JFrame implements TMARKERPlu
         gridBagConstraints.gridx = 4;
         gridBagConstraints.gridy = 4;
         gridBagConstraints.gridwidth = 2;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.FIRST_LINE_START;
         gridBagConstraints.insets = new java.awt.Insets(0, 5, 0, 0);
         jPanel1.add(jXLabel3, gridBagConstraints);
@@ -546,8 +543,9 @@ public class StainingEstimation extends javax.swing.JFrame implements TMARKERPlu
         gridBagConstraints.gridx = 6;
         gridBagConstraints.gridy = 4;
         gridBagConstraints.gridwidth = 2;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.FIRST_LINE_START;
-        gridBagConstraints.insets = new java.awt.Insets(0, 5, 0, 0);
+        gridBagConstraints.insets = new java.awt.Insets(0, 5, 0, 5);
         jPanel1.add(jXLabel4, gridBagConstraints);
 
         jXLabel5.setText(bundle.getString("StainingEstimationDialog.jXLabel5.text")); // NOI18N
@@ -555,6 +553,7 @@ public class StainingEstimation extends javax.swing.JFrame implements TMARKERPlu
         gridBagConstraints.gridx = 0;
         gridBagConstraints.gridy = 13;
         gridBagConstraints.gridwidth = 2;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.FIRST_LINE_START;
         gridBagConstraints.insets = new java.awt.Insets(0, 5, 0, 0);
         jPanel1.add(jXLabel5, gridBagConstraints);
@@ -564,8 +563,9 @@ public class StainingEstimation extends javax.swing.JFrame implements TMARKERPlu
         gridBagConstraints.gridx = 6;
         gridBagConstraints.gridy = 13;
         gridBagConstraints.gridwidth = 2;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.FIRST_LINE_START;
-        gridBagConstraints.insets = new java.awt.Insets(0, 5, 0, 0);
+        gridBagConstraints.insets = new java.awt.Insets(0, 5, 0, 5);
         jPanel1.add(jXLabel6, gridBagConstraints);
 
         jXLabel7.setText(bundle.getString("StainingEstimationDialog.jXLabel7.text")); // NOI18N
@@ -573,6 +573,7 @@ public class StainingEstimation extends javax.swing.JFrame implements TMARKERPlu
         gridBagConstraints.gridx = 2;
         gridBagConstraints.gridy = 13;
         gridBagConstraints.gridwidth = 2;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.FIRST_LINE_START;
         gridBagConstraints.insets = new java.awt.Insets(0, 5, 0, 0);
         jPanel1.add(jXLabel7, gridBagConstraints);
@@ -582,6 +583,7 @@ public class StainingEstimation extends javax.swing.JFrame implements TMARKERPlu
         gridBagConstraints.gridx = 4;
         gridBagConstraints.gridy = 13;
         gridBagConstraints.gridwidth = 2;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.FIRST_LINE_START;
         gridBagConstraints.insets = new java.awt.Insets(0, 5, 0, 0);
         jPanel1.add(jXLabel8, gridBagConstraints);
@@ -590,9 +592,10 @@ public class StainingEstimation extends javax.swing.JFrame implements TMARKERPlu
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
         gridBagConstraints.gridy = 5;
-        gridBagConstraints.gridwidth = 4;
+        gridBagConstraints.gridwidth = 8;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
-        gridBagConstraints.insets = new java.awt.Insets(15, 5, 5, 0);
+        gridBagConstraints.insets = new java.awt.Insets(15, 5, 5, 5);
         jPanel1.add(jLabel14, gridBagConstraints);
 
         jCheckBox7.setSelected(true);
@@ -606,8 +609,9 @@ public class StainingEstimation extends javax.swing.JFrame implements TMARKERPlu
         gridBagConstraints.gridx = 0;
         gridBagConstraints.gridy = 14;
         gridBagConstraints.gridwidth = 8;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.LAST_LINE_START;
-        gridBagConstraints.insets = new java.awt.Insets(0, 2, 0, 0);
+        gridBagConstraints.insets = new java.awt.Insets(0, 2, 0, 5);
         jPanel1.add(jCheckBox7, gridBagConstraints);
 
         jLabel15.setText(bundle.getString("StainingEstimationDialog.jLabel15.text")); // NOI18N
@@ -651,6 +655,7 @@ public class StainingEstimation extends javax.swing.JFrame implements TMARKERPlu
         gridBagConstraints.gridx = 0;
         gridBagConstraints.gridy = 9;
         gridBagConstraints.gridwidth = 2;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
         gridBagConstraints.insets = new java.awt.Insets(0, 5, 5, 0);
         jPanel1.add(jSlider5, gridBagConstraints);
@@ -660,24 +665,17 @@ public class StainingEstimation extends javax.swing.JFrame implements TMARKERPlu
         gridBagConstraints.gridx = 0;
         gridBagConstraints.gridy = 16;
         gridBagConstraints.gridwidth = 8;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
-        gridBagConstraints.insets = new java.awt.Insets(15, 5, 0, 0);
+        gridBagConstraints.insets = new java.awt.Insets(15, 5, 0, 5);
         jPanel1.add(jLabel16, gridBagConstraints);
-
-        jLabel17.setText(bundle.getString("StainingEstimationDialog.jLabel17.text")); // NOI18N
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 8;
-        gridBagConstraints.gridy = 0;
-        gridBagConstraints.gridheight = 4;
-        gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
-        gridBagConstraints.insets = new java.awt.Insets(5, 15, 0, 0);
-        jPanel1.add(jLabel17, gridBagConstraints);
 
         jLabel18.setText(bundle.getString("StainingEstimationDialog.jLabel18.text")); // NOI18N
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 2;
         gridBagConstraints.gridy = 10;
         gridBagConstraints.gridwidth = 2;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.FIRST_LINE_START;
         gridBagConstraints.insets = new java.awt.Insets(0, 3, 0, 0);
         jPanel1.add(jLabel18, gridBagConstraints);
@@ -687,6 +685,7 @@ public class StainingEstimation extends javax.swing.JFrame implements TMARKERPlu
         gridBagConstraints.gridx = 4;
         gridBagConstraints.gridy = 10;
         gridBagConstraints.gridwidth = 2;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.FIRST_LINE_START;
         gridBagConstraints.insets = new java.awt.Insets(0, 3, 0, 0);
         jPanel1.add(jLabel19, gridBagConstraints);
@@ -696,8 +695,9 @@ public class StainingEstimation extends javax.swing.JFrame implements TMARKERPlu
         gridBagConstraints.gridx = 6;
         gridBagConstraints.gridy = 10;
         gridBagConstraints.gridwidth = 2;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.FIRST_LINE_START;
-        gridBagConstraints.insets = new java.awt.Insets(0, 3, 0, 0);
+        gridBagConstraints.insets = new java.awt.Insets(0, 3, 0, 5);
         jPanel1.add(jLabel20, gridBagConstraints);
 
         jXLabel9.setText(bundle.getString("StainingEstimationDialog.jXLabel9.text")); // NOI18N
@@ -705,8 +705,9 @@ public class StainingEstimation extends javax.swing.JFrame implements TMARKERPlu
         gridBagConstraints.gridx = 6;
         gridBagConstraints.gridy = 11;
         gridBagConstraints.gridwidth = 2;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.FIRST_LINE_START;
-        gridBagConstraints.insets = new java.awt.Insets(0, 5, 0, 0);
+        gridBagConstraints.insets = new java.awt.Insets(0, 5, 0, 5);
         jPanel1.add(jXLabel9, gridBagConstraints);
 
         jXLabel10.setText(bundle.getString("StainingEstimationDialog.jXLabel10.text")); // NOI18N
@@ -714,6 +715,7 @@ public class StainingEstimation extends javax.swing.JFrame implements TMARKERPlu
         gridBagConstraints.gridx = 2;
         gridBagConstraints.gridy = 11;
         gridBagConstraints.gridwidth = 2;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.FIRST_LINE_START;
         gridBagConstraints.insets = new java.awt.Insets(0, 5, 0, 0);
         jPanel1.add(jXLabel10, gridBagConstraints);
@@ -723,6 +725,7 @@ public class StainingEstimation extends javax.swing.JFrame implements TMARKERPlu
         gridBagConstraints.gridx = 4;
         gridBagConstraints.gridy = 11;
         gridBagConstraints.gridwidth = 2;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.FIRST_LINE_START;
         gridBagConstraints.insets = new java.awt.Insets(0, 5, 0, 0);
         jPanel1.add(jXLabel11, gridBagConstraints);
@@ -732,343 +735,10 @@ public class StainingEstimation extends javax.swing.JFrame implements TMARKERPlu
         gridBagConstraints.gridx = 9;
         gridBagConstraints.gridy = 0;
         gridBagConstraints.gridheight = 2;
-        gridBagConstraints.anchor = java.awt.GridBagConstraints.FIRST_LINE_START;
-        gridBagConstraints.insets = new java.awt.Insets(5, 15, 0, 5);
-        jPanel1.add(jLabel26, gridBagConstraints);
-
-        jPanel10.setLayout(new java.awt.GridBagLayout());
-
-        jPanel14.setLayout(new java.awt.GridBagLayout());
-
-        jCheckBox12.setText(bundle.getString("StainingEstimationDialog.jCheckBox12.text")); // NOI18N
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_START;
-        jPanel14.add(jCheckBox12, gridBagConstraints);
-
-        jTextField14.setColumns(2);
-        jTextField14.setHorizontalAlignment(javax.swing.JTextField.TRAILING);
-        jTextField14.setText(bundle.getString("StainingEstimationDialog.jTextField14.text")); // NOI18N
-        jTextField14.setMargin(new java.awt.Insets(0, 0, 0, 0));
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 2;
-        gridBagConstraints.gridy = 0;
-        gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_END;
-        jPanel14.add(jTextField14, gridBagConstraints);
-
-        jLabel25.setText(bundle.getString("StainingEstimationDialog.jLabel25.text")); // NOI18N
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 3;
-        gridBagConstraints.gridy = 0;
-        gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_START;
-        jPanel14.add(jLabel25, gridBagConstraints);
-
-        jTextField15.setColumns(2);
-        jTextField15.setHorizontalAlignment(javax.swing.JTextField.TRAILING);
-        jTextField15.setText(bundle.getString("StainingEstimationDialog.jTextField15.text")); // NOI18N
-        jTextField15.setMargin(new java.awt.Insets(0, 0, 0, 0));
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 4;
-        gridBagConstraints.gridy = 0;
-        gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_END;
-        jPanel14.add(jTextField15, gridBagConstraints);
-
-        jCheckBox8.setText(bundle.getString("StainingEstimationDialog.jCheckBox8.text")); // NOI18N
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 1;
-        gridBagConstraints.gridwidth = 2;
-        gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_START;
-        jPanel14.add(jCheckBox8, gridBagConstraints);
-
-        jTextField2.setColumns(2);
-        jTextField2.setHorizontalAlignment(javax.swing.JTextField.TRAILING);
-        jTextField2.setText(bundle.getString("StainingEstimationDialog.jTextField2.text")); // NOI18N
-        jTextField2.setMargin(new java.awt.Insets(0, 0, 0, 0));
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 2;
-        gridBagConstraints.gridy = 1;
-        gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_END;
-        jPanel14.add(jTextField2, gridBagConstraints);
-
-        jLabel21.setText(bundle.getString("StainingEstimationDialog.jLabel21.text")); // NOI18N
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 3;
-        gridBagConstraints.gridy = 1;
-        gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_START;
-        jPanel14.add(jLabel21, gridBagConstraints);
-
-        jTextField7.setColumns(2);
-        jTextField7.setHorizontalAlignment(javax.swing.JTextField.TRAILING);
-        jTextField7.setText(bundle.getString("StainingEstimationDialog.jTextField7.text")); // NOI18N
-        jTextField7.setMargin(new java.awt.Insets(0, 0, 0, 0));
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 4;
-        gridBagConstraints.gridy = 1;
-        gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_END;
-        jPanel14.add(jTextField7, gridBagConstraints);
-
-        jCheckBox9.setText(bundle.getString("StainingEstimationDialog.jCheckBox9.text")); // NOI18N
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 2;
-        gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_START;
-        jPanel14.add(jCheckBox9, gridBagConstraints);
-
-        jTextField8.setColumns(2);
-        jTextField8.setHorizontalAlignment(javax.swing.JTextField.TRAILING);
-        jTextField8.setText(bundle.getString("StainingEstimationDialog.jTextField8.text")); // NOI18N
-        jTextField8.setMargin(new java.awt.Insets(0, 0, 0, 0));
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 2;
-        gridBagConstraints.gridy = 2;
-        gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_END;
-        jPanel14.add(jTextField8, gridBagConstraints);
-
-        jLabel22.setText(bundle.getString("StainingEstimationDialog.jLabel22.text")); // NOI18N
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 3;
-        gridBagConstraints.gridy = 2;
-        gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_START;
-        jPanel14.add(jLabel22, gridBagConstraints);
-
-        jTextField9.setColumns(2);
-        jTextField9.setHorizontalAlignment(javax.swing.JTextField.TRAILING);
-        jTextField9.setText(bundle.getString("StainingEstimationDialog.jTextField9.text")); // NOI18N
-        jTextField9.setMargin(new java.awt.Insets(0, 0, 0, 0));
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 4;
-        gridBagConstraints.gridy = 2;
-        gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_END;
-        jPanel14.add(jTextField9, gridBagConstraints);
-
-        jCheckBox10.setText(bundle.getString("StainingEstimationDialog.jCheckBox10.text")); // NOI18N
-        jCheckBox10.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jCheckBox10ActionPerformed(evt);
-            }
-        });
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 3;
-        gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_START;
-        jPanel14.add(jCheckBox10, gridBagConstraints);
-
-        jTextField10.setColumns(3);
-        jTextField10.setHorizontalAlignment(javax.swing.JTextField.TRAILING);
-        jTextField10.setText(bundle.getString("StainingEstimationDialog.jTextField10.text")); // NOI18N
-        jTextField10.setMargin(new java.awt.Insets(0, 0, 0, 0));
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 1;
-        gridBagConstraints.gridy = 3;
-        gridBagConstraints.gridwidth = 2;
-        gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_END;
-        jPanel14.add(jTextField10, gridBagConstraints);
-
-        jLabel23.setText(bundle.getString("StainingEstimationDialog.jLabel23.text")); // NOI18N
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 3;
-        gridBagConstraints.gridy = 3;
-        gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_START;
-        jPanel14.add(jLabel23, gridBagConstraints);
-
-        jTextField11.setColumns(3);
-        jTextField11.setHorizontalAlignment(javax.swing.JTextField.TRAILING);
-        jTextField11.setText(bundle.getString("StainingEstimationDialog.jTextField11.text")); // NOI18N
-        jTextField11.setMargin(new java.awt.Insets(0, 0, 0, 0));
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 4;
-        gridBagConstraints.gridy = 3;
-        gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_END;
-        jPanel14.add(jTextField11, gridBagConstraints);
-
-        jCheckBox11.setText(bundle.getString("StainingEstimationDialog.jCheckBox11.text")); // NOI18N
-        jCheckBox11.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jCheckBox11ActionPerformed(evt);
-            }
-        });
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 4;
-        gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_START;
-        jPanel14.add(jCheckBox11, gridBagConstraints);
-
-        jTextField12.setColumns(3);
-        jTextField12.setHorizontalAlignment(javax.swing.JTextField.TRAILING);
-        jTextField12.setText(bundle.getString("StainingEstimationDialog.jTextField12.text")); // NOI18N
-        jTextField12.setMargin(new java.awt.Insets(0, 0, 0, 0));
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 1;
-        gridBagConstraints.gridy = 4;
-        gridBagConstraints.gridwidth = 2;
-        gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_END;
-        jPanel14.add(jTextField12, gridBagConstraints);
-
-        jLabel24.setText(bundle.getString("StainingEstimationDialog.jLabel24.text")); // NOI18N
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 3;
-        gridBagConstraints.gridy = 4;
-        gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_START;
-        jPanel14.add(jLabel24, gridBagConstraints);
-
-        jTextField13.setColumns(3);
-        jTextField13.setHorizontalAlignment(javax.swing.JTextField.TRAILING);
-        jTextField13.setText(bundle.getString("StainingEstimationDialog.jTextField13.text")); // NOI18N
-        jTextField13.setMargin(new java.awt.Insets(0, 0, 0, 0));
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 4;
-        gridBagConstraints.gridy = 4;
-        gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_END;
-        jPanel14.add(jTextField13, gridBagConstraints);
-
-        jButton5.setText(bundle.getString("StainingEstimationDialog.jButton5.text")); // NOI18N
-        jButton5.setToolTipText(bundle.getString("StainingEstimationDialog.jButton5.toolTipText")); // NOI18N
-        jButton5.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButton5ActionPerformed(evt);
-            }
-        });
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 5;
-        gridBagConstraints.gridwidth = 2;
-        gridBagConstraints.anchor = java.awt.GridBagConstraints.FIRST_LINE_START;
-        gridBagConstraints.insets = new java.awt.Insets(0, 3, 0, 0);
-        jPanel14.add(jButton5, gridBagConstraints);
-
-        jButton2.setText(bundle.getString("StainingEstimationDialog.jButton2.text")); // NOI18N
-        jButton2.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButton2ActionPerformed(evt);
-            }
-        });
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 2;
-        gridBagConstraints.gridy = 5;
-        gridBagConstraints.gridwidth = 5;
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
-        gridBagConstraints.anchor = java.awt.GridBagConstraints.FIRST_LINE_END;
-        jPanel14.add(jButton2, gridBagConstraints);
-
-        jLabel28.setText(bundle.getString("StainingEstimationDialog.jLabel28.text")); // NOI18N
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_END;
-        gridBagConstraints.insets = new java.awt.Insets(0, 5, 0, 0);
-        jPanel14.add(jLabel28, gridBagConstraints);
-
-        jTextField18.setColumns(2);
-        jTextField18.setHorizontalAlignment(javax.swing.JTextField.TRAILING);
-        jTextField18.setText(bundle.getString("StainingEstimationDialog.jTextField18.text")); // NOI18N
-        jTextField18.setMargin(new java.awt.Insets(0, 0, 0, 0));
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_START;
-        gridBagConstraints.insets = new java.awt.Insets(0, 2, 0, 0);
-        jPanel14.add(jTextField18, gridBagConstraints);
-
-        jLabel29.setText(bundle.getString("StainingEstimationDialog.jLabel29.text")); // NOI18N
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 5;
-        gridBagConstraints.gridy = 1;
-        gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_END;
-        gridBagConstraints.insets = new java.awt.Insets(0, 5, 0, 0);
-        jPanel14.add(jLabel29, gridBagConstraints);
-
-        jTextField19.setColumns(2);
-        jTextField19.setHorizontalAlignment(javax.swing.JTextField.TRAILING);
-        jTextField19.setText(bundle.getString("StainingEstimationDialog.jTextField19.text")); // NOI18N
-        jTextField19.setMargin(new java.awt.Insets(0, 0, 0, 0));
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 6;
-        gridBagConstraints.gridy = 1;
-        gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_START;
-        gridBagConstraints.insets = new java.awt.Insets(0, 2, 0, 0);
-        jPanel14.add(jTextField19, gridBagConstraints);
-
-        jLabel31.setText(bundle.getString("StainingEstimationDialog.jLabel31.text")); // NOI18N
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 5;
-        gridBagConstraints.gridy = 2;
-        gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_END;
-        gridBagConstraints.insets = new java.awt.Insets(0, 5, 0, 0);
-        jPanel14.add(jLabel31, gridBagConstraints);
-
-        jTextField21.setColumns(2);
-        jTextField21.setHorizontalAlignment(javax.swing.JTextField.TRAILING);
-        jTextField21.setText(bundle.getString("StainingEstimationDialog.jTextField21.text")); // NOI18N
-        jTextField21.setMargin(new java.awt.Insets(0, 0, 0, 0));
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 6;
-        gridBagConstraints.gridy = 2;
-        gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_START;
-        gridBagConstraints.insets = new java.awt.Insets(0, 2, 0, 0);
-        jPanel14.add(jTextField21, gridBagConstraints);
-
-        jLabel32.setText(bundle.getString("StainingEstimationDialog.jLabel32.text")); // NOI18N
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 5;
-        gridBagConstraints.gridy = 3;
-        gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_END;
-        gridBagConstraints.insets = new java.awt.Insets(0, 5, 0, 0);
-        jPanel14.add(jLabel32, gridBagConstraints);
-
-        jTextField22.setColumns(2);
-        jTextField22.setHorizontalAlignment(javax.swing.JTextField.TRAILING);
-        jTextField22.setText(bundle.getString("StainingEstimationDialog.jTextField22.text")); // NOI18N
-        jTextField22.setMargin(new java.awt.Insets(0, 0, 0, 0));
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 6;
-        gridBagConstraints.gridy = 3;
-        gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_START;
-        gridBagConstraints.insets = new java.awt.Insets(0, 2, 0, 0);
-        jPanel14.add(jTextField22, gridBagConstraints);
-
-        jLabel33.setText(bundle.getString("StainingEstimationDialog.jLabel33.text")); // NOI18N
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 5;
-        gridBagConstraints.gridy = 4;
-        gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_END;
-        gridBagConstraints.insets = new java.awt.Insets(0, 5, 0, 0);
-        jPanel14.add(jLabel33, gridBagConstraints);
-
-        jTextField23.setColumns(2);
-        jTextField23.setHorizontalAlignment(javax.swing.JTextField.TRAILING);
-        jTextField23.setText(bundle.getString("StainingEstimationDialog.jTextField23.text")); // NOI18N
-        jTextField23.setMargin(new java.awt.Insets(0, 0, 0, 0));
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 6;
-        gridBagConstraints.gridy = 4;
-        gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_START;
-        gridBagConstraints.insets = new java.awt.Insets(0, 2, 0, 0);
-        jPanel14.add(jTextField23, gridBagConstraints);
-
-        jToggleButton2.setText(bundle.getString("StainingEstimationDialog.jToggleButton2.text")); // NOI18N
-        jToggleButton2.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 5, 0, 3));
-        jToggleButton2.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jToggleButton2ActionPerformed(evt);
-            }
-        });
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 7;
-        gridBagConstraints.gridy = 3;
-        gridBagConstraints.gridheight = 2;
-        gridBagConstraints.fill = java.awt.GridBagConstraints.VERTICAL;
-        gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_START;
-        gridBagConstraints.insets = new java.awt.Insets(6, 0, 6, 0);
-        jPanel14.add(jToggleButton2, gridBagConstraints);
-
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridwidth = java.awt.GridBagConstraints.REMAINDER;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.FIRST_LINE_START;
-        jPanel10.add(jPanel14, gridBagConstraints);
-
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 9;
-        gridBagConstraints.gridy = 2;
-        gridBagConstraints.gridheight = 3;
-        gridBagConstraints.anchor = java.awt.GridBagConstraints.FIRST_LINE_START;
-        gridBagConstraints.insets = new java.awt.Insets(0, 15, 3, 5);
-        jPanel1.add(jPanel10, gridBagConstraints);
+        gridBagConstraints.insets = new java.awt.Insets(10, 15, 0, 5);
+        jPanel1.add(jLabel26, gridBagConstraints);
 
         jPanel3.setLayout(new java.awt.BorderLayout(0, 5));
 
@@ -1138,10 +808,10 @@ public class StainingEstimation extends javax.swing.JFrame implements TMARKERPlu
         gridBagConstraints.gridx = 8;
         gridBagConstraints.gridy = 5;
         gridBagConstraints.gridwidth = java.awt.GridBagConstraints.REMAINDER;
-        gridBagConstraints.gridheight = 11;
-        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
-        gridBagConstraints.anchor = java.awt.GridBagConstraints.FIRST_LINE_START;
-        gridBagConstraints.insets = new java.awt.Insets(0, 15, 0, 5);
+        gridBagConstraints.gridheight = 17;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.LAST_LINE_END;
+        gridBagConstraints.insets = new java.awt.Insets(0, 10, 5, 5);
         jPanel1.add(jPanel3, gridBagConstraints);
 
         jComboBox1.setMaximumRowCount(17);
@@ -1156,17 +826,18 @@ public class StainingEstimation extends javax.swing.JFrame implements TMARKERPlu
         gridBagConstraints.gridy = 0;
         gridBagConstraints.gridwidth = 5;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
-        gridBagConstraints.insets = new java.awt.Insets(0, 0, 5, 0);
+        gridBagConstraints.insets = new java.awt.Insets(5, 0, 5, 0);
         jPanel1.add(jComboBox1, gridBagConstraints);
 
         jLabel5.setText("<html>See: <cite>Ruifrok AC, Johnston DA.<br><b>Quantification of histochemical staining by color deconvolution.</b><br><i>Anal Quant Cytol Histol 23: 291-299, 2001.</i></cite></html>");
         gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 8;
-        gridBagConstraints.gridy = 17;
-        gridBagConstraints.gridwidth = java.awt.GridBagConstraints.REMAINDER;
-        gridBagConstraints.gridheight = 4;
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 20;
+        gridBagConstraints.gridwidth = 6;
+        gridBagConstraints.gridheight = 2;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.LAST_LINE_START;
-        gridBagConstraints.insets = new java.awt.Insets(0, 15, 5, 0);
+        gridBagConstraints.insets = new java.awt.Insets(5, 10, 5, 5);
         jPanel1.add(jLabel5, gridBagConstraints);
 
         buttonGroup1.add(jRadioButton1);
@@ -1182,6 +853,7 @@ public class StainingEstimation extends javax.swing.JFrame implements TMARKERPlu
         gridBagConstraints.gridx = 0;
         gridBagConstraints.gridy = 15;
         gridBagConstraints.gridwidth = 2;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_START;
         gridBagConstraints.insets = new java.awt.Insets(5, 1, 5, 0);
         jPanel1.add(jRadioButton1, gridBagConstraints);
@@ -1198,6 +870,7 @@ public class StainingEstimation extends javax.swing.JFrame implements TMARKERPlu
         gridBagConstraints.gridx = 2;
         gridBagConstraints.gridy = 15;
         gridBagConstraints.gridwidth = 2;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_START;
         gridBagConstraints.insets = new java.awt.Insets(5, 0, 5, 0);
         jPanel1.add(jRadioButton2, gridBagConstraints);
@@ -1214,6 +887,7 @@ public class StainingEstimation extends javax.swing.JFrame implements TMARKERPlu
         gridBagConstraints.gridx = 4;
         gridBagConstraints.gridy = 15;
         gridBagConstraints.gridwidth = 2;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_START;
         gridBagConstraints.insets = new java.awt.Insets(5, 0, 5, 0);
         jPanel1.add(jRadioButton3, gridBagConstraints);
@@ -1230,11 +904,422 @@ public class StainingEstimation extends javax.swing.JFrame implements TMARKERPlu
         gridBagConstraints.gridx = 6;
         gridBagConstraints.gridy = 15;
         gridBagConstraints.gridwidth = 2;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_START;
-        gridBagConstraints.insets = new java.awt.Insets(5, 0, 5, 0);
+        gridBagConstraints.insets = new java.awt.Insets(5, 0, 5, 5);
         jPanel1.add(jRadioButton4, gridBagConstraints);
 
-        getContentPane().add(jPanel1, java.awt.BorderLayout.CENTER);
+        jLabel30.setText(" ");
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 19;
+        gridBagConstraints.gridwidth = 8;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_START;
+        gridBagConstraints.insets = new java.awt.Insets(0, 10, 5, 5);
+        jPanel1.add(jLabel30, gridBagConstraints);
+
+        jButton3.setText("Calculate F-Score"); // NOI18N
+        jButton3.setToolTipText(bundle.getString("StainingEstimationDialog.jButton3.toolTipText")); // NOI18N
+        jButton3.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton3ActionPerformed(evt);
+            }
+        });
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 8;
+        gridBagConstraints.gridy = 3;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.FIRST_LINE_START;
+        gridBagConstraints.insets = new java.awt.Insets(40, 10, 0, 0);
+        jPanel1.add(jButton3, gridBagConstraints);
+
+        jLabel17.setText(bundle.getString("StainingEstimationDialog.jLabel17.text")); // NOI18N
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 8;
+        gridBagConstraints.gridy = 0;
+        gridBagConstraints.gridheight = 4;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
+        gridBagConstraints.insets = new java.awt.Insets(10, 10, 0, 0);
+        jPanel1.add(jLabel17, gridBagConstraints);
+
+        jPanel14.setLayout(new java.awt.GridBagLayout());
+
+        jCheckBox12.setText(bundle.getString("StainingEstimationDialog.jCheckBox12.text")); // NOI18N
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_START;
+        jPanel14.add(jCheckBox12, gridBagConstraints);
+
+        jTextField14.setColumns(2);
+        jTextField14.setHorizontalAlignment(javax.swing.JTextField.TRAILING);
+        jTextField14.setText(bundle.getString("StainingEstimationDialog.jTextField14.text")); // NOI18N
+        jTextField14.setMargin(new java.awt.Insets(0, 0, 0, 0));
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 2;
+        gridBagConstraints.gridy = 0;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_END;
+        jPanel14.add(jTextField14, gridBagConstraints);
+
+        jLabel25.setText(bundle.getString("StainingEstimationDialog.jLabel25.text")); // NOI18N
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 3;
+        gridBagConstraints.gridy = 0;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_START;
+        jPanel14.add(jLabel25, gridBagConstraints);
+
+        jTextField15.setColumns(2);
+        jTextField15.setHorizontalAlignment(javax.swing.JTextField.TRAILING);
+        jTextField15.setText(bundle.getString("StainingEstimationDialog.jTextField15.text")); // NOI18N
+        jTextField15.setMargin(new java.awt.Insets(0, 0, 0, 0));
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 4;
+        gridBagConstraints.gridy = 0;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_END;
+        jPanel14.add(jTextField15, gridBagConstraints);
+
+        jCheckBox8.setText(bundle.getString("StainingEstimationDialog.jCheckBox8.text")); // NOI18N
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 1;
+        gridBagConstraints.gridwidth = 2;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_START;
+        jPanel14.add(jCheckBox8, gridBagConstraints);
+
+        jTextField2.setColumns(2);
+        jTextField2.setHorizontalAlignment(javax.swing.JTextField.TRAILING);
+        jTextField2.setText(bundle.getString("StainingEstimationDialog.jTextField2.text")); // NOI18N
+        jTextField2.setMargin(new java.awt.Insets(0, 0, 0, 0));
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 2;
+        gridBagConstraints.gridy = 1;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_END;
+        jPanel14.add(jTextField2, gridBagConstraints);
+
+        jLabel21.setText(bundle.getString("StainingEstimationDialog.jLabel21.text")); // NOI18N
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 3;
+        gridBagConstraints.gridy = 1;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_START;
+        jPanel14.add(jLabel21, gridBagConstraints);
+
+        jTextField7.setColumns(2);
+        jTextField7.setHorizontalAlignment(javax.swing.JTextField.TRAILING);
+        jTextField7.setText(bundle.getString("StainingEstimationDialog.jTextField7.text")); // NOI18N
+        jTextField7.setMargin(new java.awt.Insets(0, 0, 0, 0));
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 4;
+        gridBagConstraints.gridy = 1;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_END;
+        jPanel14.add(jTextField7, gridBagConstraints);
+
+        jCheckBox9.setText(bundle.getString("StainingEstimationDialog.jCheckBox9.text")); // NOI18N
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 2;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_START;
+        jPanel14.add(jCheckBox9, gridBagConstraints);
+
+        jTextField8.setColumns(2);
+        jTextField8.setHorizontalAlignment(javax.swing.JTextField.TRAILING);
+        jTextField8.setText(bundle.getString("StainingEstimationDialog.jTextField8.text")); // NOI18N
+        jTextField8.setMargin(new java.awt.Insets(0, 0, 0, 0));
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 2;
+        gridBagConstraints.gridy = 2;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_END;
+        jPanel14.add(jTextField8, gridBagConstraints);
+
+        jLabel22.setText(bundle.getString("StainingEstimationDialog.jLabel22.text")); // NOI18N
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 3;
+        gridBagConstraints.gridy = 2;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_START;
+        jPanel14.add(jLabel22, gridBagConstraints);
+
+        jTextField9.setColumns(2);
+        jTextField9.setHorizontalAlignment(javax.swing.JTextField.TRAILING);
+        jTextField9.setText(bundle.getString("StainingEstimationDialog.jTextField9.text")); // NOI18N
+        jTextField9.setMargin(new java.awt.Insets(0, 0, 0, 0));
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 4;
+        gridBagConstraints.gridy = 2;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_END;
+        jPanel14.add(jTextField9, gridBagConstraints);
+
+        jCheckBox10.setText(bundle.getString("StainingEstimationDialog.jCheckBox10.text")); // NOI18N
+        jCheckBox10.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jCheckBox10ActionPerformed(evt);
+            }
+        });
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 3;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_START;
+        jPanel14.add(jCheckBox10, gridBagConstraints);
+
+        jTextField10.setColumns(3);
+        jTextField10.setHorizontalAlignment(javax.swing.JTextField.TRAILING);
+        jTextField10.setText(bundle.getString("StainingEstimationDialog.jTextField10.text")); // NOI18N
+        jTextField10.setMargin(new java.awt.Insets(0, 0, 0, 0));
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 1;
+        gridBagConstraints.gridy = 3;
+        gridBagConstraints.gridwidth = 2;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_END;
+        jPanel14.add(jTextField10, gridBagConstraints);
+
+        jLabel23.setText(bundle.getString("StainingEstimationDialog.jLabel23.text")); // NOI18N
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 3;
+        gridBagConstraints.gridy = 3;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_START;
+        jPanel14.add(jLabel23, gridBagConstraints);
+
+        jTextField11.setColumns(3);
+        jTextField11.setHorizontalAlignment(javax.swing.JTextField.TRAILING);
+        jTextField11.setText(bundle.getString("StainingEstimationDialog.jTextField11.text")); // NOI18N
+        jTextField11.setMargin(new java.awt.Insets(0, 0, 0, 0));
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 4;
+        gridBagConstraints.gridy = 3;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_END;
+        jPanel14.add(jTextField11, gridBagConstraints);
+
+        jCheckBox11.setText(bundle.getString("StainingEstimationDialog.jCheckBox11.text")); // NOI18N
+        jCheckBox11.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jCheckBox11ActionPerformed(evt);
+            }
+        });
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 4;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_START;
+        jPanel14.add(jCheckBox11, gridBagConstraints);
+
+        jTextField12.setColumns(3);
+        jTextField12.setHorizontalAlignment(javax.swing.JTextField.TRAILING);
+        jTextField12.setText(bundle.getString("StainingEstimationDialog.jTextField12.text")); // NOI18N
+        jTextField12.setMargin(new java.awt.Insets(0, 0, 0, 0));
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 1;
+        gridBagConstraints.gridy = 4;
+        gridBagConstraints.gridwidth = 2;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_END;
+        jPanel14.add(jTextField12, gridBagConstraints);
+
+        jLabel24.setText(bundle.getString("StainingEstimationDialog.jLabel24.text")); // NOI18N
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 3;
+        gridBagConstraints.gridy = 4;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_START;
+        jPanel14.add(jLabel24, gridBagConstraints);
+
+        jTextField13.setColumns(3);
+        jTextField13.setHorizontalAlignment(javax.swing.JTextField.TRAILING);
+        jTextField13.setText(bundle.getString("StainingEstimationDialog.jTextField13.text")); // NOI18N
+        jTextField13.setMargin(new java.awt.Insets(0, 0, 0, 0));
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 4;
+        gridBagConstraints.gridy = 4;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_END;
+        jPanel14.add(jTextField13, gridBagConstraints);
+
+        jButton5.setText(bundle.getString("StainingEstimationDialog.jButton5.text")); // NOI18N
+        jButton5.setToolTipText(bundle.getString("StainingEstimationDialog.jButton5.toolTipText")); // NOI18N
+        jButton5.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton5ActionPerformed(evt);
+            }
+        });
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 5;
+        gridBagConstraints.gridwidth = 2;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.FIRST_LINE_START;
+        gridBagConstraints.insets = new java.awt.Insets(0, 3, 0, 0);
+        jPanel14.add(jButton5, gridBagConstraints);
+
+        jButton2.setText(bundle.getString("StainingEstimationDialog.jButton2.text")); // NOI18N
+        jButton2.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton2ActionPerformed(evt);
+            }
+        });
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 2;
+        gridBagConstraints.gridy = 5;
+        gridBagConstraints.gridwidth = 5;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.FIRST_LINE_END;
+        jPanel14.add(jButton2, gridBagConstraints);
+
+        jLabel28.setText(bundle.getString("StainingEstimationDialog.jLabel28.text")); // NOI18N
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_END;
+        gridBagConstraints.insets = new java.awt.Insets(0, 5, 0, 0);
+        jPanel14.add(jLabel28, gridBagConstraints);
+
+        jTextField18.setColumns(2);
+        jTextField18.setHorizontalAlignment(javax.swing.JTextField.TRAILING);
+        jTextField18.setText(bundle.getString("StainingEstimationDialog.jTextField18.text")); // NOI18N
+        jTextField18.setMargin(new java.awt.Insets(0, 0, 0, 0));
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_START;
+        gridBagConstraints.insets = new java.awt.Insets(0, 2, 0, 0);
+        jPanel14.add(jTextField18, gridBagConstraints);
+
+        jLabel29.setText(bundle.getString("StainingEstimationDialog.jLabel29.text")); // NOI18N
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 5;
+        gridBagConstraints.gridy = 1;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_END;
+        gridBagConstraints.insets = new java.awt.Insets(0, 5, 0, 0);
+        jPanel14.add(jLabel29, gridBagConstraints);
+
+        jTextField19.setColumns(2);
+        jTextField19.setHorizontalAlignment(javax.swing.JTextField.TRAILING);
+        jTextField19.setText(bundle.getString("StainingEstimationDialog.jTextField19.text")); // NOI18N
+        jTextField19.setMargin(new java.awt.Insets(0, 0, 0, 0));
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 6;
+        gridBagConstraints.gridy = 1;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_START;
+        gridBagConstraints.insets = new java.awt.Insets(0, 2, 0, 0);
+        jPanel14.add(jTextField19, gridBagConstraints);
+
+        jLabel31.setText(bundle.getString("StainingEstimationDialog.jLabel31.text")); // NOI18N
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 5;
+        gridBagConstraints.gridy = 2;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_END;
+        gridBagConstraints.insets = new java.awt.Insets(0, 5, 0, 0);
+        jPanel14.add(jLabel31, gridBagConstraints);
+
+        jTextField21.setColumns(2);
+        jTextField21.setHorizontalAlignment(javax.swing.JTextField.TRAILING);
+        jTextField21.setText(bundle.getString("StainingEstimationDialog.jTextField21.text")); // NOI18N
+        jTextField21.setMargin(new java.awt.Insets(0, 0, 0, 0));
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 6;
+        gridBagConstraints.gridy = 2;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_START;
+        gridBagConstraints.insets = new java.awt.Insets(0, 2, 0, 0);
+        jPanel14.add(jTextField21, gridBagConstraints);
+
+        jLabel32.setText(bundle.getString("StainingEstimationDialog.jLabel32.text")); // NOI18N
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 5;
+        gridBagConstraints.gridy = 3;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_END;
+        gridBagConstraints.insets = new java.awt.Insets(0, 5, 0, 0);
+        jPanel14.add(jLabel32, gridBagConstraints);
+
+        jTextField22.setColumns(2);
+        jTextField22.setHorizontalAlignment(javax.swing.JTextField.TRAILING);
+        jTextField22.setText(bundle.getString("StainingEstimationDialog.jTextField22.text")); // NOI18N
+        jTextField22.setMargin(new java.awt.Insets(0, 0, 0, 0));
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 6;
+        gridBagConstraints.gridy = 3;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_START;
+        gridBagConstraints.insets = new java.awt.Insets(0, 2, 0, 0);
+        jPanel14.add(jTextField22, gridBagConstraints);
+
+        jLabel33.setText(bundle.getString("StainingEstimationDialog.jLabel33.text")); // NOI18N
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 5;
+        gridBagConstraints.gridy = 4;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_END;
+        gridBagConstraints.insets = new java.awt.Insets(0, 5, 0, 0);
+        jPanel14.add(jLabel33, gridBagConstraints);
+
+        jTextField23.setColumns(2);
+        jTextField23.setHorizontalAlignment(javax.swing.JTextField.TRAILING);
+        jTextField23.setText(bundle.getString("StainingEstimationDialog.jTextField23.text")); // NOI18N
+        jTextField23.setMargin(new java.awt.Insets(0, 0, 0, 0));
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 6;
+        gridBagConstraints.gridy = 4;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_START;
+        gridBagConstraints.insets = new java.awt.Insets(0, 2, 0, 0);
+        jPanel14.add(jTextField23, gridBagConstraints);
+
+        jToggleButton2.setText(bundle.getString("StainingEstimationDialog.jToggleButton2.text")); // NOI18N
+        jToggleButton2.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 5, 0, 3));
+        jToggleButton2.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jToggleButton2ActionPerformed(evt);
+            }
+        });
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 7;
+        gridBagConstraints.gridy = 3;
+        gridBagConstraints.gridheight = 2;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_START;
+        gridBagConstraints.insets = new java.awt.Insets(6, 0, 6, 0);
+        jPanel14.add(jToggleButton2, gridBagConstraints);
+
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 9;
+        gridBagConstraints.gridy = 2;
+        gridBagConstraints.gridheight = 3;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.FIRST_LINE_START;
+        gridBagConstraints.insets = new java.awt.Insets(0, 15, 0, 5);
+        jPanel1.add(jPanel14, gridBagConstraints);
+
+        jButton1.setText("Advanced <<");
+        jButton1.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton1ActionPerformed(evt);
+            }
+        });
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 7;
+        gridBagConstraints.gridy = 21;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.LAST_LINE_END;
+        gridBagConstraints.insets = new java.awt.Insets(0, 0, 5, 5);
+        jPanel1.add(jButton1, gridBagConstraints);
+
+        jScrollPane1.setViewportView(jPanel1);
+
+        getContentPane().add(jScrollPane1, java.awt.BorderLayout.CENTER);
 
         bindingGroup.bind();
 
@@ -1380,6 +1465,10 @@ public class StainingEstimation extends javax.swing.JFrame implements TMARKERPlu
         }
     }//GEN-LAST:event_jRadioButton4ItemStateChanged
 
+    private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
+        toggleAdvancedView();
+    }//GEN-LAST:event_jButton1ActionPerformed
+
     /**
      * @param args the command line arguments
      */
@@ -1417,6 +1506,7 @@ public class StainingEstimation extends javax.swing.JFrame implements TMARKERPlu
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.ButtonGroup buttonGroup1;
+    private javax.swing.JButton jButton1;
     private javax.swing.JButton jButton11;
     private javax.swing.JButton jButton12;
     private javax.swing.JButton jButton2;
@@ -1455,6 +1545,7 @@ public class StainingEstimation extends javax.swing.JFrame implements TMARKERPlu
     private javax.swing.JLabel jLabel28;
     private javax.swing.JLabel jLabel29;
     private javax.swing.JLabel jLabel3;
+    private javax.swing.JLabel jLabel30;
     private javax.swing.JLabel jLabel31;
     private javax.swing.JLabel jLabel32;
     private javax.swing.JLabel jLabel33;
@@ -1465,7 +1556,6 @@ public class StainingEstimation extends javax.swing.JFrame implements TMARKERPlu
     private javax.swing.JLabel jLabel8;
     private javax.swing.JLabel jLabel9;
     private javax.swing.JPanel jPanel1;
-    private javax.swing.JPanel jPanel10;
     private javax.swing.JPanel jPanel13;
     private javax.swing.JPanel jPanel14;
     private javax.swing.JPanel jPanel3;
@@ -1475,6 +1565,7 @@ public class StainingEstimation extends javax.swing.JFrame implements TMARKERPlu
     private javax.swing.JRadioButton jRadioButton2;
     private javax.swing.JRadioButton jRadioButton3;
     private javax.swing.JRadioButton jRadioButton4;
+    private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane4;
     private javax.swing.JSlider jSlider1;
     private javax.swing.JSlider jSlider2;
@@ -1668,6 +1759,21 @@ public class StainingEstimation extends javax.swing.JFrame implements TMARKERPlu
             return getBufferedImage(ts, SHOW_CHANNEL3_IMAGE);
         }
         return null;
+    }
+    
+    /**
+     * Expands this dialog to the advanced view (Precision/Recall Plots).
+     */
+    void toggleAdvancedView() {
+        boolean b = jButton1.getText().contains(">>");
+        jLabel17.setVisible(b);
+        jButton3.setVisible(b);
+        jLabel26.setVisible(b);
+        jPanel14.setVisible(b);
+        jPanel3.setVisible(b);
+        
+        jButton1.setText(b ? "Advanced <<" : "Advanced >>");
+        pack();
     }
     
     /**
@@ -2277,14 +2383,16 @@ public class StainingEstimation extends javax.swing.JFrame implements TMARKERPlu
      */
     void calculateFScore() {
         // draw the points in the plot
-        List<TMAspot> tss = manager.getSelectedTMAspots();
         XYSeriesCollection dataset = new XYSeriesCollection();
-        double[] stats;
-        for (TMAspot ts : tss) {
-            stats = ts.calculateMatchStatistics();
-            XYSeries series = new XYSeries("P_" + Misc.FilePathStringtoFilenameWOExtension(ts.getName()).replaceAll("spots_", "").replaceAll("_top_left", "").replaceAll("prostate_cancer_mib_validation_", ""));
-            series.add(stats[2+7], stats[1+7]);
-            dataset.addSeries(series);
+        if (manager !=null) {
+            List<TMAspot> tss = manager.getSelectedTMAspots();
+            double[] stats;
+            for (TMAspot ts : tss) {
+                stats = ts.calculateMatchStatistics();
+                XYSeries series = new XYSeries("P_" + Misc.FilePathStringtoFilenameWOExtension(ts.getName()).replaceAll("spots_", "").replaceAll("_top_left", "").replaceAll("prostate_cancer_mib_validation_", ""));
+                series.add(stats[2+7], stats[1+7]);
+                dataset.addSeries(series);
+            }
         }
         JFreeChart chart;
         // If there is already a chart, re-use it.
@@ -2798,6 +2906,22 @@ public class StainingEstimation extends javax.swing.JFrame implements TMARKERPlu
         //*/
 
         return map;
+    }
+    
+    void setProgressNumber(int processed, int total, long startTimeMillis) {
+        if (processed<=0 || total <=0) {
+            jLabel30.setText(" ");
+        } else {
+            String text = "Processed  " + processed + "/" + total + "  (" + 100*processed/total + " %)";
+            if (startTimeMillis>0) {
+                long time = (total-processed) * (System.currentTimeMillis() - startTimeMillis) / processed;
+                text += "    (est. " + String.format("%d min, %d sec", 
+                    TimeUnit.MILLISECONDS.toMinutes(time),
+                    TimeUnit.MILLISECONDS.toSeconds(time) - 
+                    TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS.toMinutes(time))) + ")";
+            }
+            jLabel30.setText(text);
+        }
     }
     
 }

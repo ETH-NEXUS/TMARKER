@@ -110,9 +110,6 @@ public final class tmarker extends javax.swing.JFrame {
     private final Random random = new Random();
     private String infoText = "";
     
-    //for Thumbnails
-    Thread thumbnailsThread = null;
-    
     /**
      * When clicked on the image, add cancerous nucleus.
      */
@@ -548,11 +545,6 @@ public final class tmarker extends javax.swing.JFrame {
         jScrollPane7.setVerticalScrollBarPolicy(javax.swing.ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
 
         jPanel36.setBackground(new java.awt.Color(255, 255, 255));
-        jPanel36.addComponentListener(new java.awt.event.ComponentAdapter() {
-            public void componentMoved(java.awt.event.ComponentEvent evt) {
-                jPanel36ComponentMoved(evt);
-            }
-        });
         jPanel36.addMouseMotionListener(new java.awt.event.MouseMotionAdapter() {
             public void mouseDragged(java.awt.event.MouseEvent evt) {
                 jPanel36MouseDragged(evt);
@@ -1373,10 +1365,6 @@ public final class tmarker extends javax.swing.JFrame {
         LoadFilesWithChooser(this, getCurrentDir());
     }//GEN-LAST:event_jMenuItem1ActionPerformed
 
-    private void jPanel36ComponentMoved(java.awt.event.ComponentEvent evt) {//GEN-FIRST:event_jPanel36ComponentMoved
-        setThumbnailsThread();
-    }//GEN-LAST:event_jPanel36ComponentMoved
-
     private void jButton5ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton5ActionPerformed
         Point p1 = MouseInfo.getPointerInfo().getLocation();
         Point p2 = jButton5.getLocationOnScreen();
@@ -1558,7 +1546,7 @@ public final class tmarker extends javax.swing.JFrame {
      * @param args the command line arguments
      */
     public static void main(String args[]) {
-        int debug = 5; // SET THIS TO 0 IF YOU COMPILE FOR PUBLIC DISTRIBUTION OTHERWISE 1-5 FOR LESS OR MORE DEBUG INFO
+        int debug = 0; // SET THIS TO 0 IF YOU COMPILE FOR PUBLIC DISTRIBUTION OTHERWISE 1-5 FOR LESS OR MORE DEBUG INFO
         
         if (args.length>0) {
             try {
@@ -1852,7 +1840,7 @@ public final class tmarker extends javax.swing.JFrame {
     /**
      * Updates the TMA List in the TMARKER window. If the TMAspot ts is not there yet, it is added. Otherwise the information of this TMAspot is updated.
      * @param ts The TMAspot to be updated.
-     * @param newspot If you already know this is a new spot (true), it is directly added to the table without search. If false, the table is searched for it.
+     * @param newspot If you already know this is a new spot (true), it is directly added to the table without search. If false, the table is first searched for it.
      */
     public void updateTMATable(final TMAspot ts, boolean newspot) {
         int n = jPanel36.getComponentCount();
@@ -1873,26 +1861,6 @@ public final class tmarker extends javax.swing.JFrame {
             jPanel36.add(ts.getTLP());
             n++;
         }
-        
-        //update the thumbnail image
-        if (!found) {
-            Thread thumbnail = new Thread(new Runnable() {
-                    @Override
-                    public void run() {
-                        try { 
-                            ts.getTLP().setThumbnailImage(null);
-                        } catch (OutOfMemoryError e) {
-                           logger.log(java.util.logging.Level.INFO, "Not enough memory for thumbnail creation.");
-                        } catch (Exception e) {
-                            if (tmarker.DEBUG>0) {
-                                e.printStackTrace();
-                            }
-                        }
-                    }
-                });
-            thumbnail.start();
-        }
-        
         
         //validateScrollPanel();
         ((TitledBorder) (jPanel20.getBorder())).setTitle("TMA List - " + n + " file(s)");
@@ -2794,7 +2762,6 @@ public final class tmarker extends javax.swing.JFrame {
         }
         t.setProgressbar(0);
         t.setCursor(Cursor.getDefaultCursor());
-        //t.setThumbnailsThread();
     }
     
     /**
@@ -3307,31 +3274,6 @@ public final class tmarker extends javax.swing.JFrame {
     }
     
     /**
-     * Creates a new Thread to create all the thumbnail images of the TMAspots.
-     */
-    public void setThumbnailsThread() {
-        if (thumbnailsThread==null || !thumbnailsThread.isAlive()) {
-            thumbnailsThread = new Thread(new Runnable() {
-                @Override
-                public void run() {
-                    try { 
-                        for (int i=0;i<getTMAspots().size();i++) {
-                            getTMAspots().get(i).getTLP().setThumbnailImage(null);
-                        }
-                    } catch (OutOfMemoryError e) {
-                       logger.log(java.util.logging.Level.INFO, "Not enough memory for thumbnail creation.");
-                    } catch (Exception e) {
-                        if (tmarker.DEBUG>0) {
-                             logger.log(Level.WARNING, e.getMessage(), e);
-                        }
-                    }
-                }
-            });
-            thumbnailsThread.start();
-        }
-    }
-    
-    /**
      * Sets the zoom parameter of the visible TMAspot.
      * @param i The zoom parameter in percent.
      */
@@ -3688,7 +3630,7 @@ public final class tmarker extends javax.swing.JFrame {
      * @return A union over all properties of all given TMAspots.
      */
     public static Set<String> getProperties(List<TMAspot> tss) {
-        Set<String> props = new ArraySet<String>();
+        Set<String> props = new ArraySet<>();
         for (TMAspot ts : tss) {
             props.addAll(ts.getProperties().stringPropertyNames());
         }
