@@ -6,6 +6,8 @@
 package intensityclustering;
 
 import TMARKERPluginInterface.PluginManager;
+import com.boxysystems.jgoogleanalytics.FocusPoint;
+import com.boxysystems.jgoogleanalytics.JGoogleAnalyticsTracker;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Container;
@@ -656,11 +658,17 @@ public class IntensityClustering extends javax.swing.JFrame implements TMARKERPl
 
     private void jButton14ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton14ActionPerformed
         clusterPointsManually(manager.getSelectedTMAspots());
+        JGoogleAnalyticsTracker tracker = new JGoogleAnalyticsTracker("TMARKER","UA-61194283-1");
+        FocusPoint focusPoint = new FocusPoint("IntensityClusteringManualUsage");
+        tracker.trackAsynchronously(focusPoint);
     }//GEN-LAST:event_jButton14ActionPerformed
 
     private void jButton15ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton15ActionPerformed
         clusterPointsAutomaticallyColorSpace(manager.getSelectedTMAspots());
         drawNucleiIntensities2D(manager.getSelectedTMAspots(), false);
+        JGoogleAnalyticsTracker tracker = new JGoogleAnalyticsTracker("TMARKER","UA-61194283-1");
+        FocusPoint focusPoint = new FocusPoint("IntensityClusteringAutomatic3D");
+        tracker.trackAsynchronously(focusPoint);
     }//GEN-LAST:event_jButton15ActionPerformed
 
     private void jLabel43MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jLabel43MouseClicked
@@ -670,6 +678,9 @@ public class IntensityClustering extends javax.swing.JFrame implements TMARKERPl
     private void jButton18ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton18ActionPerformed
         drawNucleiIntensities2D(manager.getSelectedTMAspots(), true);
         drawNucleiIntensities3D(manager.getSelectedTMAspots());
+        JGoogleAnalyticsTracker tracker = new JGoogleAnalyticsTracker("TMARKER","UA-61194283-1");
+        FocusPoint focusPoint = new FocusPoint("IntensityClusteringAutomatic2D");
+        tracker.trackAsynchronously(focusPoint);
     }//GEN-LAST:event_jButton18ActionPerformed
 
     /**

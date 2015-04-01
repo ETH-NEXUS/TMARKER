@@ -6,6 +6,8 @@
 package stainingestimation;
 
 import TMARKERPluginInterface.PluginManager;
+import com.boxysystems.jgoogleanalytics.FocusPoint;
+import com.boxysystems.jgoogleanalytics.JGoogleAnalyticsTracker;
 import ij.ImagePlus;
 import ij.plugin.filter.GaussianBlur;
 import ij.plugin.filter.MaximumFinder;
@@ -1353,6 +1355,9 @@ public class StainingEstimation extends javax.swing.JFrame implements TMARKERPlu
 
     private void jButton4ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton4ActionPerformed
         doStainingEstimation(true);
+        JGoogleAnalyticsTracker tracker = new JGoogleAnalyticsTracker("TMARKER","UA-61194283-1");
+        FocusPoint focusPoint = new FocusPoint("StainingEstimationUsage");
+        tracker.trackAsynchronously(focusPoint);
     }//GEN-LAST:event_jButton4ActionPerformed
 
     private void jButton6ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton6ActionPerformed
@@ -2908,6 +2913,16 @@ public class StainingEstimation extends javax.swing.JFrame implements TMARKERPlu
         return map;
     }
     
+    /**
+     * Writes the progress numbers and estimated time according to total number 
+     * of instances, already processed number of instances and process start time
+     * to a JLabel. If total is 0, " " is written (making the progress inforamtion
+     * invisible). If startTimeMillis > 0, the estimated time for the remaining
+     * instances is added.
+     * @param processed Processed number of instances.
+     * @param total Total number of instances (if 0, " " will be written).
+     * @param startTimeMillis The starting time of the process.
+     */
     void setProgressNumber(int processed, int total, long startTimeMillis) {
         if (processed<=0 || total <=0) {
             jLabel30.setText(" ");

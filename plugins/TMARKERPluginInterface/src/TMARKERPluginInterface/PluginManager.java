@@ -72,5 +72,7 @@ public interface PluginManager {
   public String getCurrentDir();
   
   public void setInfoText(String text);
+  
+  public void selectAndShowTMAspot(TMAspot ts);
 
 }

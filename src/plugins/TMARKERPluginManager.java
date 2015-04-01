@@ -244,5 +244,22 @@ public class TMARKERPluginManager implements PluginManager {
         tmarker.LoadFilesWithChooser(t, dir);
     }
     
+    /**
+     * Selects a given TMAspot in the main program.
+     * @param ts The TMAspot to be selected. If ts is null or is not found, 
+     * no spot is selected.
+     */
+    public void selectAndShowTMAspot(TMAspot ts) {
+        if (ts != null) {
+            t.selectTMAspot(ts);
+            List<TMAspot> tss = t.getSelectedTMAspots(false);
+            if (!tss.isEmpty()) {
+                t.showTMAspot(tss.get(0));
+            } else {
+                t.showTMAspot(null);
+            }
+        }
+    }
+    
     
 }

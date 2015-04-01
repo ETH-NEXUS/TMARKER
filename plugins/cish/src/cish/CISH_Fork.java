@@ -28,6 +28,7 @@ import weka.core.Instances;
 public class CISH_Fork extends RecursiveAction {    
     
     private final TMARKERPluginManager tpm;
+    private final CISH cish;
     private final List<TMAspot> tss;
     private final int psr;
     private final int nPts;
@@ -41,10 +42,12 @@ public class CISH_Fork extends RecursiveAction {
     private final int mLength;
     private final boolean doFork;
     private final int[] progress_container;
+    private final long startTime;
     
     /**
      * Creates a new CISH_Fork.
      * @param tpm The TMARKERPluginManager to access the main program.
+     * @param cish The main CISH instance.
      * @param tss The TMAspots to be processed.
      * @param psr The point signal radius used by the cish method.
      * @param nPts The number of local points used for local ratio calculation.
@@ -59,8 +62,9 @@ public class CISH_Fork extends RecursiveAction {
      * @param doFork If true, the fork is run in parallel. Otherwise, not parallel (no fork).
      * @param progress_value A container for the progress bar over the forks.
      */
-    public CISH_Fork(TMARKERPluginManager tpm, List<TMAspot> tss, int psr, int nPts, boolean darkpoints, double[] gRatios, double[] lRatios, int[][][] ps, Classifier classifier, Instances dataset, int mStart, int mLength, boolean doFork, int[] progress_value) {
+    public CISH_Fork(TMARKERPluginManager tpm, CISH cish, List<TMAspot> tss, int psr, int nPts, boolean darkpoints, double[] gRatios, double[] lRatios, int[][][] ps, Classifier classifier, Instances dataset, int mStart, int mLength, boolean doFork, int[] progress_value) {
         this.tpm = tpm;
+        this.cish = cish;
         this.tss = tss;
         this.psr = psr;
         this.nPts = nPts;
@@ -74,6 +78,7 @@ public class CISH_Fork extends RecursiveAction {
         this.mLength = mLength;
         this.doFork = doFork;
         this.progress_container = progress_value;
+        this.startTime = System.currentTimeMillis();
     }
     
     
@@ -93,7 +98,7 @@ public class CISH_Fork extends RecursiveAction {
             for (int i=0; i<n_proc; i++) {
                 split_adj = Math.min(split, tss.size()-(mStart + i*split));
                 if (split_adj>0) {
-                    fjt.add(new CISH_Fork(tpm, tss, psr, nPts, darkpoints, gRatios, lRatios, ps, classifier, dataset, mStart + i*split, split_adj, false, progress_container));
+                    fjt.add(new CISH_Fork(tpm, cish, tss, psr, nPts, darkpoints, gRatios, lRatios, ps, classifier, dataset, mStart + i*split, split_adj, false, progress_container));
                 }
             }
             invokeAll(fjt);
@@ -173,23 +178,23 @@ public class CISH_Fork extends RecursiveAction {
                 TMAspot ts = tss.get(i);
                 tpm.setStatusMessageLabel("Performing CISH Analysis ...");
                 //tpm.setProgressbar((int)(100.0*(2*progress_container[0]-1)/(2*tss.size())));
-                tpm.setProgressbar((int)(100.0*(progress_container[0])/(8*tss.size())));
+                tpm.setProgressbar((int)(100.0*(progress_container[0])/(7*tss.size())));
                 
                 // get ImagePlus
                 ImagePlus ip = new ImagePlus("", ts.getBufferedImage());
                 progress_container[0]++;
-                tpm.setProgressbar((int)(100.0*(progress_container[0])/(8*tss.size())));
+                tpm.setProgressbar((int)(100.0*(progress_container[0])/(7*tss.size())));
                 
                 // get circles
                 Point[] circ = hough.run(ip.getProcessor(), Math.max(1, psr-2), Math.max(1, psr+4), darkpoints);
                 //Point[] circ = hough.run(ip.getProcessor(), psr, psr, 1, detectedPts, threshold, darkpoints);
                 progress_container[0]++;
-                tpm.setProgressbar((int)(100.0*(progress_container[0])/(8*tss.size())));
+                tpm.setProgressbar((int)(100.0*(progress_container[0])/(7*tss.size())));
                 
                 // classifiy circles
                 List<List> cepsgenes = CISH.getPoints(ip.getProcessor(), circ, psr, classifier, dataset);
                 progress_container[0]++;
-                tpm.setProgressbar((int)(100.0*(progress_container[0])/(8*tss.size())));
+                tpm.setProgressbar((int)(100.0*(progress_container[0])/(7*tss.size())));
                 
                 // get final classified points as int[][]
                 int[][] all_ps = new int[cepsgenes.get(0).size() + cepsgenes.get(1).size() + cepsgenes.get(2).size()][5];
@@ -204,44 +209,45 @@ public class CISH_Fork extends RecursiveAction {
                 }
                 ps[i] = all_ps;
                 progress_container[0]++;
-                tpm.setProgressbar((int)(100.0*(progress_container[0])/(8*tss.size())));
+                tpm.setProgressbar((int)(100.0*(progress_container[0])/(7*tss.size())));
                 
                 // get global ratio
                 if (!cepsgenes.get(0).isEmpty() || !cepsgenes.get(2).isEmpty()) {
                     gRatios[i] = globalRatio(cepsgenes);
-                } else if (!cepsgenes.get(1).isEmpty() || !cepsgenes.get(2).isEmpty()) {
-                    gRatios[i] = Double.MAX_VALUE;
+                } else if (!cepsgenes.get(1).isEmpty()) {
+                    gRatios[i] = Double.POSITIVE_INFINITY;
                 } else {
                     gRatios[i] = 1;
                 }
                 progress_container[0]++;
-                tpm.setProgressbar((int)(100.0*(progress_container[0])/(8*tss.size())));
+                tpm.setProgressbar((int)(100.0*(progress_container[0])/(7*tss.size())));
                 
                 // get local ratio
                 int local_radius = 20*psr;
                 if (!cepsgenes.get(0).isEmpty() || !cepsgenes.get(2).isEmpty()) {
                     lRatios[i] = localRatio(ip.getWidth(), ip.getHeight(), cepsgenes, local_radius, nPts);
-                } else if (!cepsgenes.get(1).isEmpty() || !cepsgenes.get(2).isEmpty()) {
-                    lRatios[i] = Double.MAX_VALUE;
+                } else if (!cepsgenes.get(1).isEmpty()) {
+                    lRatios[i] = Double.POSITIVE_INFINITY;
                 } else {
                     lRatios[i] = 1;
                 }
                 progress_container[0]++;
-                tpm.setProgressbar((int)(100.0*(progress_container[0])/(8*tss.size())));
+                tpm.setProgressbar((int)(100.0*(progress_container[0])/(7*tss.size())));
                 
                 //tpm.setProgressbar((int)(100.0*(2*progress_container[0])/(2*tss.size())));
+                cish.setProgressNumber(progress_container[0]/7, tss.size(), startTime);
             }
         } catch (Exception ex) {
             Logger.getLogger(CISH_Fork.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
     
-    public static void doCISH_Fork(TMARKERPluginManager tpm, List<TMAspot> tss, int psr, int nPts, boolean darkpoints, double[] gRatios, double[] lRatios, int[][][] ps, Classifier classifier, Instances dataset) {
+    public static void doCISH_Fork(TMARKERPluginManager tpm, CISH cish, List<TMAspot> tss, int psr, int nPts, boolean darkpoints, double[] gRatios, double[] lRatios, int[][][] ps, Classifier classifier, Instances dataset) {
         int[] progress_container = new int[]{0};
         String text = tpm.getStatusMessageLabelText();
         
-        //CISH_Fork fb = new CISH_Fork(t, tss, psr, nPts, darkpoints, gRatios, lRatios, ps, classifier, dataset, 0, tss.size(), t.getOptionDialog().useParallelProgramming(), progress_container);
-        CISH_Fork fb = new CISH_Fork(tpm, tss, psr, nPts, darkpoints, gRatios, lRatios, ps, classifier, dataset, 0, tss.size(), false, progress_container);
+        //CISH_Fork fb = new CISH_Fork(t, cish, tss, psr, nPts, darkpoints, gRatios, lRatios, ps, classifier, dataset, 0, tss.size(), t.getOptionDialog().useParallelProgramming(), progress_container);
+        CISH_Fork fb = new CISH_Fork(tpm, cish, tss, psr, nPts, darkpoints, gRatios, lRatios, ps, classifier, dataset, 0, tss.size(), false, progress_container);
 
         ForkJoinPool pool = new ForkJoinPool();
 
@@ -249,6 +255,7 @@ public class CISH_Fork extends RecursiveAction {
         pool.invoke(fb);
         long endTime = System.currentTimeMillis();
         
+        cish.setProgressNumber(0, 0, 0);
         tpm.setStatusMessageLabel(text);
         tpm.setProgressbar(0);
 
@@ -270,9 +277,7 @@ public class CISH_Fork extends RecursiveAction {
     }
     
     /**
-     * Calculates and returns the local CISH ratio:
-     *  
-     * 
+     * Calculates and returns the local CISH ratio. 
      * @param cepsgenes The gene groups found (cepsgenes.get(0) = ceps, 
      * cepsgenes.get(1) = genes).
      * @return The global ceps to genes ratio.
@@ -385,7 +390,7 @@ public class CISH_Fork extends RecursiveAction {
      * @param rand The random number generator. Can be null.
      * @return A random point x y.
      */
-    private int[] cirrdnPt(int x0, int y0, double R, Random rand) {
+    static int[] cirrdnPt(int x0, int y0, double R, Random rand) {
         if (rand==null) {
             rand = new Random(1);
         }
@@ -405,7 +410,7 @@ public class CISH_Fork extends RecursiveAction {
      * @param y2 y-coord point 2.
      * @return The distance between the two points.
      */
-    private double dist(int x1, int y1, int x2, int y2) {
+    static double dist(int x1, int y1, int x2, int y2) {
         return Math.sqrt(Math.pow(x2-x1, 2.0) + Math.pow(y2-y1, 2.0));
     }
     

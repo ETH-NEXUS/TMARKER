@@ -5,6 +5,8 @@
 package survivalanalysis;
 
 import TMARKERPluginInterface.PluginManager;
+import com.boxysystems.jgoogleanalytics.FocusPoint;
+import com.boxysystems.jgoogleanalytics.JGoogleAnalyticsTracker;
 import java.awt.Graphics;
 import java.awt.event.ActionEvent;
 import java.awt.image.BufferedImage;
@@ -353,6 +355,9 @@ public class SurvivalAnalysisFrame extends javax.swing.JFrame implements TMARKER
 
     private void jButton8ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton8ActionPerformed
         doSurvivalAnalysis();
+        JGoogleAnalyticsTracker tracker = new JGoogleAnalyticsTracker("TMARKER","UA-61194283-1");
+        FocusPoint focusPoint = new FocusPoint("SurvivalAnalysisUsage");
+        tracker.trackAsynchronously(focusPoint);
     }//GEN-LAST:event_jButton8ActionPerformed
 
     private void jList2MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jList2MouseClicked

@@ -19,6 +19,8 @@ import javax.swing.JFrame;
  */
 public class UpdateDialog extends javax.swing.JDialog {
     
+    boolean isOutOfDate = false;
+    
     /**
      * Opens a new UpdateDialog and sets the text an buttons according to the current revision of the program.
      * @param parent The parent frame for this dialog box.
@@ -41,7 +43,7 @@ public class UpdateDialog extends javax.swing.JDialog {
         int thisRevisionInt = Integer.parseInt(thisRevision.replaceAll("\\.", "").replaceAll("'", ""));
         int remoteRevisionInt = Integer.parseInt(remoteRevision.replaceAll("\\.", "").replaceAll("'", ""));
         boolean connectionFailure = remoteRevisionInt < 0;
-        boolean newAvailable = remoteRevisionInt > thisRevisionInt;
+        isOutOfDate = remoteRevisionInt > thisRevisionInt;
         if (connectionFailure) {
             jLabel4.setText("");
             jLabel5.setText("");
@@ -50,9 +52,9 @@ public class UpdateDialog extends javax.swing.JDialog {
             jLabel4.setText("Local Version: TMARKER v" + thisRevision);
             jLabel5.setText("Online Version: TMARKER v" + remoteRevision);
         }
-        jLabel1.setVisible(!connectionFailure && !newAvailable);
-        jLabel2.setVisible(!connectionFailure && newAvailable);
-        jButton1.setVisible(!connectionFailure && newAvailable);
+        jLabel1.setVisible(!connectionFailure && !isOutOfDate);
+        jLabel2.setVisible(!connectionFailure && isOutOfDate);
+        jButton1.setVisible(!connectionFailure && isOutOfDate);
         jLabel3.setVisible(connectionFailure);
     }
     
@@ -159,8 +161,10 @@ public class UpdateDialog extends javax.swing.JDialog {
      * @param parent The parent frame for this dialog box.
      * @param thisRevision The current local revision (version) of this program.
      * @param remoteRevision The remote revision (version) of the program.
+     * @param verbose If true, the result will be displayed in any case. If false
+     * the result will be displayed only if this TMARKER version is out of date.
      */
-    public static void main(final JFrame parent, final String thisRevision, final String remoteRevision) {
+    public static void main(final JFrame parent, final String thisRevision, final String remoteRevision, final boolean verbose) {
         java.awt.EventQueue.invokeLater(new Runnable() {
             @Override
             public void run() {
@@ -173,7 +177,9 @@ public class UpdateDialog extends javax.swing.JDialog {
                 });
                 dialog.pack();
                 dialog.setLocationRelativeTo(parent);
-                dialog.setVisible(true);
+                if (verbose || dialog.isOutOfDate) {
+                    dialog.setVisible(true);
+                }
             }
         });
     }

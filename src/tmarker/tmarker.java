@@ -44,6 +44,10 @@ import org.jdesktop.swingx.JXStatusBar;
 import org.xml.sax.SAXException;
 import TMARKERPluginInterface.Pluggable;
 import TMARKERPluginInterface.PluginManager;
+import com.boxysystems.jgoogleanalytics.FocusPoint;
+import com.boxysystems.jgoogleanalytics.JGoogleAnalyticsTracker;
+import com.meterware.httpunit.MessageBodyWebRequest;
+import com.meterware.httpunit.WebRequest;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;
@@ -85,6 +89,10 @@ public final class tmarker extends javax.swing.JFrame {
         initComponents();
         setTmpDir(tmp_dir);
         initComponents2();
+        
+        if (od.checkForUpdatesOnStart()) {
+            checkForUpdates(false);
+        }
     } 
 
     /** Revision number*/
@@ -1336,7 +1344,7 @@ public final class tmarker extends javax.swing.JFrame {
     }//GEN-LAST:event_jButton6ActionPerformed
 
     private void jMenuItem17ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem17ActionPerformed
-        checkForUpdates();
+        checkForUpdates(true);
     }//GEN-LAST:event_jMenuItem17ActionPerformed
 
     private void jPanel36MouseDragged(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jPanel36MouseDragged
@@ -2778,11 +2786,12 @@ public final class tmarker extends javax.swing.JFrame {
     
     /**
      * Sets a given TMAspot as selected. All others will be un-selected.
+     * The selected TMAspot will be shown.
      * @param ts The selected TMAspot.
      */
     public void selectTMAspot(TMAspot ts) {
         for (TMAspot ts_: getTMAspots()) {
-            ts.setSelected(ts_==ts);
+            ts_.setSelected(ts!=null && ts_==ts);
         }
         for (Pluggable p: plugins) {
             p.updateOptionsToTMAspot(getVisibleTMAspot(), getSelectedTMAspots(false));
@@ -3888,8 +3897,6 @@ public final class tmarker extends javax.swing.JFrame {
             }
             setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
         }
-        getBgCorrectionDialog().setVisible(false);
-        getBgCorrectionDialog().dispose();
     }
     
     /**
@@ -5203,6 +5210,7 @@ public final class tmarker extends javax.swing.JFrame {
         appProps.setProperty("OD.useParallelProgramming", Boolean.toString(od.useParallelProgramming()));
         appProps.setProperty("OD.useLocalPlugins", Boolean.toString(od.getUseLocalPlugins()));
         appProps.setProperty("OD.localPluginFolder", od.getLocalPluginFolder());
+        appProps.setProperty("OD.checkForUpdatesOnStart", Boolean.toString(od.checkForUpdatesOnStart()));
         appProps.setProperty("BCD.useColor", Boolean.toString(bcd.getUseColor()));
         
         // Add the plugin properties
@@ -5297,6 +5305,7 @@ public final class tmarker extends javax.swing.JFrame {
             value = appProps.getProperty("OD.useParallelProgramming"); if (value!=null) { od.setUseParallelProgramming(Boolean.parseBoolean(value)); }
             value = appProps.getProperty("OD.useLocalPlugins"); if (value!=null) { od.setUseLocalPlugins(Boolean.parseBoolean(value)); }
             value = appProps.getProperty("OD.localPluginFolder"); if (value!=null) { od.setLocalPluginFolder(value); }
+            value = appProps.getProperty("OD.checkForUpdatesOnStart"); if (value!=null) { od.setCheckForUpdatesOnStart(Boolean.parseBoolean(value)); }
             value = appProps.getProperty("BCD.useColor"); if (value!=null) { bcd.setUseColor(Boolean.parseBoolean(value)); }
             
             //update toolbar according to new colors
@@ -5345,6 +5354,7 @@ public final class tmarker extends javax.swing.JFrame {
         od.setUseParallelProgramming(true);
         od.setLocalPluginFolder(System.getProperty("user.dir") + File.separator + "plugins");
         od.setUseLocalPlugins(false);
+        od.setCheckForUpdatesOnStart(true);
         
         bcd.setUseColor(true);
         
@@ -5378,39 +5388,55 @@ public final class tmarker extends javax.swing.JFrame {
     /**
      * Checks online for updates and reportes to the user if there is one.
      * DOES NOT UPDATE TMARKER AUTOMATICALLY
+     * @param verbose If true, the result will be displayed in any case. If false
+     * the result will be displayed only if this TMARKER version is out of date.
      */
-    public void checkForUpdates() {
-        String thisRevision = tmarker.REVISION;
-        String remoteRevision = "-1";
-        try {
-            WebConversation wc = new WebConversation();
-            WebResponse resp = wc.getResponse("http://www.nexus.ethz.ch/content/dam/ethz/special-interest/dual/nexus-dam/software/TMARKER/vnuc.txt");
-            
-            // output is website with version number
-            String output = resp.getText();
-            if (tmarker.DEBUG > 3) {
-                logger.log(java.util.logging.Level.INFO, output);
+    public void checkForUpdates(final boolean verbose) {
+        
+        Thread updateCheck = new Thread(new Runnable() {
+            JFrame frame =  (JFrame) getParent();
+
+            @Override
+            public void run() {
+                String thisRevision = tmarker.REVISION;
+                String remoteRevision = "-1";
+                try {
+                    WebConversation wc = new WebConversation();
+                    WebResponse resp = wc.getResponse("http://www.nexus.ethz.ch/content/dam/ethz/special-interest/dual/nexus-dam/software/TMARKER/vnuc.txt");
+                    
+                    // output is website with version number
+                    String output = resp.getText();
+                    if (tmarker.DEBUG > 3) {
+                        logger.log(java.util.logging.Level.INFO, output);
+                    }
+
+                    BufferedReader br = new BufferedReader(new StringReader(output));
+                    String line = br.readLine().trim();
+                    while (br.ready() && line.equals("")) {
+                        line = br.readLine().trim();
+                    }
+                    remoteRevision = line;
+                    
+                    JGoogleAnalyticsTracker tracker = new JGoogleAnalyticsTracker("TMARKER","UA-61194283-1");
+                    FocusPoint focusPoint = new FocusPoint("MainProgramUsage");
+                    tracker.trackAsynchronously(focusPoint);
+                } catch (MalformedURLException ex) {
+                    //Logger.getLogger(tmarker.class.getName()).log(Level.SEVERE, null, ex);
+                } catch (IOException ex) {
+                    //Logger.getLogger(tmarker.class.getName()).log(Level.SEVERE, null, ex);
+                } catch (SAXException ex) {
+                     //Logger.getLogger(tmarker.class.getName()).log(Level.SEVERE, null, ex);
+                } catch (Exception ex) {
+                     //Logger.getLogger(tmarker.class.getName()).log(Level.SEVERE, null, ex);
+                } finally {
+                    UpdateDialog.main(frame, thisRevision, remoteRevision, verbose);
+                }
             }
-            
-            BufferedReader br = new BufferedReader(new StringReader(output));
-            String line = br.readLine().trim();
-            while (br.ready() && line.equals("")) {
-                line = br.readLine().trim();
-            }
-            remoteRevision = line;
-            
-        } catch (MalformedURLException ex) {
-            //Logger.getLogger(Frontend_Frame.class.getName()).log(Level.SEVERE, null, ex);
-        } catch (IOException ex) {
-            //Logger.getLogger(Frontend_Frame.class.getName()).log(Level.SEVERE, null, ex);
-        } catch (SAXException ex) {
-            // Logger.getLogger(Frontend_Frame.class.getName()).log(Level.SEVERE, null, ex);
-        }
-        catch (Exception ex) {
-            // Logger.getLogger(Frontend_Frame.class.getName()).log(Level.SEVERE, null, ex);
-        } finally {
-            UpdateDialog.main(this, thisRevision, remoteRevision);
-        }
+        });
+        
+        updateCheck.run();
+        
+        
     }
 
     /**

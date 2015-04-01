@@ -4,6 +4,7 @@
  */
 package tmarker;
 
+import java.awt.Cursor;
 import java.util.List;
 import tmarker.TMAspot.TMAspot;
 
@@ -25,13 +26,18 @@ public class BgCorrectionThread extends Thread {
     @Override
     public void run() {
         try { 
-            for (TMAspot ts:tss) {
-                ts.doBgCorrectionAutomatic();
+            if (tss!=null && !tss.isEmpty()) {
+                tss.get(0).getCenter().getBgCorrectionDialog().setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+                for (TMAspot ts:tss) {
+                    ts.doBgCorrectionAutomatic();
+                }
+
+                tss.get(0).getCenter().getBgCorrectionDialog().setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+                tss.get(0).getCenter().getBgCorrectionDialog().dispose();
             }
         } catch (OutOfMemoryError e) {
            java.util.logging.Logger.getLogger(getClass().getName()).log(java.util.logging.Level.WARNING, " Out of memory... Retry...");
            run();
-           return;
         } catch (Exception e) {
             if (!tss.isEmpty()) {
                 tss.get(0).getCenter().setStatusMessageLabel("Automatic Background Correction Stopped."); tss.get(0).getCenter().setProgressbar(0);

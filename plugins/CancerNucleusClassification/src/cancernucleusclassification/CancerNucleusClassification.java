@@ -11,6 +11,8 @@
 package cancernucleusclassification;
 
 import TMARKERPluginInterface.PluginManager;
+import com.boxysystems.jgoogleanalytics.FocusPoint;
+import com.boxysystems.jgoogleanalytics.JGoogleAnalyticsTracker;
 import graphcut.ConnectComponent;
 import graphcut.GraphCut;
 import graphcut.Terminal;
@@ -1531,6 +1533,9 @@ public class CancerNucleusClassification extends javax.swing.JFrame implements T
     private void jButton30ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton30ActionPerformed
         performNucleusClassification(true);
         manager.repaintVisibleTMAspot();
+        JGoogleAnalyticsTracker tracker = new JGoogleAnalyticsTracker("TMARKER","UA-61194283-1");
+        FocusPoint focusPoint = new FocusPoint("CancerNucleusClassificationTestinglUsage");
+        tracker.trackAsynchronously(focusPoint);
     }//GEN-LAST:event_jButton30ActionPerformed
 
     private void jButton26ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton26ActionPerformed
@@ -1538,6 +1543,9 @@ public class CancerNucleusClassification extends javax.swing.JFrame implements T
         if (getParam_useFeature_Segmentation()) {
             manager.repaintVisibleTMAspot();
         }
+        JGoogleAnalyticsTracker tracker = new JGoogleAnalyticsTracker("TMARKER","UA-61194283-1");
+        FocusPoint focusPoint = new FocusPoint("CancerNucleusClassificationTraininglUsage");
+        tracker.trackAsynchronously(focusPoint);
     }//GEN-LAST:event_jButton26ActionPerformed
 
     private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
@@ -3261,6 +3269,16 @@ public class CancerNucleusClassification extends javax.swing.JFrame implements T
         }
     }
     
+    /**
+     * Writes the progress numbers and estimated time according to total number 
+     * of instances, already processed number of instances and process start time
+     * to a JLabel. If total is 0, " " is written (making the progress inforamtion
+     * invisible). If startTimeMillis > 0, the estimated time for the remaining
+     * instances is added.
+     * @param processed Processed number of instances.
+     * @param total Total number of instances (if 0, " " will be written).
+     * @param startTimeMillis The starting time of the process.
+     */
     void setProgressNumber(int processed, int total, long startTimeMillis) {
         if (processed<=0 || total <=0) {
             jLabel31.setText("");

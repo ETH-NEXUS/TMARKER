@@ -52,6 +52,7 @@ public class OptionDialog extends javax.swing.JDialog {
         jRadioButton8 = new javax.swing.JRadioButton();
         jTextField1 = new javax.swing.JTextField();
         jButton3 = new javax.swing.JButton();
+        jCheckBox4 = new javax.swing.JCheckBox();
         jPanel3 = new javax.swing.JPanel();
         jRadioButton1 = new javax.swing.JRadioButton();
         jRadioButton5 = new javax.swing.JRadioButton();
@@ -77,14 +78,14 @@ public class OptionDialog extends javax.swing.JDialog {
         jPanel1.setLayout(new java.awt.GridBagLayout());
 
         jCheckBox1.setSelected(true);
-        jCheckBox1.setText("Save all program settings on exit (settings will be restored on next program start)."); // NOI18N
+        jCheckBox1.setText("Save all program settings on exit (settings will be restored on next program start)"); // NOI18N
         jCheckBox1.setName("jCheckBox1"); // NOI18N
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 5;
-        gridBagConstraints.gridwidth = 3;
+        gridBagConstraints.gridy = 6;
+        gridBagConstraints.gridwidth = java.awt.GridBagConstraints.REMAINDER;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
-        gridBagConstraints.insets = new java.awt.Insets(10, 10, 10, 10);
+        gridBagConstraints.insets = new java.awt.Insets(0, 10, 10, 10);
         jPanel1.add(jCheckBox1, gridBagConstraints);
 
         jCheckBox3.setSelected(true);
@@ -93,8 +94,9 @@ public class OptionDialog extends javax.swing.JDialog {
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
         gridBagConstraints.gridy = 4;
+        gridBagConstraints.gridwidth = java.awt.GridBagConstraints.REMAINDER;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
-        gridBagConstraints.insets = new java.awt.Insets(10, 10, 10, 10);
+        gridBagConstraints.insets = new java.awt.Insets(10, 10, 0, 10);
         jPanel1.add(jCheckBox3, gridBagConstraints);
 
         java.util.ResourceBundle bundle = java.util.ResourceBundle.getBundle("tmarker/Bundle"); // NOI18N
@@ -103,6 +105,7 @@ public class OptionDialog extends javax.swing.JDialog {
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
         gridBagConstraints.gridy = 0;
+        gridBagConstraints.gridwidth = java.awt.GridBagConstraints.REMAINDER;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
         gridBagConstraints.insets = new java.awt.Insets(10, 10, 3, 0);
         jPanel1.add(jLabel2, gridBagConstraints);
@@ -115,6 +118,7 @@ public class OptionDialog extends javax.swing.JDialog {
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
         gridBagConstraints.gridy = 1;
+        gridBagConstraints.gridwidth = java.awt.GridBagConstraints.REMAINDER;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
         gridBagConstraints.insets = new java.awt.Insets(0, 10, 0, 0);
         jPanel1.add(jRadioButton7, gridBagConstraints);
@@ -126,6 +130,7 @@ public class OptionDialog extends javax.swing.JDialog {
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
         gridBagConstraints.gridy = 2;
+        gridBagConstraints.gridwidth = java.awt.GridBagConstraints.REMAINDER;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
         gridBagConstraints.insets = new java.awt.Insets(0, 10, 0, 0);
         jPanel1.add(jRadioButton8, gridBagConstraints);
@@ -165,6 +170,18 @@ public class OptionDialog extends javax.swing.JDialog {
         gridBagConstraints.anchor = java.awt.GridBagConstraints.EAST;
         gridBagConstraints.insets = new java.awt.Insets(0, 10, 0, 10);
         jPanel1.add(jButton3, gridBagConstraints);
+
+        jCheckBox4.setSelected(true);
+        jCheckBox4.setText(bundle.getString("OptionDialog.jCheckBox4.text")); // NOI18N
+        jCheckBox4.setToolTipText(bundle.getString("OptionDialog.jCheckBox4.toolTipText")); // NOI18N
+        jCheckBox4.setName("jCheckBox4"); // NOI18N
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 5;
+        gridBagConstraints.gridwidth = java.awt.GridBagConstraints.REMAINDER;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
+        gridBagConstraints.insets = new java.awt.Insets(0, 10, 0, 0);
+        jPanel1.add(jCheckBox4, gridBagConstraints);
 
         jTabbedPane1.addTab(bundle.getString("OptionDialog.jPanel1.TabConstraints.tabTitle"), jPanel1); // NOI18N
 
@@ -569,6 +586,22 @@ public class OptionDialog extends javax.swing.JDialog {
     }
     
     /**
+     * Whether or not an update check should be performed on program start.
+     * @return True if an update check should be performed on program start.
+     */
+    public boolean checkForUpdatesOnStart() {
+        return jCheckBox4.isSelected();
+    }
+    
+    /**
+     * Sets whether or not an update check should be performed on program start.
+     * @param b True if an update check should be performed on program start.
+     */
+    public void setCheckForUpdatesOnStart(boolean b) {
+        jCheckBox4.setSelected(b);
+    }
+    
+    /**
      * Sets wether or not manually reviewed estimated nuclei should be converted to goldstandard nuclei.
      * @param b True if manually reviewed estimated nuclei should be converted to goldstandard nuclei.
      */
@@ -594,6 +627,7 @@ public class OptionDialog extends javax.swing.JDialog {
     private javax.swing.JCheckBox jCheckBox1;
     private javax.swing.JCheckBox jCheckBox2;
     private javax.swing.JCheckBox jCheckBox3;
+    private javax.swing.JCheckBox jCheckBox4;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel10;
     private javax.swing.JLabel jLabel2;

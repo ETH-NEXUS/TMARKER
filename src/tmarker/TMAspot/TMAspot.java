@@ -842,9 +842,12 @@ public final class TMAspot {
                 ImageIO.write(I, ftype, out);
                 this.bgCorrected_filename = fname;
                 if (getCenter().getVisibleTMAspot() == this) {
-                    getCenter().showTMAspot(this);
+                    getCenter().getTMAView().showTMAspot(this, true);
+                    getCenter().showTMAspotPreview();
+                    //getCenter().showTMAspot(this);
                 }
             }
+            
             getCenter().setStatusMessageLabel(text);
         } catch (IOException ex) { 
             getCenter().setStatusMessageLabel("An error occurred while correcting background. " + ex.getMessage());
@@ -876,10 +879,10 @@ public final class TMAspot {
         Color bg = Color.BLACK;
         Color bg_current;
         double[] hist;
-        for (int i=r; i<I.getWidth(); i+=r) {
+        for (int i=r; i<I.getWidth()-r; i+=r) {
             getCenter().setProgressbar((int) 100*i/(I.getWidth()));
             if (entropy > 0) {
-                for (int j=r; j<I.getHeight(); j+=r) {
+                for (int j=r; j<I.getHeight()-r; j+=r) {
                     if (entropy > 0) {
                         bg_current = getAverageColorAtPoint(I, i, j, r, false);
                         if (bg_current.getRed()>180) { //minimum intensity of background
@@ -902,9 +905,6 @@ public final class TMAspot {
         }
         if (bg.getRed()>180) {
             doBgCorrection(bg.getRGB(), I);
-        }
-        if (getCenter().getVisibleTMAspot() == this) {
-            getCenter().getTMAView().repaint();
         }
         getCenter().setStatusMessageLabel(text);
         getCenter().setProgressbar(0);

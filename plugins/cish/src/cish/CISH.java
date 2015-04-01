@@ -6,6 +6,8 @@
 package cish;
 
 import TMARKERPluginInterface.PluginManager;
+import com.boxysystems.jgoogleanalytics.FocusPoint;
+import com.boxysystems.jgoogleanalytics.JGoogleAnalyticsTracker;
 import ij.process.ImageProcessor;
 import java.awt.Color;
 import java.awt.Cursor;
@@ -20,13 +22,14 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
+import java.util.Random;
+import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.imageio.ImageIO;
 import javax.swing.Icon;
 import javax.swing.ImageIcon;
 import javax.swing.table.DefaultTableModel;
-import javax.swing.table.TableModel;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.ChartUtilities;
@@ -52,8 +55,9 @@ import weka.filters.unsupervised.attribute.NumericToNominal;
 public class CISH extends javax.swing.JFrame implements TMARKERPluginInterface.Pluggable {
 
     // For Plugin handling
-    PluginManager manager = null;
+    TMARKERPluginManager manager = null;
     private static final String PLUGINNAME = "CISH";
+    private CISH_Thread thread = null;
     
     /**
      * 5 classes of Colors for CISH Points
@@ -111,6 +115,7 @@ public class CISH extends javax.swing.JFrame implements TMARKERPluginInterface.P
         jLabel3 = new javax.swing.JLabel();
         jLabel4 = new javax.swing.JLabel();
         jLabel5 = new javax.swing.JLabel();
+        jLabel6 = new javax.swing.JLabel();
 
         setTitle("CISH Analysis");
         getContentPane().setLayout(new java.awt.GridBagLayout());
@@ -231,7 +236,7 @@ public class CISH extends javax.swing.JFrame implements TMARKERPluginInterface.P
         jPanel1.setLayout(new java.awt.BorderLayout());
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 8;
+        gridBagConstraints.gridy = 9;
         gridBagConstraints.gridwidth = java.awt.GridBagConstraints.REMAINDER;
         gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
         gridBagConstraints.insets = new java.awt.Insets(10, 0, 5, 5);
@@ -286,11 +291,16 @@ public class CISH extends javax.swing.JFrame implements TMARKERPluginInterface.P
                 return canEdit [columnIndex];
             }
         });
+        jXTable1.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                jXTable1MouseClicked(evt);
+            }
+        });
         jScrollPane1.setViewportView(jXTable1);
 
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 7;
+        gridBagConstraints.gridy = 8;
         gridBagConstraints.gridwidth = java.awt.GridBagConstraints.REMAINDER;
         gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
         gridBagConstraints.insets = new java.awt.Insets(10, 5, 5, 5);
@@ -327,6 +337,16 @@ public class CISH extends javax.swing.JFrame implements TMARKERPluginInterface.P
         gridBagConstraints.insets = new java.awt.Insets(4, 5, 0, 0);
         getContentPane().add(jPanel2, gridBagConstraints);
 
+        jLabel6.setText(" ");
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 7;
+        gridBagConstraints.gridwidth = java.awt.GridBagConstraints.REMAINDER;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
+        gridBagConstraints.insets = new java.awt.Insets(2, 12, 0, 5);
+        getContentPane().add(jLabel6, gridBagConstraints);
+
         bindingGroup.bind();
 
         pack();
@@ -342,11 +362,28 @@ public class CISH extends javax.swing.JFrame implements TMARKERPluginInterface.P
 
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
         doCISH();
+        JGoogleAnalyticsTracker tracker = new JGoogleAnalyticsTracker("TMARKER","UA-61194283-1");
+        FocusPoint focusPoint = new FocusPoint("CISHUsage");
+        tracker.trackAsynchronously(focusPoint);
     }//GEN-LAST:event_jButton1ActionPerformed
 
     private void jCheckBox1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jCheckBox1ActionPerformed
         manager.repaintVisibleTMAspot();
     }//GEN-LAST:event_jCheckBox1ActionPerformed
+
+    private void jXTable1MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jXTable1MouseClicked
+        if (evt.getClickCount()==2) {
+            TMAspot ts = null;
+            String selectedName = jXTable1.getStringAt(jXTable1.getSelectedRow(), jXTable1.convertColumnIndexToView(0));
+            for (TMAspot ts_: manager.getTMAspots()) {
+                if (ts_.getName().equals(selectedName)) {
+                    ts = ts_;
+                    break;
+                }
+            }
+            manager.selectAndShowTMAspot(ts);
+        }
+    }//GEN-LAST:event_jXTable1MouseClicked
 
     /**
      * @param args the command line arguments
@@ -396,6 +433,7 @@ public class CISH extends javax.swing.JFrame implements TMARKERPluginInterface.P
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;
     private javax.swing.JLabel jLabel5;
+    private javax.swing.JLabel jLabel6;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel2;
     private javax.swing.JScrollPane jScrollPane1;
@@ -420,7 +458,7 @@ public class CISH extends javax.swing.JFrame implements TMARKERPluginInterface.P
 
     @Override
     public void setPluginManager(PluginManager manager) {
-        this.manager = manager;
+        this.manager = (TMARKERPluginManager) manager;
     }
 
     @Override
@@ -661,10 +699,13 @@ public class CISH extends javax.swing.JFrame implements TMARKERPluginInterface.P
         this.ps = new int[tss.size()][][];
         
         if (!tss.isEmpty()) { 
-            CISH_Fork.doCISH_Fork((TMARKERPluginManager) manager, this.tss, getParam_PointSignalRadius(), getParam_nPts(), getParam_darkpoints(), gRatios, lRatios, ps, classifier, dataset);
-            updateCISHTable();
-            drawRatioPlot();
-            manager.repaintVisibleTMAspot();
+            if (thread!=null) {
+                if (thread.isAlive()) {
+                    thread.interrupt();
+                }
+            }
+            thread = new CISH_Thread((TMARKERPluginManager) manager, this, this.tss, getParam_PointSignalRadius(), getParam_nPts(), getParam_darkpoints(), gRatios, lRatios, ps, classifier, dataset);
+            thread.start();
         }
         
         this.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
@@ -699,9 +740,12 @@ public class CISH extends javax.swing.JFrame implements TMARKERPluginInterface.P
         DefaultXYDataset dataset = new DefaultXYDataset();
         if (lRatios != null) {
             for (int i = 0; i < lRatios.length; i++) {
-                dataset.addSeries(tss.get(i).getName(), new double[][] {new double[] {gRatios[i]}, new double[] {lRatios[i]}});
+                if (gRatios[i] != Double.POSITIVE_INFINITY && lRatios[i] != Double.POSITIVE_INFINITY) {
+                    dataset.addSeries(tss.get(i).getName(), new double[][] {new double[] {gRatios[i]}, new double[] {lRatios[i]}});
+                }
             }
         }
+        
         JFreeChart chart = ChartFactory.createScatterPlot("CISH Ratio", "Global Ratio", "Local Ratio", dataset, PlotOrientation.VERTICAL, true, true, false);
         //chart.getXYPlot().getDomainAxis().setRange(0, 1);
         //chart.getXYPlot().getRangeAxis().setRange(0, 1);
@@ -803,6 +847,32 @@ public class CISH extends javax.swing.JFrame implements TMARKERPluginInterface.P
         out.add(genes);
         out.add(both);
         return out;
+    }
+    
+    /**
+     * Writes the progress numbers and estimated time according to total number 
+     * of instances, already processed number of instances and process start time
+     * to a JLabel. If total is 0, " " is written (making the progress inforamtion
+     * invisible). If startTimeMillis > 0, the estimated time for the remaining
+     * instances is added.
+     * @param processed Processed number of instances.
+     * @param total Total number of instances (if 0, " " will be written).
+     * @param startTimeMillis The starting time of the process.
+     */
+    void setProgressNumber(int processed, int total, long startTimeMillis) {
+        if (processed<=0 || total <=0) {
+            jLabel6.setText(" ");
+        } else {
+            String text = "Processed  " + processed + "/" + total + "  (" + 100*processed/total + " %)";
+            if (startTimeMillis>0) {
+                long time = (total-processed) * (System.currentTimeMillis() - startTimeMillis) / processed;
+                text += "    (est. " + String.format("%d min, %d sec", 
+                    TimeUnit.MILLISECONDS.toMinutes(time),
+                    TimeUnit.MILLISECONDS.toSeconds(time) - 
+                    TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS.toMinutes(time))) + ")";
+            }
+            jLabel6.setText(text);
+        }
     }
 
 }

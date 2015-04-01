@@ -326,9 +326,6 @@ public class Hough_Circles {
                         // add this center
                         centers.add(new Point(i, j));
                         // clear neighbors
-                        if (i == 515 || j == 515) {
-                            int z = 4;
-                        }
                         for (int m = i - r_half; m <= i + r_half; m++) {
                             if (m >= 0 && m < img.length) {
                                 for (int n = j - r_half; n <= j + r_half; n++) {

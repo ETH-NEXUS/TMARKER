@@ -268,7 +268,7 @@ public class TMARKERAboutBox extends javax.swing.JDialog {
     }//GEN-LAST:event_appCiteLabelMouseClicked
 
     private void appVersionLabelMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_appVersionLabelMouseClicked
-        ((tmarker)getParent()).checkForUpdates();
+        ((tmarker)getParent()).checkForUpdates(true);
     }//GEN-LAST:event_appVersionLabelMouseClicked
 
     private void jLabel1MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jLabel1MouseClicked
