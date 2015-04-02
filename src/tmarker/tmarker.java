@@ -46,8 +46,6 @@ import TMARKERPluginInterface.Pluggable;
 import TMARKERPluginInterface.PluginManager;
 import com.boxysystems.jgoogleanalytics.FocusPoint;
 import com.boxysystems.jgoogleanalytics.JGoogleAnalyticsTracker;
-import com.meterware.httpunit.MessageBodyWebRequest;
-import com.meterware.httpunit.WebRequest;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;
@@ -1618,6 +1616,10 @@ public final class tmarker extends javax.swing.JFrame {
                 
                 frame.setExtendedState(frame.getExtendedState()|JFrame.MAXIMIZED_BOTH);
                 frame.setVisible(true);
+                
+                JGoogleAnalyticsTracker tracker = new JGoogleAnalyticsTracker("TMARKER","UA-61194283-1");
+                FocusPoint focusPoint = new FocusPoint("MainProgramUsage");
+                tracker.trackAsynchronously(focusPoint);
 
                 if (DEBUG>0) {
                     //... Add property list data to text area.
@@ -5416,10 +5418,6 @@ public final class tmarker extends javax.swing.JFrame {
                         line = br.readLine().trim();
                     }
                     remoteRevision = line;
-                    
-                    JGoogleAnalyticsTracker tracker = new JGoogleAnalyticsTracker("TMARKER","UA-61194283-1");
-                    FocusPoint focusPoint = new FocusPoint("MainProgramUsage");
-                    tracker.trackAsynchronously(focusPoint);
                 } catch (MalformedURLException ex) {
                     //Logger.getLogger(tmarker.class.getName()).log(Level.SEVERE, null, ex);
                 } catch (IOException ex) {
@@ -5435,10 +5433,8 @@ public final class tmarker extends javax.swing.JFrame {
         });
         
         updateCheck.run();
-        
-        
     }
-
+    
     /**
      * Returns the TMAspot with the given name.
      * @param name The name to be searched for.
