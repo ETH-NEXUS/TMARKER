@@ -53,6 +53,7 @@ public class OptionDialog extends javax.swing.JDialog {
         jTextField1 = new javax.swing.JTextField();
         jButton3 = new javax.swing.JButton();
         jCheckBox4 = new javax.swing.JCheckBox();
+        jCheckBox5 = new javax.swing.JCheckBox();
         jPanel3 = new javax.swing.JPanel();
         jRadioButton1 = new javax.swing.JRadioButton();
         jRadioButton5 = new javax.swing.JRadioButton();
@@ -82,7 +83,7 @@ public class OptionDialog extends javax.swing.JDialog {
         jCheckBox1.setName("jCheckBox1"); // NOI18N
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 6;
+        gridBagConstraints.gridy = 7;
         gridBagConstraints.gridwidth = java.awt.GridBagConstraints.REMAINDER;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
         gridBagConstraints.insets = new java.awt.Insets(0, 10, 10, 10);
@@ -182,6 +183,19 @@ public class OptionDialog extends javax.swing.JDialog {
         gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
         gridBagConstraints.insets = new java.awt.Insets(0, 10, 0, 0);
         jPanel1.add(jCheckBox4, gridBagConstraints);
+
+        jCheckBox5.setSelected(true);
+        jCheckBox5.setText(bundle.getString("OptionDialog.jCheckBox5.text")); // NOI18N
+        jCheckBox5.setToolTipText(bundle.getString("OptionDialog.jCheckBox5.toolTipText")); // NOI18N
+        jCheckBox5.setName("jCheckBox5"); // NOI18N
+
+        binding = org.jdesktop.beansbinding.Bindings.createAutoBinding(org.jdesktop.beansbinding.AutoBinding.UpdateStrategy.READ, jCheckBox4, org.jdesktop.beansbinding.ELProperty.create("${selected}"), jCheckBox5, org.jdesktop.beansbinding.BeanProperty.create("enabled"), "jCheckBox5Binding");
+        bindingGroup.addBinding(binding);
+
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
+        gridBagConstraints.insets = new java.awt.Insets(0, 30, 0, 0);
+        jPanel1.add(jCheckBox5, gridBagConstraints);
 
         jTabbedPane1.addTab(bundle.getString("OptionDialog.jPanel1.TabConstraints.tabTitle"), jPanel1); // NOI18N
 
@@ -602,6 +616,23 @@ public class OptionDialog extends javax.swing.JDialog {
     }
     
     /**
+     * Whether or not an update should automatically be installed. After installing,
+     * it will be available after new program start.
+     * @return True if an update should automatically be installed.
+     */
+    public boolean installUpdatesAutomatically() {
+        return jCheckBox5.isSelected();
+    }
+    
+    /**
+     * Sets whether or not an update should automatically be installed.
+     * @param b True if an update update should automatically be installed.
+     */
+    public void setInstallUpdatesAutomatically(boolean b) {
+        jCheckBox5.setSelected(b);
+    }
+    
+    /**
      * Sets wether or not manually reviewed estimated nuclei should be converted to goldstandard nuclei.
      * @param b True if manually reviewed estimated nuclei should be converted to goldstandard nuclei.
      */
@@ -628,6 +659,7 @@ public class OptionDialog extends javax.swing.JDialog {
     private javax.swing.JCheckBox jCheckBox2;
     private javax.swing.JCheckBox jCheckBox3;
     private javax.swing.JCheckBox jCheckBox4;
+    private javax.swing.JCheckBox jCheckBox5;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel10;
     private javax.swing.JLabel jLabel2;

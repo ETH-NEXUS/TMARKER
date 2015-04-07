@@ -820,11 +820,13 @@ public class IntensityClustering extends javax.swing.JFrame implements TMARKERPl
     public void actionPerformed(java.awt.event.ActionEvent evt) {
         jLabel41.setText(" ");
         jLabel42.setText(" ");
-        this.setVisible(true);adoptUnkownPointsIntensities();
+        this.setVisible(true);
+        adoptUnkownPointsIntensities();
         List<TMAspot> tss = manager.getSelectedTMAspots();
-        drawNucleiIntensities3D(tss);
-        drawNucleiIntensities2D(tss, false);
-        
+        if (!tss.isEmpty()) {
+            drawNucleiIntensities3D(tss);
+            drawNucleiIntensities2D(tss, false);
+        }
     }
 
     @Override

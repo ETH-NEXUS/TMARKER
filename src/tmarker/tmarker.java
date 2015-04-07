@@ -80,7 +80,7 @@ import tmarker.misc.ZoomableImagePanel;
  */
 public final class tmarker extends javax.swing.JFrame {
 
-    /** Creates new form tmarker
+    /** Creates new form tmarker.
      * @param tmp_dir The TMARKER temp directory which is deleted on exit. Temporary files can be written here.
      */
     public tmarker(String tmp_dir) {
@@ -89,11 +89,13 @@ public final class tmarker extends javax.swing.JFrame {
         initComponents2();
         
         if (od.checkForUpdatesOnStart()) {
-            checkForUpdates(false);
+            checkForUpdates(false, od.installUpdatesAutomatically());
         }
     } 
 
-    /** Revision number*/
+    /** 
+     * Revision number.
+     */
     public static String REVISION = "2." + "$Revision: 21611 $".replaceAll("\\$", "").replaceAll("\\D", "");
     
     /** Unique Identifier*/
@@ -104,10 +106,14 @@ public final class tmarker extends javax.swing.JFrame {
      */
     public static final Logger logger = Logger.getLogger(tmarker.class.getName());
     
-    /*
+    /**
      * The loaded plugins.
     */
     List<Pluggable> plugins = new ArrayList<>();
+    /**
+     * The update threads for the plugins.
+     */
+    List<Thread> pluginUpdaters = new ArrayList<>();
     
     private String currentDir = "";
     private String tmp_dir = "";
@@ -1342,7 +1348,7 @@ public final class tmarker extends javax.swing.JFrame {
     }//GEN-LAST:event_jButton6ActionPerformed
 
     private void jMenuItem17ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem17ActionPerformed
-        checkForUpdates(true);
+        checkForUpdates(true, false);
     }//GEN-LAST:event_jMenuItem17ActionPerformed
 
     private void jPanel36MouseDragged(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jPanel36MouseDragged
@@ -2781,8 +2787,18 @@ public final class tmarker extends javax.swing.JFrame {
         for (TMAspot ts: getTMAspots()) {
             ts.setSelected(true);
         }
-        for (Pluggable p: plugins) {
-            p.updateOptionsToTMAspot(getVisibleTMAspot(), getSelectedTMAspots(false));
+        for (int i=0; i<plugins.size(); i++) {
+            final Pluggable p = plugins.get(i);
+            if (pluginUpdaters.get(i).isAlive())
+                pluginUpdaters.get(i).interrupt();
+            Thread thread = new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    p.updateOptionsToTMAspot(getVisibleTMAspot(), getSelectedTMAspots(false));
+                }
+            });
+            thread.start();
+            pluginUpdaters.set(i, thread);
         }
     }
     
@@ -2795,8 +2811,18 @@ public final class tmarker extends javax.swing.JFrame {
         for (TMAspot ts_: getTMAspots()) {
             ts_.setSelected(ts!=null && ts_==ts);
         }
-        for (Pluggable p: plugins) {
-            p.updateOptionsToTMAspot(getVisibleTMAspot(), getSelectedTMAspots(false));
+        for (int i=0; i<plugins.size(); i++) {
+            final Pluggable p = plugins.get(i);
+            if (pluginUpdaters.get(i).isAlive())
+                pluginUpdaters.get(i).interrupt();
+            Thread thread = new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    p.updateOptionsToTMAspot(getVisibleTMAspot(), getSelectedTMAspots(false));
+                }
+            });
+            thread.start();
+            pluginUpdaters.set(i, thread);
         }
     }
 
@@ -3015,8 +3041,18 @@ public final class tmarker extends javax.swing.JFrame {
         
         tvp.showTMAspot(ts);
         tsd.updateSummary(ts);
-        for (Pluggable p: plugins) {
-            p.updateOptionsToTMAspot(getVisibleTMAspot(), getSelectedTMAspots(false));
+        for (int i=0; i<plugins.size(); i++) {
+            final Pluggable p = plugins.get(i);
+            if (pluginUpdaters.get(i).isAlive())
+                pluginUpdaters.get(i).interrupt();
+            Thread thread = new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    p.updateOptionsToTMAspot(getVisibleTMAspot(), getSelectedTMAspots(false));
+                }
+            });
+            thread.start();
+            pluginUpdaters.set(i, thread);
         }
         try {
             if (ts!=null) {
@@ -5213,6 +5249,7 @@ public final class tmarker extends javax.swing.JFrame {
         appProps.setProperty("OD.useLocalPlugins", Boolean.toString(od.getUseLocalPlugins()));
         appProps.setProperty("OD.localPluginFolder", od.getLocalPluginFolder());
         appProps.setProperty("OD.checkForUpdatesOnStart", Boolean.toString(od.checkForUpdatesOnStart()));
+        appProps.setProperty("OD.installUpdatesAutomatically", Boolean.toString(od.installUpdatesAutomatically()));
         appProps.setProperty("BCD.useColor", Boolean.toString(bcd.getUseColor()));
         
         // Add the plugin properties
@@ -5308,6 +5345,7 @@ public final class tmarker extends javax.swing.JFrame {
             value = appProps.getProperty("OD.useLocalPlugins"); if (value!=null) { od.setUseLocalPlugins(Boolean.parseBoolean(value)); }
             value = appProps.getProperty("OD.localPluginFolder"); if (value!=null) { od.setLocalPluginFolder(value); }
             value = appProps.getProperty("OD.checkForUpdatesOnStart"); if (value!=null) { od.setCheckForUpdatesOnStart(Boolean.parseBoolean(value)); }
+            value = appProps.getProperty("OD.installUpdatesAutomatically"); if (value!=null) { od.setInstallUpdatesAutomatically(Boolean.parseBoolean(value)); }
             value = appProps.getProperty("BCD.useColor"); if (value!=null) { bcd.setUseColor(Boolean.parseBoolean(value)); }
             
             //update toolbar according to new colors
@@ -5357,6 +5395,7 @@ public final class tmarker extends javax.swing.JFrame {
         od.setLocalPluginFolder(System.getProperty("user.dir") + File.separator + "plugins");
         od.setUseLocalPlugins(false);
         od.setCheckForUpdatesOnStart(true);
+        od.setInstallUpdatesAutomatically(true);
         
         bcd.setUseColor(true);
         
@@ -5392,8 +5431,10 @@ public final class tmarker extends javax.swing.JFrame {
      * DOES NOT UPDATE TMARKER AUTOMATICALLY
      * @param verbose If true, the result will be displayed in any case. If false
      * the result will be displayed only if this TMARKER version is out of date.
+     * @param installAutomatically If true, an update will be installed automatically. Else,
+     * the user would be asked.
      */
-    public void checkForUpdates(final boolean verbose) {
+    public void checkForUpdates(final boolean verbose, final boolean installAutomatically) {
         
         Thread updateCheck = new Thread(new Runnable() {
             JFrame frame =  (JFrame) getParent();
@@ -5427,7 +5468,7 @@ public final class tmarker extends javax.swing.JFrame {
                 } catch (Exception ex) {
                      //Logger.getLogger(tmarker.class.getName()).log(Level.SEVERE, null, ex);
                 } finally {
-                    UpdateDialog.main(frame, thisRevision, remoteRevision, verbose);
+                    UpdateDialog.main(frame, thisRevision, remoteRevision, verbose, installAutomatically);
                 }
             }
         });
@@ -5503,30 +5544,55 @@ public final class tmarker extends javax.swing.JFrame {
                 logger.log(Level.INFO, plugins.size() + " plugin(s) found (step 1 of 2).");
             }
             
+            // add the plugin manager
             PluginManager manager;
             manager = new TMARKERPluginManager(this);
             for (Pluggable p : plugins) {
                 p.setPluginManager(manager);
             }
             
+            // add an update thread to the plugin updaters
+            for (final Pluggable p : plugins) {
+                Thread thread = new Thread(new Runnable() {
+                    @Override
+                    public void run() {
+                        p.updateOptionsToTMAspot(getVisibleTMAspot(), getSelectedTMAspots(false));
+                    }
+                });
+                pluginUpdaters.add(thread);
+            }
+            
             // add the plugins into the menu
-            for (int i = 0; i < plugins.size(); i++) {
-                final Pluggable p = plugins.get(i);
+            for (final Pluggable p : plugins) {
                 try {
                     JMenuItem mi = new JMenuItem(p.getPluginName(), (p.getIcon()!=null ? p.getIcon():new ImageIcon(getIconImage().getScaledInstance(16, 16, java.awt.Image.SCALE_DEFAULT))));
                     mi.addActionListener(new java.awt.event.ActionListener() {
                         @Override
-                        public void actionPerformed(java.awt.event.ActionEvent evt) {
-                            p.actionPerformed(evt);
+                        public void actionPerformed(final java.awt.event.ActionEvent evt) {
+                            Thread thread = new Thread(new Runnable() {
+
+                                @Override
+                                public void run() {
+                                    p.actionPerformed(evt);
+                                }
+                            });
+                            thread.start();
                         }
                     });
                     jMenu5.add(mi, jMenu5.getItemCount()-2);
-                    p.start();
+                    
+                    Thread thread = new Thread(new Runnable() {
+                        @Override
+                        public void run() {
+                            p.start();
+                        }
+                    });
+                    thread.start();
+
                 } catch (Exception e) {
                     Logger.getLogger(tmarker.class.getName()).log(Level.SEVERE, null, e);
                 }
-            }
-            //System.setSecurityManager(new TMARKERSecurityManager());
+            } //System.setSecurityManager(new TMARKERSecurityManager());
             
             if (DEBUG > 0) {
                 logger.log(Level.INFO, (jMenu5.getItemCount()-2) + " plugin(s) loaded (step 2 of 2).");

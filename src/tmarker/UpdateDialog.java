@@ -72,6 +72,10 @@ public class UpdateDialog extends javax.swing.JDialog {
         jProgressBar1.setEnabled(false);
     }
     
+    /**
+     * Workhorse function. Opens a connection to the new TMARKER zip File, downloads it and extracts it in the current program folder. The new update is
+     * then used with the next program start of TMARKER.
+     */
     public void downloadAndExtractUpdates() {
         
         try {
@@ -172,6 +176,21 @@ public class UpdateDialog extends javax.swing.JDialog {
             JOptionPane.showMessageDialog(null, ex.getMessage());
         }
     }
+    
+    /**
+     * Opens a new Thread which performs downloadAndExtractUpdate();
+     */
+    private void downloadUpdateInNewThread() {
+        Thread thread = new Thread(new Runnable() {
+
+            @Override
+            public void run() {
+                downloadAndExtractUpdates();
+            }
+        });
+        thread.start();
+    }
+
     
     /** This method is called from within the constructor to
      * initialize the form.
@@ -286,16 +305,7 @@ public class UpdateDialog extends javax.swing.JDialog {
     }// </editor-fold>//GEN-END:initComponents
 
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
-        Thread thread = new Thread(new Runnable() {
-
-            @Override
-            public void run() {
-                downloadAndExtractUpdates();
-            }
-        });
-        
-        thread.start();
-       
+        downloadUpdateInNewThread();       
     }//GEN-LAST:event_jButton1ActionPerformed
 
     private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
@@ -329,8 +339,10 @@ public class UpdateDialog extends javax.swing.JDialog {
      * @param remoteRevision The remote revision (version) of the program.
      * @param verbose If true, the result will be displayed in any case. If false
      * the result will be displayed only if this TMARKER version is out of date.
+     * @param installAutomatically If true (and verbose is false), an update will be installed automatically. Else,
+     * the user would be asked.
      */
-    public static void main(final JFrame parent, final String thisRevision, final String remoteRevision, final boolean verbose) {
+    public static void main(final JFrame parent, final String thisRevision, final String remoteRevision, final boolean verbose, final boolean installAutomatically) {
         java.awt.EventQueue.invokeLater(new Runnable() {
             @Override
             public void run() {
@@ -343,8 +355,14 @@ public class UpdateDialog extends javax.swing.JDialog {
                 });
                 dialog.pack();
                 dialog.setLocationRelativeTo(parent);
-                if (verbose || dialog.isOutOfDate) {
+                if (verbose) {
                     dialog.setVisible(true);
+                } else {
+                    if (installAutomatically && dialog.isOutOfDate) {
+                        dialog.downloadUpdateInNewThread();
+                    } else if (dialog.isOutOfDate) {
+                        dialog.setVisible(true);
+                    }
                 }
             }
         });
