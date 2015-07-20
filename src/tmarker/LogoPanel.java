@@ -27,8 +27,6 @@ package tmarker;
 
 import java.awt.Graphics;
 import java.awt.Image;
-import java.awt.event.ComponentAdapter;
-import java.awt.event.ComponentEvent;
 
 /**
  *
@@ -37,7 +35,7 @@ import java.awt.event.ComponentEvent;
 public class LogoPanel extends javax.swing.JPanel {
 
     private static final long serialVersionUID = 1L;
-    private Image imageOrg = null;
+    //private Image imageOrg = null;
     private Image image = null;
 
     /**
@@ -46,7 +44,7 @@ public class LogoPanel extends javax.swing.JPanel {
      */
     public LogoPanel(final Image img) {
         if (img!=null) {
-            imageOrg = img;
+            //imageOrg = img;
             image = img;
         }
         initComponents();

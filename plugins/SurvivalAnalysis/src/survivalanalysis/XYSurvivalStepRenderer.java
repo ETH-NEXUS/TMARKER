@@ -12,7 +12,7 @@ import org.jfree.data.xy.XYDataset;
 import org.jfree.data.xy.XYSeriesCollection;
 
 /**
- *
+ * A renderer to draw a Survival Analysis curve (Kaplan Meier curve).
  * @author Peter J. Schueffler
  */
 public class XYSurvivalStepRenderer extends XYStepRenderer {

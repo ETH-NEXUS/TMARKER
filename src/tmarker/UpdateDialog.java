@@ -51,8 +51,16 @@ public class UpdateDialog extends javax.swing.JDialog {
      * @param remoteRevision The remote version of TMARKER.
      */
     private void setButtons(String thisRevision, String remoteRevision) {
-        int thisRevisionInt = Integer.parseInt(thisRevision.replaceAll("\\.", "").replaceAll("'", ""));
-        int remoteRevisionInt = Integer.parseInt(remoteRevision.replaceAll("\\.", "").replaceAll("'", ""));
+        String thisRevision_tmp = thisRevision;
+        String remoteRevision_tmp = remoteRevision;
+        while (thisRevision_tmp.length()>remoteRevision_tmp.length()) {
+            remoteRevision_tmp = remoteRevision_tmp.concat("0");
+        }
+        while (remoteRevision_tmp.length()>thisRevision_tmp.length()) {
+            thisRevision_tmp = thisRevision_tmp.concat("0");
+        }
+        int thisRevisionInt = Integer.parseInt(thisRevision_tmp.replaceAll("\\.", "").replaceAll("'", ""));
+        int remoteRevisionInt = Integer.parseInt(remoteRevision_tmp.replaceAll("\\.", "").replaceAll("'", ""));
         boolean connectionFailure = remoteRevisionInt < 0;
         isOutOfDate = remoteRevisionInt > thisRevisionInt;
         if (connectionFailure) {

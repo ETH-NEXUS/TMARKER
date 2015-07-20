@@ -25,6 +25,8 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
@@ -233,6 +235,9 @@ public class StainingEstimation extends javax.swing.JFrame implements TMARKERPlu
         jTextField23 = new javax.swing.JTextField();
         jToggleButton2 = new javax.swing.JToggleButton();
         jButton1 = new javax.swing.JButton();
+        jButton7 = new javax.swing.JButton();
+        jButton8 = new javax.swing.JButton();
+        jButton9 = new javax.swing.JButton();
 
         setTitle(PLUGINNAME);
 
@@ -391,7 +396,7 @@ public class StainingEstimation extends javax.swing.JFrame implements TMARKERPlu
         jCheckBox4.setVerticalTextPosition(javax.swing.SwingConstants.TOP);
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 17;
+        gridBagConstraints.gridy = 18;
         gridBagConstraints.gridwidth = 8;
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
@@ -523,7 +528,7 @@ public class StainingEstimation extends javax.swing.JFrame implements TMARKERPlu
 
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 18;
+        gridBagConstraints.gridy = 19;
         gridBagConstraints.gridwidth = 8;
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.FIRST_LINE_START;
@@ -665,7 +670,7 @@ public class StainingEstimation extends javax.swing.JFrame implements TMARKERPlu
         jLabel16.setText(bundle.getString("StainingEstimationDialog.jLabel16.text")); // NOI18N
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 16;
+        gridBagConstraints.gridy = 17;
         gridBagConstraints.gridwidth = 8;
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
@@ -810,7 +815,7 @@ public class StainingEstimation extends javax.swing.JFrame implements TMARKERPlu
         gridBagConstraints.gridx = 8;
         gridBagConstraints.gridy = 5;
         gridBagConstraints.gridwidth = java.awt.GridBagConstraints.REMAINDER;
-        gridBagConstraints.gridheight = 17;
+        gridBagConstraints.gridheight = 18;
         gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.LAST_LINE_END;
         gridBagConstraints.insets = new java.awt.Insets(0, 10, 5, 5);
@@ -834,7 +839,7 @@ public class StainingEstimation extends javax.swing.JFrame implements TMARKERPlu
         jLabel5.setText("<html>See: <cite>Ruifrok AC, Johnston DA.<br><b>Quantification of histochemical staining by color deconvolution.</b><br><i>Anal Quant Cytol Histol 23: 291-299, 2001.</i></cite></html>");
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 20;
+        gridBagConstraints.gridy = 21;
         gridBagConstraints.gridwidth = 6;
         gridBagConstraints.gridheight = 2;
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
@@ -857,7 +862,7 @@ public class StainingEstimation extends javax.swing.JFrame implements TMARKERPlu
         gridBagConstraints.gridwidth = 2;
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_START;
-        gridBagConstraints.insets = new java.awt.Insets(5, 1, 5, 0);
+        gridBagConstraints.insets = new java.awt.Insets(5, 1, 0, 0);
         jPanel1.add(jRadioButton1, gridBagConstraints);
 
         buttonGroup1.add(jRadioButton2);
@@ -874,7 +879,7 @@ public class StainingEstimation extends javax.swing.JFrame implements TMARKERPlu
         gridBagConstraints.gridwidth = 2;
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_START;
-        gridBagConstraints.insets = new java.awt.Insets(5, 0, 5, 0);
+        gridBagConstraints.insets = new java.awt.Insets(5, 0, 0, 0);
         jPanel1.add(jRadioButton2, gridBagConstraints);
 
         buttonGroup1.add(jRadioButton3);
@@ -891,7 +896,7 @@ public class StainingEstimation extends javax.swing.JFrame implements TMARKERPlu
         gridBagConstraints.gridwidth = 2;
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_START;
-        gridBagConstraints.insets = new java.awt.Insets(5, 0, 5, 0);
+        gridBagConstraints.insets = new java.awt.Insets(5, 0, 0, 0);
         jPanel1.add(jRadioButton3, gridBagConstraints);
 
         buttonGroup1.add(jRadioButton4);
@@ -908,13 +913,13 @@ public class StainingEstimation extends javax.swing.JFrame implements TMARKERPlu
         gridBagConstraints.gridwidth = 2;
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_START;
-        gridBagConstraints.insets = new java.awt.Insets(5, 0, 5, 5);
+        gridBagConstraints.insets = new java.awt.Insets(5, 0, 0, 5);
         jPanel1.add(jRadioButton4, gridBagConstraints);
 
         jLabel30.setText(" ");
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 19;
+        gridBagConstraints.gridy = 20;
         gridBagConstraints.gridwidth = 8;
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_START;
@@ -1313,11 +1318,56 @@ public class StainingEstimation extends javax.swing.JFrame implements TMARKERPlu
         });
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 7;
-        gridBagConstraints.gridy = 21;
+        gridBagConstraints.gridy = 22;
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.LAST_LINE_END;
         gridBagConstraints.insets = new java.awt.Insets(0, 0, 5, 5);
         jPanel1.add(jButton1, gridBagConstraints);
+
+				jButton7.setText("Save Channel 1 ...");
+        jButton7.setToolTipText("Save channel 1 of selected images");
+        jButton7.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton7ActionPerformed(evt);
+            }
+        });
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 2;
+        gridBagConstraints.gridy = 16;
+        gridBagConstraints.gridwidth = 2;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
+        gridBagConstraints.insets = new java.awt.Insets(0, 0, 5, 0);
+        jPanel1.add(jButton7, gridBagConstraints);
+
+        jButton8.setText("Save Channel 2 ...");
+        jButton8.setToolTipText("Save channel 2 of selected images");
+        jButton8.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton8ActionPerformed(evt);
+            }
+        });
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 4;
+        gridBagConstraints.gridy = 16;
+        gridBagConstraints.gridwidth = 2;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
+        gridBagConstraints.insets = new java.awt.Insets(0, 0, 5, 0);
+        jPanel1.add(jButton8, gridBagConstraints);
+
+        jButton9.setText("Save Channel 3 ...");
+        jButton9.setToolTipText("Save channel 2 of selected images");
+        jButton9.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton9ActionPerformed(evt);
+            }
+        });
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 6;
+        gridBagConstraints.gridy = 16;
+        gridBagConstraints.gridwidth = 2;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
+        gridBagConstraints.insets = new java.awt.Insets(0, 0, 5, 0);
+        jPanel1.add(jButton9, gridBagConstraints);
 
         jScrollPane1.setViewportView(jPanel1);
 
@@ -1474,6 +1524,18 @@ public class StainingEstimation extends javax.swing.JFrame implements TMARKERPlu
         toggleAdvancedView();
     }//GEN-LAST:event_jButton1ActionPerformed
 
+		private void jButton7ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton7ActionPerformed
+        saveChannelImages(SHOW_CHANNEL1_IMAGE);
+    }//GEN-LAST:event_jButton7ActionPerformed
+
+    private void jButton8ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton8ActionPerformed
+        saveChannelImages(SHOW_CHANNEL2_IMAGE);
+    }//GEN-LAST:event_jButton8ActionPerformed
+
+    private void jButton9ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton9ActionPerformed
+        saveChannelImages(SHOW_CHANNEL3_IMAGE);
+    }//GEN-LAST:event_jButton9ActionPerformed
+
     /**
      * @param args the command line arguments
      */
@@ -1519,6 +1581,9 @@ public class StainingEstimation extends javax.swing.JFrame implements TMARKERPlu
     private javax.swing.JButton jButton4;
     private javax.swing.JButton jButton5;
     private javax.swing.JButton jButton6;
+    private javax.swing.JButton jButton7;
+    private javax.swing.JButton jButton8;
+    private javax.swing.JButton jButton9;
     private javax.swing.JCheckBox jCheckBox10;
     private javax.swing.JCheckBox jCheckBox11;
     private javax.swing.JCheckBox jCheckBox12;
@@ -1854,7 +1919,7 @@ public class StainingEstimation extends javax.swing.JFrame implements TMARKERPlu
                 jSlider2.setValue(ts.getParam_t_dab());
             }
             double[] f = new double[] {1.0};
-            previewOriginal = Misc.getScaledImageWithMaxSize(ts.getBufferedImage(), 150, 150, f);
+            previewOriginal = ts.getThumbnailImage(150, 150, f);
             imageResizeFactor = f[0];
             jXLabel1.setText("Original  ( " + Math.round(100.0*imageResizeFactor)/100.0 + " x )");
             ImagePlus previewOriginal_gray_tmp = new ImagePlus("", previewOriginal.getScaledInstance(-1, -1, Image.SCALE_DEFAULT));
@@ -2936,6 +3001,34 @@ public class StainingEstimation extends javax.swing.JFrame implements TMARKERPlu
                     TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS.toMinutes(time))) + ")";
             }
             jLabel30.setText(text);
+        }
+    }
+    
+    /**
+     * Saves the channel images of processed TMAspots. The user has to choose a
+     * folder in which the images are stored. This does nothing if
+     * color-deconvolution has not been performed, yet.
+     *
+     * @param whichImage The channel to be saves (SHOW_CHANNEL1_IMAGE,
+     * SHOW_CHANNEL2_IMAGE or SHOW_CHANNEL3_IMAGE).
+     */
+    public void saveChannelImages(int whichImage) {
+        if (!processedTMAspots.isEmpty()) {
+            // Let the user chose a folder
+            File file = FileChooser.chooseSavingFolder(this, manager.getCurrentDir());
+
+            if (file != null) {
+                manager.setCurrentDir(file.getPath());
+                for (TMAspot ts : processedTMAspots) {
+                    try {
+                        Files.copy((new File(getImagename(ts, whichImage))).toPath(), (new File(file.getPath() + File.separator + ts.getName() + "_" + Misc.FilePathStringtoFilename(getImagename(ts, whichImage)))).toPath(), StandardCopyOption.REPLACE_EXISTING);
+                    } catch (Exception ex) {
+                        if (tmarker.DEBUG > 0) {
+                            Logger.getLogger(StainingEstimation.class.getName()).log(Level.SEVERE, null, ex);
+                        }
+                    }
+                }
+            }
         }
     }
     

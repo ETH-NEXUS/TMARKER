@@ -283,6 +283,16 @@
                 <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="jCheckBoxMenuItem3ActionPerformed"/>
               </Events>
             </MenuItem>
+            <MenuItem class="javax.swing.JCheckBoxMenuItem" name="jCheckBoxMenuItem4">
+              <Properties>
+                <Property name="selected" type="boolean" value="true"/>
+                <Property name="text" type="java.lang.String" value="Memory View"/>
+                <Property name="toolTipText" type="java.lang.String" value="Monitors the current memory usage"/>
+              </Properties>
+              <Events>
+                <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="jCheckBoxMenuItem4ActionPerformed"/>
+              </Events>
+            </MenuItem>
             <MenuItem class="javax.swing.JPopupMenu$Separator" name="jSeparator17">
             </MenuItem>
             <MenuItem class="javax.swing.JMenuItem" name="jMenuItem5">
@@ -322,7 +332,7 @@
     </Menu>
   </NonVisualComponents>
   <Properties>
-    <Property name="defaultCloseOperation" type="int" value="2"/>
+    <Property name="defaultCloseOperation" type="int" value="3"/>
     <Property name="title" type="java.lang.String" editor="org.netbeans.modules.form.RADConnectionPropertyEditor">
       <Connection code="&quot;TMARKER v&quot; + tmarker.REVISION" type="code"/>
     </Property>
@@ -640,11 +650,7 @@
                               <SubComponents>
                                 <Container class="javax.swing.JPanel" name="jPanel3">
 
-                                  <Layout class="org.netbeans.modules.form.compat2.layouts.DesignFlowLayout">
-                                    <Property name="alignment" type="int" value="0"/>
-                                    <Property name="horizontalGap" type="int" value="0"/>
-                                    <Property name="verticalGap" type="int" value="0"/>
-                                  </Layout>
+                                  <Layout class="org.netbeans.modules.form.compat2.layouts.DesignBorderLayout"/>
                                 </Container>
                               </SubComponents>
                             </Container>
@@ -1100,42 +1106,68 @@
                     </Container>
                   </SubComponents>
                 </Container>
-                <Container class="javax.swing.JScrollPane" name="jScrollPane4">
-                  <Properties>
-                    <Property name="border" type="javax.swing.border.Border" editor="org.netbeans.modules.form.editors2.BorderEditor">
-                      <Border info="org.netbeans.modules.form.compat2.border.TitledBorderInfo">
-                        <TitledBorder title="Info View"/>
-                      </Border>
-                    </Property>
-                  </Properties>
-                  <AuxValues>
-                    <AuxValue name="autoScrollPane" type="java.lang.Boolean" value="true"/>
-                  </AuxValues>
+                <Container class="javax.swing.JPanel" name="jPanel5">
                   <Constraints>
                     <Constraint layoutClass="org.netbeans.modules.form.compat2.layouts.support.JSplitPaneSupportLayout" value="org.netbeans.modules.form.compat2.layouts.support.JSplitPaneSupportLayout$JSplitPaneConstraintsDescription">
                       <JSplitPaneConstraints position="right"/>
                     </Constraint>
                   </Constraints>
 
-                  <Layout class="org.netbeans.modules.form.compat2.layouts.support.JScrollPaneSupportLayout"/>
+                  <Layout class="org.netbeans.modules.form.compat2.layouts.DesignBorderLayout"/>
                   <SubComponents>
-                    <Component class="javax.swing.JTextPane" name="jTextPane1">
+                    <Container class="javax.swing.JScrollPane" name="jScrollPane4">
                       <Properties>
-                        <Property name="editable" type="boolean" value="false"/>
-                        <Property name="background" type="java.awt.Color" editor="org.netbeans.modules.form.RADConnectionPropertyEditor">
-                          <Connection code="SystemColor.info" type="code"/>
-                        </Property>
-                        <Property name="contentType" type="java.lang.String" value="text/html" noResource="true"/>
-                        <Property name="toolTipText" type="java.lang.String" value=""/>
-                        <Property name="margin" type="java.awt.Insets" editor="org.netbeans.beaninfo.editors.InsetsEditor">
-                          <Insets value="[5, 5, 5, 5]"/>
+                        <Property name="border" type="javax.swing.border.Border" editor="org.netbeans.modules.form.editors2.BorderEditor">
+                          <Border info="org.netbeans.modules.form.compat2.border.TitledBorderInfo">
+                            <TitledBorder title="Info View"/>
+                          </Border>
                         </Property>
                       </Properties>
                       <AuxValues>
-                        <AuxValue name="JavaCodeGenerator_AddingCodePost" type="java.lang.String" value="jTextPane1.addHyperlinkListener(new HyperlinkListener() {&#xd;&#xa;                    @Override&#xd;&#xa;                    public void hyperlinkUpdate(HyperlinkEvent hle) {&#xd;&#xa;                        if (HyperlinkEvent.EventType.ACTIVATED.equals(hle.getEventType())) {&#xd;&#xa;                            try {&#xd;&#xa;                                openWebsite(hle.getURL().toURI().toString());&#xd;&#xa;                            } catch (Exception e) {&#xd;&#xa;                                &#xd;&#xa;                            }   &#xd;&#xa;                        }&#xd;&#xa;                    }&#xd;&#xa;                });"/>
-                        <AuxValue name="JavaCodeGenerator_CreateCodeCustom" type="java.lang.String" value="new javax.swing.JTextPane() {&#xd;&#xa;      @Override&#xd;&#xa;      public void paint(Graphics g) {&#xd;&#xa;        Graphics2D g2d = (Graphics2D) g.create();&#xd;&#xa;        g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);&#xd;&#xa;        super.paint(g2d);&#xd;&#xa;        g2d.dispose();&#xd;&#xa;      }&#xd;&#xa;    }"/>
+                        <AuxValue name="autoScrollPane" type="java.lang.Boolean" value="true"/>
                       </AuxValues>
-                    </Component>
+                      <Constraints>
+                        <Constraint layoutClass="org.netbeans.modules.form.compat2.layouts.DesignBorderLayout" value="org.netbeans.modules.form.compat2.layouts.DesignBorderLayout$BorderConstraintsDescription">
+                          <BorderConstraints direction="Center"/>
+                        </Constraint>
+                      </Constraints>
+
+                      <Layout class="org.netbeans.modules.form.compat2.layouts.support.JScrollPaneSupportLayout"/>
+                      <SubComponents>
+                        <Component class="javax.swing.JTextPane" name="jTextPane1">
+                          <Properties>
+                            <Property name="editable" type="boolean" value="false"/>
+                            <Property name="background" type="java.awt.Color" editor="org.netbeans.modules.form.RADConnectionPropertyEditor">
+                              <Connection code="SystemColor.info" type="code"/>
+                            </Property>
+                            <Property name="contentType" type="java.lang.String" value="text/html" noResource="true"/>
+                            <Property name="toolTipText" type="java.lang.String" value=""/>
+                            <Property name="margin" type="java.awt.Insets" editor="org.netbeans.beaninfo.editors.InsetsEditor">
+                              <Insets value="[5, 5, 5, 5]"/>
+                            </Property>
+                          </Properties>
+                          <AuxValues>
+                            <AuxValue name="JavaCodeGenerator_CreateCodeCustom" type="java.lang.String" value="new javax.swing.JTextPane() {&#xd;&#xa;      @Override&#xd;&#xa;      public void paint(Graphics g) {&#xd;&#xa;        Graphics2D g2d = (Graphics2D) g.create();&#xd;&#xa;        g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);&#xd;&#xa;        super.paint(g2d);&#xd;&#xa;        g2d.dispose();&#xd;&#xa;      }&#xd;&#xa;    }"/>
+                          </AuxValues>
+                        </Component>
+                      </SubComponents>
+                    </Container>
+                    <Container class="javax.swing.JPanel" name="jPanel6">
+                      <Properties>
+                        <Property name="border" type="javax.swing.border.Border" editor="org.netbeans.modules.form.editors2.BorderEditor">
+                          <Border info="org.netbeans.modules.form.compat2.border.TitledBorderInfo">
+                            <TitledBorder title="Memory View (Java Heap Space)"/>
+                          </Border>
+                        </Property>
+                      </Properties>
+                      <Constraints>
+                        <Constraint layoutClass="org.netbeans.modules.form.compat2.layouts.DesignBorderLayout" value="org.netbeans.modules.form.compat2.layouts.DesignBorderLayout$BorderConstraintsDescription">
+                          <BorderConstraints direction="Last"/>
+                        </Constraint>
+                      </Constraints>
+
+                      <Layout class="org.netbeans.modules.form.compat2.layouts.DesignBorderLayout"/>
+                    </Container>
                   </SubComponents>
                 </Container>
               </SubComponents>

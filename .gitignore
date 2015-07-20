@@ -11,6 +11,7 @@ plugins/CancerNucleusClassification/nbproject/project.xml
 nbproject/private/private.xml
 plugins/CancerNucleusClassification/nbproject/private/private.xml
 nbproject/genfiles.properties
+nbproject/private/
 nbproject/project.properties
 nbproject/build-impl.xml
 plugins/CancerNucleusClassification/nbproject/private/private.properties
@@ -28,6 +29,8 @@ plugins/CancerNucleusClassification/nbproject/private/private.properties
 /plugins/SurvivalAnalysis/build/
 /plugins/SurvivalAnalysis/dist/
 /plugins/SurvivalAnalysis/tutorial/
+/plugins/SurvivalAnalysis/SurvivalTutorialData/
+/plugins/SurvivalAnalysis/SurvivalTutorialData.zip
 /plugins/IntensityClustering/build/
 /plugins/IntensityClustering/dist/
 /plugins/IntensityClustering/tutorial/
@@ -51,6 +54,8 @@ plugins/CancerNucleusClassification/nbproject/private/private.properties
 tmarker.conf
 *preview-application.html
 /demonstration_dataset/
+/test_dataset/
+/DemonstrationData/
 /img/
 /izpack/
 /labeled_data/
@@ -66,3 +71,6 @@ src/tmarker/version.txt
 /devlibs/
 /Support/
 PublishNewTMARKERVersion.txt
+/plugins/OpenBISConnector/nbproject/private/
+/plugins/OpenBISConnector/build/
+/plugins/OpenBISConnector/dist/

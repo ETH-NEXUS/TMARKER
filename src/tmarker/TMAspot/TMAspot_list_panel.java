@@ -19,10 +19,16 @@ import java.awt.geom.AffineTransform;
 import java.awt.image.BufferedImage;
 import java.text.AttributedString;
 import java.util.ArrayList;
+import java.util.Enumeration;
 import java.util.List;
 import javax.swing.ImageIcon;
+import javax.swing.JScrollPane;
+import javax.swing.SwingUtilities;
 import org.imgscalr.Scalr;
 import org.imgscalr.Scalr.Method;
+import org.jdesktop.swingx.JXDialog;
+import org.jdesktop.swingx.JXTable;
+import tmarker.misc.SortedProperties;
 import tmarker.tmarker;
 
 /**
@@ -1226,8 +1232,34 @@ public class TMAspot_list_panel extends javax.swing.JPanel {
 
         }
 
-        // no shift and not ctr key is pressed.
-        else {
+        // no shift and not ctr key is pressed and double click
+        else if (evt.getClickCount()==2) {
+        
+            SortedProperties props = ts.getProperties();
+            //if (!props.isEmpty()) {
+                String[] columnNames = {"Name", "Value"};
+                String[][] rowData = new String[props.size()][2];
+                Enumeration<Object> keys = props.keys();
+                int i = 0;
+                while (keys.hasMoreElements()) {
+                    String key = (String) keys.nextElement();
+                    rowData[i][0] = key;
+                    rowData[i][1] = props.getProperty(key);
+                    i++;
+                }
+                JXTable propTable = new JXTable(rowData, columnNames);
+                JScrollPane scrollpane = new JScrollPane(propTable);
+                JXDialog dialog = new JXDialog(ts.getCenter(), scrollpane);
+                dialog.setTitle(ts.getName() + " - Properties");
+                dialog.revalidate();
+                dialog.pack();
+                dialog.setLocationRelativeTo(dialog.getParent());
+                dialog.setVisible(true);
+            //}
+            
+        // no shift and not ctr key is pressed and single click
+        } else if (evt.getClickCount()==1) {
+            
             int x = evt.getX();
             int y = evt.getY();
 
@@ -1274,7 +1306,7 @@ public class TMAspot_list_panel extends javax.swing.JPanel {
             } else {
                 ts.getCenter().showTMAspot(null);
             }
-            if (!ts.isSelected) {
+            if (!ts.isSelected()) {
                 setBackground(bg_mouseOver);
                 setBorder(new javax.swing.border.LineBorder(bg_mouseOver.darker(), 1, true));
             }

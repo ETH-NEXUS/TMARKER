@@ -1101,9 +1101,9 @@ public class Misc {
       }
       catch (Exception e) {
         if (tmarker.DEBUG>0) {
-            Logger.getLogger(Misc.class.getName()).log(Level.INFO, "The image could not be loaded as ByteBuffer. Try to load it with ImageIO...");
+            Logger.getLogger(Misc.class.getName()).log(Level.INFO, "The image could not be loaded as ByteBuffer. Try to load it with ImageIO...", e);
         }
-          try {
+        try {
               return ImageIO.read(new File(file));
           } catch (IOException ex) {
               Logger.getLogger(Misc.class.getName()).log(Level.SEVERE, null, ex);

@@ -42,7 +42,7 @@ public class TMARKERSecurityManager extends java.lang.SecurityManager {
             } catch (ClassNotFoundException ex) {
                 //Logger.getLogger(TMARKERSecurityManager.class.getName()).log(Level.SEVERE, null, ex);
                 isPluggable = true; // happens only for Plugins
-            } catch (InstantiationException | IllegalAccessException ex) {
+            } catch (Exception ex) {
                 //Logger.getLogger(TMARKERSecurityManager.class.getName()).log(Level.SEVERE, null, ex);
             }
             

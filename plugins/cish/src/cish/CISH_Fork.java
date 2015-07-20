@@ -169,6 +169,9 @@ public class CISH_Fork extends RecursiveAction {
         }
     }*/
     
+    /**
+     * Workhorse function to compute the CISH points.
+     */
     protected void computeDirectly() {
         try {
             Hough_Circles hough = new Hough_Circles();
@@ -242,6 +245,20 @@ public class CISH_Fork extends RecursiveAction {
         }
     }
     
+    /**
+     * Workhorse function to parallely compute the CISH points.
+     * @param tpm The TMARKERPluginManager to access the main program.
+     * @param cish The main CISH instance.
+     * @param tss The TMAspots to be processed.
+     * @param psr The point signal radius used by the cish method.
+     * @param nPts The number of local points used for local ratio calculation.
+     * @param darkpoints True, if dark points on white background are found, false for light points on dark background.
+     * @param gRatios A container for the calculated result global CISH Ratios. Has to have equal length as tss.
+     * @param lRatios A container for the calculated result local CISH Ratios. Has to have equal length as tss.
+     * @param ps A container for the calculated CISH points. 1th dim has to have equal length as tss. 2nd dim has length of found CISH points. 3rd dim has size 5 (x-coord, y-coord, r, g, b of RGB color of label).
+     * @param classifier The classifier to distinguish different cish points.
+     * @param dataset The dataset with which the classifier was trained.     
+     */
     public static void doCISH_Fork(TMARKERPluginManager tpm, CISH cish, List<TMAspot> tss, int psr, int nPts, boolean darkpoints, double[] gRatios, double[] lRatios, int[][][] ps, Classifier classifier, Instances dataset) {
         int[] progress_container = new int[]{0};
         String text = tpm.getStatusMessageLabelText();

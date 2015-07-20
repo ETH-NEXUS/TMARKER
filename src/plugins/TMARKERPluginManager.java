@@ -28,6 +28,7 @@ package plugins;
 import java.util.List;
 import TMARKERPluginInterface.PluginManager;
 import java.awt.Color;
+import java.io.File;
 import tmarker.TMAspot.TMAspot;
 import tmarker.tmarker;
 
@@ -187,7 +188,7 @@ public class TMARKERPluginManager implements PluginManager {
     
     /**
      * Sets the current radius of the TMALabels (i.e. nuclei).
-     * @radius The radius of the nuclei.
+     * @param radius The radius of the nuclei.
      */
     @Override
     public void setLabelRadius(int radius) {
@@ -240,6 +241,7 @@ public class TMARKERPluginManager implements PluginManager {
      * file(s) to be opened in the main program.
      * @param dir The default directory to be shown.
      */
+    @Override
     public void LoadFilesWithChooser(String dir) {
         tmarker.LoadFilesWithChooser(t, dir);
     }
@@ -249,6 +251,7 @@ public class TMARKERPluginManager implements PluginManager {
      * @param ts The TMAspot to be selected. If ts is null or is not found, 
      * no spot is selected.
      */
+    @Override
     public void selectAndShowTMAspot(TMAspot ts) {
         if (ts != null) {
             t.selectTMAspot(ts);
@@ -261,5 +264,31 @@ public class TMARKERPluginManager implements PluginManager {
         }
     }
     
+    /**
+     * Load a specific file in TMARKER.
+     * @param file The file to be loaded. The file is only loaded if TMARKER can
+     * interpret it.
+     */
+    @Override
+    public void loadFile(File file) {
+        loadFiles(new File[] {file}); 
+    }
     
+    /**
+     * Load specific files in TMARKER.
+     * @param files The files to be loaded. The files are only loaded if TMARKER can
+     * interpret them.
+     */
+    @Override
+    public void loadFiles(File[] files) {
+        tmarker.LoadFiles(t, files);
+    }
+    
+    /**
+     * Returns the main program TMARKER.
+     * @return The main program TMARKER.
+     */
+    public tmarker getTMARKER() {
+        return t;
+    }
 }

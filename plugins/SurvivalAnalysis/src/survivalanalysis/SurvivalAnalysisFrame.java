@@ -535,6 +535,10 @@ public class SurvivalAnalysisFrame extends javax.swing.JFrame implements TMARKER
         return null;
     }
     
+    /**
+     * Reads out all available properties of the TMAspots and puts them into the
+     * tables.
+     */
     public void initAvailableProperties() {
         final Set<String> props = tmarker.getProperties(manager.getTMAspots());
         // Remove properties from List 1 which are not existing anymore
@@ -571,6 +575,9 @@ public class SurvivalAnalysisFrame extends javax.swing.JFrame implements TMARKER
         this.pack();
     }
 
+		/**
+     * Adds a selected property to the time variable and removes it from the main list.
+     */
     private void addPropertyToTime() {
         int selection = jList1.getSelectedIndex();
         if (selection >= 0) {
@@ -584,6 +591,9 @@ public class SurvivalAnalysisFrame extends javax.swing.JFrame implements TMARKER
         }
     }
     
+    /**
+     * Removes the time variable and puts it back to the main list.
+     */
     private void removePropertyFromTime() {
         String value_before = jTextField1.getText();
         if (!value_before.isEmpty() && !((SortedListModel)jList1.getModel()).contains(value_before)) {
@@ -592,6 +602,9 @@ public class SurvivalAnalysisFrame extends javax.swing.JFrame implements TMARKER
         jTextField1.setText("");
     }
         
+    /**
+     * Adds a selected property to the event variable and removes it from the main list.
+     */
     private void addPropertyToEvent() {
         int selection = jList1.getSelectedIndex();
         if (selection >= 0) {
@@ -605,6 +618,9 @@ public class SurvivalAnalysisFrame extends javax.swing.JFrame implements TMARKER
         }
     }
 
+		/**
+     * Removes the event variable and puts it back to the main list.
+     */
     private void removePropertyFromEvent() {
         String value_before = jTextField2.getText();
         if (!value_before.isEmpty() && !((SortedListModel)jList1.getModel()).contains(value_before)) {
@@ -613,6 +629,9 @@ public class SurvivalAnalysisFrame extends javax.swing.JFrame implements TMARKER
         jTextField2.setText("");
     }
 
+		/**
+     * Adds a selected property to the covariates list and removes it from the main list.
+     */
     private void addPropertyToCovariate() {
         int selection = jList1.getSelectedIndex();
         if (selection >= 0) {
@@ -630,6 +649,9 @@ public class SurvivalAnalysisFrame extends javax.swing.JFrame implements TMARKER
         }
     }
 
+		/**
+     * Removes a selected covariate variable and puts it back to the main list.
+     */
     private void removePropertyFromCovariate() {
         int selection = jList2.getSelectedIndex();
         if (selection >= 0) {
@@ -642,6 +664,12 @@ public class SurvivalAnalysisFrame extends javax.swing.JFrame implements TMARKER
         }
     }
     
+    /**
+     * Returns the property names which are currently in the covariates list.
+     * @param full If true, they are returned as they appear in the list. If false
+     * the extensions (such as ", numerical" or ", categorical") are removed.
+     * @return The property names which are currently in the covariates list.
+     */
     private String[] getCovariates(boolean full) {
         String[] strings = new String[((SortedListModel)jList2.getModel()).getSize()];
         for (int i=0; i< strings.length; i++) {
@@ -654,14 +682,26 @@ public class SurvivalAnalysisFrame extends javax.swing.JFrame implements TMARKER
         return strings;
     }
     
+    /**
+     * Returns the property name which is currently in the time field.
+     * @return The property name which is currently in the time field.
+     */
     private String getTimeVariable() {
         return jTextField1.getText();
     }
     
+    /**
+     * Returns the property name which is currently in the event field.
+     * @return The property name which is currently in the event field.
+     */
     private String getEventVariable() {
         return jTextField2.getText();
     }
     
+    /**
+     * Categorizes one selected variable in the covariates list.
+     * @return True if the categorization was successful.
+     */
     private boolean categorizeSelectedCovariate() {
         int selection = jList2.getSelectedIndex();
         if (selection >= 0) {
@@ -672,6 +712,10 @@ public class SurvivalAnalysisFrame extends javax.swing.JFrame implements TMARKER
         }
     }
     
+    /**
+     * Categorizes a given property (opens a dialog and lets the user choose a good threshold).
+     * @return True if the categorization was successful.
+     */
     private boolean categorizeSelectedCovariate(String covariate_full) {
         String covariate = covariate_full.substring(0, (covariate_full.contains(", numerical") ? covariate_full.indexOf(", numerical") : (covariate_full.contains(", categorial") ? covariate_full.indexOf(", categorial") : covariate_full.length())));
         if (!covariate.isEmpty() ) {
@@ -735,6 +779,9 @@ public class SurvivalAnalysisFrame extends javax.swing.JFrame implements TMARKER
         return true;
     }
 
+		/**
+     * First does cox-regression, then, if successful, plots the Kaplan Meier curve.
+     */
     void doSurvivalAnalysis() {
         boolean success = doCoxRegression();
         if (success) {
@@ -742,6 +789,11 @@ public class SurvivalAnalysisFrame extends javax.swing.JFrame implements TMARKER
         }
     }
     
+    /**
+     * Does cox regression with the covariates, time and event variables specified in the plugin window.
+     * The result is written in the window.
+     * @return True, if successful, false otherwise.
+     */
     boolean doCoxRegression() {
         List<TMAspot> tss = manager.getTMAspots();
         if (!tss.isEmpty()) {

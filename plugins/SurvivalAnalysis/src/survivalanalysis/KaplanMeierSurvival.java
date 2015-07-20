@@ -26,7 +26,7 @@ import org.jfree.data.xy.XYSeriesCollection;
 import tmarker.misc.Misc;
 
 /**
- *
+ * A class to create the Kaplan Meier Statistics.
  * @author Peter J. Schueffler
  */
 public class KaplanMeierSurvival {
@@ -152,6 +152,14 @@ public class KaplanMeierSurvival {
         return st;
     }
     
+    /**
+     * Calculates the statistical significance between two or more survival groups (Chi-Squared test).
+     * @param times_groups The time entries of the groups.
+     * @param censor_groups The censor entries of the groups. Has to have same size as time_groups. The first group has to have
+     * same size as the first group in times_groups, and so on.
+     * @param nt_groups n(t) per group.
+     * @return The significance between the survival curve. The closer to zero the more significant the difference.
+     */
     static double SurvivalDifferenceSignificance(List<List<Double>> times_groups, List<List<Boolean>> censor_groups, List<List<Integer>> nt_groups) {
         // calculate dataset size (number of cases)
         int n_cases = 0;
@@ -166,10 +174,10 @@ public class KaplanMeierSurvival {
             return Double.NaN;
         }
         
-        List<Double> times = new ArrayList<Double>();
-        List<Integer> groups = new ArrayList<Integer>();
-        List<Boolean> censored = new ArrayList<Boolean>();
-        List<Integer> nt = new ArrayList<Integer>();
+        List<Double> times = new ArrayList<>();
+        List<Integer> groups = new ArrayList<>();
+        List<Boolean> censored = new ArrayList<>();
+        List<Integer> nt = new ArrayList<>();
         for (int i=0; i<times_groups.size(); i++) {
             times.addAll(times_groups.get(i));
             censored.addAll(censor_groups.get(i));
@@ -179,10 +187,10 @@ public class KaplanMeierSurvival {
             }
         }
         // sort lists according to time (from all groups)
-        List<Double> times_sorted = new ArrayList<Double>();
-        List<Integer> groups_sorted = new ArrayList<Integer>();
-        List<Boolean> censor_sorted = new ArrayList<Boolean>();
-        List<Integer> nt_sorted = new ArrayList<Integer>();
+        List<Double> times_sorted = new ArrayList<>();
+        List<Integer> groups_sorted = new ArrayList<>();
+        List<Boolean> censor_sorted = new ArrayList<>();
+        List<Integer> nt_sorted = new ArrayList<>();
         // create the ordering
         ListIndexComparator comparator = new ListIndexComparator(times);
         Integer[] indexes = comparator.createIndexArray();
@@ -197,7 +205,7 @@ public class KaplanMeierSurvival {
         }
         
         // create an overall sample number vector (over all groups)        
-        List<Integer> n = new ArrayList<Integer>();
+        List<Integer> n = new ArrayList<>();
         int k = times.size();
         for (int i=0; i<times.size(); i++) {
             n.add(k--);

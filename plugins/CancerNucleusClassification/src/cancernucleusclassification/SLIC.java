@@ -11,7 +11,6 @@ import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.List;
 import tmarker.TMAspot.TMALabel;
-import tmarker.TMAspot.TMAspot;
 import tmarker.misc.Misc;
 import tmarker.tmarker;
 

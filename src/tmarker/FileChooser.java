@@ -61,6 +61,12 @@ public class FileChooser {
         }
         filter1.setDescription("Image files");
         chooser.addChoosableFileFilter(filter1);
+        if (System.getProperty("os.name").startsWith("Windows")) {
+            ExampleFileFilter filter5 = new ExampleFileFilter();
+            filter5.addExtension("ndpi");
+            filter5.setDescription("NDPI file");
+            chooser.addChoosableFileFilter(filter5);
+        }
         
         chooser.setCurrentDirectory(new File(currentDir));
         chooser.setDialogTitle(headline);
@@ -206,6 +212,40 @@ public class FileChooser {
             else {
                 return chooseSavingFile(t, currentDir, standardFilename, extensions, descriptions);
             }
+      }
+      return null; 
+    }
+    
+    /**
+     * Opens a FileChooser Dialog and lets the user select a single Folder.
+     * @param t The parent frame on which the FileChooser is displayed.
+     * @param currentDir The current directory which is opened by the FileChooser.
+     * @return A single file that the user selected. Null if the user cancelled.
+     */
+    public static File chooseSavingFolder (JFrame t, String currentDir) {
+        // Current Directory 
+        if (currentDir.equals("")) {
+            File currentFile = new File(".");
+            try {
+                currentDir = currentFile.getCanonicalPath();
+            } catch (IOException ex) {
+                ex.printStackTrace();
+            }
+            // OR
+            // System.getProperty("user.dir");
+        }
+                        
+        // headline
+        String headline = "Please determine an output folder";
+        
+        JFileChooser chooser = new JFileChooser(currentDir);
+        chooser.setDialogTitle(headline);
+        chooser.setDialogType(JFileChooser.SAVE_DIALOG);
+        chooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+        int returnVal = chooser.showSaveDialog(t);
+        if (returnVal == JFileChooser.APPROVE_OPTION) {
+            // import HTML File
+            return chooser.getSelectedFile();
       }
       return null; 
     }

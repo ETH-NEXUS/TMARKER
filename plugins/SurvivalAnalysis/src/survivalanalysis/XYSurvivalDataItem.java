@@ -7,7 +7,7 @@ package survivalanalysis;
 import org.jfree.data.xy.XYDataItem;
 
 /**
- *
+ * A XYSurvivalDataItem is a XYDataItem which additionally stores the information of being censored or not.
  * @author Peter J. Schueffler
  */
 public class XYSurvivalDataItem extends XYDataItem {

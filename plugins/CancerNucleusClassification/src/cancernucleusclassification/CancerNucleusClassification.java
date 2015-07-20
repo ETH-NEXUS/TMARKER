@@ -65,7 +65,6 @@ import tmarker.TMAspot.TMAspot;
 import tmarker.misc.Misc;
 import tmarker.misc.StringToIntConverter;
 import tmarker.tmarker;
-import static tmarker.tmarker.logger;
 import weka.classifiers.Classifier;
 import weka.core.Attribute;
 import weka.core.FastVector;
@@ -2926,9 +2925,9 @@ public class CancerNucleusClassification extends javax.swing.JFrame implements T
             os.close();
         } catch (Exception ex) {
             if (tmarker.DEBUG>0) {
-                logger.log(java.util.logging.Level.WARNING, ex.getMessage());
+                Logger.getLogger(CancerNucleusClassification.class.getName()).log(java.util.logging.Level.WARNING, ex.getMessage());
             }
-            logger.log(java.util.logging.Level.WARNING, "Error Saving File " + file.getName());
+            Logger.getLogger(CancerNucleusClassification.class.getName()).log(java.util.logging.Level.WARNING, "Error Saving File " + file.getName());
         } finally {
             manager.setStatusMessageLabel(oldStatusText);
             manager.setProgressbar(oldProgress);
@@ -2963,7 +2962,7 @@ public class CancerNucleusClassification extends javax.swing.JFrame implements T
                 setClassifierDescription(classifier_BEN_MAL);
             } catch (Exception ex) {
                 if (tmarker.DEBUG>0) {
-                    logger.log(java.util.logging.Level.WARNING, ex.getMessage());
+                    Logger.getLogger(CancerNucleusClassification.class.getName()).log(java.util.logging.Level.WARNING, ex.getMessage());
                 }
                 JOptionPane.showMessageDialog(this, "Could not open file " + file.getName(), "Error Loading File", JOptionPane.ERROR_MESSAGE);
             } finally {

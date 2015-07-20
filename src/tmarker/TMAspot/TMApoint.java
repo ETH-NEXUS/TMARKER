@@ -136,7 +136,7 @@ public class TMApoint extends TMALabel {
      * @param binary If true, LABEL_POS swaps to LABEL_NEG and vice versa. If false,
      * the flipping is LABEL_POS -> LABEL_NEG -> LABEL_UNK -> LABEL_BG.
      */
-    void flipLabel(boolean binary) {
+    public void flipLabel(boolean binary) {
         if (binary) {
             if (label==TMALabel.LABEL_POS) {
                 label = TMALabel.LABEL_NEG;
@@ -165,7 +165,7 @@ public class TMApoint extends TMALabel {
      * @param binary If true, STAINING_0 swaps to STAINING_3 and vice versa. If false,
      * the flipping is STAINING_0 -> STAINING_1 -> STAINING_2 -> STAINING_3.
      */
-    void flipStaining(boolean binary) {
+    public void flipStaining(boolean binary) {
         if (binary) {
             if (staining!=TMALabel.STAINING_3) {
                 staining = TMALabel.STAINING_3;

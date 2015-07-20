@@ -36,10 +36,12 @@ import java.util.List;
 import java.util.jar.JarEntry;
 import java.util.jar.JarInputStream;
 import TMARKERPluginInterface.Pluggable;
+import java.io.InputStream;
+import java.net.URLConnection;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.JOptionPane;
-import org.apache.commons.io.FileUtils;
+import static org.apache.commons.io.FileUtils.copyInputStreamToFile;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -54,25 +56,33 @@ import tmarker.tmarker;
 public class PluginLoader {
 
     public static List<Pluggable> loadPlugins(File plugDir, ClassLoader parentClassLoader) throws IOException {
-        if (tmarker.DEBUG>0) Logger.getLogger(PluginLoader.class.getName()).log(Level.INFO, "  Try to load plugins from " + plugDir.getAbsolutePath());
-        
-        File[] plugJars = plugDir.listFiles(new JARFileFilter());
-        
-        if (tmarker.DEBUG>0) Logger.getLogger(PluginLoader.class.getName()).log(Level.INFO, "  " + plugJars.length + " plugin(s) listed.");
-        
-        ClassLoader cl = new URLClassLoader(PluginLoader.fileArrayToURLArray(plugJars), parentClassLoader);
-        
-        List<Class<Pluggable>> plugClasses = PluginLoader.extractClassesFromJARs(plugJars, cl);
-        
-        if (tmarker.DEBUG>0) Logger.getLogger(PluginLoader.class.getName()).log(Level.INFO, "  " + plugClasses.size() + " pluggable plugin(s) loaded.");
-        
-        return PluginLoader.createPluggableObjects(plugClasses);
+        if (plugDir.exists()) {
+            
+            if (tmarker.DEBUG>0) Logger.getLogger(PluginLoader.class.getName()).log(Level.INFO, "  Try to load plugins from " + plugDir.getAbsolutePath());
+
+            File[] plugJars = plugDir.listFiles(new JARFileFilter());
+
+            if (tmarker.DEBUG>0) Logger.getLogger(PluginLoader.class.getName()).log(Level.INFO, "  " + plugJars.length + " plugin(s) listed.");
+
+            ClassLoader cl = new URLClassLoader(PluginLoader.fileArrayToURLArray(plugJars), parentClassLoader);
+
+            List<Class<Pluggable>> plugClasses = PluginLoader.extractClassesFromJARs(plugJars, cl);
+
+            if (tmarker.DEBUG>0) Logger.getLogger(PluginLoader.class.getName()).log(Level.INFO, "  " + plugClasses.size() + " pluggable plugin(s) loaded.");
+
+            return PluginLoader.createPluggableObjects(plugClasses);
+            
+        } else {
+            
+            return new ArrayList<>();
+            
+        }
     }
     
     public static List<Pluggable> loadPlugins(URL plugURL, String tmp_dir, ClassLoader parentClassLoader) throws IOException {
         if (tmarker.DEBUG>0) Logger.getLogger(PluginLoader.class.getName()).log(Level.INFO, "  Try to load plugins from " + plugURL);
         
-        File[] plugJars = listFilesFromURL2(plugURL, tmp_dir);
+        File[] plugJars = listFilesFromURL(plugURL, tmp_dir);
         
         if (tmarker.DEBUG>0) Logger.getLogger(PluginLoader.class.getName()).log(Level.INFO, "  " + plugJars.length + " plugin(s) listed.");
         
@@ -83,36 +93,6 @@ public class PluginLoader {
         if (tmarker.DEBUG>0) Logger.getLogger(PluginLoader.class.getName()).log(Level.INFO, "  " + plugClasses.size() + " pluggable plugin(s) loaded.");
         
         return PluginLoader.createPluggableObjects(plugClasses);
-    }
-    
-    /**
-     * Use this to list the jar files in an online URL, if the server supports listing of contents.
-     * @param url The URL (folder) of the jar files.
-     * @param tmp_dir The jar files are copied to the local tmp_dir to load them into TMARKER.
-     * @return A list of jar files (plugins) which can be loaded into TMARKER.
-     * @throws IOException From the function "copyURLToFile".
-     */
-    public static File[] listFilesFromURL(URL url, String tmp_dir) throws IOException {
-        Document doc = Jsoup.connect(url.toString()).get();
-        List<File> files = new ArrayList<>();
-        int i=0;
-        for (Element elem : doc.select("a")) {
-            if (i>4) {
-                String fname = tmp_dir + File.separator + elem.attr("href");
-                if (fname.toLowerCase().endsWith(".jar")) {
-                    File file_tmp = new File(fname);
-                    FileUtils.copyURLToFile(new URL(url.toString() + "/" + elem.attr("href")), file_tmp);
-                    file_tmp.deleteOnExit();
-                    files.add(file_tmp);
-                }
-            }
-            i++;
-        }
-        File[] filearray = new File[files.size()];
-        for (i=0; i<files.size(); i++) {
-            filearray[i] = files.get(i);
-        }
-        return filearray;
     }
     
     /**
@@ -122,17 +102,28 @@ public class PluginLoader {
      * @return A list of jar files (plugins) which can be loaded into TMARKER.
      * @throws IOException From the function "copyURLToFile".
      */
-    public static File[] listFilesFromURL2(URL url, String tmp_dir) throws IOException {
-        Document doc = Jsoup.connect(url.toString()).get();
+    public static File[] listFilesFromURL(URL url, String tmp_dir) throws IOException {
+        Document doc = Jsoup.connect(url.toString()).userAgent("Mozilla/5.0 (Macintosh; Intel Mac OS X 10_9_2) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/33.0.1750.152 Safari/537.36").get();
+        //Document doc = Jsoup.connect(url.toString()).get();
         List<File> files = new ArrayList<>();
         for (Element elem : doc.select("a[href*=.jar]")) {
             String link = elem.attr("href");
             String fname = tmp_dir + Misc.FilePathStringtoFilename(link);
             if (fname.toLowerCase().endsWith(".jar")) {
-                File file_tmp = new File(fname);
-                FileUtils.copyURLToFile(new URL(url.getProtocol() + "://" + url.getHost() + "/" + link), file_tmp);
-                file_tmp.deleteOnExit();
-                files.add(file_tmp);
+                File destination = new File(fname);
+                destination.deleteOnExit();
+                
+                // Possibility 1: doesnt work, since the connection is blocked (Access denied, 403), due to robot protection.
+                //FileUtils.copyURLToFile(new URL(url.getProtocol() + "://" + url.getHost() + "/" + link), destination);
+                // Possibility 2: mimic webbrowser connection, with webbrowser user agent
+                URL source = new URL(url.getProtocol() + "://" + url.getHost() + link);
+                URLConnection sourceConnection = source.openConnection();
+                sourceConnection.setRequestProperty("User-Agent", "Mozilla/5.0 (Macintosh; U; Intel Mac OS X 10.4; en-US; rv:1.9.2.2) Gecko/20100316 Firefox/3.6.2");
+                InputStream input = sourceConnection.getInputStream();
+                copyInputStreamToFile(input, destination);
+                input.close();
+                
+                files.add(destination);
             }
         }
         File[] filearray = new File[files.size()];
@@ -191,14 +182,14 @@ public class PluginLoader {
                     }
                 } catch (ClassNotFoundException | NoClassDefFoundError ex) {
                     if (tmarker.DEBUG>2) Logger.getLogger(PluginLoader.class.getName()).log(Level.INFO, "      Try to extract " + ent.getName() + "... FAILED."); 
-                    Logger.getLogger(PluginLoader.class.getName()).log(Level.SEVERE, null, ex);
-                    if (!warning_shown) {
-                        System.err.println("Can't load plugin " + jar.getName() + ". Reason: Can't load Class " + ent.getName());
-                        JOptionPane.showMessageDialog(null, "Can't load Plugin " + jar.getName() + ".\n\nReason:\nCan't load Class " + ent.getName(), "Error Loading Plugin.", JOptionPane.ERROR_MESSAGE);
-                        warning_shown = true;
+                    System.err.println("Issue loading plugin " + jar.getName() + ". Error: Can't load Class " + ent.getName());
+                    if (!warning_shown && tmarker.DEBUG>0) {
+                        JOptionPane.showMessageDialog(null, "Issue loading plugin " + jar.getName() + ".\n\nError:\nCan't load Class " + ent.getName(), "Error Loading Plugin.", JOptionPane.ERROR_MESSAGE);
                     }
+                    warning_shown = true;
                 } 
             }
+            jaris.closeEntry();
         }
         jaris.close();
         return classes;

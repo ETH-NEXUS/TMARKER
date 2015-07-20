@@ -13,7 +13,7 @@ import tmarker.TMAspot.TMAspot;
 import tmarker.delaunay.ArraySet;
 
 /**
- *
+ * A dialog to find a good threshold to binarise continuos variables. 
  * @author Peter J. Schueffler
  */
 public class ThresholdFinderDialog extends javax.swing.JDialog {
@@ -25,6 +25,12 @@ public class ThresholdFinderDialog extends javax.swing.JDialog {
     
     /**
      * Creates new form ThresholdFinderDialog
+     * Creates new form ThresholdFinderDialog.
+     * @param parent The parent frame, for displaying. Can be null.
+     * @param targetproperty The property of the TMA spots which should be binarized.
+     * @param tss The list of TMAspots which have values on this property and should be binarized.
+     * @param threshold_init An optional initial threshold. can be null.
+     * @param modal If true, the dialog is modal (default).
      */
     public ThresholdFinderDialog(java.awt.Frame parent, String targetproperty, List<TMAspot> tss, Double[] threshold_init, boolean modal) {
         super(parent, modal);
@@ -422,7 +428,7 @@ public class ThresholdFinderDialog extends javax.swing.JDialog {
         String value;
         double val;
         Properties props;
-        Set<Double> values = new ArraySet<Double>();
+        Set<Double> values = new ArraySet<>();
         for (TMAspot ts:tss) {
             props = ts.getProperties();
             if (props!=null) {
@@ -495,10 +501,23 @@ public class ThresholdFinderDialog extends javax.swing.JDialog {
         }
     }
 
+		/**
+     * Returns the precalculated threshold (which is one threshold for binarization,
+     * two thresholds for three-split or null for no threshold.
+     * @return The precalculated threshold, or null.
+     */
     public Double[] getThreshold() {
         return returnvalue;
     }
     
+    /**
+     * Creates an instance of this dialog, and shows it on the screen.
+     * @param parentComponent The parent frame, for displaying. Can be null.
+     * @param targetproperty The property of the TMA spots which should be binarized.
+     * @param tss The list of TMAspots which have values on this property and should be binarized.
+     * @param threshold_init An optional initial threshold. can be null.
+     * @return The threshold that the user selected.
+     */
     public static Double[] showThresholdFinderDialog(Frame parentComponent, String targetproperty, List<TMAspot> tss, Double[] threshold_init) {
         ThresholdFinderDialog tfd = new ThresholdFinderDialog(parentComponent, targetproperty, tss, threshold_init, true);
         tfd.setLocationRelativeTo(parentComponent);

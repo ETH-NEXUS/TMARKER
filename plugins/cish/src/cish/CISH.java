@@ -22,7 +22,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
-import java.util.Random;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -618,7 +617,7 @@ public class CISH extends javax.swing.JFrame implements TMARKERPluginInterface.P
     }
     
     /**
-     * Inits some icons
+     * Inits some icons.
      */
     private void initComponents2() {
         BufferedImage bi = new BufferedImage(8, 8, BufferedImage.TYPE_INT_ARGB);
@@ -711,6 +710,9 @@ public class CISH extends javax.swing.JFrame implements TMARKERPluginInterface.P
         this.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
     }
     
+     /**
+     * Updates the CISH table in this plugin window.
+     */
     void updateCISHTable() {
         
         DefaultTableModel tm =  (DefaultTableModel) jXTable1.getModel();
@@ -802,6 +804,18 @@ public class CISH extends javax.swing.JFrame implements TMARKERPluginInterface.P
         }
     }
     
+    /**
+     * Returns the (only) centromer points (cep), (only) gene points and the points which are classified as 
+     * centromer and gene (whenever the gene is too close to the centromer).
+     * @param ip The image as image processor on which points are classified.
+     * @param circles The points which are classified into the three classes cep, gene and both.
+     * @param r A radius r for feature extraction around each point.
+     * @param classifier A trained classifier used for classification.
+     * @param dataset A dataset used for classification (technically necessary).
+     * @return Three lists are returned: ceps, a n x 5 list for n centromer points, each with x coord, y coord, R G and B color value;
+     * genes, a m x 5 list for m gene points, each with x coord, y coord, R G and B color value;
+     * both, a k x 5 list for k "both" points, each with x coord, y coord, R G and B color value;
+     */
     static List<List> getPoints(ImageProcessor ip, Point[] circles, int r, Classifier classifier, Instances dataset) {
         List<int[]> ceps = new ArrayList<>();
         List<int[]> genes = new ArrayList<>();

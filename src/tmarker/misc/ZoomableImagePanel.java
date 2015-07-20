@@ -525,7 +525,7 @@ public class ZoomableImagePanel extends JPanel {
                 decreaseZoom();
             }
 
-            rescaleImage();
+            //rescaleImage(); // is already included in increaseZoom() and decreaseZoom()
         }
     }
 }

@@ -46,19 +46,22 @@ import TMARKERPluginInterface.Pluggable;
 import TMARKERPluginInterface.PluginManager;
 import com.boxysystems.jgoogleanalytics.FocusPoint;
 import com.boxysystems.jgoogleanalytics.JGoogleAnalyticsTracker;
+import java.awt.BorderLayout;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.lang.reflect.Field;
 import java.net.URL;
 import javax.swing.event.HyperlinkEvent;
 import javax.swing.event.HyperlinkListener;
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.IOUtils;
 import plugins.TMARKERPluginManager;
 import plugins.PluginLoader;
 import plugins.TMARKERSecurityManager;
 import tmarker.TMAspot.TMALabel;
-import tmarker.TMAspot.TMA_view_panel;
 import tmarker.TMAspot.TMApoint;
 import tmarker.TMAspot.TMAspot;
 import tmarker.TMAspot.TMAspot_list_panel;
@@ -72,172 +75,190 @@ import tmarker.misc.SortedProperties;
 import tmarker.misc.StringToIntConverter;
 import tmarker.misc.ZoomableImagePanel;
 
-
-
 /**
  *
  * @author Peter J. Schueffler
  */
 public final class tmarker extends javax.swing.JFrame {
 
-    /** Creates new form tmarker.
-     * @param tmp_dir The TMARKER temp directory which is deleted on exit. Temporary files can be written here.
+    /**
+     * Creates new form tmarker.
+     *
+     * @param tmp_dir The TMARKER temp directory which is deleted on exit.
+     * Temporary files can be written here.
      */
     public tmarker(String tmp_dir) {
         initComponents();
         setTmpDir(tmp_dir);
         initComponents2();
-        
+
         if (od.checkForUpdatesOnStart()) {
             checkForUpdates(false, od.installUpdatesAutomatically());
         }
-    } 
+    }
 
-    /** 
+    /**
      * Revision number.
      */
     public static String REVISION = "2." + "$Revision: 21611 $".replaceAll("\\$", "").replaceAll("\\D", "");
-    
-    /** Unique Identifier*/
+
+    /**
+     * Unique Identifier
+     */
     public static UUID UID = UUID.randomUUID();
-    
+
     /**
      * The logger of this class.
      */
     public static final Logger logger = Logger.getLogger(tmarker.class.getName());
-    
+
     /**
      * The loaded plugins.
-    */
+     */
     List<Pluggable> plugins = new ArrayList<>();
     /**
      * The update threads for the plugins.
      */
     List<Thread> pluginUpdaters = new ArrayList<>();
-    
+
     private String currentDir = "";
     private String tmp_dir = "";
     private final List<String> path = new ArrayList<>();
     private final List<TMAspot> TMAspots = new ArrayList<>();
     private final Random random = new Random();
     private String infoText = "";
-    
+
     /**
      * When clicked on the image, add cancerous nucleus.
      */
     public final static int CLICK_BEHAVIOUR_ADD_POS = 1;
-    
+
     /**
      * When clicked on the image, add benign nucleus.
      */
     public final static int CLICK_BEHAVIOUR_ADD_NEG = 2;
-    
+
     /**
      * When clicked on the image, add delete nucleus.
      */
     public final static int CLICK_BEHAVIOUR_DELETE = 3;
-    
+
     /**
      * When clicked on the image, add flip nucleus class.
      */
     public final static int CLICK_BEHAVIOUR_FLIP = 4;
-    
+
     /**
      * When clicked on the image, add nucleus without class.
      */
     public final static int CLICK_BEHAVIOUR_ADD_UNK = 5;
-    
+
     /**
      * When clicked on the image, add background point.
      */
     public final static int CLICK_BEHAVIOUR_ADD_BG = 6;
-    
+
     /**
      * When clicked on the image, do nothing.
      */
     public final static int CLICK_BEHAVIOUR_NONE = 7;
-    
+
     /**
-     * When clicked on the image, switch the nucleus' staining between STAINING_0, STAINING_1, STAINING_2 and STAINING_3.
+     * When clicked on the image, switch the nucleus' staining between
+     * STAINING_0, STAINING_1, STAINING_2 and STAINING_3.
      */
     public final static int CLICK_BEHAVIOUR_CORSTAIN_GRAD = 8;
-    
+
     /**
-     * When clicked on the image, switch the nucleus' staining between STAINING_0 and STAINING_3.
+     * When clicked on the image, switch the nucleus' staining between
+     * STAINING_0 and STAINING_3.
      */
     public final static int CLICK_BEHAVIOUR_CORSTAIN_BIN = 9;
-    
+
     /**
      * The shape of the nuclei as drawn as circle.
      */
     public final static int LABELS_SHAPE_CIRCLE = 1;
-    
+
     /**
      * The shape of the nuclei as drawn as cross.
      */
     public final static int LABELS_SHAPE_CROSS = 2;
-    
+
     /**
      * The shape of the nuclei as drawn as Rectangle.
      */
     public final static int LABELS_SHAPE_RECTANGLE = 3;
-    
+
     /**
-     * DEBUG: 0 for little output information, 5 for much output information. You can start TMARKER with the option -d 0 or -d 5.
+     * DEBUG: 0 for little output information, 5 for much output information.
+     * You can start TMARKER with the option -d 0 or -d 5.
      */
     public static int DEBUG = 5;
-    
+
     private JDialog aboutBox = null;
     private final OptionDialog od = new OptionDialog(this, false);
     private BgCorrectionDialog bcd = null;
     private final TMAspot_summary_Dialog tsd = new TMAspot_summary_Dialog(this, false);
     private final ZoomableImagePanel zip = new ZoomableImagePanel();
-    private final TMA_view_panel tvp = new TMA_view_panel(this);
+    private final TMA_view_panel tmaspot_view_panel = new TMAspot_view_panel(this);
     private String targetProperty = null;
-    
-    //for the Whole Slice Annotation
+
+    //for whole slide NDPI Support
+    private final TMA_view_panel wholeslide_view_panel = new WholeSlide_view_panel(this);
+
+    //for the whole image annotation
     private boolean overwriteProperty = false;
     private boolean overwritePropertyQuestionAnswered = false;
     private final List<TMAspot> AnnotationAlreadySet = new ArrayList<>();
     private final List<TMAspot> AnnotationSkipped = new ArrayList<>();
-    
+
     // For the zoom window
-    public static final double ZOOMFACTOR = 2;
+    public static final double ZOOMFACTOR_LOCALZOOM = 1;
     private final ZoomableImagePanel zipl = new ZoomableImagePanel();
-    
+
     /**
      * The File separator (mostly slash or backslash).
      */
     public final static String fs = System.getProperty("file.separator");
-    
+
     // For File handling (opening, saving)
     private boolean question_answered = false;
-    private boolean convertPoints = false;  
-    
+    private boolean convertPoints = false;
+
+    // For the Performance overview (Memory View)
+    private PerformanceOverviewPanel pop = null;
+
     /**
-     * Returns the property which is targeted for survival analysis (e.g. the staining property if the staining is indicative for survival).
-     * @return The property which is indicative for survival, as defined by the user.
+     * Returns the property which is targeted for survival analysis (e.g. the
+     * staining property if the staining is indicative for survival).
+     *
+     * @return The property which is indicative for survival, as defined by the
+     * user.
      */
     public String getTargetProperty() {
         return targetProperty;
     }
 
     /**
-     * Sets the property which is targeted for survival analysis (e.g. the staining property if the staining is indicative for survival).
-     * @param targetProperty The property which is indicative for survival, as defined by the user.
+     * Sets the property which is targeted for survival analysis (e.g. the
+     * staining property if the staining is indicative for survival).
+     *
+     * @param targetProperty The property which is indicative for survival, as
+     * defined by the user.
      */
     public void setTargetProperty(String targetProperty) {
-        if (DEBUG>0) {
+        if (DEBUG > 0) {
             logger.log(java.util.logging.Level.INFO, targetProperty + " as target property set.");
         }
         this.targetProperty = targetProperty;
         tsd.updateTargetProperty(getVisibleTMAspot());
     }
-    
-    /** This method is called from within the constructor to
-     * initialize the form.
-     * WARNING: Do NOT modify this code. The content of this method is
-     * always regenerated by the Form Editor.
+
+    /**
+     * This method is called from within the constructor to initialize the form.
+     * WARNING: Do NOT modify this code. The content of this method is always
+     * regenerated by the Form Editor.
      */
     @SuppressWarnings("unchecked")
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
@@ -310,6 +331,7 @@ public final class tmarker extends javax.swing.JFrame {
         jToggleButton15 = new javax.swing.JToggleButton();
         filler9 = new javax.swing.Box.Filler(new java.awt.Dimension(30, 30), new java.awt.Dimension(30, 30), new java.awt.Dimension(30, 30));
         jToggleButton2 = new javax.swing.JToggleButton();
+        jPanel5 = new javax.swing.JPanel();
         jScrollPane4 = new javax.swing.JScrollPane();
         jTextPane1 = new javax.swing.JTextPane() {
             @Override
@@ -320,6 +342,7 @@ public final class tmarker extends javax.swing.JFrame {
                 g2d.dispose();
             }
         };
+        jPanel6 = new javax.swing.JPanel();
         jToolBar1 = new javax.swing.JToolBar();
         jLabel1 = new javax.swing.JLabel();
         jSlider2 = new javax.swing.JSlider();
@@ -381,6 +404,7 @@ public final class tmarker extends javax.swing.JFrame {
         jCheckBoxMenuItem1 = new javax.swing.JCheckBoxMenuItem();
         jCheckBoxMenuItem2 = new javax.swing.JCheckBoxMenuItem();
         jCheckBoxMenuItem3 = new javax.swing.JCheckBoxMenuItem();
+        jCheckBoxMenuItem4 = new javax.swing.JCheckBoxMenuItem();
         jSeparator17 = new javax.swing.JPopupMenu.Separator();
         jMenuItem5 = new javax.swing.JMenuItem();
         jMenu2 = new javax.swing.JMenu();
@@ -463,7 +487,7 @@ public final class tmarker extends javax.swing.JFrame {
         });
         jPopupMenu2.add(jMenuItem24);
 
-        setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
+        setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setTitle("TMARKER v" + tmarker.REVISION);
 
         jXStatusBar1.add(jLabel4);
@@ -582,7 +606,7 @@ public final class tmarker extends javax.swing.JFrame {
 
         jScrollPane1.setBorder(null);
 
-        jPanel3.setLayout(new java.awt.FlowLayout(java.awt.FlowLayout.LEFT, 0, 0));
+        jPanel3.setLayout(new java.awt.BorderLayout());
         jScrollPane1.setViewportView(jPanel3);
 
         jPanel13.add(jScrollPane1, java.awt.BorderLayout.CENTER);
@@ -796,6 +820,8 @@ public final class tmarker extends javax.swing.JFrame {
 
         jSplitPane1.setLeftComponent(jPanel2);
 
+        jPanel5.setLayout(new java.awt.BorderLayout());
+        
         jScrollPane4.setBorder(javax.swing.BorderFactory.createTitledBorder("Info View"));
 
         jTextPane1.setEditable(false);
@@ -817,8 +843,14 @@ public final class tmarker extends javax.swing.JFrame {
             }
         });
 
-        jSplitPane1.setRightComponent(jScrollPane4);
+        jPanel5.add(jScrollPane4, java.awt.BorderLayout.CENTER);
 
+        jPanel6.setBorder(javax.swing.BorderFactory.createTitledBorder("Memory View (Java Heap Space)"));
+        jPanel6.setLayout(new java.awt.BorderLayout());
+        jPanel5.add(jPanel6, java.awt.BorderLayout.PAGE_END);
+
+        jSplitPane1.setRightComponent(jPanel5);
+        
         jSplitPane2.setRightComponent(jSplitPane1);
 
         jPanel4.add(jSplitPane2, java.awt.BorderLayout.CENTER);
@@ -1246,6 +1278,16 @@ public final class tmarker extends javax.swing.JFrame {
             }
         });
         jMenu3.add(jCheckBoxMenuItem3);
+
+        jCheckBoxMenuItem4.setSelected(true);
+        jCheckBoxMenuItem4.setText("Memory View");
+        jCheckBoxMenuItem4.setToolTipText("Monitors the current memory usage");
+        jCheckBoxMenuItem4.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jCheckBoxMenuItem4ActionPerformed(evt);
+            }
+        });
+        jMenu3.add(jCheckBoxMenuItem4);
         jMenu3.add(jSeparator17);
 
         jMenuItem5.setText("Options...");
@@ -1289,8 +1331,8 @@ public final class tmarker extends javax.swing.JFrame {
         if (aboutBox == null) {
             aboutBox = new TMARKERAboutBox(this);
         }
-            aboutBox.setLocationRelativeTo(this);
-            aboutBox.setVisible(true);        
+        aboutBox.setLocationRelativeTo(this);
+        aboutBox.setVisible(true);
     }//GEN-LAST:event_jMenuItem4ActionPerformed
 
     private void jMenuItem5ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem5ActionPerformed
@@ -1303,10 +1345,12 @@ public final class tmarker extends javax.swing.JFrame {
         int c = JOptionPane.showConfirmDialog(this, "Are you sure to delete all estimated labels from the selected images?", "Confirm Deleting Labels", JOptionPane.YES_NO_OPTION);
         if (c == JOptionPane.YES_OPTION) {
             List<TMAspot> tss = getSelectedTMAspots();
-            for (int i=0; i<tss.size(); i++) {
+            for (int i = 0; i < tss.size(); i++) {
                 TMAspot ts = tss.get(i);
                 ts.deleteAllPoints_ES();
-                if (ts==getVisibleTMAspot()) {getTMAView().repaint();}
+                if (ts == getVisibleTMAspot()) {
+                    getTMAView().repaint();
+                }
                 ts.dispStainingInfo();
             }
         }
@@ -1326,10 +1370,12 @@ public final class tmarker extends javax.swing.JFrame {
         int c = JOptionPane.showConfirmDialog(this, "Are you sure to delete all gold standard labels from the selected images?", "Confirm Deleting Labels", JOptionPane.YES_NO_OPTION);
         if (c == JOptionPane.YES_OPTION) {
             List<TMAspot> tss = getSelectedTMAspots();
-            for (int i=0; i<tss.size(); i++) {
+            for (int i = 0; i < tss.size(); i++) {
                 TMAspot ts = tss.get(i);
                 ts.deleteAllPoints_GS();
-                if (ts==getVisibleTMAspot()) {getTMAView().repaint();}
+                if (ts == getVisibleTMAspot()) {
+                    getTMAView().repaint();
+                }
                 ts.dispStainingInfo();
             }
         }
@@ -1355,12 +1401,12 @@ public final class tmarker extends javax.swing.JFrame {
         List<TMAspot> tss = getSelectedTMAspots(false);
         if (!tss.isEmpty()) {
             if (evt.getClickCount() > 1) {
-                if (getVisibleTMAspot()!=null) {
+                if (getVisibleTMAspot() != null) {
                     tsd.setVisible(true);
                     tsd.updateSummary(tss.get(0));
                 }
             } else {
-                showTMAspot(tss.get(0));                
+                showTMAspot(tss.get(0));
             }
         }
     }//GEN-LAST:event_jPanel36MouseDragged
@@ -1380,7 +1426,7 @@ public final class tmarker extends javax.swing.JFrame {
     private void jButton5ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton5ActionPerformed
         Point p1 = MouseInfo.getPointerInfo().getLocation();
         Point p2 = jButton5.getLocationOnScreen();
-        jPopupMenu2.show(jButton5, p1.x-p2.x, p1.y-p2.y);
+        jPopupMenu2.show(jButton5, p1.x - p2.x, p1.y - p2.y);
     }//GEN-LAST:event_jButton5ActionPerformed
 
     private void jButton3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton3ActionPerformed
@@ -1425,22 +1471,26 @@ public final class tmarker extends javax.swing.JFrame {
 
     private void jMenuItem21ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem21ActionPerformed
         List<TMAspot> tss = getSelectedTMAspots();
-        for (TMAspot ts: tss) {
-            for (TMApoint tp: ts.getPoints_Estimated()) {
+        for (TMAspot ts : tss) {
+            for (TMApoint tp : ts.getPoints_Estimated()) {
                 tp.setGoldStandard(getGSNumberForLabeling());
             }
-            if (ts==getVisibleTMAspot()) {getTMAView().repaint();}
+            if (ts == getVisibleTMAspot()) {
+                getTMAView().repaint();
+            }
             ts.dispStainingInfo();
         }
     }//GEN-LAST:event_jMenuItem21ActionPerformed
 
     private void jMenuItem22ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem22ActionPerformed
         List<TMAspot> tss = getSelectedTMAspots();
-        for (TMAspot ts: tss) {
-            for (TMApoint tp: ts.getPoints_GoldStandard()) {
+        for (TMAspot ts : tss) {
+            for (TMApoint tp : ts.getPoints_GoldStandard()) {
                 tp.setGoldStandard(TMApoint.ESTIMATED);
             }
-            if (ts==getVisibleTMAspot()) {getTMAView().repaint();}
+            if (ts == getVisibleTMAspot()) {
+                getTMAView().repaint();
+            }
             ts.dispStainingInfo();
         }
     }//GEN-LAST:event_jMenuItem22ActionPerformed
@@ -1450,8 +1500,8 @@ public final class tmarker extends javax.swing.JFrame {
         if (!tss.isEmpty()) {
             boolean isShowingEstimatedNow = tss.get(0).getTLP().isShowingEstimated();
             boolean isShowingGoldstandardNow = tss.get(0).getTLP().isShowingGoldstandard();
-            for (TMAspot ts: tss) {
-                if (ts.getTLP().isShowingEstimated()==isShowingEstimatedNow) {
+            for (TMAspot ts : tss) {
+                if (ts.getTLP().isShowingEstimated() == isShowingEstimatedNow) {
                     ts.getTLP().toggleShowGstOrEst();
                 }
             }
@@ -1478,24 +1528,14 @@ public final class tmarker extends javax.swing.JFrame {
         jToolBar2.setVisible(jCheckBoxMenuItem2.isSelected());
     }//GEN-LAST:event_jCheckBoxMenuItem2ActionPerformed
 
-    private void jTextField1CaretUpdate(javax.swing.event.CaretEvent evt) {//GEN-FIRST:event_jTextField1CaretUpdate
-        if (getVisibleTMAspot() != null) {
-            try {
-                getTMAView().setZoom(Double.parseDouble(jTextField1.getText().trim())/100.0);
-            } catch (Exception e) {
-
-            }
-        }
-    }//GEN-LAST:event_jTextField1CaretUpdate
-
     private void jButton10ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton10ActionPerformed
         if (!jTextField1.getText().equals("100")) {
             jTextField1.setText("100");
         } else {
             TMAspot ts = getVisibleTMAspot();
             if (ts != null) {
-                int s_w = (int) Math.round((100.0*getTMAViewContainer().getViewport().getWidth()/getTMAView().getImageWidth()));
-                int s_h = (int) Math.round((100.0*getTMAViewContainer().getViewport().getHeight()/getTMAView().getImageHeight()));
+                int s_w = (int) Math.round((100.0 * getTMAViewContainer().getViewport().getWidth() / getTMAView().getImageWidth()));
+                int s_h = (int) Math.round((100.0 * getTMAViewContainer().getViewport().getHeight() / getTMAView().getImageHeight()));
                 jTextField1.setText(Integer.toString(Math.min(s_h, s_w)));
             }
         }
@@ -1553,21 +1593,60 @@ public final class tmarker extends javax.swing.JFrame {
         jToolBar3.setVisible(jCheckBoxMenuItem3.isSelected());
     }//GEN-LAST:event_jCheckBoxMenuItem3ActionPerformed
 
+		private void jTextField1CaretUpdate(javax.swing.event.CaretEvent evt) {//GEN-FIRST:event_jTextField1CaretUpdate
+                    if (evt.getDot() == evt.getMark()) {
+                        if (getVisibleTMAspot() != null && !jTextField1.getText().isEmpty()) {
+                            try {
+                                getTMAView().setZoom(Double.parseDouble(jTextField1.getText().trim()) / 100.0);
+
+                                // zoom to the middle of the window
+                                TMA_view_panel tvp = (getVisibleTMAspot() == null) ? tmaspot_view_panel : (getVisibleTMAspot().isNDPI() ? wholeslide_view_panel : tmaspot_view_panel);
+                                java.awt.Rectangle r = ((JPanel) tvp).getVisibleRect();
+                                double xfactor = ((JPanel) tvp).getPreferredSize().getWidth() / ((JPanel) tvp).getSize().getWidth();
+                                double yfactor = ((JPanel) tvp).getPreferredSize().getHeight() / ((JPanel) tvp).getSize().getHeight();
+                                int dx = (int) ((xfactor - 1) * (r.x + r.width / 2));
+                                int dy = (int) ((yfactor - 1) * (r.y + r.height / 2));
+                                r.translate(dx, dy);
+                                ((JPanel) tvp).scrollRectToVisible(r);
+
+                            } catch (Exception e) {
+                                if (DEBUG > 0) {
+                                    Logger.getLogger(tmarker.class.getName()).log(Level.SEVERE, null, e);
+                                }
+                            }
+                        }
+                    }
+    }//GEN-LAST:event_jTextField1CaretUpdate
+
+    private void jCheckBoxMenuItem4ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jCheckBoxMenuItem4ActionPerformed
+        jPanel6.setVisible(jCheckBoxMenuItem4.isSelected());
+        if (jCheckBoxMenuItem4.isSelected()) {
+            if (pop != null) {
+                pop.continueThread();
+            }
+        } else {
+            if (pop != null) {
+                pop.interrupt();
+            }
+        }
+    }//GEN-LAST:event_jCheckBoxMenuItem4ActionPerformed
+
     /**
      * Starts the TMARKER session.
+     *
      * @param args the command line arguments
      */
     public static void main(String args[]) {
         int debug = 0; // SET THIS TO 0 IF YOU COMPILE FOR PUBLIC DISTRIBUTION OTHERWISE 1-5 FOR LESS OR MORE DEBUG INFO
-        
-        if (args.length>0) {
+
+        if (args.length > 0) {
             try {
                 String helpOption = weka.core.Utils.getOption('h', args);
                 if (helpOption.length() > 0) {
                     //System.out.println("Help " + helpOption);
                     printHelp();
                     System.exit(0);
-                }  
+                }
             } catch (Exception ex) {
             }
             try {
@@ -1579,7 +1658,7 @@ public final class tmarker extends javax.swing.JFrame {
                 System.exit(0);
             }
         }
-        
+
         Properties prop = new Properties();
         InputStream is;
         try {
@@ -1591,64 +1670,91 @@ public final class tmarker extends javax.swing.JFrame {
         } catch (IOException ex) {
             Logger.getLogger(tmarker.class.getName()).log(Level.SEVERE, null, ex);
         }
-        
+
         DEBUG = debug;
         logger.log(java.util.logging.Level.INFO, "Debug modus (0-5) = {0}", Integer.toString(DEBUG));
-        
+
         /* Set the Nimbus look and feel */
         //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">
         /* If Nimbus (introduced in Java SE 6) is not available, stay with the default look and feel.
          * For details see http://download.oracle.com/javase/tutorial/uiswing/lookandfeel/plaf.html 
-        */ 
+         */
         try {
             /*for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {
-                if ("Nimbus".equals(info.getName())) {
-                    javax.swing.UIManager.setLookAndFeel(info.getClassName());
-                    break;
-                }
-            }*/
+             if ("Nimbus".equals(info.getName())) {
+             javax.swing.UIManager.setLookAndFeel(info.getClassName());
+             break;
+             }
+             }*/
             javax.swing.UIManager.setLookAndFeel(javax.swing.UIManager.getSystemLookAndFeelClassName());
         } catch (Exception ex) {
             java.util.logging.Logger.getLogger(tmarker.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         }
         //</editor-fold>
-        
+
         /* Create and display the form */
         java.awt.EventQueue.invokeLater(new Runnable() {
-
             @Override
             public void run() {
                 tmarker frame = new tmarker(System.getProperty("user.home") + fs + "TMARKER_tmp");
-                
-                frame.setExtendedState(frame.getExtendedState()|JFrame.MAXIMIZED_BOTH);
+
+                Runtime.getRuntime().addShutdownHook(new Thread() {
+                    @Override
+                    public void run() {
+                        new File(System.getProperty("user.home") + fs + "TMARKER_tmp" + fs + "cish.jar").delete();
+                    }
+                });
+
+                // Load Dll for NPI Support on Windows Systems
+                if (System.getProperty("os.name").startsWith("Windows")) {
+                    logger.info("Loading DLL");
+                    String[] libs = new String[]{"iconv", "libffi-6",
+                        "libintl-8", "libjpeg-62", "libopenjpeg", "libpixman-1-0", "libsqlite3-0",
+                        "openslide-jni", "zlib1", "libcairo-2", "libgdk_pixbuf-2.0-0", "libglib-2.0-0",
+                        "libxml2-2", "libtiff-5", "libpng16-16", "libopenslide-0", "libgthread-2.0-0",
+                        "libgobject-2.0-0", "libgmodule-2.0-0", "libgio-2.0-0"};
+                    ExtractLibrariesFromJar("/tmarker/ndpi/", libs);
+                }
+
+                frame.setExtendedState(frame.getExtendedState() | JFrame.MAXIMIZED_BOTH);
                 frame.setVisible(true);
-                
-                JGoogleAnalyticsTracker tracker = new JGoogleAnalyticsTracker("TMARKER","UA-61194283-1");
+
+                JGoogleAnalyticsTracker tracker = new JGoogleAnalyticsTracker("TMARKER", "UA-61194283-1");
                 FocusPoint focusPoint = new FocusPoint("MainProgramUsage");
                 tracker.trackAsynchronously(focusPoint);
 
-                if (DEBUG>0) {
+                if (DEBUG > 0) {
                     //... Add property list data to text area.
                     Properties pr = System.getProperties();
                     Collection<String> keys = pr.stringPropertyNames();
                     List<String> propKeys = new ArrayList<>(keys);
                     Collections.sort(propKeys);
                     String props = "";
-                    for (Iterator<String> it = propKeys.iterator(); it.hasNext(); ) {
+                    for (Iterator<String> it = propKeys.iterator(); it.hasNext();) {
                         String key = it.next();
                         props += key + "=" + pr.get(key) + "\n";
                     }
                     logger.log(java.util.logging.Level.INFO, "System Properties:\n" + props);
-                    
-                    String[] its = ImageIO. getWriterFormatNames();
+
+                    // Memory
+                    // Get current size of heap in bytes
+                    logger.log(java.util.logging.Level.INFO, "Current Heap Space: " + (Runtime.getRuntime().totalMemory() / 1024 / 1024) + " MB.");
+                    // Get maximum size of heap in bytes. The heap cannot grow beyond this size.
+                    // Any attempt will result in an OutOfMemoryException.
+                    logger.log(java.util.logging.Level.INFO, "Max Heap Space: " + (Runtime.getRuntime().maxMemory() / 1024 / 1024) + " MB.");
+                    // Get amount of free memory within the heap in bytes. This size will increase 
+                    // after garbage collection and decrease as new objects are created.
+                    logger.log(java.util.logging.Level.INFO, "Free Heap Space: " + (Runtime.getRuntime().freeMemory() / 1024 / 1024) + " MB.");
+
+                    String[] its = ImageIO.getWriterFormatNames();
                     String imgformats = "";
-                    for (int i=0; i<its.length; i++) {
+                    for (int i = 0; i < its.length; i++) {
                         imgformats += its[i] + "\n";
                     }
                     logger.log(java.util.logging.Level.INFO, "Accepted image file types:\n" + imgformats);
-                    
+
                     logger.log(java.util.logging.Level.INFO, "Temp Directory: " + frame.getTmpDir());
-                    
+
                     int processors = Runtime.getRuntime().availableProcessors();
                     logger.log(java.util.logging.Level.INFO, Integer.toString(processors) + " processor"
                             + (processors != 1 ? "s are " : " is ")
@@ -1657,18 +1763,18 @@ public final class tmarker extends javax.swing.JFrame {
             }
         });
     }
-    
-    /** 
-    * Prints help message for commands in standard output.
-    */
+
+    /**
+     * Prints help message for commands in standard output.
+     */
     private static void printHelp() {
-        System.out.println("\nTMARKER Usage java -jar TMARER.jar [options]\n\n" +
-                "options:\n" + 
-                "-h      this help\n" +
-                "-d <n>  Debug modus n (0-5)" +
-                "\n");
+        System.out.println("\nTMARKER Usage java -jar TMARER.jar [options]\n\n"
+                + "options:\n"
+                + "-h      this help\n"
+                + "-d <n>  Debug modus n (0-5)"
+                + "\n");
     }
-    
+
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.ButtonGroup buttonGroup1;
     private javax.swing.ButtonGroup buttonGroup2;
@@ -1693,6 +1799,7 @@ public final class tmarker extends javax.swing.JFrame {
     private javax.swing.JCheckBoxMenuItem jCheckBoxMenuItem1;
     private javax.swing.JCheckBoxMenuItem jCheckBoxMenuItem2;
     private javax.swing.JCheckBoxMenuItem jCheckBoxMenuItem3;
+    private javax.swing.JCheckBoxMenuItem jCheckBoxMenuItem4;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel11;
     private javax.swing.JLabel jLabel3;
@@ -1752,6 +1859,8 @@ public final class tmarker extends javax.swing.JFrame {
     private javax.swing.JPanel jPanel35;
     private javax.swing.JPanel jPanel36;
     private javax.swing.JPanel jPanel4;
+    private javax.swing.JPanel jPanel5;
+    private javax.swing.JPanel jPanel6;
     private javax.swing.JPanel jPanel7;
     private javax.swing.JPopupMenu jPopupMenu1;
     private javax.swing.JPopupMenu jPopupMenu2;
@@ -1812,59 +1921,80 @@ public final class tmarker extends javax.swing.JFrame {
             Desktop.getDesktop().browse(URI.create(url));
         } catch (IOException ex) {
             System.err.println("Could not open " + url + ".");
-            if (tmarker.DEBUG>0) {
+            if (tmarker.DEBUG > 0) {
                 Logger.getLogger(tmarker.class.getName()).log(Level.SEVERE, null, ex);
             }
         }
     }
-    
+
     /**
      * Stops all plugins and exits the program.
      */
     void doExit() {
         storeParameterValues();
-        for (Pluggable p: plugins) {
+        for (Pluggable p : plugins) {
             p.stop();
         }
+        for (Thread th : pluginUpdaters) {
+            if (th.isAlive()) {
+                th.interrupt();
+            }
+        }
+        plugins.clear();
+        TMAspots.clear();
+        pluginUpdaters.clear();
+
+        System.out.println("Thank you for using TMARKER - Bye!");
         System.exit(0);
     }
-    
+
     /**
      * Returns the random number generator.
+     *
      * @return The random number generator.
      */
     public Random getRandom() {
         return random;
     }
-    
+
     /**
-     * Adds a TMAspot to the TMAspot list. Does not update the TMA List in the TMARKER window. This is done by {@link #updateTMATable(TMAspot ts)}.
+     * Adds a TMAspot to the TMAspot list. Does not update the TMA List in the
+     * TMARKER window. This is done by {@link #updateTMATable(TMAspot ts)}.
+     *
      * @param ts The TMAspot to be added.
      */
     public void addTMAspot(TMAspot ts) {
         TMAspots.add(ts);
     }
-    
+
     /**
-     * Updates the TMA List in the TMARKER window. If the TMAspot ts is not there yet, it is added. Otherwise the information of this TMAspot is updated.
+     * Updates the TMA List in the TMARKER window. If the TMAspot ts is not
+     * there yet, it is added. Otherwise the information of this TMAspot is
+     * updated.
+     *
      * @param ts The TMAspot to be updated.
      */
     public void updateTMATable(TMAspot ts) {
         updateTMATable(ts, false);
     }
-    
+
     /**
-     * Updates the TMA List in the TMARKER window. If the TMAspot ts is not there yet, it is added. Otherwise the information of this TMAspot is updated.
+     * Updates the TMA List in the TMARKER window. If the TMAspot ts is not
+     * there yet, it is added. Otherwise the information of this TMAspot is
+     * updated.
+     *
      * @param ts The TMAspot to be updated.
-     * @param newspot If you already know this is a new spot (true), it is directly added to the table without search. If false, the table is first searched for it.
+     * @param newspot If you already know this is a new spot (true), it is
+     * directly added to the table without search. If false, the table is first
+     * searched for it.
      */
     public void updateTMATable(final TMAspot ts, boolean newspot) {
         int n = jPanel36.getComponentCount();
         int i;
         boolean found = false;
         if (!newspot) {
-            for (i=0; i<n; i++) {
-                if (((TMAspot_list_panel)jPanel36.getComponent(i)).getTMAspot() ==  ts) {
+            for (i = 0; i < n; i++) {
+                if (((TMAspot_list_panel) jPanel36.getComponent(i)).getTMAspot() == ts) {
                     TMAspot_list_panel.updateCellNumbers(ts.getTLP());
                     found = true;
                     break;
@@ -1877,21 +2007,22 @@ public final class tmarker extends javax.swing.JFrame {
             jPanel36.add(ts.getTLP());
             n++;
         }
-        
+
         //validateScrollPanel();
         ((TitledBorder) (jPanel20.getBorder())).setTitle("TMA List - " + n + " file(s)");
         jPanel20.repaint();
     }
-    
+
     /**
      * Sets the User Info text.
+     *
      * @param text The User Info text.
      */
     public void setUserInfo(String text) {
         jTextPane1.setText(text);
         jTextPane1.setCaretPosition(0);
     }
-    
+
     /**
      * validates the TMA List View
      */
@@ -1899,46 +2030,50 @@ public final class tmarker extends javax.swing.JFrame {
         // TMA LIST VIEW
         //jScrollPane7.setPreferredSize(new Dimension(jScrollPane7.getWidth(),0));
         int k = 0;
-        for (int i=0, n=jPanel36.getComponentCount(); i<n; i++) {
-            k += ((TMAspot_list_panel)jPanel36.getComponent(i)).getListItemHeight() + 0;
+        for (int i = 0, n = jPanel36.getComponentCount(); i < n; i++) {
+            k += ((TMAspot_list_panel) jPanel36.getComponent(i)).getListItemHeight() + 0;
         }
         jPanel36.setPreferredSize(new Dimension(0, k));
     }
-    
+
     /**
      * Moves selected TMAspot up in the TMA List.
+     *
      * @param tss The TMAspots to be moved.
      */
     private void moveTMAspotUp(List<TMAspot> tss) {
         Component[] comps = jPanel36.getComponents();
-        for (TMAspot ts: tss) {
+        for (TMAspot ts : tss) {
             int ind = java.util.Arrays.asList(comps).indexOf(ts.getTLP());
-            if (ind > 0+tss.indexOf(ts)) {
-                jPanel36.add(ts.getTLP(), ind-1);
+            if (ind > 0 + tss.indexOf(ts)) {
+                jPanel36.add(ts.getTLP(), ind - 1);
             }
         }
         jPanel36.revalidate();
     }
-    
+
     /**
      * Moves selected TMAspot down in the TMA List.
+     *
      * @param tss The TMAspots to be moved.
      */
     private void moveTMAspotDown(List<TMAspot> tss) {
         Collections.reverse(tss);
         Component[] comps = jPanel36.getComponents();
-        for (TMAspot ts: tss) {
+        for (TMAspot ts : tss) {
             int ind = java.util.Arrays.asList(comps).indexOf(ts.getTLP());
-            if (ind < jPanel36.getComponentCount()-1-tss.indexOf(ts)) {
-                jPanel36.add(ts.getTLP(), ind+1);
+            if (ind < jPanel36.getComponentCount() - 1 - tss.indexOf(ts)) {
+                jPanel36.add(ts.getTLP(), ind + 1);
             }
         }
         jPanel36.revalidate();
     }
-    
+
     /**
      * Sorts the TMAspots in the TMAList by name.
-     * @param ascending If true, the ascending order is used, otherwise descending.
+     *
+     * @param ascending If true, the ascending order is used, otherwise
+     * descending.
      */
     private void sortTMAspotsByName(final boolean ascending) {
         List<TMAspot> tss = getTMAspots();
@@ -1953,15 +2088,17 @@ public final class tmarker extends javax.swing.JFrame {
                 }
             }
         });
-        for (TMAspot ts: tss) {
+        for (TMAspot ts : tss) {
             jPanel36.add(ts.getTLP());
         }
         jPanel36.revalidate();
     }
-    
+
     /**
      * Sorts the TMAspots in the TMAList by staining.
-     * @param ascending If true, the ascending order is used, otherwise descending.
+     *
+     * @param ascending If true, the ascending order is used, otherwise
+     * descending.
      */
     private void sortTMAspotsByStaining(final boolean ascending) {
         List<TMAspot> tss = getTMAspots();
@@ -1984,15 +2121,18 @@ public final class tmarker extends javax.swing.JFrame {
                 }
             }
         });
-        for (TMAspot ts: tss) {
+        for (TMAspot ts : tss) {
             jPanel36.add(ts.getTLP());
         }
         jPanel36.revalidate();
     }
-    
+
     /**
-     * Sorts the TMAspots in the TMAList by pathological staining (only on malignant nuclei).
-     * @param ascending If true, the ascending order is used, otherwise descending.
+     * Sorts the TMAspots in the TMAList by pathological staining (only on
+     * malignant nuclei).
+     *
+     * @param ascending If true, the ascending order is used, otherwise
+     * descending.
      */
     private void sortTMAspotsByStainingMalignant(final boolean ascending) {
         List<TMAspot> tss = getTMAspots();
@@ -2015,15 +2155,17 @@ public final class tmarker extends javax.swing.JFrame {
                 }
             }
         });
-        for (TMAspot ts: tss) {
+        for (TMAspot ts : tss) {
             jPanel36.add(ts.getTLP());
         }
         jPanel36.revalidate();
     }
-    
+
     /**
      * Sorts the TMAspots in the TMAList by their number of nuclei.
-     * @param ascending If true, the ascending order is used, otherwise descending.
+     *
+     * @param ascending If true, the ascending order is used, otherwise
+     * descending.
      */
     private void sortTMAspotsByNumberNuclei(final boolean ascending) {
         List<TMAspot> tss = getTMAspots();
@@ -2038,15 +2180,17 @@ public final class tmarker extends javax.swing.JFrame {
                 }
             }
         });
-        for (TMAspot ts: tss) {
+        for (TMAspot ts : tss) {
             jPanel36.add(ts.getTLP());
         }
         jPanel36.revalidate();
     }
-    
+
     /**
      * Returns the four whole image annotation Strings.
-     * @return The four whole image annotation Strings. "NA" for no annotation made.
+     *
+     * @return The four whole image annotation Strings. "NA" for no annotation
+     * made.
      */
     public List<String> getAnnotationValues() {
         List<String> values = new ArrayList<>();
@@ -2068,15 +2212,18 @@ public final class tmarker extends javax.swing.JFrame {
         }
         return values;
     }
-    
+
     /**
      * Sets the four whole image annotation Values.
-     * @param values The four whole image annotation Strings. "" for no annotation made and value will not be changed, "NA" for value will be set to NA.
+     *
+     * @param values The four whole image annotation Strings. "" for no
+     * annotation made and value will not be changed, "NA" for value will be set
+     * to NA.
      */
     public void setAnnotationValues(List<String> values) {
         String value;
         // Annotation 1: Percentage
-        if (values.size()>0 && !values.get(0).isEmpty()) {
+        if (values.size() > 0 && !values.get(0).isEmpty()) {
             value = values.get(0);
             if (value.equals("NA")) {
                 jRadioButton1.setSelected(true);
@@ -2085,21 +2232,21 @@ public final class tmarker extends javax.swing.JFrame {
                 jTextField6.setText(value);
             }
         }
-        
+
         // Annotation 2: Mitotic Count
-        if (values.size()>1 && !values.get(1).isEmpty()) {
+        if (values.size() > 1 && !values.get(1).isEmpty()) {
             value = values.get(1);
             Misc.selectButtonWithText(buttonGroup1, value);
         }
-        
+
         // Annotation 3: Pleomorphism
-        if (values.size()>2 && !values.get(2).isEmpty()) {
+        if (values.size() > 2 && !values.get(2).isEmpty()) {
             value = values.get(2);
             Misc.selectButtonWithText(buttonGroup2, value);
         }
-        
+
         // Annotation 4: Comment
-        if (values.size()>3 && !values.get(3).isEmpty()) {
+        if (values.size() > 3 && !values.get(3).isEmpty()) {
             value = values.get(3);
             if (value.trim().equals("NA")) {
                 value = "";
@@ -2107,80 +2254,93 @@ public final class tmarker extends javax.swing.JFrame {
             jTextField10.setText(value);
         }
     }
-    
-    
+
     /**
      * Returns the names of the four whole image annotations.
+     *
      * @return The names of the four whole image annotations.
      */
     public List<String> getAnnotationProperties() {
         List<String> props = new ArrayList<>();
-        props.add((jXTextField1.getText().isEmpty()?jXTextField1.getPrompt():jXTextField1.getText()));
-        props.add((jXTextField2.getText().isEmpty()?jXTextField2.getPrompt():jXTextField2.getText()));
-        props.add((jXTextField4.getText().isEmpty()?jXTextField4.getPrompt():jXTextField4.getText()));
-        props.add((jXTextField3.getText().isEmpty()?jXTextField3.getPrompt():jXTextField3.getText()));
-        return(props);
+        props.add((jXTextField1.getText().isEmpty() ? jXTextField1.getPrompt() : jXTextField1.getText()));
+        props.add((jXTextField2.getText().isEmpty() ? jXTextField2.getPrompt() : jXTextField2.getText()));
+        props.add((jXTextField4.getText().isEmpty() ? jXTextField4.getPrompt() : jXTextField4.getText()));
+        props.add((jXTextField3.getText().isEmpty() ? jXTextField3.getPrompt() : jXTextField3.getText()));
+        return (props);
     }
-    
+
     /**
      * Sets the names of the four whole image annotations.
-     * @param annotation_props The names of the four whole image annotations (should be 4 Strings).
+     *
+     * @param annotation_props The names of the four whole image annotations
+     * (should be 4 Strings).
      */
     public void setAnnotationProperties(List<String> annotation_props) {
-        if (annotation_props!=null) {
-            if (annotation_props.size()>0 && annotation_props.get(0)!=null && !annotation_props.get(0).equals("My_Percentage")) jXTextField1.setText(annotation_props.get(0));
-            if (annotation_props.size()>1 && annotation_props.get(1)!=null && !annotation_props.get(1).equals("My_Mitotic_Count")) jXTextField2.setText(annotation_props.get(1));
-            if (annotation_props.size()>2 && annotation_props.get(2)!=null && !annotation_props.get(2).equals("My_Pleomorphism")) jXTextField4.setText(annotation_props.get(2));
-            if (annotation_props.size()>3 && annotation_props.get(3)!=null && !annotation_props.get(3).equals("My_Comment")) jXTextField3.setText(annotation_props.get(3));
+        if (annotation_props != null) {
+            if (annotation_props.size() > 0 && annotation_props.get(0) != null && !annotation_props.get(0).equals("My_Percentage")) {
+                jXTextField1.setText(annotation_props.get(0));
+            }
+            if (annotation_props.size() > 1 && annotation_props.get(1) != null && !annotation_props.get(1).equals("My_Mitotic_Count")) {
+                jXTextField2.setText(annotation_props.get(1));
+            }
+            if (annotation_props.size() > 2 && annotation_props.get(2) != null && !annotation_props.get(2).equals("My_Pleomorphism")) {
+                jXTextField4.setText(annotation_props.get(2));
+            }
+            if (annotation_props.size() > 3 && annotation_props.get(3) != null && !annotation_props.get(3).equals("My_Comment")) {
+                jXTextField3.setText(annotation_props.get(3));
+            }
         }
     }
-    
+
     /**
-     * Saves the current whole image annotation to the current TMAspot properties and shows the nex TMAspot in the TMA List.
+     * Saves the current whole image annotation to the current TMAspot
+     * properties and shows the nex TMAspot in the TMA List.
      */
     private void doAnnotationAndShowNextSpot() {
         TMAspot ts = getVisibleTMAspot();
-        if (ts==null) {
+        if (ts == null) {
             return;
         }
         List<String> props = getAnnotationProperties();
         boolean[] useThisProp = new boolean[props.size()];
-        for (int i=0; i<props.size(); i++) {
+        for (int i = 0; i < props.size(); i++) {
             useThisProp[i] = !props.get(i).trim().equals("");
         }
-        
+
         List<TMAspot> tss = getTMAspots();
-        
+
         // test, if some Annotation Properties are already existing
         if (!overwritePropertyQuestionAnswered && !overwriteProperty) {
             List<String> alreadyExisting = new ArrayList<>();
-            for (int i=0; i<props.size(); i++) {
+            for (int i = 0; i < props.size(); i++) {
                 if (useThisProp[i] && tmarker.getProperties(tss).contains(props.get(i))) {
                     alreadyExisting.add(props.get(i));
                 }
             }
             if (!alreadyExisting.isEmpty()) {
                 String text = "";
-                for (String prop: alreadyExisting) {
+                for (String prop : alreadyExisting) {
                     text += prop + " ";
                 }
-                int opt = JOptionPane.showConfirmDialog(this, "Following properities already exist in the images:\n"+text+"\nDo you want to overwrite them?\n\n"
+                int opt = JOptionPane.showConfirmDialog(this, "Following properities already exist in the images:\n" + text + "\nDo you want to overwrite them?\n\n"
                         + "YES: Overwrite existing values, if any.\n"
                         + "NO: Adopt existing values, if any.\n"
                         + "CANCEL: Choose new property names.", "Properties already exist", JOptionPane.YES_NO_CANCEL_OPTION);
                 if (opt == JOptionPane.CANCEL_OPTION) {
                     return;
-                } else overwriteProperty = opt != JOptionPane.NO_OPTION;
+                } else {
+                    overwriteProperty = opt != JOptionPane.NO_OPTION;
+                }
             } else {
                 overwriteProperty = true;
             }
             overwritePropertyQuestionAnswered = true;
         }
-        
+
         if (!overwriteProperty) {
-            for (TMAspot ts_: tss) {
+            for (TMAspot ts_ : tss) {
                 boolean hasAlreadyAllProperties = true;
-                for (int i=0; i<props.size(); i++) {
+                for (int i = 0; i < props.size(); i++) {
                     if (useThisProp[i]) { // the 4. property (String-Property) is not checked, since it might be empty, even if it is already set by the user.
                         hasAlreadyAllProperties &= !ts_.getProperties().getProperty(props.get(i), "").isEmpty();
                     }
@@ -2190,9 +2350,9 @@ public final class tmarker extends javax.swing.JFrame {
                 }
             }
         }
-        
+
         List<String> values = getAnnotationValues();
-        for (int i=0; i<props.size(); i++) {
+        for (int i = 0; i < props.size(); i++) {
             if (useThisProp[i]) {
                 ts.getProperties().setProperty(props.get(i), values.get(i));
             }
@@ -2200,7 +2360,7 @@ public final class tmarker extends javax.swing.JFrame {
         if (!AnnotationAlreadySet.contains(ts)) {
             AnnotationAlreadySet.add(ts);
         }
-        
+
         // Set the next TMAspot visible...
         if (AnnotationAlreadySet.size() == tss.size()) {
             JOptionPane.showMessageDialog(this, "All images have been annotated. Please select all images and save them as XLS.\nOtherwise, the annotations will we lost after closing the program.", "All files annotated", JOptionPane.INFORMATION_MESSAGE);
@@ -2219,7 +2379,7 @@ public final class tmarker extends javax.swing.JFrame {
             AnnotationSkipped.clear();
             jButton7.setEnabled(false);
         }
-        for (TMAspot ts_next: tss) {
+        for (TMAspot ts_next : tss) {
             if (!AnnotationAlreadySet.contains(ts_next) && !AnnotationSkipped.contains(ts_next)) {
                 ts.setSelected(false);
                 showTMAspot(ts_next);
@@ -2227,9 +2387,10 @@ public final class tmarker extends javax.swing.JFrame {
             }
         }
     }
-    
+
     /**
-     * Does not save the current whole image annotation to the current TMAspot properties and shows the nex TMAspot in the TMA List.
+     * Does not save the current whole image annotation to the current TMAspot
+     * properties and shows the nex TMAspot in the TMA List.
      */
     private void doSkipAndShowNextSpot() {
         TMAspot ts = getVisibleTMAspot();
@@ -2238,16 +2399,17 @@ public final class tmarker extends javax.swing.JFrame {
             AnnotationSkipped.clear();
             jButton7.setEnabled(false);
         }
-        for (TMAspot ts_next: getTMAspots()) {
+        for (TMAspot ts_next : getTMAspots()) {
             if (!AnnotationAlreadySet.contains(ts_next) && !AnnotationSkipped.contains(ts_next)) {
                 showTMAspot(ts_next);
                 break;
             }
         }
     }
-    
+
     /**
      * Returns the TMAspots.
+     *
      * @return All TMAspots stored in this session.
      */
     public List<TMAspot> getTMAspots() {
@@ -2259,9 +2421,10 @@ public final class tmarker extends javax.swing.JFrame {
         // return TMAspots;
         return tss;
     }
-    
+
     /**
      * Sets the current directory (e.g. for file saving and opening).
+     *
      * @param currentDir The current directory.
      */
     public void setCurrentDir(String currentDir) {
@@ -2270,24 +2433,28 @@ public final class tmarker extends javax.swing.JFrame {
 
     /**
      * Returns the current directory (e.g. for file saving and opening).
+     *
      * @return The current directory.
      */
     public String getCurrentDir() {
         return currentDir;
     }
-     
+
     /**
      * Returns the option dialog.
+     *
      * @return The option dialog.
      */
     public OptionDialog getOptionDialog() {
         return od;
     }
-    
+
     /**
-     * Loads an image as TMAspot. The file is a new TMAspot and added to TMARKER t.
+     * Loads an image as TMAspot. The file is a new TMAspot and added to TMARKER
+     * t.
+     *
      * @param t The TMARKER session.
-     * @param file The (image) file which becomes a new TMAspot.
+     * @param file The file which becomes a new TMAspot.
      */
     private static void LoadImage(tmarker t, File file) {
         String fname = file.getAbsolutePath();
@@ -2297,15 +2464,17 @@ public final class tmarker extends javax.swing.JFrame {
             t.updateTMATable(ts, true);
         }
     }
-    
+
     /**
      * Loads a XML file which has been stored previously. Tries first to match
      * xml with opened images. If it fails, it tries to find the images on the
      * System. If it fails, it asks the user for a path for the images. If this
      * fails, the file can't be opened.
+     *
      * @param t The tmarker center
      * @param file The file to be loaded.
-     */private static void LoadXML(tmarker t, File file) {
+     */
+    private static void LoadXML(tmarker t, File file) {
         t.setStatusMessageLabel("Reading " + file.getName() + " ...");
         XStream xstream = new XStream(new DomDriver());
         xstream.ignoreUnknownElements();
@@ -2314,12 +2483,12 @@ public final class tmarker extends javax.swing.JFrame {
         xstream.alias("TMApoint", TMApoint.class);
         xstream.omitField(TMAspot.class, "tc");
         xstream.omitField(TMAspot.class, "tlp");
-        
+
         List<TMAspot> newspots = new ArrayList<>();
         try {
             ObjectInputStream in = xstream.createObjectInputStream(new BufferedReader(new FileReader(file)));
             Object o;
-            
+
             try {
                 o = in.readObject();
             } catch (java.io.EOFException eof) {
@@ -2327,23 +2496,25 @@ public final class tmarker extends javax.swing.JFrame {
                 in.close();
                 return;
             }
-            
+
             // Read the Sesstion ID.
             try {
                 UUID UID_old = (UUID) o;
                 o = in.readObject();
-            } catch (ClassCastException e) { }
-            
+            } catch (ClassCastException e) {
+            }
+
             // Read the properties.
             try {
                 Properties props = (Properties) o;
                 t.restoreParameterValues(props, false);
                 t.restoreParameterValues(props, true);
-                o = in.readObject();                
-            } catch (ClassCastException e) { }
-            
+                o = in.readObject();
+            } catch (ClassCastException e) {
+            }
+
             // Read the TMAspots
-            while(true) {
+            while (true) {
                 try {
                     // The object is a new TMAspot
                     TMAspot ts = (TMAspot) o;
@@ -2355,11 +2526,11 @@ public final class tmarker extends javax.swing.JFrame {
                     break;
                 }
             }
-            
+
             // first: try to match the spots with already opened spots
-            for (int i=newspots.size()-1; i>=0; i--) {
+            for (int i = newspots.size() - 1; i >= 0; i--) {
                 TMAspot opened_spot = t.getTMAspotWithName(newspots.get(i).getName());
-                if (opened_spot!=null) {
+                if (opened_spot != null) {
                     if (!t.question_answered && !opened_spot.getPoints().isEmpty()) {
                         int ok = JOptionPane.showOptionDialog(t, "TMARKER has recognized that you want to open a XML file\n"
                                 + "for an already opened image with existing points.\n"
@@ -2368,16 +2539,16 @@ public final class tmarker extends javax.swing.JFrame {
                                 + "gold standard with new Labeler's number.\n\n"
                                 + "If NO, all labels from the XML are loaded as they are\n"
                                 + "and added to the current image.", "How to open XML files?", JOptionPane.YES_NO_OPTION, 1, null, null, null);
-                        t.convertPoints = ok==JOptionPane.YES_OPTION;
+                        t.convertPoints = ok == JOptionPane.YES_OPTION;
                         t.question_answered = true;
                     }
-                    byte new_GS_number = (t.convertPoints?(byte)(opened_spot.getMaxGSNumber()+1):0);
+                    byte new_GS_number = (t.convertPoints ? (byte) (opened_spot.getMaxGSNumber() + 1) : 0);
                     //if (convertPoints) {
                     //    for (int z=0; z<opened_spot.getPoints().size(); z++) {
                     //       opened_spot.getPoints().get(z).setGoldStandard(t.getGSNumber());
                     //    }
                     //}
-                    for (int j=0; j<newspots.get(i).getPoints().size(); j++) {
+                    for (int j = 0; j < newspots.get(i).getPoints().size(); j++) {
                         if (t.convertPoints) {
                             newspots.get(i).getPoints().get(j).setGoldStandard(new_GS_number);
                         }
@@ -2392,10 +2563,10 @@ public final class tmarker extends javax.swing.JFrame {
             }
 
             // second: try to find the spots that could not be mached on the absolute location specified in the xml
-            for (int i=newspots.size()-1; i>=0; i--) {
+            for (int i = newspots.size() - 1; i >= 0; i--) {
                 if (new File(newspots.get(i).getOriginalImagename()).exists()) {
                     TMAspot ts = new TMAspot(t, newspots.get(i).getOriginalImagename());
-                    for (int j=0; j<newspots.get(i).getPoints().size(); j++) {
+                    for (int j = 0; j < newspots.get(i).getPoints().size(); j++) {
                         newspots.get(i).getPoints().get(j).setTMAspot(ts);
                         ts.addPoint(newspots.get(i).getPoints().get(j));
                     }
@@ -2406,14 +2577,14 @@ public final class tmarker extends javax.swing.JFrame {
                     newspots.remove(i);
                 }
             }
-            
+
             // second-and-a-half: try to find the spots that could not be mached on the relative location specified in the xml
             if (!newspots.isEmpty()) {
-                for (int i=newspots.size()-1; i>=0; i--) {
+                for (int i = newspots.size() - 1; i >= 0; i--) {
                     logger.log(java.util.logging.Level.INFO, file.getParent() + File.separator + newspots.get(i).getOriginalImagename());
                     if (new File(file.getParent() + File.separator + newspots.get(i).getOriginalImagename()).exists()) {
                         TMAspot ts = new TMAspot(t, file.getParent() + File.separator + newspots.get(i).getOriginalImagename());
-                        for (int j=0; j<newspots.get(i).getPoints().size(); j++) {
+                        for (int j = 0; j < newspots.get(i).getPoints().size(); j++) {
                             newspots.get(i).getPoints().get(j).setTMAspot(ts);
                             ts.addPoint(newspots.get(i).getPoints().get(j));
                         }
@@ -2428,11 +2599,11 @@ public final class tmarker extends javax.swing.JFrame {
 
             // third: try to find the images in the same folder like xml
             if (!newspots.isEmpty()) {
-                for (int i=newspots.size()-1; i>=0; i--) {
+                for (int i = newspots.size() - 1; i >= 0; i--) {
                     logger.log(java.util.logging.Level.INFO, file.getParent() + File.separator + newspots.get(i).getName());
                     if (new File(file.getParent() + File.separator + newspots.get(i).getName()).exists()) {
                         TMAspot ts = new TMAspot(t, file.getParent() + File.separator + newspots.get(i).getName());
-                        for (int j=0; j<newspots.get(i).getPoints().size(); j++) {
+                        for (int j = 0; j < newspots.get(i).getPoints().size(); j++) {
                             newspots.get(i).getPoints().get(j).setTMAspot(ts);
                             ts.addPoint(newspots.get(i).getPoints().get(j));
                         }
@@ -2442,16 +2613,16 @@ public final class tmarker extends javax.swing.JFrame {
                         t.updateTMATable(ts, true);
                         newspots.remove(i);
                     }
-                }            
+                }
             }
 
             // fourth: try to find the images in path
             if (!newspots.isEmpty()) {
-                for (int p=0; p<t.getPath().size(); p++) {
-                    for (int i=newspots.size()-1; i>=0; i--) {
+                for (int p = 0; p < t.getPath().size(); p++) {
+                    for (int i = newspots.size() - 1; i >= 0; i--) {
                         if (new File(t.getPath().get(p) + File.separator + newspots.get(i).getName()).exists()) {
                             TMAspot ts = new TMAspot(t, t.getPath().get(p) + File.separator + newspots.get(i).getName());
-                            for (int j=0; j<newspots.get(i).getPoints().size(); j++) {
+                            for (int j = 0; j < newspots.get(i).getPoints().size(); j++) {
                                 newspots.get(i).getPoints().get(j).setTMAspot(ts);
                                 ts.addPoint(newspots.get(i).getPoints().get(j));
                             }
@@ -2465,21 +2636,19 @@ public final class tmarker extends javax.swing.JFrame {
                 }
             }
 
-
             // fifth: ask the user to select a path to the images
             if (!newspots.isEmpty()) {
                 JOptionPane.showMessageDialog(t, "Some images specified in " + file.getName() + " could not be found, e.g.\n"
                         + newspots.get(0).getName() + ".\n"
-                        + "After this dialog, you will be asked to specify a path to the images.\n"
-                        , "Images not found", JOptionPane.INFORMATION_MESSAGE);
+                        + "After this dialog, you will be asked to specify a path to the images.\n", "Images not found", JOptionPane.INFORMATION_MESSAGE);
                 JFileChooser chooser = new JFileChooser(t.getCurrentDir());
                 chooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
                 int approve = chooser.showOpenDialog(t);
                 if (approve == JFileChooser.APPROVE_OPTION) {
-                    for (int i=newspots.size()-1; i>=0; i--) {
+                    for (int i = newspots.size() - 1; i >= 0; i--) {
                         if (new File(chooser.getSelectedFile().getAbsoluteFile() + File.separator + newspots.get(i).getName()).exists()) {
                             TMAspot ts = new TMAspot(t, chooser.getSelectedFile().getAbsoluteFile() + File.separator + newspots.get(i).getName());
-                            for (int j=0; j<newspots.get(i).getPoints().size(); j++) {
+                            for (int j = 0; j < newspots.get(i).getPoints().size(); j++) {
                                 newspots.get(i).getPoints().get(j).setTMAspot(ts);
                                 ts.addPoint(newspots.get(i).getPoints().get(j));
                             }
@@ -2498,38 +2667,39 @@ public final class tmarker extends javax.swing.JFrame {
             if (!newspots.isEmpty()) {
                 String message = "Following images could not be found:\n";
                 int dmax = 10;
-                for (int i=0; i<Math.min(dmax, newspots.size()); i++) {
+                for (int i = 0; i < Math.min(dmax, newspots.size()); i++) {
                     message += "\t" + newspots.get(i).getName() + "\n";
                 }
-                if (dmax<newspots.size()) {
-                    message += "and " + Integer.toString(newspots.size()-dmax) + " more.";
+                if (dmax < newspots.size()) {
+                    message += "and " + Integer.toString(newspots.size() - dmax) + " more.";
                 }
                 JOptionPane.showMessageDialog(t, message, "Images not found", JOptionPane.INFORMATION_MESSAGE);
             }
-            
+
         } catch (Exception e) {
-            JOptionPane.showMessageDialog(t, "The file " + file.getName() + " could not be parsed.\n\n Maybe the XML file is from an old version of TMARKER.", "Wrong File Format", JOptionPane.ERROR_MESSAGE);                        
-            if (tmarker.DEBUG>0) {
+            JOptionPane.showMessageDialog(t, "The file " + file.getName() + " could not be parsed.\n\n Maybe the XML file is from an old version of TMARKER.", "Wrong File Format", JOptionPane.ERROR_MESSAGE);
+            if (tmarker.DEBUG > 0) {
                 Logger.getLogger(tmarker.class.getName()).log(Level.SEVERE, null, e);
             }
         } finally {
             t.setStatusMessageLabel("");
         }
     }
-     
+
     /**
-      * Loads a CSV file with metainformation for the TMAspots already loaded.
-      * The CSV file is semicolon separated, has one row per TMAspot and one column
-      * per metainformation (e.g. protein expression rates). One column must contain
-      * the TMAspot name (filename of the TMA image).
-      * @param t The tmarker instance.
-      * @param file The CSV file. Must be semicolon separated and have headers.
-      */
+     * Loads a CSV file with metainformation for the TMAspots already loaded.
+     * The CSV file is semicolon separated, has one row per TMAspot and one
+     * column per metainformation (e.g. protein expression rates). One column
+     * must contain the TMAspot name (filename of the TMA image).
+     *
+     * @param t The tmarker instance.
+     * @param file The CSV file. Must be semicolon separated and have headers.
+     */
     private static void LoadCSV(tmarker t, File file) {
         String oldStatusText = t.getStatusMessageLabel().getText();
         t.setStatusMessageLabel("Reading File " + file.getName());
         try {
-            BufferedReader bufFRdr  = new BufferedReader(new FileReader(file));
+            BufferedReader bufFRdr = new BufferedReader(new FileReader(file));
             String sep = ";";
             String line;
             int row = 0;
@@ -2540,15 +2710,15 @@ public final class tmarker extends javax.swing.JFrame {
             boolean userWantsSearchOtherPaths = true;
             int ln = 0;
             String txt = "";
-            
+
             // pre-read the file to release it fast
-            while((line = bufFRdr.readLine()) != null) {
+            while ((line = bufFRdr.readLine()) != null) {
                 txt += line + "\n";
                 ln++;
             }
             bufFRdr.close();
             BufferedReader bufRdr = new BufferedReader(new StringReader(txt));
-            
+
             // read header line of text file
             line = bufRdr.readLine();
             if (line != null) {
@@ -2558,46 +2728,45 @@ public final class tmarker extends javax.swing.JFrame {
                     headers.add(key.replaceAll("\"", ""));
                 }
             }
-            
-            
+
             //read each line of text file
-            while((line = bufRdr.readLine()) != null && userWantsSearchOtherFiles) {
-                t.setProgressbar((int)(100.0 * row++/ln));
+            while ((line = bufRdr.readLine()) != null && userWantsSearchOtherFiles) {
+                t.setProgressbar((int) (100.0 * row++ / ln));
                 String[] values = line.split(sep, headers.size());
                 String value;
                 SortedProperties prop = new SortedProperties();
-                for (int i=0; i<headers.size(); i++) {
+                for (int i = 0; i < headers.size(); i++) {
                     String key = headers.get(i);
                     if (!key.isEmpty()) {
                         value = "";
-                        if (i<values.length) {
+                        if (i < values.length) {
                             //get next token and store it in the properties
                             value = values[i].replaceAll("\"", "").trim();
                         }
                         prop.setProperty(headers.get(i), value);
                     }
                 }
-                
+
                 if (!prop.isEmpty()) {
                     // first: try to match the spots with already opened spots
                     // find the TMA image with the right imagename
                     TMAspot ts = null;
                     String imgname = prop.getProperty(headers.get(imagename_ind));
-                    if (imgname!=null && !imgname.equals("")) {
+                    if (imgname != null && !imgname.equals("")) {
                         ts = t.getTMAspotWithName(imgname);
-                        if (ts!=null) {
+                        if (ts != null) {
                             ts.addProperties(prop);
                         } else {
                             // find the right column of the image name (for matching)
-                            for (int i=0; i<headers.size(); i++) {
+                            for (int i = 0; i < headers.size(); i++) {
                                 try {
                                     imgname = prop.getProperty(headers.get(i));
                                 } catch (Exception ex) {
                                     imgname = null;
                                 }
-                                if (imgname!=null && !imgname.equals("")) {
+                                if (imgname != null && !imgname.equals("")) {
                                     ts = t.getTMAspotWithName(imgname);
-                                    if (ts!=null) {
+                                    if (ts != null) {
                                         ts.addProperties(prop);
                                         imagename_ind = i;
                                         break;
@@ -2608,10 +2777,10 @@ public final class tmarker extends javax.swing.JFrame {
                     }
 
                     // second: ask the user to specify the column of image name
-                    if (ts==null && !userSetIndex) { 
+                    if (ts == null && !userSetIndex) {
                         String input = (String) JOptionPane.showInputDialog(t, "File " + file.getName() + ":\n"
                                 + "Some images listed in this file could not be found.\n"
-                        + "To search for the images, please select the column in the file\n"
+                                + "To search for the images, please select the column in the file\n"
                                 + "that represents the image names.", "Images not found", JOptionPane.INFORMATION_MESSAGE, null, headers.toArray(), headers.get(imagename_ind));
                         if (input != null) {
                             userSetIndex = true;
@@ -2623,30 +2792,30 @@ public final class tmarker extends javax.swing.JFrame {
                     }
 
                     // third: try to find the images as specified in image name column
-                    if (ts==null) {                    
+                    if (ts == null) {
                         logger.log(java.util.logging.Level.INFO, "Try to find " + prop.getProperty(headers.get(imagename_ind)));
                         if (new File(prop.getProperty(headers.get(imagename_ind))).exists()) {
                             ts = new TMAspot(t, prop.getProperty(headers.get(imagename_ind)));
                             ts.setProperties(prop);
                             t.addTMAspot(ts);
                             t.updateTMATable(ts, true);
-                        }                                
+                        }
                     }
 
                     // fourth: try to find the images in the same folder like csv
-                    if (ts==null) {                    
+                    if (ts == null) {
                         logger.log(java.util.logging.Level.INFO, "Try to find " + file.getParent() + File.separator + prop.getProperty(headers.get(imagename_ind)));
                         if (new File(file.getParent() + File.separator + prop.getProperty(headers.get(imagename_ind))).exists()) {
                             ts = new TMAspot(t, file.getParent() + File.separator + prop.getProperty(headers.get(imagename_ind)));
                             ts.setProperties(prop);
                             t.addTMAspot(ts);
                             t.updateTMATable(ts, true);
-                        }                                
+                        }
                     }
 
                     // fifth: try to find the images in path
-                    if (ts==null) { 
-                        for (int p=0; p<t.getPath().size(); p++) {
+                    if (ts == null) {
+                        for (int p = 0; p < t.getPath().size(); p++) {
                             if (new File(t.getPath().get(p) + File.separator + prop.getProperty(headers.get(imagename_ind))).exists()) {
                                 ts = new TMAspot(t, t.getPath().get(p) + File.separator + prop.getProperty(headers.get(imagename_ind)));
                                 ts.setProperties(prop);
@@ -2658,11 +2827,11 @@ public final class tmarker extends javax.swing.JFrame {
                     }
 
                     // sixth: ask the user to select a path to the images
-                    if (ts==null && userWantsSearchOtherPaths) { 
+                    if (ts == null && userWantsSearchOtherPaths) {
                         JOptionPane.showMessageDialog(t, "The image " + prop.getProperty(headers.get(imagename_ind))
-                        + " could not be found.\n"
-                        + "After this dialog, you will be asked to specify a path to the image.\n"
-                        + "Note, that the images must have the same name as saved in " + file.getName() + ".\n", 
+                                + " could not be found.\n"
+                                + "After this dialog, you will be asked to specify a path to the image.\n"
+                                + "Note, that the images must have the same name as saved in " + file.getName() + ".\n",
                                 "Image not found", JOptionPane.INFORMATION_MESSAGE);
                         JFileChooser chooser = new JFileChooser(t.getCurrentDir());
                         chooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
@@ -2681,12 +2850,12 @@ public final class tmarker extends javax.swing.JFrame {
                             userWantsSearchOtherPaths = false;
                             continue;
                         }
-                    }                    
+                    }
                 }
             }
             bufRdr.close();
         } catch (Exception ex) {
-            logger.log(java.util.logging.Level.WARNING, "Error Loading File "+file.getName());
+            logger.log(java.util.logging.Level.WARNING, "Error Loading File " + file.getName());
         } finally {
             t.setStatusMessageLabel(oldStatusText);
             t.setProgressbar(0);
@@ -2695,6 +2864,7 @@ public final class tmarker extends javax.swing.JFrame {
 
     /**
      * Opens a JFileChooser and loads the selected files.
+     *
      * @param t The TMARKER session.
      * @param currentDir_local The current directory (opened by the chooser).
      */
@@ -2702,40 +2872,56 @@ public final class tmarker extends javax.swing.JFrame {
         File[] filelist = FileChooser.chooseLoadingFiles(t, currentDir_local);
         LoadFiles(t, filelist);
     }
-    
+
     /**
      * Returns the Debug status of tmarker (0-5).
+     *
      * @return The Debug status of tmarker (0=no output, 5= lots of output).
      */
     public int DEBUG() {
         return DEBUG;
     }
-    
+
     /**
-     * Loads a list of files into TMARKER.
-     * @param t The TMARKER session.
-     * @param filelist A list of files to be opened. Depending on the extension, TMARKER decides how to open the files.
+     * Return the allowed file extensions which TMARKER accepts.
+     *
+     * @return All allowed file extensions which TMARKER accepts (images, xml,
+     * ...).
      */
-    public static void LoadFiles(tmarker t, File[] filelist) {
-        t.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
-        List<String> allowed_ext = new ArrayList<>();
+    static public Collection<String> getAcceptedFiles() {
+        Collection<String> allowed_ext = new ArrayList<>();
         allowed_ext.add("xml");
         allowed_ext.add("csv");
         allowed_ext.add("tif");
         allowed_ext.add("tiff");
         String[] its = ImageIO.getReaderFormatNames();
-        for (int i=0; i<its.length; i++) {
+        for (int i = 0; i < its.length; i++) {
             allowed_ext.add(its[i].toLowerCase());
         }
-        
+
+        allowed_ext.add("ndpi");
+        return allowed_ext;
+    }
+
+    /**
+     * Loads a list of files into TMARKER.
+     *
+     * @param t The TMARKER session.
+     * @param filelist A list of files to be opened. Depending on the extension,
+     * TMARKER decides how to open the files.
+     */
+    public static void LoadFiles(tmarker t, File[] filelist) {
+        t.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+        Collection<String> allowed_ext = getAcceptedFiles();
+
         int numTMAspots_before = t.getTMAspots().size();
         if (filelist != null && filelist[0] != null) {
             String currentDir_local = filelist[0].getAbsolutePath();
             t.setCurrentDir(currentDir_local);
             String errorMSG = "";
             for (int j = 0; j < filelist.length; j++) {
-                t.setProgressbar((100*j)/filelist.length);
-                if (filelist[j]!=null && filelist[j].exists() && allowed_ext.contains(Misc.FilePathStringtoExtension(filelist[j].getName()).toLowerCase())) {
+                t.setProgressbar((100 * j) / filelist.length);
+                if (filelist[j] != null && filelist[j].exists() && allowed_ext.contains(Misc.FilePathStringtoExtension(filelist[j].getName()).toLowerCase())) {
                     try {
                         if (Misc.FilePathStringtoExtension(filelist[j].getName()).equalsIgnoreCase("xml")) {
                             LoadXML(t, filelist[j]);
@@ -2751,7 +2937,7 @@ public final class tmarker extends javax.swing.JFrame {
                     }
                 } else {
                     errorMSG += filelist[j].getName() + "\n";
-                }   
+                }
             }
             if (!errorMSG.equals("")) {
                 t.setCursor(Cursor.getDefaultCursor());
@@ -2759,62 +2945,39 @@ public final class tmarker extends javax.swing.JFrame {
                 return;
             }
             if (!t.getTMAspots().isEmpty()) {
-                if (t.getTMAspots().size()<=numTMAspots_before) {
-                    numTMAspots_before = t.getTMAspots().size()-1;
+                if (t.getTMAspots().size() <= numTMAspots_before) {
+                    numTMAspots_before = t.getTMAspots().size() - 1;
                 }
-                if (t.getVisibleTMAspot()==null) {
+                if (t.getVisibleTMAspot() == null) {
                     t.showTMAspot(t.getTMAspots().get(numTMAspots_before));
                 }
                 t.setState_ImagesLoaded();
-                
+
                 // revalidate the TMA List
                 t.getTMAList().update(t.getTMAList().getGraphics());
             }
-                   
+
             // reset the global filehandling variables
             t.question_answered = false;
-            t.convertPoints = false; 
-           
+            t.convertPoints = false;
+
         }
         t.setProgressbar(0);
         t.setCursor(Cursor.getDefaultCursor());
     }
-    
+
     /**
      * Sets all TMAspots as selected.
      */
     public void selectAllTMAspots() {
-        for (TMAspot ts: getTMAspots()) {
+        for (TMAspot ts : getTMAspots()) {
             ts.setSelected(true);
         }
-        for (int i=0; i<plugins.size(); i++) {
+        for (int i = 0; i < plugins.size(); i++) {
             final Pluggable p = plugins.get(i);
-            if (pluginUpdaters.get(i).isAlive())
+            if (pluginUpdaters.get(i).isAlive()) {
                 pluginUpdaters.get(i).interrupt();
-            Thread thread = new Thread(new Runnable() {
-                @Override
-                public void run() {
-                    p.updateOptionsToTMAspot(getVisibleTMAspot(), getSelectedTMAspots(false));
-                }
-            });
-            thread.start();
-            pluginUpdaters.set(i, thread);
-        }
-    }
-    
-    /**
-     * Sets a given TMAspot as selected. All others will be un-selected.
-     * The selected TMAspot will be shown.
-     * @param ts The selected TMAspot.
-     */
-    public void selectTMAspot(TMAspot ts) {
-        for (TMAspot ts_: getTMAspots()) {
-            ts_.setSelected(ts!=null && ts_==ts);
-        }
-        for (int i=0; i<plugins.size(); i++) {
-            final Pluggable p = plugins.get(i);
-            if (pluginUpdaters.get(i).isAlive())
-                pluginUpdaters.get(i).interrupt();
+            }
             Thread thread = new Thread(new Runnable() {
                 @Override
                 public void run() {
@@ -2827,21 +2990,51 @@ public final class tmarker extends javax.swing.JFrame {
     }
 
     /**
-     * Returns the currently selected TMAspots. If none is selected, asks the user to select at least one.
+     * Sets a given TMAspot as selected. All others will be un-selected. The
+     * selected TMAspot will be shown.
+     *
+     * @param ts The selected TMAspot.
+     */
+    public void selectTMAspot(TMAspot ts) {
+        for (TMAspot ts_ : getTMAspots()) {
+            ts_.setSelected(ts != null && ts_ == ts);
+        }
+        for (int i = 0; i < plugins.size(); i++) {
+            final Pluggable p = plugins.get(i);
+            if (pluginUpdaters.get(i).isAlive()) {
+                pluginUpdaters.get(i).interrupt();
+            }
+            Thread thread = new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    p.updateOptionsToTMAspot(getVisibleTMAspot(), getSelectedTMAspots(false));
+                }
+            });
+            thread.start();
+            pluginUpdaters.set(i, thread);
+        }
+    }
+
+    /**
+     * Returns the currently selected TMAspots. If none is selected, asks the
+     * user to select at least one.
+     *
      * @return The selected TMAspots.
      */
     public List<TMAspot> getSelectedTMAspots() {
         return getSelectedTMAspots(true);
     }
-    
+
     /**
-     * Returns the currently selected TMAspots. 
-     * @param verbose If true and no TMAspot is selected, the user is asked to select one. If false, the user is never asked.
+     * Returns the currently selected TMAspots.
+     *
+     * @param verbose If true and no TMAspot is selected, the user is asked to
+     * select one. If false, the user is never asked.
      * @return The currently selected TMAspots.
      */
     public List<TMAspot> getSelectedTMAspots(boolean verbose) {
         List<TMAspot> aTMAspots = new ArrayList<>();
-        for (TMAspot ts_: getTMAspots()) {
+        for (TMAspot ts_ : getTMAspots()) {
             if (ts_.isSelected()) {
                 aTMAspots.add(ts_);
             }
@@ -2851,75 +3044,87 @@ public final class tmarker extends javax.swing.JFrame {
         }
         return aTMAspots;
     }
-    
+
     /**
-     * Returns the currently visible TMAspot. 
+     * Returns the currently visible TMAspot.
+     *
      * @return The currently visible TMAspot. Null if there is none.
      */
     public TMAspot getVisibleTMAspot() {
-        if (jPanel3 == null) return null;
-        if (jPanel3.getComponentCount() == 0 ) return null;
+        if (jPanel3 == null) {
+            return null;
+        }
+        if (jPanel3.getComponentCount() == 0) {
+            return null;
+        }
         try {
             return ((TMA_view_panel) jPanel3.getComponent(0)).getTMAspot();
         } catch (Exception e) {
             return null;
         }
     }
-    
+
     /**
-     * Removes a TMAspot from the TMARKER session. The user is asked to confirm that.
+     * Removes a TMAspot from the TMARKER session. The user is asked to confirm
+     * that.
+     *
      * @param ts The TMAspot to be removed.
      */
     public void removeTMAspot(TMAspot ts) {
-        if (ts!=null) {
+        if (ts != null) {
             List<TMAspot> tss = new ArrayList<>();
             tss.add(ts);
             removeTMAspots(tss);
         }
     }
-    
+
     /**
-     * Removes TMAspots from the TMARKER session. The user is asked to confirm that.
+     * Removes TMAspots from the TMARKER session. The user is asked to confirm
+     * that.
+     *
      * @param tss The TMAspots to be removed.
      */
     public void removeTMAspots(List<TMAspot> tss) {
         if (!tss.isEmpty()) {
             String text;
-            if (tss.size()==1) {
+            if (tss.size() == 1) {
                 text = "Are you sure to remove " + tss.get(0).getName() + "?";
             } else {
                 text = "Are you sure to remove selected images?";
             }
             int c = JOptionPane.showConfirmDialog(this, text, "Confirm Removing Instances", JOptionPane.YES_NO_OPTION);
             if (c == JOptionPane.YES_OPTION) {
-            remove(tss);
+                remove(tss);
             }
         }
     }
 
     /**
      * Returns the panel containing the TMA List.
+     *
      * @return The panel with the TMA List.
      */
     public JPanel getTMAList() {
         return jPanel36;
     }
-    
+
     /**
      * Returns the JScrollPane containing the TMA List.
+     *
      * @return The JSCrollPane with the TMA List.
      */
     public JScrollPane getTMAListScrollPane() {
         return jScrollPane7;
     }
-    
+
     /**
      * Removes the given TMAspots from the TMA List.
+     *
      * @param tss The TMAspots to be removed.
      */
     private void removeTMAspotFromTable(List<TMAspot> tss) {
         for (Component comp : jPanel36.getComponents()) {
-            if (tss.contains(((TMAspot_list_panel) comp).getTMAspot())){
+            if (tss.contains(((TMAspot_list_panel) comp).getTMAspot())) {
                 jPanel36.remove(comp);
             }
         }
@@ -2928,9 +3133,10 @@ public final class tmarker extends javax.swing.JFrame {
         jPanel36.validate();
         jPanel36.repaint();
     }
-    
+
     /**
      * Removes the given TMAspots from the TMARKER session.
+     *
      * @param tss The TMAspots to be removed.
      */
     private void remove(List<TMAspot> tss) {
@@ -2938,7 +3144,7 @@ public final class tmarker extends javax.swing.JFrame {
         removeTMAspotFromTable(tss);
         TMAspots.removeAll(tss);
         if (tss.contains(ts)) {
-            if (!TMAspots.isEmpty()){
+            if (!TMAspots.isEmpty()) {
                 showTMAspot(TMAspots.get(0));
                 TMAspots.get(0).setSelected(true);
             } else {
@@ -2947,52 +3153,54 @@ public final class tmarker extends javax.swing.JFrame {
             }
         }
     }
-    
+
     /**
-     * Performs Voronoi Sampling for background points sampling. First, all current background
-     * points are deleted. Then, a voronoi diagram is created around all remaining gold-standard TMAlabels.
-     * The vertices of this diagram are loci of new background points.
+     * Performs Voronoi Sampling for background points sampling. First, all
+     * current background points are deleted. Then, a voronoi diagram is created
+     * around all remaining gold-standard TMAlabels. The vertices of this
+     * diagram are loci of new background points.
      */
     public void performVoronoiSampling() {
-        for (TMAspot ts: getSelectedTMAspots()) {
+        for (TMAspot ts : getSelectedTMAspots()) {
             ts.deleteAllPoints(TMALabel.LABEL_BG, true);
             ts.deleteAllPoints(TMALabel.LABEL_BG, false);
             List<Pnt> pnt_in = new ArrayList<>(ts.getPoints_GoldStandard().size());
-            for (TMApoint p: ts.getPoints_GoldStandard()) {
+            for (TMApoint p : ts.getPoints_GoldStandard()) {
                 pnt_in.add(new Pnt(p.x, p.y));
             }
             BufferedImage I = ts.getBufferedImage();
             List<Pnt> pnt_out = DelaunayAp.getAllVoronoiPoints(pnt_in, 0, I.getWidth(), 0, I.getHeight());
-            for (Pnt p: pnt_out) {
-                TMApoint tp = new TMApoint(ts, (int)p.coord(0), (int)p.coord(1), TMALabel.LABEL_BG);
+            for (Pnt p : pnt_out) {
+                TMApoint tp = new TMApoint(ts, (int) p.coord(0), (int) p.coord(1), TMALabel.LABEL_BG);
                 tp.setGoldStandard(tp.getTMAspot().getCenter().getGSNumberForLabeling());
                 ts.addPoint(tp);
             }
             performBackgroundPointsFiltering(ts);
-            if (ts==getVisibleTMAspot()) {
+            if (ts == getVisibleTMAspot()) {
                 getTMAView().repaint();
             }
             updateTMATable(ts);
             getTSD().updateSummary(ts);
         }
     }
-    
+
     /**
      * Removes overlapping background points.
+     *
      * @param ts The TMAspot to be processed.
      */
     public void performBackgroundPointsFiltering(TMAspot ts) {
         if (ts != null) {
             List<TMApoint> tps = ts.getPoints_GoldStandard();
-            for (int i=tps.size()-1; i>=0; i--) {
+            for (int i = tps.size() - 1; i >= 0; i--) {
                 TMApoint tp1 = tps.get(i);
-                if (tp1.getLabel()==TMALabel.LABEL_BG) {
-                    for (int j=i-1; j>=0; j--) {
+                if (tp1.getLabel() == TMALabel.LABEL_BG) {
+                    for (int j = i - 1; j >= 0; j--) {
                         TMApoint tp2 = tps.get(j);
-                        if (Math.sqrt(Math.pow(tp1.x-tp2.x, 2) + Math.pow(tp1.y-tp2.y, 2)) <= 3*ts.getParam_r()) {
-                            if (tp2.getLabel()==TMALabel.LABEL_BG) {
-                                tp2.x = (tp1.x+tp2.x)/2;
-                                tp2.y = (tp1.y+tp2.y)/2;
+                        if (Math.sqrt(Math.pow(tp1.x - tp2.x, 2) + Math.pow(tp1.y - tp2.y, 2)) <= 3 * ts.getParam_r()) {
+                            if (tp2.getLabel() == TMALabel.LABEL_BG) {
+                                tp2.x = (tp1.x + tp2.x) / 2;
+                                tp2.y = (tp1.y + tp2.y) / 2;
                                 ts.getPoints().remove(tp1);
                                 break;
                             } else {
@@ -3005,16 +3213,17 @@ public final class tmarker extends javax.swing.JFrame {
             }
         }
     }
-    
+
     /**
      * Removes the background labels from the given TMAspots.
+     *
      * @param tss The TMAspots to be processed.
      */
     private void deleteBackgroundPoints(List<TMAspot> tss) {
-        for (TMAspot ts: tss) {
+        for (TMAspot ts : tss) {
             ts.deleteAllPoints(TMALabel.LABEL_BG, true);
             ts.deleteAllPoints(TMALabel.LABEL_BG, false);
-            if (ts==getVisibleTMAspot()) {
+            if (ts == getVisibleTMAspot()) {
                 getTMAView().repaint();
             }
             updateTMATable(ts);
@@ -3024,27 +3233,45 @@ public final class tmarker extends javax.swing.JFrame {
 
     /**
      * Returns the panel containing the TMA image.
+     *
      * @return The TMA View panel.
      */
     public TMA_view_panel getTMAView() {
-        return tvp;
+        if (jPanel3.getComponentCount() > 0) {
+            return (TMA_view_panel) (jPanel3.getComponent(0));
+        } else {
+            return tmaspot_view_panel;
+        }
     }
 
     /**
      * Shows a TMAspot in the TMARKER TMA View.
+     *
      * @param ts The TMAspot to be displayed.
      */
     public void showTMAspot(TMAspot ts) {
-        if (jPanel3.getComponentCount()==0) {
-            jPanel3.add(tvp);
+        boolean newSpot = ts != getVisibleTMAspot();
+        TMA_view_panel tvp = (ts == null) ? tmaspot_view_panel : (ts.isNDPI() ? wholeslide_view_panel : tmaspot_view_panel);
+        jPanel3.removeAll();
+        if (ts != null) {
+            jPanel3.add((Component) tvp);
         }
-        
-        tvp.showTMAspot(ts);
+
+        // adjust the maximum possible zoom
+        if (ts != null && ts.isNDPI()) {
+            jSlider1.setMaximum(100);
+        } else {
+            jSlider1.setMaximum(400);
+        }
+
+        tvp.showTMAspot(ts, newSpot);
+
         tsd.updateSummary(ts);
-        for (int i=0; i<plugins.size(); i++) {
+        for (int i = 0; i < plugins.size(); i++) {
             final Pluggable p = plugins.get(i);
-            if (pluginUpdaters.get(i).isAlive())
+            if (pluginUpdaters.get(i).isAlive()) {
                 pluginUpdaters.get(i).interrupt();
+            }
             Thread thread = new Thread(new Runnable() {
                 @Override
                 public void run() {
@@ -3055,173 +3282,208 @@ public final class tmarker extends javax.swing.JFrame {
             pluginUpdaters.set(i, thread);
         }
         try {
-            if (ts!=null) {
+            if (ts != null) {
                 // update the nucleus annotation
                 setLabelRadius(ts.getParam_r());
-                
+
                 // update the "whole image annotation"
-                if (ts.getProperties()!=null && !ts.getProperties().isEmpty()) {
+                if (ts.getProperties() != null && !ts.getProperties().isEmpty()) {
                     List<String> annotation_names = getAnnotationProperties();
                     List<String> annotation_values = new ArrayList<>();
                     String value;
-                    
+
                     // Annotation 1: Percentage
                     value = ts.getProperties().getProperty(annotation_names.get(0), "");
                     annotation_values.add(value);
-                        
+
                     // Annotation 2: Mitotic Count
                     value = ts.getProperties().getProperty(annotation_names.get(1), "");
                     annotation_values.add(value);
-                        
+
                     // Annotation 3: Pleomorphism
                     value = ts.getProperties().getProperty(annotation_names.get(2), "");
                     annotation_values.add(value);
-                    
+
                     // Annotation 4: Comment
                     value = ts.getProperties().getProperty(annotation_names.get(3), "");
                     annotation_values.add(value);
-                    
+
                     setAnnotationValues(annotation_values);
                 }
             }
-            
+
             showTMAspotPreview();
 
             // select TMAspot if necessary
-            if (ts!=null && !getSelectedTMAspots(false).contains(ts)) {
+            if (ts != null && !getSelectedTMAspots(false).contains(ts)) {
                 ts.setSelected(true);
             }
-            
+
         } catch (Exception e) {
-            if (DEBUG>0) {
+            if (DEBUG > 0) {
                 logger.log(Level.SEVERE, e.getMessage(), e);
             }
         }
-    } 
-    
+    }
+
     /**
      * Displays the TMAspot preview of the currently visible TMAspot.
      */
-    public void showTMAspotPreview() { 
-        if (jPanel11.getComponents().length<1) {
+    public void showTMAspotPreview() {
+        if (jPanel11.getComponents().length < 1) {
             jPanel11.add(zip, java.awt.BorderLayout.WEST);
         }
-        if (tvp.getImage()!=null) {
-            double zf = Math.min((double)jPanel11.getWidth()/(double)((BufferedImage)(tvp.getImage())).getWidth(), (double)jPanel11.getHeight()/(double)((BufferedImage)(tvp.getImage())).getHeight());
-            zip.setImage(tvp.getImage().getScaledInstance((int)(zf*tvp.getImage().getWidth(null)), (int)(zf*tvp.getImage().getHeight(null)), java.awt.Image.SCALE_DEFAULT));
+
+        TMA_view_panel tvp = (jPanel3.getComponentCount() == 0) ? null : ((TMA_view_panel) jPanel3.getComponent(0));
+
+        if (tvp != null && tvp.getImage() != null) {
+            java.awt.Image thumb = tvp.getImage();
+            double zf = Math.min((double) jPanel11.getWidth() / (double) ((BufferedImage) (thumb)).getWidth(), (double) jPanel11.getHeight() / (double) ((BufferedImage) (thumb)).getHeight());
+            zip.setImage(thumb.getScaledInstance((int) (zf * thumb.getWidth(null)), (int) (zf * thumb.getHeight(null)), java.awt.Image.SCALE_DEFAULT));
             zip.revalidate();
         } else {
             zip.setImage(null);
             zipl.setImage(null);
         }
     }
-    
+
     /**
      * Displays the TMAspot zoomed view of the currently visible TMAspot.
-     * @param x The x-coord of the middle of the preview, relative to the original image.
-     * @param y The y-coord of the middle of the preview, relative to the original image.
+     *
+     * @param x The x-coord of the middle of the preview, relative to the
+     * original image.
+     * @param y The y-coord of the middle of the preview, relative to the
+     * original image.
      */
-    public void showTMAspotLocalZoom(int x, int y) { 
-        if (jScrollPane3.getViewport().getComponents().length==0) {
+    public void showTMAspotLocalZoom(int x, int y) {
+        if (jScrollPane3.getViewport().getComponents().length == 0) {
             zipl.setZoomMax(Double.MAX_VALUE);
             zipl.setParentScrollPane(jScrollPane3);
             jScrollPane3.getViewport().add(zipl);
-        } 
-        if (zipl.getImage() != tvp.getImage()) {
-            zipl.setImage(tvp.getImage());
-            zipl.setZoom(ZOOMFACTOR); // re-adjusts some sizes to the zipl and the new image.
         }
-        
-        zipl.scrollRectToVisible(new java.awt.Rectangle((int)(ZOOMFACTOR*x-jScrollPane3.getWidth()/2.0), (int)(ZOOMFACTOR*y-jScrollPane3.getHeight()/2.0), jScrollPane3.getWidth(), jScrollPane3.getHeight()));
+
+        TMA_view_panel tvp = (jPanel3.getComponentCount() == 0) ? null : ((TMA_view_panel) jPanel3.getComponent(0));
+
+        if (tvp != null && tvp.getClass().getName().equals(tmaspot_view_panel.getClass().getName())) {
+            if (zipl.getImage() != tvp.getImage()) {
+                zipl.setImage(tvp.getImage());
+                zipl.setZoom(ZOOMFACTOR_LOCALZOOM); // re-adjusts some sizes to the zipl and the new image.
+                zipl.revalidate();
+            }
+            zipl.scrollRectToVisible(new java.awt.Rectangle((int) (ZOOMFACTOR_LOCALZOOM * x - jScrollPane3.getWidth() / 2.0), (int) (ZOOMFACTOR_LOCALZOOM * y - jScrollPane3.getHeight() / 2.0), jScrollPane3.getWidth(), jScrollPane3.getHeight()));
+
+        } else {
+            if (tvp != null && zipl.getImage() != tvp.getImage()) {
+                zipl.setImage(null);
+            }
+        }
     }
-    
+
     /**
      * Displays the rectangle on the TMAspot preview.
-     * @param x The x-coord of the middle of the preview, relative to the original image.
-     * @param y The y-coord of the middle of the preview, relative to the original image.
+     *
+     * @param x The x-coord of the middle of the preview, relative to the
+     * original image.
+     * @param y The y-coord of the middle of the preview, relative to the
+     * original image.
      */
-    public void showTMAspotLocalZoomOnPreview(int x, int y) { 
+    public void showTMAspotLocalZoomOnPreview(int x, int y) {
         zip.update(zip.getGraphics());
         Graphics2D g = (Graphics2D) zip.getGraphics();
-        g.setColor(Color.RED);
-        java.awt.Rectangle rect = new java.awt.Rectangle((int)(ZOOMFACTOR*x-jScrollPane3.getWidth()/2.0), (int)(ZOOMFACTOR*y-jScrollPane3.getHeight()/2.0), jScrollPane3.getWidth(), jScrollPane3.getHeight());
-        double zf = Math.min((double)jPanel11.getWidth()/(double)((BufferedImage)(tvp.getImage())).getWidth(), (double)jPanel11.getHeight()/(double)((BufferedImage)(tvp.getImage())).getHeight()) / ZOOMFACTOR;
-        
-        // the size of the preview image
-        int img_w = (int)(zip.getZoom()*zip.getImage().getWidth(null));
-        int img_h = (int)(zip.getZoom()*zip.getImage().getHeight(null));
-        
-        // the offset of the preview image in its panel
-        int offset_x = 0; //(jPanel11.getWidth() - img_w)/2; // offset is 0 in horizontal direction (alignment is left).
-        int offset_y = (jPanel11.getHeight() - img_h)/2;
-        
-        // the red rectangle must at least start in the offset
-        int r_x = Math.max(offset_x, (int)(offset_x + zf*rect.x));
-        int r_y = Math.max(offset_y, (int)(offset_y + zf*rect.y));
-        
-        // the red rectangle's size
-        int r_w = (int)(zf*rect.width);
-        int r_h = (int)(zf*rect.height);
-        
-        // the red rectangle must not go beyond the preview image.
-        r_x = Math.min(r_x, offset_x + img_w - r_w - 1);
-        r_y = Math.min(r_y, offset_y + img_h - r_h - 1);
-        
-        g.drawRect(r_x, r_y, r_w, r_h);
-        g.dispose();
+        TMA_view_panel tvp = (jPanel3.getComponentCount() == 0) ? null : ((TMA_view_panel) jPanel3.getComponent(0));
+        if (tvp != null) {
+            g.setColor(Color.RED);
+            JScrollPane referencePane = jScrollPane3;
+            double referenceZoom = ZOOMFACTOR_LOCALZOOM;
+            if (tvp.getClass().getName().equals(wholeslide_view_panel.getClass().getName())) {
+                referencePane = jScrollPane1;
+                referenceZoom = getZoom();
+            }
+            java.awt.Rectangle rect = new java.awt.Rectangle((int) (referenceZoom * x - referencePane.getWidth() / 2.0), (int) (referenceZoom * y - referencePane.getHeight() / 2.0), referencePane.getWidth(), referencePane.getHeight());
+            double zf = Math.min((double) jPanel11.getWidth() / (double) (tvp.getTMAspot().getWidth()), (double) jPanel11.getHeight() / (double) (tvp.getTMAspot().getHeight())) / referenceZoom;
+
+            // the size of the preview image
+            int img_w = (int) (zip.getZoom() * zip.getImage().getWidth(null));
+            int img_h = (int) (zip.getZoom() * zip.getImage().getHeight(null));
+
+            // the offset of the preview image in its panel
+            int offset_x = 0; //(jPanel11.getWidth() - img_w)/2; // offset is 0 in horizontal direction (alignment is left).
+            int offset_y = (jPanel11.getHeight() - img_h) / 2;
+
+            // the red rectangle must at least start in the offset
+            int r_x = Math.max(offset_x, (int) (offset_x + zf * rect.x));
+            int r_y = Math.max(offset_y, (int) (offset_y + zf * rect.y));
+
+            // the red rectangle's size
+            int r_w = (int) (zf * rect.width);
+            int r_h = (int) (zf * rect.height);
+
+            // the red rectangle must not go beyond the preview image.
+            r_x = Math.min(r_x, offset_x + img_w - r_w - 1);
+            r_y = Math.min(r_y, offset_y + img_h - r_h - 1);
+
+            g.drawRect(r_x, r_y, r_w, r_h);
+            g.dispose();
+        }
     }
-    
+
     /**
      * Returns the progress bar.
+     *
      * @return The progress bar.
      */
     public JProgressBar getProgressbar() {
         return jProgressBar1;
     }
-    
+
     /**
      * Sets the progress bar value.
+     *
      * @param percentage The progress bar value between 0 and 100.
      */
     public void setProgressbar(int percentage) {
         jProgressBar1.setValue(percentage);
         jProgressBar1.update(jProgressBar1.getGraphics());
     }
-    
+
     /**
      * Returns the status message label.
+     *
      * @return The status message label.
      */
     public JLabel getStatusMessageLabel() {
         return jLabel4;
     }
-    
+
     /**
      * Sets the text of the status message label.
+     *
      * @param text The status message.
      */
     public void setStatusMessageLabel(String text) {
         jLabel4.setText(text);
         jXStatusBar1.update(jXStatusBar1.getGraphics());
     }
-    
+
     /**
      * Returns the color of the nuclei with the given labelType and staining.
+     *
      * @param labelType The nucleus label type (e.g. TMAspot.LABEL_POS).
      * @param staining The staining of the nuclei (e.g. TMAspot.STAINING_0).
      * @return The color of the labels of these nuclei.
      */
     public Color getLabelsColor(byte labelType, byte staining) {
         LegendElementNucleus len = getNucleusToolBarComponent(labelType, staining);
-        if (len!=null) {
+        if (len != null) {
             return len.getColor();
         } else {
             return Color.BLACK;
         }
     }
-    
+
     /**
      * Sets the color of the nuclei with the given labelType and staining.
+     *
      * @param labelType The nucleus label type (e.g. TMAspot.LABEL_POS).
      * @param staining The staining of the nuclei (e.g. TMAspot.STAINING_0).
      * @param c The color of the labels of these nuclei.
@@ -3230,27 +3492,30 @@ public final class tmarker extends javax.swing.JFrame {
         LegendElementNucleus len = getNucleusToolBarComponent(labelType, staining);
         len.setColor(c);
     }
-    
+
     /**
      * Returns the color of the nuclei with the given labelType and staining.
+     *
      * @param labelType The nucleus label type (e.g. TMAspot.LABEL_POS).
      * @param staining The staining of the nuclei (e.g. TMAspot.STAINING_0).
-     * @return The color of the labels of these nuclei. The color has alpha value 255.
+     * @return The color of the labels of these nuclei. The color has alpha
+     * value 255.
      */
     public Color getLabelsColorWOAlpha(byte labelType, byte staining) {
         Color c = getLabelsColor(labelType, staining);
         Color c_new = new Color(c.getRed(), c.getGreen(), c.getBlue(), 255);
         return c_new;
     }
-    
+
     /**
      * Returns the JScrollPane containing the TMA View.
+     *
      * @return The JScrollPane containing the TMA View.
      */
     public JScrollPane getTMAViewContainer() {
         return jScrollPane1;
     }
-    
+
     /**
      * Displays the user info visible after loading the images.
      */
@@ -3280,10 +3545,10 @@ public final class tmarker extends javax.swing.JFrame {
                 + "</ul>"
                 + "<b><i>TIP:</i></b> As most analyses are performed only on selected images, you might first want to select all TMA spots in the TMA List on the left.<br><br>"
                 + "<b><i>TIP:</i></b> Hold the mouse over buttons and labels to show additional information.<br><br>"
-                + "</font></html>";        
+                + "</font></html>";
         setUserInfo(infoText);
     }
-    
+
     /**
      * Sets the state after starting the program (e.g. user info).
      */
@@ -3298,8 +3563,7 @@ public final class tmarker extends javax.swing.JFrame {
         jPanel15.repaint();
         jPanel11.setOpaque(false);
         jPanel11.repaint();
-        
-        
+
         infoText = "<html><font size=\"3\" face=\"Arial\"><h1><strong>Welcome to TMARKER</strong></h1></strong>"
                 + "TMARKER is a program for the analysis of tissue microarry (TMA) images. Example usages are <b>cell nucleus counting</b>, "
                 + "<b>cell nucleus classification</b> or <b>staining estimation</b>.<br><br>"
@@ -3314,14 +3578,15 @@ public final class tmarker extends javax.swing.JFrame {
                 + "(e.g. image filename, sex, age, spot-ID, survival status, protein measurements, etc). "
                 + "One of the columns must host the path and filename of the images. The images itself must exist separately on the hard disk.<br></li>"
                 + "</ol>"
-                + "</font></html>";        
+                + "</font></html>";
         setUserInfo(infoText);
-        
+
         jTabbedPane1.grabFocus();
     }
-    
+
     /**
      * Sets the zoom parameter of the visible TMAspot.
+     *
      * @param i The zoom parameter in percent.
      */
     public void setZoomSlider(int i) {
@@ -3330,112 +3595,129 @@ public final class tmarker extends javax.swing.JFrame {
 
     /**
      * Returns the current zoom of the TMAspot.
+     *
      * @return The current zoom factor (1 for 100%).
      */
     public double getZoom() {
-        return jSlider1.getValue()/100.0;
+        return jSlider1.getValue() / 100.0;
     }
-    
+
     /**
      * Returns whether positive TMALabels should be drawn.
+     *
      * @return True, if positive TMALabels should be drawn.
      */
     public boolean isShowingPosLabels() {
         return jToggleButton9.isSelected();
     }
-    
+
     /**
      * Returns whether negative TMALabels should be drawn.
+     *
      * @return True, if negative TMALabels should be drawn.
      */
     public boolean isShowingNegLabels() {
         return jToggleButton10.isSelected();
     }
-    
+
     /**
      * Returns whether unknown TMALabels should be drawn.
+     *
      * @return True, if unknown TMALabels should be drawn.
      */
     public boolean isShowingUnkLabels() {
         return jToggleButton11.isSelected();
     }
-    
+
     /**
      * Returns whether or not backgorund labels should be shown.
-     * @return True, if background labels should be shown (always true for TMARKER).
+     *
+     * @return True, if background labels should be shown (always true for
+     * TMARKER).
      */
-     public boolean isShowingBGLabels() {
+    public boolean isShowingBGLabels() {
         return true;
     }
-    
-     /**
+
+    /**
      * Returns whether the nucleus labels are visible.
+     *
      * @return True if the nuclei should be visible.
      */
     public boolean isShowingLabels() {
-        return (((isShowingStainedLabels() || isShowingUnstainedLabels()) &&
-                (isShowingGoldStandardLabels() || isShowingEstimatedLabels())));
+        return (((isShowingStainedLabels() || isShowingUnstainedLabels())
+                && (isShowingGoldStandardLabels() || isShowingEstimatedLabels())));
     }
-    
+
     /**
      * Whether or not advanced text should be drawn together with the TMALabels.
      * The text has to be specified in the TMALabel.
+     *
      * @return True if additional text should be drawn with the TMALabels.
      */
     public boolean isShowingTextLabels() {
         return false;
     }
-    
+
     /**
      * Returns whether or not stained nuclei should be shown.
+     *
      * @return True, if manual stained nuclei should be shown.
      */
     public boolean isShowingStainedLabels() {
         return jToggleButton12.isSelected();
     }
-    
+
     /**
      * Returns whether or not unstained nuclei should be shown.
+     *
      * @return True, if manual unstained nuclei should be shown.
      */
     public boolean isShowingUnstainedLabels() {
         return jToggleButton13.isSelected();
     }
-    
+
     /**
      * Returns whether or not manual gold-standard nuclei should be shown.
+     *
      * @return True, if manual gold-standard nuclei should be shown.
      */
     public boolean isShowingGoldStandardLabels() {
         return jToggleButton14.isSelected();
     }
-    
+
     /**
      * Returns whether or not computer-estimated nuclei should be shown.
+     *
      * @return True, if computer-estimated nuclei should be shown.
      */
     public boolean isShowingEstimatedLabels() {
         return jToggleButton15.isSelected();
     }
-    
+
     /**
      * Returns whether or not the cell densitiy heatmap should be shown.
+     *
      * @return True, if the cell densitiy heatmap should be shown.
      */
     public boolean isShowingCellDensitySoft() {
         return jToggleButton2.isSelected();
     }
-    
+
     /**
-     * Returns the gold-standard labeler number which should be shown in the TMA View.
-     * @return The gold-standard labeler number which should be shown in the TMA View (always -1 for TMARKER).
+     * Returns the gold-standard labeler number which should be shown in the TMA
+     * View.
+     *
+     * @return The gold-standard labeler number which should be shown in the TMA
+     * View (always -1 for TMARKER).
      */
     public byte getGSNumberForViewing() {
         return -1;
     }
-    
+
     /**
      * Returns the gold-standard labeler number.
+     *
      * @return The gold-standard labeler number (always 1 for TMARKER).
      */
     public byte getGSNumberForLabeling() {
@@ -3444,6 +3726,7 @@ public final class tmarker extends javax.swing.JFrame {
 
     /**
      * Sets the temporary directory name (e.g. to write temp files).
+     *
      * @param tmp_dir The temp directory name.
      */
     public void setTmpDir(String tmp_dir) {
@@ -3453,42 +3736,45 @@ public final class tmarker extends javax.swing.JFrame {
         tmp.deleteOnExit();
         this.tmp_dir += fs;
     }
-    
+
     /**
      * Returns the temporary directory name (e.g. to write temp files).
+     *
      * @return The temp directory name.
      */
     public String getTmpDir() {
         return tmp_dir;
     }
-    
+
     /**
-     * Saves the TMAspots as XML. XML can store all parameters of the program, TMAspots and TMApoints.
+     * Saves the TMAspots as XML. XML can store all parameters of the program,
+     * TMAspots and TMApoints.
+     *
      * @param t The current TMARKER session.
      * @param file The file to be saved.
      */
-    public static void SaveAsXML(tmarker t, File file) {
-        if (file == null) return;
+    public static boolean SaveAsXML(tmarker t, File file) {
+        if (file == null) {
+            return false;
+        }
         String text = t.getStatusMessageLabel().getText();
         XStream xstream = new XStream(new DomDriver());
         xstream.alias("TMAspot", TMAspot.class);
         xstream.alias("TMApoint", TMApoint.class);
         xstream.omitField(TMAspot.class, "tc");
-        xstream.omitField(TMAspot.class, "slic");
-        xstream.omitField(TMAspot.class, "slics");
-        xstream.omitField(TMAspot.class, "instances");
         xstream.omitField(TMAspot.class, "tlp");
+        xstream.omitField(TMAspot.class, "os");
         xstream.omitField(TMApoint.class, "sp");
-        
+
         try {
             ObjectOutputStream out = xstream.createObjectOutputStream(new BufferedWriter(new FileWriter(file)));
             out.writeObject(t.getUID()); // write Session ID
             out.writeObject(t.getParameterValues()); // write properties
             List<TMAspot> tss = t.getTMAspots();
-            for (int i=0; i<tss.size(); i++) {
+            for (int i = 0; i < tss.size(); i++) {
                 TMAspot ts = tss.get(i);
                 t.setStatusMessageLabel("Write " + ts.getName() + " to XML ...");
-                t.setProgressbar((int)((100.0*i)/tss.size()));
+                t.setProgressbar((int) ((100.0 * i) / tss.size()));
                 out.writeObject(ts);
             }
 
@@ -3497,65 +3783,81 @@ public final class tmarker extends javax.swing.JFrame {
             JOptionPane.showMessageDialog(t, "An error occurred while writing "
                     + file.getName() + "\nMaybe it's still in use.", "Could not save file", JOptionPane.ERROR_MESSAGE);
             logger.log(java.util.logging.Level.WARNING, ex.getMessage());
+            return false;
         } finally {
             t.setStatusMessageLabel(text);
-            t.setProgressbar(0); 
+            t.setProgressbar(0);
         }
+        return true;
     }
-    
+
     /**
      * Saves the TMAspots and nuclei as text file. For experimental use only.
+     *
      * @param t The current TMARKER session.
      * @param file The file to be saved.
      */
     public static void SaveAsCSV(tmarker t, File file) {
-        if (file == null) return;
+        if (file == null) {
+            return;
+        }
         String text = t.getStatusMessageLabel().getText();
-        try {  
+        try {
             FileWriter writer = new FileWriter(file);
             List<TMAspot> tss = t.getTMAspots();
-	    Set<String> headers = tmarker.getProperties(tss);
+            Set<String> headers = tmarker.getProperties(tss);
             String value;
-            
-            writer.append("Name"); writer.append(";");                
+
+            writer.append("Name");
+            writer.append(";");
             //writer.append("pos"); writer.append(";");
             //writer.append("neg"); writer.append(";");
             //writer.append("staining estimation [%]"); writer.append(";");
-            writer.append("nucleus_x"); writer.append(";");
-            writer.append("nucleus_y"); writer.append(";");
-            writer.append("nucleus_label"); writer.append(";");
-            writer.append("nucleus_staining"); writer.append(";");
-            writer.append("nucleus_manuallyDrawn"); writer.append(";");
-            int n=0;
-            for (String header: headers) {
+            writer.append("nucleus_x");
+            writer.append(";");
+            writer.append("nucleus_y");
+            writer.append(";");
+            writer.append("nucleus_label");
+            writer.append(";");
+            writer.append("nucleus_staining");
+            writer.append(";");
+            writer.append("nucleus_manuallyDrawn");
+            writer.append(";");
+            int n = 0;
+            for (String header : headers) {
                 if (!header.equals("Name")) {
                     writer.append(header);
-                    if (n<headers.size()-1) {
+                    if (n < headers.size() - 1) {
                         writer.append(";");
-                    }    
+                    }
                     n++;
                 }
             }
             writer.append("\n");
- 
-            for (int i=0; i<tss.size(); i++) {
+
+            for (int i = 0; i < tss.size(); i++) {
                 TMAspot ts = tss.get(i);
                 t.setStatusMessageLabel("Write " + ts.getName() + " to CSV ...");
-                t.setProgressbar((int)((100.0*i)/tss.size()));
-                
+                t.setProgressbar((int) ((100.0 * i) / tss.size()));
+
                 //writer.append(ts.getName()); writer.append(";");                
                 //writer.append(Integer.toString(ts.getNumPos_total())); writer.append(";");
                 //writer.append(Integer.toString(ts.getNumNeg_total())); writer.append(";");
                 //writer.append(Integer.toString(ts.getStainingEstimation())); writer.append(ts.getPoints().isEmpty() ? "\n" : ";");
-                
-                writer.append(ts.getName());writer.append(";");
-                if (ts.getPoints().size()>0) {
+                writer.append(ts.getName());
+                writer.append(";");
+                if (ts.getPoints().size() > 0) {
                     TMApoint tp = ts.getPoints().get(0);
-                    writer.append(Integer.toString(tp.x)); writer.append(";");
-                    writer.append(Integer.toString(tp.y)); writer.append(";");
-                    writer.append(tp.getLabel() == TMALabel.LABEL_UNK ? "unknown" : (tp.getLabel() == TMALabel.LABEL_POS ? "malignant" : (tp.getLabel() == TMALabel.LABEL_NEG ? "benign" : "background"))); writer.append(";");
-                    writer.append(Byte.toString(tp.getStaining())); writer.append(";");
-                    writer.append(Boolean.toString(tp.isGoldStandard())); writer.append(";");
+                    writer.append(Integer.toString(tp.x));
+                    writer.append(";");
+                    writer.append(Integer.toString(tp.y));
+                    writer.append(";");
+                    writer.append(tp.getLabel() == TMALabel.LABEL_UNK ? "unknown" : (tp.getLabel() == TMALabel.LABEL_POS ? "malignant" : (tp.getLabel() == TMALabel.LABEL_NEG ? "benign" : "background")));
+                    writer.append(";");
+                    writer.append(Byte.toString(tp.getStaining()));
+                    writer.append(";");
+                    writer.append(Boolean.toString(tp.isGoldStandard()));
+                    writer.append(";");
                 } else {
                     writer.append(";");
                     writer.append(";");
@@ -3564,33 +3866,38 @@ public final class tmarker extends javax.swing.JFrame {
                     writer.append(";");
                 }
                 Properties props = ts.getProperties();
-                n=0;
+                n = 0;
                 for (String header : headers) {
                     if (!header.equals("Name")) {
                         if (props.containsKey(header)) {
                             value = props.getProperty(header);
                             writer.append(value);
                         }
-                        if (n<headers.size()-1) {
+                        if (n < headers.size() - 1) {
                             writer.append(";");
                         }
                         n++;
                     }
                 }
                 writer.append("\n");
-                
-                for (int j=1; j<ts.getPoints().size(); j++) {
+
+                for (int j = 1; j < ts.getPoints().size(); j++) {
                     writer.append(";");
                     TMApoint tp = ts.getPoints().get(j);
-                    writer.append(Integer.toString(tp.x)); writer.append(";");
-                    writer.append(Integer.toString(tp.y)); writer.append(";");
-                    writer.append(tp.getLabel() == TMALabel.LABEL_UNK ? "unknown" : (tp.getLabel() == TMALabel.LABEL_POS ? "malignant" : (tp.getLabel() == TMALabel.LABEL_NEG ? "benign" : "background"))); writer.append(";");
-                    writer.append(Byte.toString(tp.getStaining())); writer.append(";");
-                    writer.append(Boolean.toString(tp.isGoldStandard())); writer.append(";");
-                    n=0;
+                    writer.append(Integer.toString(tp.x));
+                    writer.append(";");
+                    writer.append(Integer.toString(tp.y));
+                    writer.append(";");
+                    writer.append(tp.getLabel() == TMALabel.LABEL_UNK ? "unknown" : (tp.getLabel() == TMALabel.LABEL_POS ? "malignant" : (tp.getLabel() == TMALabel.LABEL_NEG ? "benign" : "background")));
+                    writer.append(";");
+                    writer.append(Byte.toString(tp.getStaining()));
+                    writer.append(";");
+                    writer.append(Boolean.toString(tp.isGoldStandard()));
+                    writer.append(";");
+                    n = 0;
                     for (String header : headers) {
                         if (!header.equals("Name")) {
-                            if (n<headers.size()-1) {
+                            if (n < headers.size() - 1) {
                                 writer.append(";");
                             }
                             n++;
@@ -3600,59 +3907,62 @@ public final class tmarker extends javax.swing.JFrame {
                 }
             }
             writer.flush();
-	    writer.close();
+            writer.close();
         } catch (Exception e) {
             JOptionPane.showMessageDialog(t, "An error occurred while writing "
                     + file.getName() + "\nMaybe it's still in use.", "Could not save file", JOptionPane.ERROR_MESSAGE);
             logger.log(java.util.logging.Level.WARNING, e.getMessage());
         } finally {
             t.setStatusMessageLabel(text);
-            t.setProgressbar(0); 
+            t.setProgressbar(0);
         }
     }
-    
+
     /**
      * Save the selected TMAspots and nuclei.
+     *
      * @param t The current TMARKER session.
      * @param file The file to be saved.
      */
     public static void SaveAsCSV_Properties(tmarker t, File file) {
-        if (file == null) return;
+        if (file == null) {
+            return;
+        }
         String text = t.getStatusMessageLabel().getText();
-        try {  
+        try {
             List<TMAspot> tss = t.getTMAspots();
             Set<String> headers = tmarker.getProperties(tss);
             FileWriter writer = new FileWriter(file);
             String value;
             if (!headers.contains("Name")) {
                 writer.append("Name" + ";");
-            } 
-            int n=0;
-            for (String header: headers) {
+            }
+            int n = 0;
+            for (String header : headers) {
                 writer.append(header);
-                if (n<headers.size()-1) {
+                if (n < headers.size() - 1) {
                     writer.append(";");
-                }    
+                }
                 n++;
             }
             writer.append("\n");
 
-            for (int i=0; i<tss.size(); i++) {
+            for (int i = 0; i < tss.size(); i++) {
                 TMAspot ts = tss.get(i);
                 t.setStatusMessageLabel("Write " + ts.getName() + " to CSV ...");
-                t.setProgressbar((int)((100.0*i)/tss.size()));
+                t.setProgressbar((int) ((100.0 * i) / tss.size()));
 
                 if (!headers.contains("Name")) {
                     writer.append(ts.getName() + ";");
                 }
                 Properties props = ts.getProperties();
-                n=0;
+                n = 0;
                 for (String header : headers) {
                     if (props.containsKey(header)) {
                         value = props.getProperty(header);
                         writer.append(value);
                     }
-                    if (n<headers.size()-1) {
+                    if (n < headers.size() - 1) {
                         writer.append(";");
                     }
                     n++;
@@ -3667,12 +3977,13 @@ public final class tmarker extends javax.swing.JFrame {
             logger.log(java.util.logging.Level.WARNING, e.getMessage());
         } finally {
             t.setStatusMessageLabel(text);
-            t.setProgressbar(0); 
+            t.setProgressbar(0);
         }
     }
-    
+
     /**
      * Returns the list of all property names of the given TMAspots.
+     *
      * @param tss The TMAspots to be considered.
      * @return A union over all properties of all given TMAspots.
      */
@@ -3683,48 +3994,51 @@ public final class tmarker extends javax.swing.JFrame {
         }
         return props;
     }
-    
+
     /**
      * Calculates the consensus points in all selected TMAspots.
-     * @param considerLabel If true, the label of a nuclei has to be unique among all labelers, 
-     * or the TMApoint will be discarded. If false, the non-unique label will be transformed to TMAspot.LABEL_UNK.
+     *
+     * @param considerLabel If true, the label of a nuclei has to be unique
+     * among all labelers, or the TMApoint will be discarded. If false, the
+     * non-unique label will be transformed to TMAspot.LABEL_UNK.
      */
     public void performConsensusPointCalculation(boolean considerLabel) {
         List<TMAspot> tss = getSelectedTMAspots();
-        for (TMAspot ts: tss) {
+        for (TMAspot ts : tss) {
             ts.calculateConsensusPoints(considerLabel);
             updateTMATable(ts, false);
             if (getVisibleTMAspot().equals(ts)) {
-                tvp.repaint();
+                tmaspot_view_panel.repaint();
             }
         }
     }
-    
+
     public void performNonConsensusGSPointsDeletion() {
         List<TMAspot> tss = getSelectedTMAspots();
-        for (TMAspot ts: tss) {
+        for (TMAspot ts : tss) {
             ts.deleteNonConsensusGSPoints();
             updateTMATable(ts, false);
             if (getVisibleTMAspot().equals(ts)) {
-                tvp.repaint();
+                tmaspot_view_panel.repaint();
             }
         }
     }
 
     /**
-     * Saves a file in the current TMARKER session. The user can choose a file and
-     * the program decides according to the extension what to save.
+     * Saves a file in the current TMARKER session. The user can choose a file
+     * and the program decides according to the extension what to save.
+     *
      * @param t The current TMARKER session.
      * @param currentDir The current directory.
      */
-     private static void SaveFile(tmarker t, String currentDir) {
+    private static void SaveFile(tmarker t, String currentDir) {
         File file;
         String ext = "tmarker";
-        if (t.getVisibleTMAspot()!=null) {
+        if (t.getVisibleTMAspot() != null) {
             ext = Misc.FilePathStringtoFilenameWOExtension(t.getVisibleTMAspot().getName());
-        } 
+        }
         file = FileChooser.chooseSavingFile(t, currentDir, ext);
-        
+
         t.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
         if (file != null) {
             if (Misc.FilePathStringtoExtension(file.getName()).equalsIgnoreCase("xml")) {
@@ -3735,37 +4049,44 @@ public final class tmarker extends javax.swing.JFrame {
                 SaveAsHTML(t, file);
             } else if (Misc.FilePathStringtoExtension(file.getName()).equalsIgnoreCase("csv")) {
                 SaveAsCSV(t, file);
-            } t.setCurrentDir(file.getAbsolutePath());
+            }
+            t.setCurrentDir(file.getAbsolutePath());
         }
         t.setCursor(Cursor.getDefaultCursor());
     }
 
-     /**
-      * Returns the white balance (background correction) dialog.
-      * @return The white balance (background correction) dialog.
-      */
+    /**
+     * Returns the white balance (background correction) dialog.
+     *
+     * @return The white balance (background correction) dialog.
+     */
     public BgCorrectionDialog getBgCorrectionDialog() {
         return bcd;
     }
-    
+
     /**
      * Returns the TMAspot summary window.
+     *
      * @return The TMAspot summary window.
      */
     public TMAspot_summary_Dialog getTSD() {
         return tsd;
     }
-    
+
     /**
-     * Adds a search path to the path. E.g. important for the search of image files of the TMAspots.
+     * Adds a search path to the path. E.g. important for the search of image
+     * files of the TMAspots.
+     *
      * @param p The full path to be added.
      */
     void addPath(String p) {
         path.add(p);
     }
-    
+
     /**
-     * Returns the search path. E.g. important for the search of image files of the TMAspots.
+     * Returns the search path. E.g. important for the search of image files of
+     * the TMAspots.
+     *
      * @return The list of all full paths.
      */
     List<String> getPath() {
@@ -3773,7 +4094,8 @@ public final class tmarker extends javax.swing.JFrame {
     }
 
     /**
-     * Defines what to do on initialization of TMARKER. E.g., scrollbars are adjusted, FileDrops are added, window sizes are adjustest.
+     * Defines what to do on initialization of TMARKER. E.g., scrollbars are
+     * adjusted, FileDrops are added, window sizes are adjustest.
      */
     private void initComponents2() {
         this.addWindowListener(new WindowAdapter() {
@@ -3782,20 +4104,27 @@ public final class tmarker extends javax.swing.JFrame {
                 doExit();
             }
         });
-        
+
         int processors = Runtime.getRuntime().availableProcessors();
         setStatusMessageLabel("Connected to " + Integer.toString(processors) + " local processor" + (processors != 1 ? "s..." : "..."));
-        
+
+        // System Performance panel
+        if (pop == null) {
+            pop = new PerformanceOverviewPanel();
+            jPanel6.add(pop);
+            jPanel5.add(jPanel6, BorderLayout.SOUTH);
+        }
+
         try {
             this.setIconImage(ImageIO.read((getClass().getResource("/tmarker/img/TMARKER32.png"))));
-        } catch (Exception ex) {            
+        } catch (Exception ex) {
         }
-        
+
         // Logo Panel on top left
         BufferedImage img;
         try {
             img = ImageIO.read((getClass().getResource("/tmarker/img/logo_290x120.png")));
-        }   catch (Exception ex) {
+        } catch (Exception ex) {
             img = null;
         }
         LogoPanel lp = new LogoPanel(img);
@@ -3807,9 +4136,10 @@ public final class tmarker extends javax.swing.JFrame {
         jPanel15.setOpaque(false);
         jPanel1.remove(jPanel7);
         jPanel1.add(lp, java.awt.BorderLayout.PAGE_START);
-        
-        tvp.setParentScrollPane(jScrollPane1);
-        
+
+        tmaspot_view_panel.setParentScrollPane(jScrollPane1);
+        wholeslide_view_panel.setParentScrollPane(jScrollPane1);
+
         // jXStatusBar1
         jXStatusBar1.removeAll();
         JXStatusBar.Constraint c1 = new JXStatusBar.Constraint(
@@ -3825,67 +4155,70 @@ public final class tmarker extends javax.swing.JFrame {
         jScrollPane7.getVerticalScrollBar().setUnitIncrement(10);
         jScrollPane4.getVerticalScrollBar().setUnitIncrement(10);
         jScrollPane4.getHorizontalScrollBar().setUnitIncrement(10);
-        
+
         // TMA Table
         jPanel36.setComponentPopupMenu(jPopupMenu1);
-        
+
         FileDrop fileDrop = new FileDrop(jPanel3, true, new FileDrop.Listener() {
             @Override
-            public void  filesDropped(java.io.File[] files) {
+            public void filesDropped(java.io.File[] files) {
                 // handle file drop
                 tmarker t = (tmarker) (jMenuBar1.getParent().getParent().getParent());
                 tmarker.LoadFiles(t, files);
             }   // end filesDropped
-            }); // end FileDrop.Listener
+        }); // end FileDrop.Listener
         FileDrop fileDrop1 = new FileDrop(jPanel10, true, new FileDrop.Listener() {
             @Override
-            public void  filesDropped(java.io.File[] files) {
+            public void filesDropped(java.io.File[] files) {
                 // handle file drop
                 tmarker t = (tmarker) (jMenuBar1.getParent().getParent().getParent());
                 tmarker.LoadFiles(t, files);
             }   // end filesDropped
-            }); // end FileDrop.Listener
-        
-        
+        }); // end FileDrop.Listener
+
         /*toolbar2 = new Toolbar2(this);
-        getContentPane().add(toolbar2, java.awt.BorderLayout.PAGE_START);
-        //jPanel4.add(toolbar2);
+         getContentPane().add(toolbar2, java.awt.BorderLayout.PAGE_START);
+         //jPanel4.add(toolbar2);
         
-        toolbar1 = new Toolbar1(this);
-        //getContentPane().add(toolbar1, java.awt.BorderLayout.PAGE_START);
-        jPanel4.add(toolbar1, java.awt.BorderLayout.PAGE_START);
+         toolbar1 = new Toolbar1(this);
+         //getContentPane().add(toolbar1, java.awt.BorderLayout.PAGE_START);
+         jPanel4.add(toolbar1, java.awt.BorderLayout.PAGE_START);
         
-        toolbar3 = new Toolbar3(this);
-        jPanel5.add(toolbar3, java.awt.BorderLayout.CENTER);
-        */
-        
-        if (aboutBox == null) { aboutBox = new TMARKERAboutBox(this); }
-        if (bcd == null) { bcd = new BgCorrectionDialog(this, false); }
-        
+         toolbar3 = new Toolbar3(this);
+         jPanel5.add(toolbar3, java.awt.BorderLayout.CENTER);
+         */
+        if (aboutBox == null) {
+            aboutBox = new TMARKERAboutBox(this);
+        }
+        if (bcd == null) {
+            bcd = new BgCorrectionDialog(this, false);
+        }
+
         // Restore the programm parameters
         restoreParameterValues(false);
-        
+
         // load plugins
         loadPlugins();
-        
+
         // Restore the plugin parameters
         restoreParameterValues(true);
-        
+
         setState_init();
-        
+
         SwingUtilities.invokeLater(new Runnable() {
             @Override
             public void run() {
                 jSplitPane2.setDividerLocation(462);
-                jSplitPane1.setDividerLocation((java.awt.Toolkit.getDefaultToolkit().getScreenSize().width-jSplitPane2.getDividerLocation()-300.0)/(java.awt.Toolkit.getDefaultToolkit().getScreenSize().width-jSplitPane2.getDividerLocation()));
+                jSplitPane1.setDividerLocation((java.awt.Toolkit.getDefaultToolkit().getScreenSize().width - jSplitPane2.getDividerLocation() - 300.0) / (java.awt.Toolkit.getDefaultToolkit().getScreenSize().width - jSplitPane2.getDividerLocation()));
             }
         });
-        
+
         //logger.log(java.util.logging.Level.INFO, "Current Working Directory: {0}", getCurrentDir());
     }
-    
+
     /**
      * Performs the manual white balance on all selected TMAspots.
+     *
      * @param x The x-coord of the depicted background location.
      * @param y The y-coord of the depicted background location.
      */
@@ -3903,40 +4236,104 @@ public final class tmarker extends javax.swing.JFrame {
         }
         if (doCorrection) {
             if (getBgCorrectionDialog().getUseColor()) {
-                int col = ((BufferedImage)tvp.getImage()).getRGB(x,y);
-                for (TMAspot ts: tss) {
+                int col = ((BufferedImage) tmaspot_view_panel.getImage()).getRGB(x, y);
+                for (TMAspot ts : tss) {
                     ts.doBgCorrection(col);
                 }
             } else {
-                for (TMAspot ts: tss) {
-                    ts.doBgCorrection(x,y);
+                for (TMAspot ts : tss) {
+                    ts.doBgCorrection(x, y);
                 }
             }
-            tvp.update(tvp.getGraphics());
+            ((JComponent) tmaspot_view_panel).update(((JComponent) tmaspot_view_panel).getGraphics());
         }
-        
+
         getBgCorrectionDialog().setVisible(false);
         getBgCorrectionDialog().dispose();
     }
-   
+
+    /**
+     * Puts libraries to program directory. The libraries are deleted after
+     * porgram exit.
+     *
+     * @param lib_path The path of the library within the JAR.
+     * @param names The libraries names (e.g. for "something.dll": name is
+     * "something").
+     */
+    private static void ExtractLibrariesFromJar(String lib_path, String[] names) {
+        OutputStream out = null;
+        try {
+            for (String name : names) {
+                name = name + ".dll";
+                // have to use a stream
+                InputStream in = tmarker.class.getResourceAsStream(lib_path + name);
+                // always write to different location
+                File fileOut = new File(System.getProperty("user.dir") + File.separator + name);
+                //File fileOut = new File(localDLLPath + name);
+                logger.info("Writing dll to: " + fileOut.getAbsolutePath());
+                out = FileUtils.openOutputStream(fileOut);
+                IOUtils.copy(in, out);
+                in.close();
+                out.close();
+                fileOut.deleteOnExit();
+            }
+            //addDllLocationToPath(localDLLPath);
+            //for (String name: names) {
+            //    name = localDLLPath + name + ".dll";
+            //    System.load(name);
+            //}
+        } catch (Error | Exception ex) {
+            Logger.getLogger(tmarker.class.getName()).log(Level.SEVERE, null, ex);
+        } finally {
+            try {
+                out.close();
+            } catch (IOException ex) {
+                Logger.getLogger(tmarker.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        }
+    }
+
+    /**
+     * Add a path to the java library path variable. E.g. a custom DLL path
+     * location.
+     *
+     * @param dllLocation The location of the libraries to be added, on
+     * harddisk.
+     * @return True, if adding was successful, false if an error occured.
+     */
+    public static boolean addDllLocationToPath(String dllLocation) {
+        try {
+            System.setProperty("java.library.path", System.getProperty("java.library.path") + ";" + dllLocation);
+            Field fieldSysPath = ClassLoader.class.getDeclaredField("sys_paths");
+            fieldSysPath.setAccessible(true);
+            fieldSysPath.set(null, null);
+        } catch (Exception e) {
+            System.err.println("Could not modify path");
+            return false;
+        }
+        return true;
+    }
+
     /**
      * Performs the automatic white balance on all selected TMAspots.
-     * @param asParallelThread If true, the procedure is performed on a parallel thread such that TMARKER can be used in the meanwhile.
+     *
+     * @param asParallelThread If true, the procedure is performed on a parallel
+     * thread such that TMARKER can be used in the meanwhile.
      */
     public void performBGCorrectionAutomatic(boolean asParallelThread) {
         List<TMAspot> tss = getSelectedTMAspots();
         if (asParallelThread) {
             BgCorrectionThread bgt = new BgCorrectionThread(tss);
-            bgt.start(); 
+            bgt.start();
         } else {
             setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
-            for (TMAspot ts:tss) {
+            for (TMAspot ts : tss) {
                 ts.doBgCorrectionAutomatic();
             }
             setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
         }
     }
-    
+
     /**
      * Returns the random seed used by TMARKER.
      */
@@ -3947,14 +4344,15 @@ public final class tmarker extends javax.swing.JFrame {
     /**
      * Add a CSV table to the current study. The CSV file must contain the image
      * names in one column and can contain more information in other columns.
-     * One row is one sample (TMA), one column is one information (e.g. protein expression).
+     * One row is one sample (TMA), one column is one information (e.g. protein
+     * expression).
      */
     private void addMetainformation() {
         File filelist = FileChooser.chooseCSVFile(this, getCurrentDir());
         if (filelist != null && filelist.exists()) {
             LoadCSV(this, filelist);
             TMAspot ts = getVisibleTMAspot();
-            if (ts!=null) {
+            if (ts != null) {
                 getTSD().updatePropertiesTable(ts);
             }
         }
@@ -3962,12 +4360,13 @@ public final class tmarker extends javax.swing.JFrame {
 
     /**
      * Returns the number of nuclei on all given TMAspots.
+     *
      * @param tss The TMAspots to be considered.
      * @return The number of all TMApoints on these TMAspots.
      */
     public static int getNumberNuclei(List<TMAspot> tss) {
-        int n=0; 
-        for (TMAspot ts: tss) {
+        int n = 0;
+        for (TMAspot ts : tss) {
             n += ts.getPoints().size();
         }
         return n;
@@ -3975,53 +4374,53 @@ public final class tmarker extends javax.swing.JFrame {
 
     /**
      * Returns the uuid of this tmarker session.
+     *
      * @return The uuid of this tmarker session.
      */
     public UUID getUID() {
         return UID;
     }
 
-    /** 
+    /**
      * Inner class to add a header and a footer to a PDF file.
      */
     static class HeaderFooter extends PdfPageEventHelper {
 
         @Override
-        public void onEndPage (PdfWriter writer, Document document) {
+        public void onEndPage(PdfWriter writer, Document document) {
             Rectangle rect = writer.getBoxSize("art");
             PdfContentByte cb = writer.getDirectContent();
-            cb.setColorFill(BaseColor.BLUE );
-            
-            
+            cb.setColorFill(BaseColor.BLUE);
+
             Image logo;
             try {
                 logo = Image.getInstance(getClass().getResource("/tmarker/img/logo_290x120.png"));
-                switch(writer.getPageNumber() % 2) {
-                case 0:
-                    writer.getDirectContent().addImage(logo, 0.4f*logo.getWidth(), 0, 0, 0.4f*logo.getHeight(), 36, rect.getTop()-10);
-                    ColumnText.showTextAligned(writer.getDirectContent(),
-                            Element.ALIGN_RIGHT, new Phrase("TMARKER Report"),
-                            rect.getRight(), rect.getTop(), 0);
-                    break;
-                case 1:
-                    writer.getDirectContent().addImage(logo, 0.4f*logo.getWidth(), 0, 0, 0.4f*logo.getHeight(), rect.getRight()-0.4f*logo.getWidth()-18, rect.getTop()-10);
-                    ColumnText.showTextAligned(writer.getDirectContent(),
-                            Element.ALIGN_LEFT, new Phrase("TMARKER Report"),
-                            rect.getLeft(), rect.getTop(), 0);
-                    break;
+                switch (writer.getPageNumber() % 2) {
+                    case 0:
+                        writer.getDirectContent().addImage(logo, 0.4f * logo.getWidth(), 0, 0, 0.4f * logo.getHeight(), 36, rect.getTop() - 10);
+                        ColumnText.showTextAligned(writer.getDirectContent(),
+                                Element.ALIGN_RIGHT, new Phrase("TMARKER Report"),
+                                rect.getRight(), rect.getTop(), 0);
+                        break;
+                    case 1:
+                        writer.getDirectContent().addImage(logo, 0.4f * logo.getWidth(), 0, 0, 0.4f * logo.getHeight(), rect.getRight() - 0.4f * logo.getWidth() - 18, rect.getTop() - 10);
+                        ColumnText.showTextAligned(writer.getDirectContent(),
+                                Element.ALIGN_LEFT, new Phrase("TMARKER Report"),
+                                rect.getLeft(), rect.getTop(), 0);
+                        break;
                 }
-            } catch (IOException | DocumentException ex) {            
-                switch(writer.getPageNumber() % 2) {
-                case 0:
-                    ColumnText.showTextAligned(writer.getDirectContent(),
-                            Element.ALIGN_LEFT, new Phrase("TMARKER Report"),
-                            rect.getRight(), rect.getTop(), 0);
-                    break;
-                case 1:
-                      ColumnText.showTextAligned(writer.getDirectContent(),
-                            Element.ALIGN_LEFT, new Phrase("TMARKER Report"),
-                            rect.getRight(), rect.getTop(), 0);
-                    break;
+            } catch (IOException | DocumentException ex) {
+                switch (writer.getPageNumber() % 2) {
+                    case 0:
+                        ColumnText.showTextAligned(writer.getDirectContent(),
+                                Element.ALIGN_LEFT, new Phrase("TMARKER Report"),
+                                rect.getRight(), rect.getTop(), 0);
+                        break;
+                    case 1:
+                        ColumnText.showTextAligned(writer.getDirectContent(),
+                                Element.ALIGN_LEFT, new Phrase("TMARKER Report"),
+                                rect.getRight(), rect.getTop(), 0);
+                        break;
                 }
             } finally {
                 ColumnText.showTextAligned(writer.getDirectContent(),
@@ -4035,27 +4434,31 @@ public final class tmarker extends javax.swing.JFrame {
                 cb.lineTo(559, 69);
                 cb.setColorFill(BaseColor.BLACK);
                 cb.stroke();
-                
+
             }
         }
     }
-    
+
     /**
-     * Creats a new PDF report of the current analysis and saves it on hard disk.
+     * Creats a new PDF report of the current analysis and saves it on hard
+     * disk.
+     *
      * @param t The TMARKER session.
      * @param file The file to write.
      */
-     public static void SaveAsPDF(tmarker t, File file) {
-        if (file == null) return;
+    public static void SaveAsPDF(tmarker t, File file) {
+        if (file == null) {
+            return;
+        }
         String text = t.getStatusMessageLabel().getText();
-        try {  
+        try {
             // creation of the document with a certain size and certain margins
             // may want to use PageSize.LETTER instead
             Document document = new Document(PageSize.A4, 50, 50, 100, 100);
             document.addAuthor("TMARKER Report");
             document.addCreationDate();
             document.addTitle("TMARKER Report");
-                    
+
             // creation of the different writers
             PdfWriter writer = PdfWriter.getInstance(document, new FileOutputStream(file));
             writer.setBoxSize("art", new Rectangle(36, 54, 559, 788));
@@ -4076,22 +4479,19 @@ public final class tmarker extends javax.swing.JFrame {
             //String text = "Following tissue images have been analysed:";
             //cb.showTextAligned(PdfContentByte.ALIGN_CENTER, text, writer.getPageSize().getWidth()/2, 700, 0);
             //cb.endText();
-
-            
             //document.newPage();
-
             // add text in two paragraphs from top to bottom
             Paragraph par = new Paragraph("Following images have been analysed:");
             par.setAlignment(Paragraph.ALIGN_CENTER);
             par.getFont().setStyle(Font.BOLD);
             document.add(par);
-            
+
             List<TMAspot> tss = t.getTMAspots();
-            for (int i=0; i<tss.size(); i++) {
+            for (int i = 0; i < tss.size(); i++) {
                 TMAspot ts = tss.get(i);
                 t.setStatusMessageLabel("Write " + ts.getName() + " to PDF ...");
-                t.setProgressbar((int)((100.0*i)/tss.size()));
-                
+                t.setProgressbar((int) ((100.0 * i) / tss.size()));
+
                 // Collect numbers
                 int num_ustai_est = ts.getNumPoints(false, TMALabel.STAINING_0, TMALabel.LABEL_UNK);
                 int num_ustai_gst = ts.getNumPoints(true, TMALabel.STAINING_0, TMALabel.LABEL_UNK);
@@ -4103,9 +4503,9 @@ public final class tmarker extends javax.swing.JFrame {
                 int num_stai3_gst = ts.getNumPoints(true, TMALabel.STAINING_3, TMALabel.LABEL_UNK);
                 int num_tot_est = num_ustai_est + num_stai1_est + num_stai2_est + num_stai3_est;
                 int num_tot_gst = num_ustai_gst + num_stai1_gst + num_stai2_gst + num_stai3_gst;
-                
+
                 // Add TMA Tables
-                PdfPTable table = new PdfPTable(new float[] {12, 12, 12, 12, 12, 40});
+                PdfPTable table = new PdfPTable(new float[]{12, 12, 12, 12, 12, 40});
                 table.setSpacingBefore(20);
                 table.setSpacingAfter(20);
                 table.getDefaultCell().setPadding(0);
@@ -4118,17 +4518,17 @@ public final class tmarker extends javax.swing.JFrame {
                 cell.setColspan(5);
                 cell.setBorder(Rectangle.NO_BORDER);
                 table.addCell(cell);
-                
+
                 BufferedImage bi_orig = ts.getBufferedImage(false);
                 BufferedImage I = new BufferedImage(bi_orig.getWidth(), bi_orig.getHeight(), BufferedImage.TYPE_INT_RGB);
                 I.getGraphics().drawImage(bi_orig, 0, 0, null);
-                
-                for (Pluggable plugin: t.getPlugins()) {
+
+                for (Pluggable plugin : t.getPlugins()) {
                     plugin.drawInformationPreNuclei(ts, I.getGraphics(), 1, 0, 0, ts.getWidth(), ts.getHeight());
                 }
-                TMA_view_panel.drawCellCounts(ts, I.getGraphics(), 1, 0, 0, ts.getWidth(), ts.getHeight());
-                TMA_view_panel.drawAreas(ts, I.getGraphics(), 1, 0, 0, ts.getWidth(), ts.getHeight());
-                for (Pluggable plugin: t.getPlugins()) {
+                //TMA_view_panel.drawCellCounts(ts, I.getGraphics(), 1, 0, 0, ts.getWidth(), ts.getHeight());
+                //TMA_view_panel.drawAreas(ts, I.getGraphics(), 1, 0, 0, ts.getWidth(), ts.getHeight());
+                for (Pluggable plugin : t.getPlugins()) {
                     plugin.drawInformationPostNuclei(ts, I.getGraphics(), 1, 0, 0, ts.getWidth(), ts.getHeight());
                 }
                 java.awt.Image img = Toolkit.getDefaultToolkit().createImage(I.getSource());
@@ -4138,208 +4538,208 @@ public final class tmarker extends javax.swing.JFrame {
                 cell.setRowspan(8);
                 cell.setBorder(Rectangle.NO_BORDER);
                 table.addCell(cell);
-                
+
                 p = new Phrase("");
                 cell = new PdfPCell(p);
                 cell.setBorder(Rectangle.NO_BORDER);
                 table.addCell(cell);
-                
+
                 p = new Phrase("PC");
                 cell = new PdfPCell(p);
                 cell.setExtraParagraphSpace(5);
                 cell.setBorder(Rectangle.NO_BORDER);
                 table.addCell(cell);
-                
+
                 p = new Phrase("");
                 cell = new PdfPCell(p);
                 cell.setBorder(Rectangle.NO_BORDER);
                 table.addCell(cell);
-                
+
                 p = new Phrase("Human");
                 cell = new PdfPCell(p);
                 cell.setBorder(Rectangle.NO_BORDER);
                 table.addCell(cell);
-                
+
                 p = new Phrase("");
                 cell = new PdfPCell(p);
                 cell.setBorder(Rectangle.NO_BORDER);
                 table.addCell(cell);
-                
+
                 p = new Phrase("Clear");
                 cell = new PdfPCell(p);
                 cell.setExtraParagraphSpace(5);
                 cell.setBorder(Rectangle.NO_BORDER);
                 table.addCell(cell);
-                
+
                 p = new Phrase(Integer.toString(num_ustai_est));
                 p.getFont().setColor(new BaseColor(ts.getCenter().getLabelsColorWOAlpha(TMALabel.LABEL_UNK, TMALabel.STAINING_0).getRGB()));
                 cell = new PdfPCell(p);
                 cell.setBorder(Rectangle.NO_BORDER);
                 table.addCell(cell);
-                
+
                 p = new Phrase("");
                 cell = new PdfPCell(p);
                 cell.setBorder(Rectangle.NO_BORDER);
                 table.addCell(cell);
-                
+
                 p = new Phrase(Integer.toString(num_ustai_gst));
                 p.getFont().setColor(new BaseColor(ts.getCenter().getLabelsColorWOAlpha(TMALabel.LABEL_UNK, TMALabel.STAINING_0).getRGB()));
                 cell = new PdfPCell(p);
                 cell.setBorder(Rectangle.NO_BORDER);
                 table.addCell(cell);
-                
+
                 p = new Phrase("");
                 cell = new PdfPCell(p);
                 cell.setBorder(Rectangle.NO_BORDER);
                 table.addCell(cell);
-                
+
                 p = new Phrase("1+");
                 cell = new PdfPCell(p);
                 cell.setBorder(Rectangle.NO_BORDER);
                 table.addCell(cell);
-                
+
                 p = new Phrase(Integer.toString(num_stai1_est));
                 p.getFont().setColor(new BaseColor(ts.getCenter().getLabelsColorWOAlpha(TMALabel.LABEL_UNK, TMALabel.STAINING_1).getRGB()));
                 cell = new PdfPCell(p);
                 cell.setBorder(Rectangle.NO_BORDER);
                 table.addCell(cell);
-                
+
                 p = new Phrase(Integer.toString((int) Math.round(100.0 * num_stai1_est / num_tot_est)) + " %"); // in percent
                 p.getFont().setColor(new BaseColor(ts.getCenter().getLabelsColorWOAlpha(TMALabel.LABEL_UNK, TMALabel.STAINING_1).getRGB()));
                 cell = new PdfPCell(p);
                 cell.setBorder(Rectangle.NO_BORDER);
                 table.addCell(cell);
-                
+
                 p = new Phrase(Integer.toString(num_stai1_gst));
                 p.getFont().setColor(new BaseColor(ts.getCenter().getLabelsColorWOAlpha(TMALabel.LABEL_UNK, TMALabel.STAINING_1).getRGB()));
                 cell = new PdfPCell(p);
                 cell.setBorder(Rectangle.NO_BORDER);
                 table.addCell(cell);
-                
+
                 p = new Phrase(Integer.toString((int) Math.round(100.0 * num_stai1_gst / num_tot_gst)) + " %"); // in percent
                 p.getFont().setColor(new BaseColor(ts.getCenter().getLabelsColorWOAlpha(TMALabel.LABEL_UNK, TMALabel.STAINING_1).getRGB()));
                 cell = new PdfPCell(p);
                 cell.setBorder(Rectangle.NO_BORDER);
                 table.addCell(cell);
-                
+
                 p = new Phrase("2+");
                 cell = new PdfPCell(p);
                 cell.setBorder(Rectangle.NO_BORDER);
                 table.addCell(cell);
-                
+
                 p = new Phrase(Integer.toString(num_stai2_est));
                 p.getFont().setColor(new BaseColor(ts.getCenter().getLabelsColorWOAlpha(TMALabel.LABEL_UNK, TMALabel.STAINING_2).getRGB()));
                 cell = new PdfPCell(p);
                 cell.setBorder(Rectangle.NO_BORDER);
                 table.addCell(cell);
-                
+
                 p = new Phrase(Integer.toString((int) Math.round(100.0 * num_stai2_est / num_tot_est)) + " %"); // in percent
                 p.getFont().setColor(new BaseColor(ts.getCenter().getLabelsColorWOAlpha(TMALabel.LABEL_UNK, TMALabel.STAINING_2).getRGB()));
                 cell = new PdfPCell(p);
                 cell.setBorder(Rectangle.NO_BORDER);
                 table.addCell(cell);
-                
+
                 p = new Phrase(Integer.toString(num_stai2_gst));
                 p.getFont().setColor(new BaseColor(ts.getCenter().getLabelsColorWOAlpha(TMALabel.LABEL_UNK, TMALabel.STAINING_2).getRGB()));
                 cell = new PdfPCell(p);
                 cell.setBorder(Rectangle.NO_BORDER);
                 table.addCell(cell);
-                
+
                 p = new Phrase(Integer.toString((int) Math.round(100.0 * num_stai2_gst / num_tot_gst)) + " %"); // in percent
                 p.getFont().setColor(new BaseColor(ts.getCenter().getLabelsColorWOAlpha(TMALabel.LABEL_UNK, TMALabel.STAINING_2).getRGB()));
                 cell = new PdfPCell(p);
                 cell.setBorder(Rectangle.NO_BORDER);
                 table.addCell(cell);
-                
+
                 p = new Phrase("3+");
                 cell = new PdfPCell(p);
                 cell.setBorder(Rectangle.NO_BORDER);
                 table.addCell(cell);
-                
+
                 p = new Phrase(Integer.toString(num_stai3_est));
                 p.getFont().setColor(new BaseColor(ts.getCenter().getLabelsColorWOAlpha(TMALabel.LABEL_UNK, TMALabel.STAINING_3).getRGB()));
                 cell = new PdfPCell(p);
                 cell.setBorder(Rectangle.NO_BORDER);
                 table.addCell(cell);
-                
+
                 p = new Phrase(Integer.toString((int) Math.round(100.0 * num_stai3_est / num_tot_est)) + " %"); // in percent
                 p.getFont().setColor(new BaseColor(ts.getCenter().getLabelsColorWOAlpha(TMALabel.LABEL_UNK, TMALabel.STAINING_3).getRGB()));
                 cell = new PdfPCell(p);
                 cell.setBorder(Rectangle.NO_BORDER);
                 table.addCell(cell);
-                
+
                 p = new Phrase(Integer.toString(num_stai3_gst));
                 p.getFont().setColor(new BaseColor(ts.getCenter().getLabelsColorWOAlpha(TMALabel.LABEL_UNK, TMALabel.STAINING_3).getRGB()));
                 cell = new PdfPCell(p);
                 cell.setBorder(Rectangle.NO_BORDER);
                 table.addCell(cell);
-                
+
                 p = new Phrase(Integer.toString((int) Math.round(100.0 * num_stai3_gst / num_tot_est)) + " %"); // in percent
                 p.getFont().setColor(new BaseColor(ts.getCenter().getLabelsColorWOAlpha(TMALabel.LABEL_UNK, TMALabel.STAINING_3).getRGB()));
                 cell = new PdfPCell(p);
                 cell.setBorder(Rectangle.NO_BORDER);
                 table.addCell(cell);
-                
+
                 p = new Phrase("Sum");
                 cell = new PdfPCell(p);
                 cell.setExtraParagraphSpace(5);
                 cell.setBorder(Rectangle.NO_BORDER);
                 table.addCell(cell);
-                
-                p = new Phrase(Integer.toString(num_stai1_est+num_stai2_est+num_stai3_est));
+
+                p = new Phrase(Integer.toString(num_stai1_est + num_stai2_est + num_stai3_est));
                 cell = new PdfPCell(p);
                 cell.setBorder(Rectangle.NO_BORDER);
                 table.addCell(cell);
-                
-                p = new Phrase(Integer.toString((int) Math.round(100.0 * (num_stai1_est+num_stai2_est+num_stai3_est) / num_tot_est)) + " %"); // in percent
+
+                p = new Phrase(Integer.toString((int) Math.round(100.0 * (num_stai1_est + num_stai2_est + num_stai3_est) / num_tot_est)) + " %"); // in percent
                 cell = new PdfPCell(p);
                 cell.setBorder(Rectangle.NO_BORDER);
                 table.addCell(cell);
-                
-                p = new Phrase(Integer.toString(num_stai1_gst+num_stai2_gst+num_stai3_gst));
+
+                p = new Phrase(Integer.toString(num_stai1_gst + num_stai2_gst + num_stai3_gst));
                 cell = new PdfPCell(p);
                 cell.setBorder(Rectangle.NO_BORDER);
                 table.addCell(cell);
-                
-                p = new Phrase(Integer.toString((int) Math.round(100.0 * (num_stai1_gst+num_stai2_gst+num_stai3_gst) / num_tot_gst)) + " %"); // in percent
+
+                p = new Phrase(Integer.toString((int) Math.round(100.0 * (num_stai1_gst + num_stai2_gst + num_stai3_gst) / num_tot_gst)) + " %"); // in percent
                 cell = new PdfPCell(p);
                 cell.setBorder(Rectangle.NO_BORDER);
                 table.addCell(cell);
-                
+
                 p = new Phrase("Total");
                 cell = new PdfPCell(p);
                 cell.setBorder(Rectangle.NO_BORDER);
                 table.addCell(cell);
-                
+
                 p = new Phrase(Integer.toString(num_tot_est));
                 p.getFont().setColor(new BaseColor(Color.BLACK.getRGB()));
                 cell = new PdfPCell(p);
                 cell.setBorder(Rectangle.NO_BORDER);
                 table.addCell(cell);
-                
+
                 p = new Phrase("");
                 cell = new PdfPCell(p);
                 cell.setBorder(Rectangle.NO_BORDER);
                 table.addCell(cell);
-                
+
                 p = new Phrase(Integer.toString(num_tot_gst));
                 p.getFont().setColor(new BaseColor(Color.BLACK.getRGB()));
                 cell = new PdfPCell(p);
                 cell.setBorder(Rectangle.NO_BORDER);
                 table.addCell(cell);
-                
+
                 p = new Phrase("");
                 cell = new PdfPCell(p);
                 cell.setBorder(Rectangle.NO_BORDER);
                 table.addCell(cell);
-                
+
                 document.add(table);
-                
-                if ((i+1)%3==0) {
+
+                if ((i + 1) % 3 == 0) {
                     document.newPage();
-                }                
+                }
             }
-            
+
             DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
             Calendar cal = Calendar.getInstance();
             par = new Paragraph("Generated with TMARKER - " + dateFormat.format(cal.getTime()));
@@ -4348,63 +4748,66 @@ public final class tmarker extends javax.swing.JFrame {
             par.setAlignment(Paragraph.ALIGN_LEFT);
             par.getFont().setStyle(Font.ITALIC);
             document.add(par);
-            
-            
+
             // add text at an absolute position
             /*cb.beginText();
-            cb.setFontAndSize(bf_times, 14);
-            cb.setTextMatrix(100, 300);
-            cb.showText("Text at position 100, 300.");
-            cb.endText();
+             cb.setFontAndSize(bf_times, 14);
+             cb.setTextMatrix(100, 300);
+             cb.showText("Text at position 100, 300.");
+             cb.endText();
 
-            rotated text at an absolute position
-            PdfTemplate template = cb.createTemplate(300, 300);                
-            template.beginText();
-            template.setFontAndSize(bf_times, 14);
-            template.showText("Rotated text at position 400, 200.");
-            template.endText();
+             rotated text at an absolute position
+             PdfTemplate template = cb.createTemplate(300, 300);                
+             template.beginText();
+             template.setFontAndSize(bf_times, 14);
+             template.showText("Rotated text at position 400, 200.");
+             template.endText();
 
-            float rotate = 90;
-            float x = 400;
-            float y = 200;
-            float angle  = (float) (-rotate * (Math.PI / 180));
-            float xScale = (float) Math.cos(angle);
-            float yScale = (float) Math.cos(angle);
-            float xRot   = (float) -Math.sin(angle);
-            float yRot   = (float) Math.sin(angle);
+             float rotate = 90;
+             float x = 400;
+             float y = 200;
+             float angle  = (float) (-rotate * (Math.PI / 180));
+             float xScale = (float) Math.cos(angle);
+             float yScale = (float) Math.cos(angle);
+             float xRot   = (float) -Math.sin(angle);
+             float yRot   = (float) Math.sin(angle);
 
-            cb.addTemplate(template, xScale, xRot, yRot, yScale, x, y);
+             cb.addTemplate(template, xScale, xRot, yRot, yScale, x, y);
              
              */
             document.close();
-            writer.close(); 
+            writer.close();
         } catch (Exception e) {
             JOptionPane.showMessageDialog(t, "An error occurred while writing "
                     + file.getName() + "\nMaybe it's still in use.", "Could not save file", JOptionPane.ERROR_MESSAGE);
             logger.log(java.util.logging.Level.WARNING, e.getMessage());
         } finally {
             t.setStatusMessageLabel(text);
-            t.setProgressbar(0); 
+            t.setProgressbar(0);
         }
     }
-     
-     /**
-     * Creats a new HTML report of the current analysis and saves it on hard disk.
-     * A new folder of the same name as file is created to store the image files.
+
+    /**
+     * Creats a new HTML report of the current analysis and saves it on hard
+     * disk. A new folder of the same name as file is created to store the image
+     * files.
+     *
      * @param t The TMARKER session.
      * @param file The file to write.
      */
-     public static void SaveAsHTML(tmarker t, File file) {
-        if (file == null) return;
+    public static void SaveAsHTML(tmarker t, File file) {
+        if (file == null) {
+            return;
+        }
         String text = t.getStatusMessageLabel().getText();
-        
+
         try {
             String htmFileName = file.getName();
-            String path = file.toURI().getPath().substring(0,file.toURI().getPath().length()-htmFileName.length());
+            String path = file.toURI().getPath().substring(0, file.toURI().getPath().length() - htmFileName.length());
             String folderName = file.getName() + "_files" + File.separator;
 
             // Create new directory for image files
-            File dirfile = new File(path+folderName);
+            File dirfile = new File(path + folderName);
             if (!dirfile.exists()) {
                 dirfile.mkdir();
             }
@@ -4419,126 +4822,126 @@ public final class tmarker extends javax.swing.JFrame {
             } catch (Exception e) {
                 Logger.getLogger(tmarker.class.getName()).log(Level.WARNING, e.getMessage(), e);
             }
-            
+
             List<TMAspot> tss = t.getTMAspots();
             boolean anyHasHumanAnnotation = false; // To determine the size of the rows in the TMAspot table.
             for (TMAspot ts : tss) {
                 anyHasHumanAnnotation |= !ts.getPoints_GoldStandard().isEmpty();
             }
-            
+
             // Create HMTL File Header
             char linebreak = '\n';
-            String outputText = "<html>" + linebreak + "<head>" + linebreak +
-                    "<title>TMARKER Analysis</title>" + linebreak;
-            
+            String outputText = "<html>" + linebreak + "<head>" + linebreak
+                    + "<title>TMARKER Analysis</title>" + linebreak;
+
             // Write jquery JavaScript
             outputText += "<!-- jQuery: required (tablesorter works with jQuery 1.2.3+) -->" + linebreak + "<script type=\"text/javascript\">" + linebreak;
             InputStream fis = t.getClass().getResourceAsStream("/tmarker/misc/jquery-1.11.2.min.js");
             byte[] data = new byte[1024];
             int len;
-            while ((len = fis.read(data)) > 0) { 
+            while ((len = fis.read(data)) > 0) {
                 outputText += new String(data, "UTF-8");
             }
             fis.close();
             outputText += linebreak;
             outputText += "</script>" + linebreak + linebreak;
-            
+
             // Write sorttable JavaScript
             outputText += "<script type=\"text/javascript\">" + linebreak;
             fis = t.getClass().getResourceAsStream("/tmarker/misc/jquery.tablesorter.min.js");
-            while ((len = fis.read(data)) > 0) { 
+            while ((len = fis.read(data)) > 0) {
                 outputText += new String(data, "UTF-8");
             }
             fis.close();
             outputText += linebreak;
             outputText += "</script>" + linebreak + linebreak;
-            
-            outputText += "<script>" + linebreak +
-                "	$(function(){" + linebreak +
-                (anyHasHumanAnnotation?"		$('#table1 thead th').data(\"sorter\", false);" + linebreak:"") + 
-                "		$('#table1').tablesorter({" + linebreak +
-                "			widgets        : ['zebra', 'columns']," + linebreak +
-                "			usNumberFormat : false," + linebreak +
-                "			sortReset      : true," + linebreak +
-                "			sortRestart    : true" + linebreak +
-                "		});" + linebreak +
-                "	});" + linebreak +
-                "</script>" + linebreak + linebreak;
-            
+
+            outputText += "<script>" + linebreak
+                    + "	$(function(){" + linebreak
+                    + (anyHasHumanAnnotation ? "		$('#table1 thead th').data(\"sorter\", false);" + linebreak : "")
+                    + "		$('#table1').tablesorter({" + linebreak
+                    + "			widgets        : ['zebra', 'columns']," + linebreak
+                    + "			usNumberFormat : false," + linebreak
+                    + "			sortReset      : true," + linebreak
+                    + "			sortRestart    : true" + linebreak
+                    + "		});" + linebreak
+                    + "	});" + linebreak
+                    + "</script>" + linebreak + linebreak;
+
             // add javascript to save the overview table
-            outputText += "<script type=\"text/javascript\">\n" +
-                "	<!--\n" +
-                "	\n" +
-                "	// For IE, handle the table over an iFrame. Write them to the hidden iFrame and\n" +
-                "	// then save the content of the iFrame.\n" +
-                "	var getCsvFileForIE = function(csvData, filename) {\n" +
-                "    	if ( ! supportsDataUri() ) {\n" +
-                "               var iframe = document.getElementById('csvDownloadFrame');\n" +
-                "   		  iframe = iframe.contentWindow || iframe.contentDocument;\n" +
-                "   		  csvData = csvData.replace(/%20/g, \" \");\n" +
-                "    		iframe.document.open(\"text/html\", \"replace\");\n" +
-                "    		iframe.document.write(csvData);\n" +
-                "    		iframe.document.close();\n" +
-                "    		iframe.focus();\n" +
-                "    		iframe.document.execCommand('SaveAs', true, filename);\n" +
-                "  		} else {\n" +
-                "  		  if (console && console.log) {\n" +
-                "  		    console.log('Trying to call getCsvFileForIE with non IE browser.');\n" +
-                "   		  }\n" +
-                "  		}\n" +
-                "		}\n" +
-                " \n" +
-                "    // Test if the browser is a IE browser (FALSE) or no IE browser (TRUE).\n" +
-                "		var supportsDataUri = function() {\n" +
-                "  		var isOldIE = navigator.appName === \"Microsoft Internet Explorer\";\n" +
-                "  		var isIE11 = !!navigator.userAgent.match(/Trident\\/7\\./);\n" +
-                "  		return ! (isOldIE || isIE11);  //Return true if not any IE\n" +
-                "		}\n" +
-                "		\n" +
-                "		function SaveAsXLS(filename) {\n" +
-                "		  //getting values of current time for generating the file name\n" +
-                "      var dt = new Date();\n" +
-                "      var day = dt.getDate();\n" +
-                "      var month = dt.getMonth() + 1;\n" +
-                "      var year = dt.getFullYear();\n" +
-                "      var hour = dt.getHours();\n" +
-                "      var mins = dt.getMinutes();\n" +
-                "      var postfix = day + \".\" + month + \".\" + year + \"_\" + hour + \".\" + mins;\n" +
-                "      \n" +
-                "      // getting the table data\n" +
-                "      var data_type = 'data:application/vnd.ms-excel';\n" +
-                "      var table_div = document.getElementById('dvData');\n" +
-                "      var table_html = table_div.outerHTML.replace(/ /g, '%20');\n" +
-                "      \n" +
-                "      // creating a link which will open the save as dialog\n" +
-                "      var a = document.createElement('a');\n" +
-                "      \n" +
-                "      // IE does not support Data URI\n" +
-                " 		  if ( ! supportsDataUri()  ) {\n" +
-                " 		 	  a.href=\"#\";\n" +
-                " 		 	  a.data_csv = \"'\" + table_html + \"'\";\n" +
-                " 			  a.onclick = getCsvFileForIE(table_html, filename + '_' + postfix + '.xls');\n" +
-                " 		  // All other support Data URI, gernerate Data URI\n" +
-                " 		  } else {\n" +
-                " 	   	  a.href = data_type + ', ' + table_html;\n" +
-                "        a.download = filename + '_' + postfix + '.xls';\n" +
-                "      }\n" +
-                "      // execute the save as dialogue.\n" +
-                " 	    a.click();\n" +
-                "	  }\n" +
-                "  //-->\n" +
-                "</script>";
-            
+            outputText += "<script type=\"text/javascript\">\n"
+                    + "	<!--\n"
+                    + "	\n"
+                    + "	// For IE, handle the table over an iFrame. Write them to the hidden iFrame and\n"
+                    + "	// then save the content of the iFrame.\n"
+                    + "	var getCsvFileForIE = function(csvData, filename) {\n"
+                    + "    	if ( ! supportsDataUri() ) {\n"
+                    + "               var iframe = document.getElementById('csvDownloadFrame');\n"
+                    + "   		  iframe = iframe.contentWindow || iframe.contentDocument;\n"
+                    + "   		  csvData = csvData.replace(/%20/g, \" \");\n"
+                    + "    		iframe.document.open(\"text/html\", \"replace\");\n"
+                    + "    		iframe.document.write(csvData);\n"
+                    + "    		iframe.document.close();\n"
+                    + "    		iframe.focus();\n"
+                    + "    		iframe.document.execCommand('SaveAs', true, filename);\n"
+                    + "  		} else {\n"
+                    + "  		  if (console && console.log) {\n"
+                    + "  		    console.log('Trying to call getCsvFileForIE with non IE browser.');\n"
+                    + "   		  }\n"
+                    + "  		}\n"
+                    + "		}\n"
+                    + " \n"
+                    + "    // Test if the browser is a IE browser (FALSE) or no IE browser (TRUE).\n"
+                    + "		var supportsDataUri = function() {\n"
+                    + "  		var isOldIE = navigator.appName === \"Microsoft Internet Explorer\";\n"
+                    + "  		var isIE11 = !!navigator.userAgent.match(/Trident\\/7\\./);\n"
+                    + "  		return ! (isOldIE || isIE11);  //Return true if not any IE\n"
+                    + "		}\n"
+                    + "		\n"
+                    + "		function SaveAsXLS(filename) {\n"
+                    + "		  //getting values of current time for generating the file name\n"
+                    + "      var dt = new Date();\n"
+                    + "      var day = dt.getDate();\n"
+                    + "      var month = dt.getMonth() + 1;\n"
+                    + "      var year = dt.getFullYear();\n"
+                    + "      var hour = dt.getHours();\n"
+                    + "      var mins = dt.getMinutes();\n"
+                    + "      var postfix = day + \".\" + month + \".\" + year + \"_\" + hour + \".\" + mins;\n"
+                    + "      \n"
+                    + "      // getting the table data\n"
+                    + "      var data_type = 'data:application/vnd.ms-excel';\n"
+                    + "      var table_div = document.getElementById('dvData');\n"
+                    + "      var table_html = table_div.outerHTML.replace(/ /g, '%20');\n"
+                    + "      \n"
+                    + "      // creating a link which will open the save as dialog\n"
+                    + "      var a = document.createElement('a');\n"
+                    + "      \n"
+                    + "      // IE does not support Data URI\n"
+                    + " 		  if ( ! supportsDataUri()  ) {\n"
+                    + " 		 	  a.href=\"#\";\n"
+                    + " 		 	  a.data_csv = \"'\" + table_html + \"'\";\n"
+                    + " 			  a.onclick = getCsvFileForIE(table_html, filename + '_' + postfix + '.xls');\n"
+                    + " 		  // All other support Data URI, gernerate Data URI\n"
+                    + " 		  } else {\n"
+                    + " 	   	  a.href = data_type + ', ' + table_html;\n"
+                    + "        a.download = filename + '_' + postfix + '.xls';\n"
+                    + "      }\n"
+                    + "      // execute the save as dialogue.\n"
+                    + " 	    a.click();\n"
+                    + "	  }\n"
+                    + "  //-->\n"
+                    + "</script>";
+
             // Write table style CSS
             outputText += "<style type=\"text/css\">" + linebreak;
             fis = t.getClass().getResourceAsStream("/tmarker/misc/theme.default.css");
-            while ((len = fis.read(data)) > 0) { 
+            while ((len = fis.read(data)) > 0) {
                 outputText += new String(data, "UTF-8");
             }
             fis.close();
             outputText += linebreak;
             outputText += "</style>" + linebreak + linebreak;
-            
+
             outputText += "</head>" + linebreak + "<body>" + linebreak;
             outputText += "<iframe id=\"csvDownloadFrame\" style=\"display:none\"></iframe>" + linebreak;
             outputText += "<table width=\"100%\">" + linebreak
@@ -4547,69 +4950,63 @@ public final class tmarker extends javax.swing.JFrame {
                     + "  <td align=\"right\"><a href=\"http://www.nexus.ethz.ch\"><img alt=\"TMARKER Report\" src = \"" + folderName + "_logo.png\"></a><br><br><br></td>" + linebreak
                     + " </tr> "
                     + "</table>";
-            
+
             // citation hint
             outputText += "Please enjoy <a href=\"http://www.jpathinformatics.org/article.asp?issn=2153-3539;year=2013;volume=4;issue=2;spage=2;epage=2;aulast=Sch%FCffler\">TMARKER and cite it</a> as you use it!<br><br>" + linebreak
                     + "Peter J. Sch&uuml;ffler, Thomas J. Fuchs, Cheng Soon Ong, Peter J. Wild, Niels J. Rupp, Joachim M. Buhmann:<br>" + linebreak
                     + "<b>TMARKER: A free software toolkit for histopathological cell counting and staining estimation.</b><br>" + linebreak
                     + "<i>J Pathol Inform 2013, 4:2, doi: <a href=\"http://dx.doi.org/10.4103/2153-3539.109804\">10.4103/2153-3539.109804</a></i><br><br>";
-            
 
             // Programm Parameters
             outputText += "<br><h2>Program parameters</h2>" + linebreak
                     + "<table cellpadding=\"10\">" + linebreak
-                    
                     + " <tr valign=\"top\">" + linebreak
                     + "  <td><b>Number TMA Spots</b></td>" + linebreak
                     + "  <td>" + t.getTMAspots().size() + "</td>" + linebreak
                     + " </tr>" + linebreak
-                    
                     + " <tr valign=\"top\">" + linebreak
                     + "  <td><b>Nucleus Radius</b></td>" + linebreak
                     + "  <td>" + Integer.toString(t.getLabelRadius()) + "</td>" + linebreak
                     + " </tr>" + linebreak;
-                    
-                    if (!t.plugins.isEmpty()) {
-                        outputText += " <tr valign=\"top\">" + linebreak
+
+            if (!t.plugins.isEmpty()) {
+                outputText += " <tr valign=\"top\">" + linebreak
                         + "  <td><b>Plugins</b></td>" + linebreak
                         + "  <td>" + linebreak;
-                        for (Pluggable p: t.plugins) {
-                            try {
-                                outputText += "<a href=\"#" + p.getPluginName().replaceAll(" ", "") + "\">" + p.getPluginName() + "</a><br>" + linebreak;
-                            } catch (Exception e) {
-                                
-                            }
-                        }
-                        outputText += "  </td>" + linebreak + " </tr>" + linebreak;
+                for (Pluggable p : t.plugins) {
+                    try {
+                        outputText += "<a href=\"#" + p.getPluginName().replaceAll(" ", "") + "\">" + p.getPluginName() + "</a><br>" + linebreak;
+                    } catch (Exception e) {
+
                     }
-                    outputText += "</table><br>" + linebreak + linebreak;
-            
-            
+                }
+                outputText += "  </td>" + linebreak + " </tr>" + linebreak;
+            }
+            outputText += "</table><br>" + linebreak + linebreak;
+
             //// Write the TMAspots to HTML
             outputText += "<hr><h2>TMA spot summary</h2>" + linebreak + linebreak;
-            
-            outputText += "<i>Shown are all TMA spots which have been processed by TMARKER, with their corresponding nuclei counts. <br>" + linebreak +
-                    "There are different colors for clear (unstained) nuclei and stained nuclei, as well as for benign, malignant or unknown nuclei. <br> " + linebreak +
-                    "The colors are defined in the TMARKER program. <br><br>" + linebreak +
-                    
-                    "TMARKER can cluster the nuclei by their intensity, and up to three staining intensities (1+, 2+ and 3+) are shown.<br><br>" + linebreak +
-                    
-                    (anyHasHumanAnnotation?"<b>PC</b> means detected by TMARKER. <b>Human</b> means detected by the user. <b>PC+Human</b> sums up both numbers.<br>":"") + linebreak +
-                    "Staining percentages refer to the total number of nuclei, respectively." + 
-                    "<br>Images can be enlarged by mouse click.</i><br><br>" + linebreak + linebreak;
-            
+
+            outputText += "<i>Shown are all TMA spots which have been processed by TMARKER, with their corresponding nuclei counts. <br>" + linebreak
+                    + "There are different colors for clear (unstained) nuclei and stained nuclei, as well as for benign, malignant or unknown nuclei. <br> " + linebreak
+                    + "The colors are defined in the TMARKER program. <br><br>" + linebreak
+                    + "TMARKER can cluster the nuclei by their intensity, and up to three staining intensities (1+, 2+ and 3+) are shown.<br><br>" + linebreak
+                    + (anyHasHumanAnnotation ? "<b>PC</b> means detected by TMARKER. <b>Human</b> means detected by the user. <b>PC+Human</b> sums up both numbers.<br>" : "") + linebreak
+                    + "Staining percentages refer to the total number of nuclei, respectively."
+                    + "<br>Images can be enlarged by mouse click.</i><br><br>" + linebreak + linebreak;
+
             outputText += "<div id=\"dvData\">" + linebreak + "<table id=\"table1\" class=\"sortable\">" + linebreak + "<tr>" + linebreak
                     + "<thead>" + linebreak
-                    + "<th class=\"topteft\" colspan=\"" + (anyHasHumanAnnotation?3:2) + "\"></th>" + linebreak
+                    + "<th class=\"topteft\" colspan=\"" + (anyHasHumanAnnotation ? 3 : 2) + "\"></th>" + linebreak
                     + "<th class=\"firstColPerDom\" colspan=\"6\">Benign</th>" + linebreak
                     + "<th class=\"firstColPerDom\" colspan=\"7\">Malignant</th>" + linebreak
                     + "<th class=\"firstColPerDom\" colspan=\"6\">Unknown</th>" + linebreak
                     + "<th class=\"firstColPerDom\" colspan=\"7\">Total</th>" + linebreak
-                  + "</tr>" + linebreak
-                  + "<tr>" + linebreak
+                    + "</tr>" + linebreak
+                    + "<tr>" + linebreak
                     + "<th>Image</th>" + linebreak
                     + "<th>Name</th>" + linebreak
-                    + (anyHasHumanAnnotation?"<th></th>" + linebreak:"")
+                    + (anyHasHumanAnnotation ? "<th></th>" + linebreak : "")
                     + "<th class=\"firstColPerDom\">Total</th>" + linebreak
                     + "<th>Clear</th>" + linebreak
                     + "<th>Stained</th>" + linebreak
@@ -4636,15 +5033,15 @@ public final class tmarker extends javax.swing.JFrame {
                     + "<th class=\"num123_tot\">1+</th>" + linebreak
                     + "<th class=\"num123_tot\">2+</th>" + linebreak
                     + "<th class=\"num123_tot\">3+</th>" + linebreak
-                  + "</tr>" + linebreak
-                  + "</thead>" + linebreak + linebreak
-                  + "<tbody>" + linebreak;
-            
-            for (int i=0; i<tss.size(); i++) {
+                    + "</tr>" + linebreak
+                    + "</thead>" + linebreak + linebreak
+                    + "<tbody>" + linebreak;
+
+            for (int i = 0; i < tss.size(); i++) {
                 TMAspot ts = tss.get(i);
                 t.setStatusMessageLabel("Write " + ts.getName() + " to HTML ...");
-                t.setProgressbar((int)((100.0*i)/tss.size()));
-                
+                t.setProgressbar((int) ((100.0 * i) / tss.size()));
+
                 // Save the original image
                 file_tmp = new File(path + folderName + ts.getName() + ".jpg");
                 BufferedImage bi_orig = ts.getBufferedImage(true);
@@ -4655,11 +5052,11 @@ public final class tmarker extends javax.swing.JFrame {
                 // Save the processed image
                 if (!ts.getPoints().isEmpty() || !ts.getExcludingAreas().isEmpty() || !ts.getIncludingAreas().isEmpty()) {
                     file_tmp = new File(path + folderName + ts.getName() + "_processed.jpg");
-                    TMA_view_panel.drawCellCounts(ts, bi.getGraphics(), 1, 0, 0, ts.getWidth(), ts.getHeight());
-                    TMA_view_panel.drawAreas(ts, bi.getGraphics(), 1, 0, 0, ts.getWidth(), ts.getHeight());
+                    //TMA_view_panel.drawCellCounts(ts, bi.getGraphics(), 1, 0, 0, ts.getWidth(), ts.getHeight());
+                    //TMA_view_panel.drawAreas(ts, bi.getGraphics(), 1, 0, 0, ts.getWidth(), ts.getHeight());
                     ImageIO.write(bi, "jpg", file_tmp);
                 }
-                
+
                 // Collect numbers
                 //NEG
                 int num_neg_ustai_est = ts.getNumPoints(false, TMALabel.STAINING_0, TMALabel.LABEL_NEG);
@@ -4680,7 +5077,7 @@ public final class tmarker extends javax.swing.JFrame {
                 int num_neg_tot_est = num_neg_ustai_est + num_neg_stai_est;
                 int num_neg_tot_gst = num_neg_ustai_gst + num_neg_stai_gst;
                 int num_neg_tot_tot = num_neg_tot_est + num_neg_tot_gst;
-                
+
                 //POS
                 int num_pos_ustai_est = ts.getNumPoints(false, TMALabel.STAINING_0, TMALabel.LABEL_POS);
                 int num_pos_ustai_gst = ts.getNumPoints(true, TMALabel.STAINING_0, TMALabel.LABEL_POS);
@@ -4700,7 +5097,7 @@ public final class tmarker extends javax.swing.JFrame {
                 int num_pos_tot_est = num_pos_ustai_est + num_pos_stai_est;
                 int num_pos_tot_gst = num_pos_ustai_gst + num_pos_stai_gst;
                 int num_pos_tot_tot = num_pos_tot_est + num_pos_tot_gst;
-                
+
                 //UNK
                 int num_unk_ustai_est = ts.getNumPoints(false, TMALabel.STAINING_0, TMALabel.LABEL_UNK);
                 int num_unk_ustai_gst = ts.getNumPoints(true, TMALabel.STAINING_0, TMALabel.LABEL_UNK);
@@ -4720,7 +5117,7 @@ public final class tmarker extends javax.swing.JFrame {
                 int num_unk_tot_est = num_unk_ustai_est + num_unk_stai_est;
                 int num_unk_tot_gst = num_unk_ustai_gst + num_unk_stai_gst;
                 int num_unk_tot_tot = num_unk_tot_est + num_unk_tot_gst;
-                
+
                 //TOT
                 int num_tot_ustai_est = num_neg_ustai_est + num_pos_ustai_est + num_unk_ustai_est;
                 int num_tot_ustai_gst = num_neg_ustai_gst + num_pos_ustai_gst + num_unk_ustai_gst;
@@ -4740,36 +5137,35 @@ public final class tmarker extends javax.swing.JFrame {
                 int num_tot_tot_est = num_tot_ustai_est + num_tot_stai_est;
                 int num_tot_tot_gst = num_tot_ustai_gst + num_tot_stai_gst;
                 int num_tot_tot_tot = num_tot_tot_est + num_tot_tot_gst;
-                
+
                 //Percentages
-                String num_pos_stai_est_pr = String.format("%.0f", 100.0*num_pos_stai_est/num_pos_tot_est).replace("NaN", "-");
-                String num_tot_stai_est_pr = String.format("%.0f", 100.0*num_tot_stai_est/num_tot_tot_est).replace("NaN", "-");
-                String num_pos_stai_gst_pr = String.format("%.0f", 100.0*num_pos_stai_gst/num_pos_tot_gst).replace("NaN", "-");
-                String num_tot_stai_gst_pr = String.format("%.0f", 100.0*num_tot_stai_gst/num_tot_tot_gst).replace("NaN", "-");
-                String num_pos_stai_tot_pr = String.format("%.0f", 100.0*num_pos_stai_tot/num_pos_tot_tot).replace("NaN", "-");
-                String num_tot_stai_tot_pr = String.format("%.0f", 100.0*num_tot_stai_tot/num_tot_tot_tot).replace("NaN", "-");
-                
+                String num_pos_stai_est_pr = String.format("%.0f", 100.0 * num_pos_stai_est / num_pos_tot_est).replace("NaN", "-");
+                String num_tot_stai_est_pr = String.format("%.0f", 100.0 * num_tot_stai_est / num_tot_tot_est).replace("NaN", "-");
+                String num_pos_stai_gst_pr = String.format("%.0f", 100.0 * num_pos_stai_gst / num_pos_tot_gst).replace("NaN", "-");
+                String num_tot_stai_gst_pr = String.format("%.0f", 100.0 * num_tot_stai_gst / num_tot_tot_gst).replace("NaN", "-");
+                String num_pos_stai_tot_pr = String.format("%.0f", 100.0 * num_pos_stai_tot / num_pos_tot_tot).replace("NaN", "-");
+                String num_tot_stai_tot_pr = String.format("%.0f", 100.0 * num_tot_stai_tot / num_tot_tot_tot).replace("NaN", "-");
+
                 // Human annotation exisiting?
                 boolean hasHumanAnnotation = !ts.getPoints_GoldStandard().isEmpty();
-                
+
                 outputText += "<tr>" + linebreak
-                  
-                  +  "<td class=\"image\" rowspan=\"" + (hasHumanAnnotation ? "3" : "1") + "\">";
+                        + "<td class=\"image\" rowspan=\"" + (hasHumanAnnotation ? "3" : "1") + "\">";
                 if (!ts.getPoints().isEmpty() || !ts.getExcludingAreas().isEmpty() || !ts.getIncludingAreas().isEmpty()) {
-                    outputText += "<a href=\"" + folderName + ts.getName() + "_processed.jpg\"><img alt=\"Processed Image\" src=\"" + folderName + ts.getName() + "_processed.jpg\" width=\"" + (anyHasHumanAnnotation?"90":"50") + "\"></a>";
+                    outputText += "<a href=\"" + folderName + ts.getName() + "_processed.jpg\"><img alt=\"Processed Image\" src=\"" + folderName + ts.getName() + "_processed.jpg\" width=\"" + (anyHasHumanAnnotation ? "90" : "50") + "\"></a>";
                 } else {
-                    outputText += "<a href=\"" + folderName + ts.getName() + ".jpg\"><img alt=\"Original Image\" src=\"" + folderName + ts.getName() + ".jpg\" width=\"" + (anyHasHumanAnnotation?"90":"50") + "\"></a>";
+                    outputText += "<a href=\"" + folderName + ts.getName() + ".jpg\"><img alt=\"Original Image\" src=\"" + folderName + ts.getName() + ".jpg\" width=\"" + (anyHasHumanAnnotation ? "90" : "50") + "\"></a>";
                 }
-                outputText +="</td>" + linebreak;
-                   
-                outputText +="<td rowspan=\"" + (hasHumanAnnotation ? "3" : "1") + "\">";
+                outputText += "</td>" + linebreak;
+
+                outputText += "<td rowspan=\"" + (hasHumanAnnotation ? "3" : "1") + "\">";
                 if (!ts.getPoints().isEmpty() || !ts.getExcludingAreas().isEmpty() || !ts.getIncludingAreas().isEmpty()) {
                     outputText += "<a href=\"#" + ts.getName().replaceAll(" ", "") + "\">" + ts.getName() + "</a>";
                 } else {
                     outputText += "<a href=\"#" + ts.getName().replaceAll(" ", "") + "\">" + ts.getName() + "</a>";
                 }
                 outputText += "</td>" + linebreak;
-                
+
                 if (anyHasHumanAnnotation) {
                     outputText += "<td>PC</td>" + linebreak;
                 }
@@ -4799,109 +5195,107 @@ public final class tmarker extends javax.swing.JFrame {
                         + "<td class=\"num123_tot\">" + myFormatInteger(num_tot_stai1_est) + "</td>" + linebreak
                         + "<td class=\"num123_tot\">" + myFormatInteger(num_tot_stai2_est) + "</td>" + linebreak
                         + "<td class=\"num123_tot\">" + myFormatInteger(num_tot_stai3_est) + "</td>" + linebreak
-                      + "</tr>" + linebreak + linebreak;
-                
+                        + "</tr>" + linebreak + linebreak;
+
                 if (hasHumanAnnotation) {
                     outputText += "<tr><td>Human</td>" + linebreak
-                        + "<td class=\"firstColPerDom\">" + myFormatInteger(num_neg_tot_gst) + "</td>" + linebreak
-                        + "<td class=\"clear_neg\">" + myFormatInteger(num_neg_ustai_gst) + "</td>" + linebreak
-                        + "<td class=\"stai_neg\">" + myFormatInteger(num_neg_stai_gst) + "</td>" + linebreak
-                        + "<td class=\"num123_neg_1\">" + myFormatInteger(num_neg_stai1_gst) + "</td>" + linebreak
-                        + "<td class=\"num123_neg_2\">" + myFormatInteger(num_neg_stai2_gst) + "</td>" + linebreak
-                        + "<td class=\"num123_neg_3\">" + myFormatInteger(num_neg_stai3_gst) + "</td>" + linebreak
-                        + "<td class=\"firstColPerDom\">" + myFormatInteger(num_pos_tot_gst) + "</td>" + linebreak
-                        + "<td class=\"clear_pos\">" + myFormatInteger(num_pos_ustai_gst) + "</td>" + linebreak
-                        + "<td class=\"stai_pos\">" + myFormatInteger(num_pos_stai_gst) + "</td>" + linebreak
-                        + "<td class=\"perc\">" + num_pos_stai_gst_pr + "</td>" + linebreak
-                        + "<td class=\"num123_pos_1\">" + myFormatInteger(num_pos_stai1_gst) + "</td>" + linebreak
-                        + "<td class=\"num123_pos_2\">" + myFormatInteger(num_pos_stai2_gst) + "</td>" + linebreak
-                        + "<td class=\"num123_pos_3\">" + myFormatInteger(num_pos_stai3_gst) + "</td>" + linebreak
-                        + "<td class=\"firstColPerDom\">" + myFormatInteger(num_unk_tot_gst) + "</td>" + linebreak
-                        + "<td class=\"clear_unk\">" + myFormatInteger(num_unk_ustai_gst) + "</td>" + linebreak
-                        + "<td class=\"stai_unk\">" + myFormatInteger(num_unk_stai_gst) + "</td>" + linebreak
-                        + "<td class=\"num123_unk_1\">" + myFormatInteger(num_unk_stai1_gst) + "</td>" + linebreak
-                        + "<td class=\"num123_unk_2\">" + myFormatInteger(num_unk_stai2_gst) + "</td>" + linebreak
-                        + "<td class=\"num123_unk_3\">" + myFormatInteger(num_unk_stai3_gst) + "</td>" + linebreak
-                        + "<td class=\"firstColPerDom\">" + myFormatInteger(num_tot_tot_gst) + "</td>" + linebreak
-                        + "<td class=\"clear_tot\">" + myFormatInteger(num_tot_ustai_gst) + "</td>" + linebreak
-                        + "<td class=\"stai_tot\">" + myFormatInteger(num_tot_stai_gst) + "</td>" + linebreak
-                        + "<td class=\"perc\">" + num_tot_stai_gst_pr + "</td>" + linebreak
-                        + "<td class=\"num123_tot\">" + myFormatInteger(num_tot_stai1_gst) + "</td>" + linebreak
-                        + "<td class=\"num123_tot\">" + myFormatInteger(num_tot_stai2_gst) + "</td>" + linebreak
-                        + "<td class=\"num123_tot\">" + myFormatInteger(num_tot_stai3_gst) + "</td>" + linebreak
-                      + "</tr>" + linebreak + linebreak;
-                
+                            + "<td class=\"firstColPerDom\">" + myFormatInteger(num_neg_tot_gst) + "</td>" + linebreak
+                            + "<td class=\"clear_neg\">" + myFormatInteger(num_neg_ustai_gst) + "</td>" + linebreak
+                            + "<td class=\"stai_neg\">" + myFormatInteger(num_neg_stai_gst) + "</td>" + linebreak
+                            + "<td class=\"num123_neg_1\">" + myFormatInteger(num_neg_stai1_gst) + "</td>" + linebreak
+                            + "<td class=\"num123_neg_2\">" + myFormatInteger(num_neg_stai2_gst) + "</td>" + linebreak
+                            + "<td class=\"num123_neg_3\">" + myFormatInteger(num_neg_stai3_gst) + "</td>" + linebreak
+                            + "<td class=\"firstColPerDom\">" + myFormatInteger(num_pos_tot_gst) + "</td>" + linebreak
+                            + "<td class=\"clear_pos\">" + myFormatInteger(num_pos_ustai_gst) + "</td>" + linebreak
+                            + "<td class=\"stai_pos\">" + myFormatInteger(num_pos_stai_gst) + "</td>" + linebreak
+                            + "<td class=\"perc\">" + num_pos_stai_gst_pr + "</td>" + linebreak
+                            + "<td class=\"num123_pos_1\">" + myFormatInteger(num_pos_stai1_gst) + "</td>" + linebreak
+                            + "<td class=\"num123_pos_2\">" + myFormatInteger(num_pos_stai2_gst) + "</td>" + linebreak
+                            + "<td class=\"num123_pos_3\">" + myFormatInteger(num_pos_stai3_gst) + "</td>" + linebreak
+                            + "<td class=\"firstColPerDom\">" + myFormatInteger(num_unk_tot_gst) + "</td>" + linebreak
+                            + "<td class=\"clear_unk\">" + myFormatInteger(num_unk_ustai_gst) + "</td>" + linebreak
+                            + "<td class=\"stai_unk\">" + myFormatInteger(num_unk_stai_gst) + "</td>" + linebreak
+                            + "<td class=\"num123_unk_1\">" + myFormatInteger(num_unk_stai1_gst) + "</td>" + linebreak
+                            + "<td class=\"num123_unk_2\">" + myFormatInteger(num_unk_stai2_gst) + "</td>" + linebreak
+                            + "<td class=\"num123_unk_3\">" + myFormatInteger(num_unk_stai3_gst) + "</td>" + linebreak
+                            + "<td class=\"firstColPerDom\">" + myFormatInteger(num_tot_tot_gst) + "</td>" + linebreak
+                            + "<td class=\"clear_tot\">" + myFormatInteger(num_tot_ustai_gst) + "</td>" + linebreak
+                            + "<td class=\"stai_tot\">" + myFormatInteger(num_tot_stai_gst) + "</td>" + linebreak
+                            + "<td class=\"perc\">" + num_tot_stai_gst_pr + "</td>" + linebreak
+                            + "<td class=\"num123_tot\">" + myFormatInteger(num_tot_stai1_gst) + "</td>" + linebreak
+                            + "<td class=\"num123_tot\">" + myFormatInteger(num_tot_stai2_gst) + "</td>" + linebreak
+                            + "<td class=\"num123_tot\">" + myFormatInteger(num_tot_stai3_gst) + "</td>" + linebreak
+                            + "</tr>" + linebreak + linebreak;
+
                     outputText += "<tr><td>PC+Human</td>" + linebreak
-                        + "<td class=\"firstColPerDom\">" + myFormatInteger(num_neg_tot_tot) + "</td>" + linebreak
-                        + "<td class=\"clear_neg\">" + myFormatInteger(num_neg_ustai_tot) + "</td>" + linebreak
-                        + "<td class=\"stai_neg\">" + myFormatInteger(num_neg_stai_tot) + "</td>" + linebreak
-                        + "<td class=\"num123_neg_1\">" + myFormatInteger(num_neg_stai1_tot) + "</td>" + linebreak
-                        + "<td class=\"num123_neg_2\">" + myFormatInteger(num_neg_stai2_tot) + "</td>" + linebreak
-                        + "<td class=\"num123_neg_3\">" + myFormatInteger(num_neg_stai3_tot) + "</td>" + linebreak
-                        + "<td class=\"firstColPerDom\">" + myFormatInteger(num_pos_tot_tot) + "</td>" + linebreak
-                        + "<td class=\"clear_pos\">" + myFormatInteger(num_pos_ustai_tot) + "</td>" + linebreak
-                        + "<td class=\"stai_pos\">" + myFormatInteger(num_pos_stai_tot) + "</td>" + linebreak
-                        + "<td class=\"perc\">" + num_pos_stai_tot_pr + "</td>" + linebreak
-                        + "<td class=\"num123_pos_1\">" + myFormatInteger(num_pos_stai1_tot) + "</td>" + linebreak
-                        + "<td class=\"num123_pos_2\">" + myFormatInteger(num_pos_stai2_tot) + "</td>" + linebreak
-                        + "<td class=\"num123_pos_3\">" + myFormatInteger(num_pos_stai3_tot) + "</td>" + linebreak
-                        + "<td class=\"firstColPerDom\">" + myFormatInteger(num_unk_tot_tot) + "</td>" + linebreak
-                        + "<td class=\"clear_unk\">" + myFormatInteger(num_unk_ustai_tot) + "</td>" + linebreak
-                        + "<td class=\"stai_unk\">" + myFormatInteger(num_unk_stai_tot) + "</td>" + linebreak
-                        + "<td class=\"num123_unk_1\">" + myFormatInteger(num_unk_stai1_tot) + "</td>" + linebreak
-                        + "<td class=\"num123_unk_2\">" + myFormatInteger(num_unk_stai2_tot) + "</td>" + linebreak
-                        + "<td class=\"num123_unk_3\">" + myFormatInteger(num_unk_stai3_tot) + "</td>" + linebreak
-                        + "<td class=\"firstColPerDom\">" + myFormatInteger(num_tot_tot_tot) + "</td>" + linebreak
-                        + "<td class=\"clear_tot\">" + myFormatInteger(num_tot_ustai_tot) + "</td>" + linebreak
-                        + "<td class=\"stai_tot\">" + myFormatInteger(num_tot_stai_tot) + "</td>" + linebreak
-                        + "<td class=\"perc\">" + num_tot_stai_tot_pr + "</td>" + linebreak
-                        + "<td class=\"num123_tot\">" + myFormatInteger(num_tot_stai1_tot) + "</td>" + linebreak
-                        + "<td class=\"num123_tot\">" + myFormatInteger(num_tot_stai2_tot) + "</td>" + linebreak
-                        + "<td class=\"num123_tot\">" + myFormatInteger(num_tot_stai3_tot) + "</td>" + linebreak
-                      + "</tr>" + linebreak + linebreak;
+                            + "<td class=\"firstColPerDom\">" + myFormatInteger(num_neg_tot_tot) + "</td>" + linebreak
+                            + "<td class=\"clear_neg\">" + myFormatInteger(num_neg_ustai_tot) + "</td>" + linebreak
+                            + "<td class=\"stai_neg\">" + myFormatInteger(num_neg_stai_tot) + "</td>" + linebreak
+                            + "<td class=\"num123_neg_1\">" + myFormatInteger(num_neg_stai1_tot) + "</td>" + linebreak
+                            + "<td class=\"num123_neg_2\">" + myFormatInteger(num_neg_stai2_tot) + "</td>" + linebreak
+                            + "<td class=\"num123_neg_3\">" + myFormatInteger(num_neg_stai3_tot) + "</td>" + linebreak
+                            + "<td class=\"firstColPerDom\">" + myFormatInteger(num_pos_tot_tot) + "</td>" + linebreak
+                            + "<td class=\"clear_pos\">" + myFormatInteger(num_pos_ustai_tot) + "</td>" + linebreak
+                            + "<td class=\"stai_pos\">" + myFormatInteger(num_pos_stai_tot) + "</td>" + linebreak
+                            + "<td class=\"perc\">" + num_pos_stai_tot_pr + "</td>" + linebreak
+                            + "<td class=\"num123_pos_1\">" + myFormatInteger(num_pos_stai1_tot) + "</td>" + linebreak
+                            + "<td class=\"num123_pos_2\">" + myFormatInteger(num_pos_stai2_tot) + "</td>" + linebreak
+                            + "<td class=\"num123_pos_3\">" + myFormatInteger(num_pos_stai3_tot) + "</td>" + linebreak
+                            + "<td class=\"firstColPerDom\">" + myFormatInteger(num_unk_tot_tot) + "</td>" + linebreak
+                            + "<td class=\"clear_unk\">" + myFormatInteger(num_unk_ustai_tot) + "</td>" + linebreak
+                            + "<td class=\"stai_unk\">" + myFormatInteger(num_unk_stai_tot) + "</td>" + linebreak
+                            + "<td class=\"num123_unk_1\">" + myFormatInteger(num_unk_stai1_tot) + "</td>" + linebreak
+                            + "<td class=\"num123_unk_2\">" + myFormatInteger(num_unk_stai2_tot) + "</td>" + linebreak
+                            + "<td class=\"num123_unk_3\">" + myFormatInteger(num_unk_stai3_tot) + "</td>" + linebreak
+                            + "<td class=\"firstColPerDom\">" + myFormatInteger(num_tot_tot_tot) + "</td>" + linebreak
+                            + "<td class=\"clear_tot\">" + myFormatInteger(num_tot_ustai_tot) + "</td>" + linebreak
+                            + "<td class=\"stai_tot\">" + myFormatInteger(num_tot_stai_tot) + "</td>" + linebreak
+                            + "<td class=\"perc\">" + num_tot_stai_tot_pr + "</td>" + linebreak
+                            + "<td class=\"num123_tot\">" + myFormatInteger(num_tot_stai1_tot) + "</td>" + linebreak
+                            + "<td class=\"num123_tot\">" + myFormatInteger(num_tot_stai2_tot) + "</td>" + linebreak
+                            + "<td class=\"num123_tot\">" + myFormatInteger(num_tot_stai3_tot) + "</td>" + linebreak
+                            + "</tr>" + linebreak + linebreak;
                 }
 
             }
-            outputText += "</tbody>" + linebreak + "</table>" + linebreak + "</div>" + linebreak + "<br>"+ linebreak + linebreak;
+            outputText += "</tbody>" + linebreak + "</table>" + linebreak + "</div>" + linebreak + "<br>" + linebreak + linebreak;
             outputText += "<input value=\"Save Table (xls)\" type=\"button\" onclick=\"SaveAsXLS('" + file.getName().replace(".html", "") + "')\"><br><br>" + linebreak;
-            
+
             // Save all the images larger overview
             outputText += "<hr><h2>TMA spot overview</h2>";
-            
-            outputText += "<i>Shown are all TMA spots which have been processed by TMARKER. <br>" + linebreak +
-                    "Each TMA spot shows the original image on the right side and the detected nuclei as colored dots on the left side (if any).<br>" + linebreak +
-                    "There are different colors for clear (unstained) nuclei and stained nuclei, as well as for benign, malignant or unknown nuclei. <br> " + linebreak +
-                    "The colors are defined in the TMARKER program. <br><br>" + linebreak +
-                    
-                    "TMARKER can cluster the nuclei by their intensity, and up to three staining intensities (1+, 2+ and 3+) are shown,<br>" + linebreak +
-                    "each with their loci in the image.<br><br>" + linebreak +
-                    
-                    "<b>PC</b> means detected by TMARKER. <b>Human</b> means detected by the user. <b>PC+Human</b> sums up both numbers.<br>" + linebreak +
-                    "Staining percentages refer to the total number of nuclei, respectively." + 
-                    "<br>Images can be enlarged by mouse click.</i><br><br><br>" + linebreak + linebreak;
-            
+
+            outputText += "<i>Shown are all TMA spots which have been processed by TMARKER. <br>" + linebreak
+                    + "Each TMA spot shows the original image on the right side and the detected nuclei as colored dots on the left side (if any).<br>" + linebreak
+                    + "There are different colors for clear (unstained) nuclei and stained nuclei, as well as for benign, malignant or unknown nuclei. <br> " + linebreak
+                    + "The colors are defined in the TMARKER program. <br><br>" + linebreak
+                    + "TMARKER can cluster the nuclei by their intensity, and up to three staining intensities (1+, 2+ and 3+) are shown,<br>" + linebreak
+                    + "each with their loci in the image.<br><br>" + linebreak
+                    + "<b>PC</b> means detected by TMARKER. <b>Human</b> means detected by the user. <b>PC+Human</b> sums up both numbers.<br>" + linebreak
+                    + "Staining percentages refer to the total number of nuclei, respectively."
+                    + "<br>Images can be enlarged by mouse click.</i><br><br><br>" + linebreak + linebreak;
+
             outputText += "<table cellpadding=\"10\"><tbody>" + linebreak;
-            for (TMAspot ts: tss) {
+            for (TMAspot ts : tss) {
                 // Save the TMAspot list panel for PC annotation as image
                 file_tmp = new File(path + folderName + ts.getName() + "_tlpP.png");
                 bi = Misc.getScreenShot(ts.getTLP());
                 bi.getGraphics().setColor(Color.WHITE);
-                bi.getGraphics().fillRect(ts.getTLP().getOffsetx(), ts.getTLP().getOffsety(), bi.getWidth()-ts.getTLP().getOffsetx(), bi.getHeight()-ts.getTLP().getOffsety());
+                bi.getGraphics().fillRect(ts.getTLP().getOffsetx(), ts.getTLP().getOffsety(), bi.getWidth() - ts.getTLP().getOffsetx(), bi.getHeight() - ts.getTLP().getOffsety());
                 ts.getTLP().drawNucleiCounts(bi.getGraphics(), true, false);
                 ImageIO.write(bi, "png", file_tmp);
-                
+
                 // Save the TMAspot list panel for Human annotation as image
                 file_tmp = new File(path + folderName + ts.getName() + "_tlpH.png");
-                bi.getGraphics().fillRect(ts.getTLP().getOffsetx(), ts.getTLP().getOffsety(), bi.getWidth()-ts.getTLP().getOffsetx(), bi.getHeight()-ts.getTLP().getOffsety());
+                bi.getGraphics().fillRect(ts.getTLP().getOffsetx(), ts.getTLP().getOffsety(), bi.getWidth() - ts.getTLP().getOffsetx(), bi.getHeight() - ts.getTLP().getOffsety());
                 ts.getTLP().drawNucleiCounts(bi.getGraphics(), false, true);
                 ImageIO.write(bi, "png", file_tmp);
-                
+
                 // Save the TMAspot list panel for PC and Human annotation as image
                 file_tmp = new File(path + folderName + ts.getName() + "_tlpPH.png");
-                bi.getGraphics().fillRect(ts.getTLP().getOffsetx(), ts.getTLP().getOffsety(), bi.getWidth()-ts.getTLP().getOffsetx(), bi.getHeight()-ts.getTLP().getOffsety());
+                bi.getGraphics().fillRect(ts.getTLP().getOffsetx(), ts.getTLP().getOffsety(), bi.getWidth() - ts.getTLP().getOffsetx(), bi.getHeight() - ts.getTLP().getOffsety());
                 ts.getTLP().drawNucleiCounts(bi.getGraphics(), true, true);
                 ImageIO.write(bi, "png", file_tmp);
-                
+
                 outputText += " <tr valign=\"top\">" + linebreak
                         + "  <td>" + linebreak
                         + "   " + "<h3><a name=\"" + ts.getName().replaceAll(" ", "") + "\">" + ts.getName() + "</a></h3><br>" + linebreak
@@ -4910,18 +5304,18 @@ public final class tmarker extends javax.swing.JFrame {
                         + "   <img src=\"" + folderName + ts.getName() + "_tlpPH.png" + "\"><br><br>" + linebreak
                         + "  </td>" + linebreak
                         + "  <td>" + linebreak;
-                        if (!ts.getPoints().isEmpty() || !ts.getExcludingAreas().isEmpty() || !ts.getIncludingAreas().isEmpty()) {
-                            outputText += "   <a name=\"" + folderName + ts.getName() + "_processed.jpg\" href=\"" + folderName + ts.getName() + "_processed.jpg\"><img alt=\"Processed Image\" src=\"" + folderName + ts.getName() + "_processed.jpg\" width=\"500\"></a><br><br>" + linebreak;
-                        }
-                        outputText += "  </td>" + linebreak
+                if (!ts.getPoints().isEmpty() || !ts.getExcludingAreas().isEmpty() || !ts.getIncludingAreas().isEmpty()) {
+                    outputText += "   <a name=\"" + folderName + ts.getName() + "_processed.jpg\" href=\"" + folderName + ts.getName() + "_processed.jpg\"><img alt=\"Processed Image\" src=\"" + folderName + ts.getName() + "_processed.jpg\" width=\"500\"></a><br><br>" + linebreak;
+                }
+                outputText += "  </td>" + linebreak
                         + "  <td>" + linebreak
                         + "   <a name=\"" + folderName + ts.getName() + ".jpg\" href=\"" + folderName + ts.getName() + ".jpg\"><img alt=\"Original Image\" src=\"" + folderName + ts.getName() + ".jpg\" width=\"500\"></a><br><br>" + linebreak
                         + "  </td>" + linebreak
                         + " </tr>";
             }
             outputText += "</tbod></table>" + linebreak + linebreak;
-            
-            for (Pluggable p: t.plugins) {
+
+            for (Pluggable p : t.plugins) {
                 try {
                     outputText += "<hr>" + linebreak;
                     outputText += "<h2><a name=\"" + p.getPluginName().replaceAll(" ", "") + "\">" + p.getPluginName() + " Plugin Report</a></h2>" + linebreak;
@@ -4931,18 +5325,18 @@ public final class tmarker extends javax.swing.JFrame {
                     }
                     outputText += report + "<br><br>";
                 } catch (Exception e) {
-                    
+
                 }
             }
-            
+
             DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
             Calendar cal = Calendar.getInstance();
-            outputText += linebreak + "<br><br><br>" + linebreak + "<hr>" + linebreak + 
-                    "<i>Generated with TMARKER v. " + tmarker.REVISION + " - " + dateFormat.format(cal.getTime()) + "<br>" + linebreak +
-                    "Session ID: " + UID.toString() + "<br>" + linebreak +
-                    "(c) 2015 Peter J. Sch&uuml;ffler</i><br><br>" +
-                    "</body>" + linebreak + "</html>";
-            
+            outputText += linebreak + "<br><br><br>" + linebreak + "<hr>" + linebreak
+                    + "<i>Generated with TMARKER v. " + tmarker.REVISION + " - " + dateFormat.format(cal.getTime()) + "<br>" + linebreak
+                    + "Session ID: " + UID.toString() + "<br>" + linebreak
+                    + "(c) 2015 Peter J. Sch&uuml;ffler</i><br><br>"
+                    + "</body>" + linebreak + "</html>";
+
             BufferedWriter bw = new BufferedWriter(new FileWriter(file));
             bw.write(outputText);
             bw.close();
@@ -4952,58 +5346,61 @@ public final class tmarker extends javax.swing.JFrame {
                     + file.getName() + "\nMaybe it's still in use.", "Could not save file", JOptionPane.ERROR_MESSAGE);
         } finally {
             t.setStatusMessageLabel(text);
-            t.setProgressbar(0); 
+            t.setProgressbar(0);
         }
     }
-     
+
     /**
-     * Returns a String representing the given integer. If i==0, "-" is returned.
+     * Returns a String representing the given integer. If i==0, "-" is
+     * returned.
+     *
      * @param i The integer to be converted.
      * @return i as a string, or "-" for 0.
      */
     static String myFormatInteger(int i) {
-        if (i==0) {
+        if (i == 0) {
             return "-";
         } else {
             return Integer.toString(i);
         }
     }
-    
+
     /**
-     * Assigns a special listener to the given toolbar which corrects the orientation of JSliders 
-     * when the toolbar gets a new orientation.
+     * Assigns a special listener to the given toolbar which corrects the
+     * orientation of JSliders when the toolbar gets a new orientation.
+     *
      * @param toolBar The toolbar on which the listener is assigned.
      */
     protected void listenForOrientationChange(final JToolBar toolBar) {
-      toolBar.addPropertyChangeListener(new PropertyChangeListener() {
-         @Override
-         public void propertyChange(PropertyChangeEvent evt) {
-            Component[] components = toolBar.getComponents();
-             for (Component component : components) {
-                 if (component instanceof javax.swing.JSlider) {
-                     JSlider comp = (JSlider) component;
-                     if (toolBar.getOrientation() == SwingConstants.HORIZONTAL) {
-                         comp.setOrientation(JSlider.HORIZONTAL);
-                         comp.setMaximumSize(new Dimension(comp.getPreferredSize().width, toolBar.getPreferredSize().height));
-                     } else {
-                         comp.setOrientation(JSlider.VERTICAL);
-                         comp.setMaximumSize(new Dimension(toolBar.getPreferredSize().width, comp.getPreferredSize().height));
-                     }
-                 } else if (component instanceof javax.swing.JLabel) {
-                  JLabel comp = (JLabel) component;
-                  if (comp.getText().contains("Radius")) {
-                      if (toolBar.getOrientation() == SwingConstants.HORIZONTAL) {
-                         comp.setText("Nucleus Radius = ");
-                      } else {
-                         comp.setText("Radius");
-                      }
-                  }
-               }
+        toolBar.addPropertyChangeListener(new PropertyChangeListener() {
+            @Override
+            public void propertyChange(PropertyChangeEvent evt) {
+                Component[] components = toolBar.getComponents();
+                for (Component component : components) {
+                    if (component instanceof javax.swing.JSlider) {
+                        JSlider comp = (JSlider) component;
+                        if (toolBar.getOrientation() == SwingConstants.HORIZONTAL) {
+                            comp.setOrientation(JSlider.HORIZONTAL);
+                            comp.setMaximumSize(new Dimension(comp.getPreferredSize().width, toolBar.getPreferredSize().height));
+                        } else {
+                            comp.setOrientation(JSlider.VERTICAL);
+                            comp.setMaximumSize(new Dimension(toolBar.getPreferredSize().width, comp.getPreferredSize().height));
+                        }
+                    } else if (component instanceof javax.swing.JLabel) {
+                        JLabel comp = (JLabel) component;
+                        if (comp.getText().contains("Radius")) {
+                            if (toolBar.getOrientation() == SwingConstants.HORIZONTAL) {
+                                comp.setText("Nucleus Radius = ");
+                            } else {
+                                comp.setText("Radius");
+                            }
+                        }
+                    }
+                }
             }
-         }
-      });
-   }
-    
+        });
+    }
+
     /**
      * Constructs the clickable nuclei labels on the jToolBar1.
      */
@@ -5011,223 +5408,264 @@ public final class tmarker extends javax.swing.JFrame {
         int rad = 7;
         int n_own_comp = 3; // three components are already on the tool bar (label, slider, textfield). Add the nuclei in front of them.
         JToolBar toolbar = jToolBar1;
-        
+
         JLabel label = new JLabel("Benign");
         label.setAlignmentX((float) 0.5);
-        toolbar.add(label, toolbar.getComponentCount()-n_own_comp);
-        toolbar.add(new LegendElementNucleus(this, rad, TMALabel.LABEL_NEG, TMALabel.STAINING_0, Color.GREEN.brighter()), toolbar.getComponentCount()-n_own_comp);
-        ((LegendElement)(toolbar.getComponent(1))).setSelected(true);
-        toolbar.add(new LegendElementNucleus(this, rad, TMALabel.LABEL_NEG, TMALabel.STAINING_1, Color.GREEN), toolbar.getComponentCount()-n_own_comp);
-        toolbar.add(new LegendElementNucleus(this, rad, TMALabel.LABEL_NEG, TMALabel.STAINING_2, Color.GREEN.darker()), toolbar.getComponentCount()-n_own_comp);
-        toolbar.add(new LegendElementNucleus(this, rad, TMALabel.LABEL_NEG, TMALabel.STAINING_3, Color.GREEN.darker().darker()), toolbar.getComponentCount()-n_own_comp);
-        
-        toolbar.add(new JToolBar.Separator(), toolbar.getComponentCount()-n_own_comp);
+        toolbar.add(label, toolbar.getComponentCount() - n_own_comp);
+        toolbar.add(new LegendElementNucleus(this, rad, TMALabel.LABEL_NEG, TMALabel.STAINING_0, Color.GREEN.brighter()), toolbar.getComponentCount() - n_own_comp);
+        ((LegendElement) (toolbar.getComponent(1))).setSelected(true);
+        toolbar.add(new LegendElementNucleus(this, rad, TMALabel.LABEL_NEG, TMALabel.STAINING_1, Color.GREEN), toolbar.getComponentCount() - n_own_comp);
+        toolbar.add(new LegendElementNucleus(this, rad, TMALabel.LABEL_NEG, TMALabel.STAINING_2, Color.GREEN.darker()), toolbar.getComponentCount() - n_own_comp);
+        toolbar.add(new LegendElementNucleus(this, rad, TMALabel.LABEL_NEG, TMALabel.STAINING_3, Color.GREEN.darker().darker()), toolbar.getComponentCount() - n_own_comp);
+
+        toolbar.add(new JToolBar.Separator(), toolbar.getComponentCount() - n_own_comp);
         label = new JLabel("Malignant");
         label.setAlignmentX((float) 0.5);
-        toolbar.add(label, toolbar.getComponentCount()-n_own_comp);
-        toolbar.add(new LegendElementNucleus(this, rad, TMALabel.LABEL_POS, TMALabel.STAINING_0, Color.CYAN), toolbar.getComponentCount()-n_own_comp);
-        toolbar.add(new LegendElementNucleus(this, rad, TMALabel.LABEL_POS, TMALabel.STAINING_1, Color.RED), toolbar.getComponentCount()-n_own_comp);
-        toolbar.add(new LegendElementNucleus(this, rad, TMALabel.LABEL_POS, TMALabel.STAINING_2, Color.RED.darker()), toolbar.getComponentCount()-n_own_comp);
-        toolbar.add(new LegendElementNucleus(this, rad, TMALabel.LABEL_POS, TMALabel.STAINING_3, Color.RED.darker().darker()), toolbar.getComponentCount()-n_own_comp);
-        
-        toolbar.add(new JToolBar.Separator(), toolbar.getComponentCount()-n_own_comp);
+        toolbar.add(label, toolbar.getComponentCount() - n_own_comp);
+        toolbar.add(new LegendElementNucleus(this, rad, TMALabel.LABEL_POS, TMALabel.STAINING_0, Color.CYAN), toolbar.getComponentCount() - n_own_comp);
+        toolbar.add(new LegendElementNucleus(this, rad, TMALabel.LABEL_POS, TMALabel.STAINING_1, Color.RED), toolbar.getComponentCount() - n_own_comp);
+        toolbar.add(new LegendElementNucleus(this, rad, TMALabel.LABEL_POS, TMALabel.STAINING_2, Color.RED.darker()), toolbar.getComponentCount() - n_own_comp);
+        toolbar.add(new LegendElementNucleus(this, rad, TMALabel.LABEL_POS, TMALabel.STAINING_3, Color.RED.darker().darker()), toolbar.getComponentCount() - n_own_comp);
+
+        toolbar.add(new JToolBar.Separator(), toolbar.getComponentCount() - n_own_comp);
         label = new JLabel("Unknown");
         label.setAlignmentX((float) 0.5);
-        toolbar.add(label, toolbar.getComponentCount()-n_own_comp);
-        toolbar.add(new LegendElementNucleus(this, rad, TMALabel.LABEL_UNK, TMALabel.STAINING_0, Color.GRAY.brighter()), toolbar.getComponentCount()-n_own_comp);
-        toolbar.add(new LegendElementNucleus(this, rad, TMALabel.LABEL_UNK, TMALabel.STAINING_1, Color.GRAY), toolbar.getComponentCount()-n_own_comp);
-        toolbar.add(new LegendElementNucleus(this, rad, TMALabel.LABEL_UNK, TMALabel.STAINING_2, Color.GRAY.darker()), toolbar.getComponentCount()-n_own_comp);
-        toolbar.add(new LegendElementNucleus(this, rad, TMALabel.LABEL_UNK, TMALabel.STAINING_3, Color.GRAY.darker().darker()), toolbar.getComponentCount()-n_own_comp);
-        
-        toolbar.add(new JToolBar.Separator(), toolbar.getComponentCount()-n_own_comp);
+        toolbar.add(label, toolbar.getComponentCount() - n_own_comp);
+        toolbar.add(new LegendElementNucleus(this, rad, TMALabel.LABEL_UNK, TMALabel.STAINING_0, Color.GRAY.brighter()), toolbar.getComponentCount() - n_own_comp);
+        toolbar.add(new LegendElementNucleus(this, rad, TMALabel.LABEL_UNK, TMALabel.STAINING_1, Color.GRAY), toolbar.getComponentCount() - n_own_comp);
+        toolbar.add(new LegendElementNucleus(this, rad, TMALabel.LABEL_UNK, TMALabel.STAINING_2, Color.GRAY.darker()), toolbar.getComponentCount() - n_own_comp);
+        toolbar.add(new LegendElementNucleus(this, rad, TMALabel.LABEL_UNK, TMALabel.STAINING_3, Color.GRAY.darker().darker()), toolbar.getComponentCount() - n_own_comp);
+
+        toolbar.add(new JToolBar.Separator(), toolbar.getComponentCount() - n_own_comp);
         label = new JLabel("Background");
         label.setAlignmentX((float) 0.5);
-        toolbar.add(label, toolbar.getComponentCount()-n_own_comp);
-        toolbar.add(new LegendElementNucleus(this, rad, TMALabel.LABEL_BG, TMALabel.STAINING_0, Color.WHITE), toolbar.getComponentCount()-n_own_comp);
-        
-        toolbar.add(new JToolBar.Separator(), toolbar.getComponentCount()-n_own_comp);
+        toolbar.add(label, toolbar.getComponentCount() - n_own_comp);
+        toolbar.add(new LegendElementNucleus(this, rad, TMALabel.LABEL_BG, TMALabel.STAINING_0, Color.WHITE), toolbar.getComponentCount() - n_own_comp);
+
+        toolbar.add(new JToolBar.Separator(), toolbar.getComponentCount() - n_own_comp);
         label = new JLabel("Edit");
         label.setAlignmentX((float) 0.5);
-        toolbar.add(label, toolbar.getComponentCount()-n_own_comp);
-        toolbar.add(new LegendElementIcon(this, rad, new javax.swing.ImageIcon(getClass().getResource("/tmarker/img/buttons/flippoint.png")), "Flip a Point's Class"), toolbar.getComponentCount()-n_own_comp);
-        toolbar.add(new LegendElementIcon(this, rad, new javax.swing.ImageIcon(getClass().getResource("/tmarker/img/buttons/flipstaingrad.png")), "Correct a Point's Staining (0 - 3+)"), toolbar.getComponentCount()-n_own_comp);
-        toolbar.add(new LegendElementIcon(this, rad, new javax.swing.ImageIcon(getClass().getResource("/tmarker/img/buttons/flipstainbin.png")), "Correct a Point's Staining (binary)"), toolbar.getComponentCount()-n_own_comp);
-        toolbar.add(new LegendElementIcon(this, rad, new javax.swing.ImageIcon(getClass().getResource("/tmarker/img/buttons/delpoint.png")), "Delete a Point"), toolbar.getComponentCount()-n_own_comp);
-        
-        toolbar.add(new JToolBar.Separator(), toolbar.getComponentCount()-n_own_comp);
+        toolbar.add(label, toolbar.getComponentCount() - n_own_comp);
+        toolbar.add(new LegendElementIcon(this, rad, new javax.swing.ImageIcon(getClass().getResource("/tmarker/img/buttons/flippoint.png")), "Flip a Point's Class"), toolbar.getComponentCount() - n_own_comp);
+        toolbar.add(new LegendElementIcon(this, rad, new javax.swing.ImageIcon(getClass().getResource("/tmarker/img/buttons/flipstaingrad.png")), "Correct a Point's Staining (0 - 3+)"), toolbar.getComponentCount() - n_own_comp);
+        toolbar.add(new LegendElementIcon(this, rad, new javax.swing.ImageIcon(getClass().getResource("/tmarker/img/buttons/flipstainbin.png")), "Correct a Point's Staining (binary)"), toolbar.getComponentCount() - n_own_comp);
+        toolbar.add(new LegendElementIcon(this, rad, new javax.swing.ImageIcon(getClass().getResource("/tmarker/img/buttons/delpoint.png")), "Delete a Point"), toolbar.getComponentCount() - n_own_comp);
+
+        toolbar.add(new JToolBar.Separator(), toolbar.getComponentCount() - n_own_comp);
         label = new JLabel("ROI");
         label.setAlignmentX((float) 0.5);
-        toolbar.add(label, toolbar.getComponentCount()-n_own_comp);
-        toolbar.add(new LegendElementIcon(this, rad, new javax.swing.ImageIcon(getClass().getResource("/tmarker/img/buttons/inclarea.png")), "Draw a polygon of an area which will only be considered for processing. Doubleclick finishes the polygon."), toolbar.getComponentCount()-n_own_comp);
-        toolbar.add(new LegendElementIcon(this, rad, new javax.swing.ImageIcon(getClass().getResource("/tmarker/img/buttons/exclarea.png")), "Draw a polygon of an area which will be ignored for processing. Doubleclick finishes the polygon."), toolbar.getComponentCount()-n_own_comp);
-        toolbar.add(new LegendElementIcon(this, rad, new javax.swing.ImageIcon(getClass().getResource("/tmarker/img/buttons/switcharea.png")), "Click within a polygon to switch it between including and excluding area."), toolbar.getComponentCount()-n_own_comp);
-        toolbar.add(new LegendElementIcon(this, rad, new javax.swing.ImageIcon(getClass().getResource("/tmarker/img/buttons/delarea.png")), "Click within a polygon to be deleted."), toolbar.getComponentCount()-n_own_comp);
-        
+        toolbar.add(label, toolbar.getComponentCount() - n_own_comp);
+        toolbar.add(new LegendElementIcon(this, rad, new javax.swing.ImageIcon(getClass().getResource("/tmarker/img/buttons/inclarea.png")), "Draw a polygon of an area which will only be considered for processing. Doubleclick finishes the polygon."), toolbar.getComponentCount() - n_own_comp);
+        toolbar.add(new LegendElementIcon(this, rad, new javax.swing.ImageIcon(getClass().getResource("/tmarker/img/buttons/exclarea.png")), "Draw a polygon of an area which will be ignored for processing. Doubleclick finishes the polygon."), toolbar.getComponentCount() - n_own_comp);
+        toolbar.add(new LegendElementIcon(this, rad, new javax.swing.ImageIcon(getClass().getResource("/tmarker/img/buttons/switcharea.png")), "Click within a polygon to switch it between including and excluding area."), toolbar.getComponentCount() - n_own_comp);
+        toolbar.add(new LegendElementIcon(this, rad, new javax.swing.ImageIcon(getClass().getResource("/tmarker/img/buttons/delarea.png")), "Click within a polygon to be deleted."), toolbar.getComponentCount() - n_own_comp);
+
         NoneSelectedButtonGroup buttongroup = new NoneSelectedButtonGroup();
-        for (Component comp: toolbar.getComponents()) {
+        for (Component comp : toolbar.getComponents()) {
             String name = comp.getClass().getName();
             if (name.contains(LegendElement.class.getName())) {
-                buttongroup.add((LegendElement)comp);
+                buttongroup.add((LegendElement) comp);
             }
         }
-        
-        toolbar.add(new JToolBar.Separator(), toolbar.getComponentCount()-n_own_comp);
+
+        toolbar.add(new JToolBar.Separator(), toolbar.getComponentCount() - n_own_comp);
     }
-    
+
     /**
-     * Repaints the nuclei symbols on the tool bar. Shape and color are re-evaluated.
+     * Repaints the nuclei symbols on the tool bar. Shape and color are
+     * re-evaluated.
      */
     public void repaintNucleiOnToolBar() {
-        for (Component comp: jToolBar1.getComponents()) {
+        for (Component comp : jToolBar1.getComponents()) {
             String name = comp.getClass().getName();
             if (name.contains(LegendElementNucleus.class.getName())) {
-                ((LegendElementNucleus)comp).createNucIcon();
+                ((LegendElementNucleus) comp).createNucIcon();
             }
         }
     }
-    
+
     /**
-     * Returns true, if TMARKER is in the background correction (manual white balance) modus. 
-     * Then, a click on the TMA image will select the background color.
-     * @return True if TMARKER is in background correction modus (when the white balance dialog is visible).
+     * Returns true, if TMARKER is in the background correction (manual white
+     * balance) modus. Then, a click on the TMA image will select the background
+     * color.
+     *
+     * @return True if TMARKER is in background correction modus (when the white
+     * balance dialog is visible).
      */
     public boolean isInBGCorrectionModus() {
-        return (bcd!=null && bcd.isVisible());
+        return (bcd != null && bcd.isVisible());
     }
-    
+
     /**
      * Returns true, if the user clicked on "including ROIs".
+     *
      * @return True if the program is in the modus to draw including areas.
      */
     public boolean isInDrawIncludingAreaModus() {
-        return ((LegendElement)jToolBar1.getComponent(28)).isSelected();
+        return ((LegendElement) jToolBar1.getComponent(28)).isSelected();
     }
-    
+
     /**
      * Returns true, if the user clicked on "excluding ROIs".
+     *
      * @return True if the program is in the modus to draw excluding areas.
      */
     public boolean isInDrawExcludingAreaModus() {
-        return ((LegendElement)jToolBar1.getComponent(29)).isSelected();
+        return ((LegendElement) jToolBar1.getComponent(29)).isSelected();
     }
-    
+
     /**
      * Returns true, if the user clicked on "switch ROIs".
+     *
      * @return True if the program is in the modus to switch areas.
      */
-     public boolean isInSwitchAreaModus() {
-        return ((LegendElement)jToolBar1.getComponent(30)).isSelected();
+    public boolean isInSwitchAreaModus() {
+        return ((LegendElement) jToolBar1.getComponent(30)).isSelected();
     }
-    
+
     /**
      * Returns true, if the user clicked on "delete ROIs".
+     *
      * @return True if the program is in the modus to delete areas.
      */
     public boolean isInDeleteAreaModus() {
-        return ((LegendElement)jToolBar1.getComponent(31)).isSelected();
+        return ((LegendElement) jToolBar1.getComponent(31)).isSelected();
     }
 
     /**
      * Returns true, if one of the ROI buttons is pressed.
+     *
      * @return True, if one of the ROI buttons is pressed.
      */
     public boolean isROIselected() {
         return (isInDrawIncludingAreaModus() || isInDrawExcludingAreaModus() || isInDeleteAreaModus());
     }
-    
-    
+
     /**
      * Returns the behaviour of a mouse click on a TMAspot.
-     * @return The behaviour of a mouse click on a TMAspot (e.g. CLICK_BEHAVIOUR_ADD_POS).
+     *
+     * @return The behaviour of a mouse click on a TMAspot (e.g.
+     * CLICK_BEHAVIOUR_ADD_POS).
      */
     public int getClickBehaviour() {
-        if (((LegendElement)jToolBar1.getComponent(1)).isSelected() ||
-            ((LegendElement)jToolBar1.getComponent(2)).isSelected() ||
-            ((LegendElement)jToolBar1.getComponent(3)).isSelected() ||
-            ((LegendElement)jToolBar1.getComponent(4)).isSelected()) {return tmarker.CLICK_BEHAVIOUR_ADD_NEG; }
-        if (((LegendElement)jToolBar1.getComponent(7)).isSelected() ||
-            ((LegendElement)jToolBar1.getComponent(8)).isSelected() ||
-            ((LegendElement)jToolBar1.getComponent(9)).isSelected() ||
-            ((LegendElement)jToolBar1.getComponent(10)).isSelected()) {return tmarker.CLICK_BEHAVIOUR_ADD_POS; }
-        if (((LegendElement)jToolBar1.getComponent(13)).isSelected() ||
-            ((LegendElement)jToolBar1.getComponent(14)).isSelected() ||
-            ((LegendElement)jToolBar1.getComponent(15)).isSelected() ||
-            ((LegendElement)jToolBar1.getComponent(16)).isSelected()) {return tmarker.CLICK_BEHAVIOUR_ADD_UNK; }
-        
-        if (((LegendElement)jToolBar1.getComponent(19)).isSelected()) {return tmarker.CLICK_BEHAVIOUR_ADD_BG; }
-        if (((LegendElement)jToolBar1.getComponent(22)).isSelected()) {return tmarker.CLICK_BEHAVIOUR_FLIP; }
-        if (((LegendElement)jToolBar1.getComponent(23)).isSelected()) {return tmarker.CLICK_BEHAVIOUR_CORSTAIN_GRAD; }
-        if (((LegendElement)jToolBar1.getComponent(24)).isSelected()) {return tmarker.CLICK_BEHAVIOUR_CORSTAIN_BIN; }
-        if (((LegendElement)jToolBar1.getComponent(25)).isSelected()) {return tmarker.CLICK_BEHAVIOUR_DELETE; }
-        
+        if (((LegendElement) jToolBar1.getComponent(1)).isSelected()
+                || ((LegendElement) jToolBar1.getComponent(2)).isSelected()
+                || ((LegendElement) jToolBar1.getComponent(3)).isSelected()
+                || ((LegendElement) jToolBar1.getComponent(4)).isSelected()) {
+            return tmarker.CLICK_BEHAVIOUR_ADD_NEG;
+        }
+        if (((LegendElement) jToolBar1.getComponent(7)).isSelected()
+                || ((LegendElement) jToolBar1.getComponent(8)).isSelected()
+                || ((LegendElement) jToolBar1.getComponent(9)).isSelected()
+                || ((LegendElement) jToolBar1.getComponent(10)).isSelected()) {
+            return tmarker.CLICK_BEHAVIOUR_ADD_POS;
+        }
+        if (((LegendElement) jToolBar1.getComponent(13)).isSelected()
+                || ((LegendElement) jToolBar1.getComponent(14)).isSelected()
+                || ((LegendElement) jToolBar1.getComponent(15)).isSelected()
+                || ((LegendElement) jToolBar1.getComponent(16)).isSelected()) {
+            return tmarker.CLICK_BEHAVIOUR_ADD_UNK;
+        }
+
+        if (((LegendElement) jToolBar1.getComponent(19)).isSelected()) {
+            return tmarker.CLICK_BEHAVIOUR_ADD_BG;
+        }
+        if (((LegendElement) jToolBar1.getComponent(22)).isSelected()) {
+            return tmarker.CLICK_BEHAVIOUR_FLIP;
+        }
+        if (((LegendElement) jToolBar1.getComponent(23)).isSelected()) {
+            return tmarker.CLICK_BEHAVIOUR_CORSTAIN_GRAD;
+        }
+        if (((LegendElement) jToolBar1.getComponent(24)).isSelected()) {
+            return tmarker.CLICK_BEHAVIOUR_CORSTAIN_BIN;
+        }
+        if (((LegendElement) jToolBar1.getComponent(25)).isSelected()) {
+            return tmarker.CLICK_BEHAVIOUR_DELETE;
+        }
+
         return tmarker.CLICK_BEHAVIOUR_NONE;
     }
 
     /**
      * Returns the current intensity for manually added nuclei.
+     *
      * @return One of STAINING_[0-3].
      */
     public byte getCurrentStainingIntensity() {
-        if (((LegendElement)jToolBar1.getComponent(2)).isSelected() ||
-            ((LegendElement)jToolBar1.getComponent(8)).isSelected() ||
-            ((LegendElement)jToolBar1.getComponent(14)).isSelected()) {return TMALabel.STAINING_1; }
-        if (((LegendElement)jToolBar1.getComponent(3)).isSelected() ||
-            ((LegendElement)jToolBar1.getComponent(9)).isSelected() ||
-            ((LegendElement)jToolBar1.getComponent(15)).isSelected() ) {return TMALabel.STAINING_2; }
-        if (((LegendElement)jToolBar1.getComponent(4)).isSelected() ||
-            ((LegendElement)jToolBar1.getComponent(10)).isSelected() ||
-            ((LegendElement)jToolBar1.getComponent(16)).isSelected()) {return TMALabel.STAINING_3; }
+        if (((LegendElement) jToolBar1.getComponent(2)).isSelected()
+                || ((LegendElement) jToolBar1.getComponent(8)).isSelected()
+                || ((LegendElement) jToolBar1.getComponent(14)).isSelected()) {
+            return TMALabel.STAINING_1;
+        }
+        if (((LegendElement) jToolBar1.getComponent(3)).isSelected()
+                || ((LegendElement) jToolBar1.getComponent(9)).isSelected()
+                || ((LegendElement) jToolBar1.getComponent(15)).isSelected()) {
+            return TMALabel.STAINING_2;
+        }
+        if (((LegendElement) jToolBar1.getComponent(4)).isSelected()
+                || ((LegendElement) jToolBar1.getComponent(10)).isSelected()
+                || ((LegendElement) jToolBar1.getComponent(16)).isSelected()) {
+            return TMALabel.STAINING_3;
+        }
         return TMALabel.STAINING_0;
     }
-    
+
     /**
-     * Returns one specific Nucleus element from the tool bar. E.g. it can be used to determine 
-     * the color of the labels for these nuclei.
-     * @param labelType One of TMALabel.LABEL_POS, TMALabel.LABEL_NEG, TMALabel.LABEL_UNK or TMALabel.LABEL_BG
-     * @param staining One of TMALabel.STAINING_0, TMALabel.STAINING_1, TMALabel.STAINING_2 or TMALabel.STAINING_3.
-     * @return The LegendElementNucleus on the toolbar which represents the labels for these types of nuclei. Null, if no element is found.
+     * Returns one specific Nucleus element from the tool bar. E.g. it can be
+     * used to determine the color of the labels for these nuclei.
+     *
+     * @param labelType One of TMALabel.LABEL_POS, TMALabel.LABEL_NEG,
+     * TMALabel.LABEL_UNK or TMALabel.LABEL_BG
+     * @param staining One of TMALabel.STAINING_0, TMALabel.STAINING_1,
+     * TMALabel.STAINING_2 or TMALabel.STAINING_3.
+     * @return The LegendElementNucleus on the toolbar which represents the
+     * labels for these types of nuclei. Null, if no element is found.
      */
     LegendElementNucleus getNucleusToolBarComponent(byte labelType, byte staining) {
-        for (Component comp: jToolBar1.getComponents()) {
+        for (Component comp : jToolBar1.getComponents()) {
             String name = comp.getClass().getName();
             if (name.contains(LegendElementNucleus.class.getName())) {
-                if (((LegendElementNucleus)comp).getNucLabel()==labelType && ((LegendElementNucleus)comp).getStaining()==staining) {
-                    return ((LegendElementNucleus)comp);
+                if (((LegendElementNucleus) comp).getNucLabel() == labelType && ((LegendElementNucleus) comp).getStaining() == staining) {
+                    return ((LegendElementNucleus) comp);
                 }
             }
         }
         return null;
     }
-    
+
     /**
      * Returns the nuclei radius.
+     *
      * @return The radius of the nuclei.
      */
     public int getLabelRadius() {
         return jSlider2.getValue();
     }
-    
+
     /**
      * Sets the nucleus radius.
+     *
      * @param r The radius of the nuclei.
      */
     public void setLabelRadius(int r) {
         jSlider2.setValue(r);
     }
-     
+
     /**
-     * Returns the recent parameter settings and program properties.
-     * Also returns the parameters settings of the loaded plugins. As convention, a plugin's
-     * property name is defined as "PLUGINNAME.propertyName". If two plugins have the same name and they share the same parameter name, 
-     * the property might be overwritten.
+     * Returns the recent parameter settings and program properties. Also
+     * returns the parameters settings of the loaded plugins. As convention, a
+     * plugin's property name is defined as "PLUGINNAME.propertyName". If two
+     * plugins have the same name and they share the same parameter name, the
+     * property might be overwritten.
+     *
      * @return The current parameter settings and program properties.
      */
-    private Properties getParameterValues() {
+    public Properties getParameterValues() {
         Properties appProps = new Properties();
         appProps.setProperty("tmarker.r", Integer.toString(getLabelRadius()));
         List<String> annotationProps = getAnnotationProperties();
-        for (int i=0; i<annotationProps.size(); i++) {
-            appProps.setProperty("tmarker.AnnotationProp"+i+"Name", annotationProps.get(i));
+        for (int i = 0; i < annotationProps.size(); i++) {
+            appProps.setProperty("tmarker.AnnotationProp" + i + "Name", annotationProps.get(i));
         }
         appProps.setProperty("tmarker.colorPOSStaining0", Integer.toString(getLabelsColor(TMALabel.LABEL_POS, TMALabel.STAINING_0).getRGB()));
         appProps.setProperty("tmarker.colorPOSStaining1", Integer.toString(getLabelsColor(TMALabel.LABEL_POS, TMALabel.STAINING_1).getRGB()));
@@ -5242,6 +5680,7 @@ public final class tmarker extends javax.swing.JFrame {
         appProps.setProperty("tmarker.colorUNKStaining2", Integer.toString(getLabelsColor(TMALabel.LABEL_UNK, TMALabel.STAINING_2).getRGB()));
         appProps.setProperty("tmarker.colorUNKStaining3", Integer.toString(getLabelsColor(TMALabel.LABEL_UNK, TMALabel.STAINING_3).getRGB()));
         appProps.setProperty("tmarker.colorBGStaining0", Integer.toString(getLabelsColor(TMALabel.LABEL_BG, TMALabel.STAINING_0).getRGB()));
+        appProps.setProperty("tmarker.viewMemoryMonitor", Boolean.toString(jCheckBoxMenuItem4.isSelected()));
         appProps.setProperty("OD.labelsShapeGst", Integer.toString(od.getLabelsShape_Gst()));
         appProps.setProperty("OD.labelsShapeEst", Integer.toString(od.getLabelsShape_Est()));
         appProps.setProperty("OD.automaticESGSConversion", Boolean.toString(od.isAutomaticESGSConversion()));
@@ -5251,25 +5690,27 @@ public final class tmarker extends javax.swing.JFrame {
         appProps.setProperty("OD.checkForUpdatesOnStart", Boolean.toString(od.checkForUpdatesOnStart()));
         appProps.setProperty("OD.installUpdatesAutomatically", Boolean.toString(od.installUpdatesAutomatically()));
         appProps.setProperty("BCD.useColor", Boolean.toString(bcd.getUseColor()));
-        
+
         // Add the plugin properties
-        for (Pluggable p: plugins) {
+        for (Pluggable p : plugins) {
             Properties p_props = p.getParameters();
-            Enumeration prop_names = p_props.propertyNames();
-            while (prop_names.hasMoreElements()) {
-                String prop_name = (String) prop_names.nextElement();
-                appProps.setProperty(p.getPluginName().toUpperCase()+ "." + prop_name, p_props.getProperty(prop_name));
+            if (p_props != null) {
+                Enumeration prop_names = p_props.propertyNames();
+                while (prop_names.hasMoreElements()) {
+                    String prop_name = (String) prop_names.nextElement();
+                    appProps.setProperty(p.getPluginName().toUpperCase() + "." + prop_name, p_props.getProperty(prop_name));
+                }
             }
         }
-        
+
         return appProps;
     }
-    
-     /**
-      * Saves the program parameters in a tmarker.conf file. The parameters can be 
-      * restored in the next program start.
-      */
-     private void storeParameterValues() {
+
+    /**
+     * Saves the program parameters in a tmarker.conf file. The parameters can
+     * be restored in the next program start.
+     */
+    private void storeParameterValues() {
         FileOutputStream out = null;
         try {
             Properties appProps = new Properties();
@@ -5277,27 +5718,29 @@ public final class tmarker extends javax.swing.JFrame {
                 FileInputStream in = new FileInputStream("tmarker.conf");
                 appProps.load(in);
                 in.close();
-            } catch (Exception e) {                
-            } 
+            } catch (Exception e) {
+            }
             appProps.setProperty("OD.saveParametersOnExit", Boolean.toString(od.storeParamsOnExit()));
             if (od.storeParamsOnExit()) {
                 Properties newProps = getParameterValues();
                 appProps.putAll(newProps);
             }
-            
+
             out = new FileOutputStream("tmarker.conf");
             appProps.store(out, "TMARKER Program Parameters");
             out.close();
         } catch (Exception ex) {
             logger.log(java.util.logging.Level.WARNING, "Unable to write file tmarker.conf. Maybe no write permission? TMARKER default parameters used.");
         }
-     }
-     
-     /**
-      * Restores the parameter values saved in the file tmarker.conf.
-      * @param only_plugins If true, the plugin parameters are restored. If false, only the TMARKER paramters.
-      */
-     private void restoreParameterValues(boolean only_plugins) {
+    }
+
+    /**
+     * Restores the parameter values saved in the file tmarker.conf.
+     *
+     * @param only_plugins If true, the plugin parameters are restored. If
+     * false, only the TMARKER paramters.
+     */
+    private void restoreParameterValues(boolean only_plugins) {
         try {
             Properties appProps = new Properties();
             FileInputStream in = new FileInputStream("tmarker.conf");
@@ -5307,73 +5750,153 @@ public final class tmarker extends javax.swing.JFrame {
         } catch (Exception ex) {
             logger.log(java.util.logging.Level.WARNING, "File tmarker.conf not found. TMARKER default parameters used.");
         }
-     }
-     
-     /**
-      * Restores the parameter values saved in the given properties.
-      * Also restores the plugin parameter values saved in the given properties.
-      * @param appProps The properties to be restored.
-      * @param only_plugins If true, only the plugin parameters are restored. If false, only the TMARKER paramters.
-      */
-     private void restoreParameterValues(Properties appProps, boolean only_plugins) {
-        if (!only_plugins) {    
+    }
+
+    /**
+     * Restores the parameter values saved in the given properties. Also
+     * restores the plugin parameter values saved in the given properties.
+     *
+     * @param appProps The properties to be restored.
+     * @param only_plugins If true, only the plugin parameters are restored. If
+     * false, only the TMARKER paramters.
+     */
+    private void restoreParameterValues(Properties appProps, boolean only_plugins) {
+        if (!only_plugins) {
             String value;
-            value = appProps.getProperty("tmarker.r"); if (value!=null) { setLabelRadius(Integer.parseInt(value)); }
+            value = appProps.getProperty("tmarker.r");
+            if (value != null) {
+                setLabelRadius(Integer.parseInt(value));
+            }
             List<String> annotationProps = new ArrayList<>();
-            for (int i=0; i<4; i++) {
-                annotationProps.add(appProps.getProperty("tmarker.AnnotationProp"+i+"Name"));
+            for (int i = 0; i < 4; i++) {
+                annotationProps.add(appProps.getProperty("tmarker.AnnotationProp" + i + "Name"));
             }
             setAnnotationProperties(annotationProps);
-            value = appProps.getProperty("tmarker.colorPOSStaining0"); if (value!=null) { setLabelsColor(TMALabel.LABEL_POS, TMALabel.STAINING_0, new Color(Integer.parseInt(value), true)); }
-            value = appProps.getProperty("tmarker.colorPOSStaining1"); if (value!=null) { setLabelsColor(TMALabel.LABEL_POS, TMALabel.STAINING_1, new Color(Integer.parseInt(value), true)); }
-            value = appProps.getProperty("tmarker.colorPOSStaining2"); if (value!=null) { setLabelsColor(TMALabel.LABEL_POS, TMALabel.STAINING_2, new Color(Integer.parseInt(value), true)); }
-            value = appProps.getProperty("tmarker.colorPOSStaining3"); if (value!=null) { setLabelsColor(TMALabel.LABEL_POS, TMALabel.STAINING_3, new Color(Integer.parseInt(value), true)); }
-            value = appProps.getProperty("tmarker.colorNEGStaining0"); if (value!=null) { setLabelsColor(TMALabel.LABEL_NEG, TMALabel.STAINING_0, new Color(Integer.parseInt(value), true)); }
-            value = appProps.getProperty("tmarker.colorNEGStaining1"); if (value!=null) { setLabelsColor(TMALabel.LABEL_NEG, TMALabel.STAINING_1, new Color(Integer.parseInt(value), true)); }
-            value = appProps.getProperty("tmarker.colorNEGStaining2"); if (value!=null) { setLabelsColor(TMALabel.LABEL_NEG, TMALabel.STAINING_2, new Color(Integer.parseInt(value), true)); }
-            value = appProps.getProperty("tmarker.colorNEGStaining3"); if (value!=null) { setLabelsColor(TMALabel.LABEL_NEG, TMALabel.STAINING_3, new Color(Integer.parseInt(value), true)); }
-            value = appProps.getProperty("tmarker.colorUNKStaining0"); if (value!=null) { setLabelsColor(TMALabel.LABEL_UNK, TMALabel.STAINING_0, new Color(Integer.parseInt(value), true)); }
-            value = appProps.getProperty("tmarker.colorUNKStaining1"); if (value!=null) { setLabelsColor(TMALabel.LABEL_UNK, TMALabel.STAINING_1, new Color(Integer.parseInt(value), true)); }
-            value = appProps.getProperty("tmarker.colorUNKStaining2"); if (value!=null) { setLabelsColor(TMALabel.LABEL_UNK, TMALabel.STAINING_2, new Color(Integer.parseInt(value), true)); }
-            value = appProps.getProperty("tmarker.colorUNKStaining3"); if (value!=null) { setLabelsColor(TMALabel.LABEL_UNK, TMALabel.STAINING_3, new Color(Integer.parseInt(value), true)); }
-            value = appProps.getProperty("tmarker.colorBGStaining0"); if (value!=null) { setLabelsColor(TMALabel.LABEL_BG, TMALabel.STAINING_0, new Color(Integer.parseInt(value), true)); }
-            value = appProps.getProperty("OD.saveParametersOnExit"); if (value!=null) { od.setStoreParamsOnExit(Boolean.parseBoolean(value)); }
-            value = appProps.getProperty("OD.labelsShapeGst"); if (value!=null) { od.setLabelsShape_Gst(Integer.parseInt(value)); }
-            value = appProps.getProperty("OD.labelsShapeEst"); if (value!=null) { od.setLabelsShape_Est(Integer.parseInt(value)); }
-            value = appProps.getProperty("OD.automaticESGSConversion"); if (value!=null) { od.setAutomaticESGSConversion(Boolean.parseBoolean(value)); }
-            value = appProps.getProperty("OD.useParallelProgramming"); if (value!=null) { od.setUseParallelProgramming(Boolean.parseBoolean(value)); }
-            value = appProps.getProperty("OD.useLocalPlugins"); if (value!=null) { od.setUseLocalPlugins(Boolean.parseBoolean(value)); }
-            value = appProps.getProperty("OD.localPluginFolder"); if (value!=null) { od.setLocalPluginFolder(value); }
-            value = appProps.getProperty("OD.checkForUpdatesOnStart"); if (value!=null) { od.setCheckForUpdatesOnStart(Boolean.parseBoolean(value)); }
-            value = appProps.getProperty("OD.installUpdatesAutomatically"); if (value!=null) { od.setInstallUpdatesAutomatically(Boolean.parseBoolean(value)); }
-            value = appProps.getProperty("BCD.useColor"); if (value!=null) { bcd.setUseColor(Boolean.parseBoolean(value)); }
-            
+            value = appProps.getProperty("tmarker.colorPOSStaining0");
+            if (value != null) {
+                setLabelsColor(TMALabel.LABEL_POS, TMALabel.STAINING_0, new Color(Integer.parseInt(value), true));
+            }
+            value = appProps.getProperty("tmarker.colorPOSStaining1");
+            if (value != null) {
+                setLabelsColor(TMALabel.LABEL_POS, TMALabel.STAINING_1, new Color(Integer.parseInt(value), true));
+            }
+            value = appProps.getProperty("tmarker.colorPOSStaining2");
+            if (value != null) {
+                setLabelsColor(TMALabel.LABEL_POS, TMALabel.STAINING_2, new Color(Integer.parseInt(value), true));
+            }
+            value = appProps.getProperty("tmarker.colorPOSStaining3");
+            if (value != null) {
+                setLabelsColor(TMALabel.LABEL_POS, TMALabel.STAINING_3, new Color(Integer.parseInt(value), true));
+            }
+            value = appProps.getProperty("tmarker.colorNEGStaining0");
+            if (value != null) {
+                setLabelsColor(TMALabel.LABEL_NEG, TMALabel.STAINING_0, new Color(Integer.parseInt(value), true));
+            }
+            value = appProps.getProperty("tmarker.colorNEGStaining1");
+            if (value != null) {
+                setLabelsColor(TMALabel.LABEL_NEG, TMALabel.STAINING_1, new Color(Integer.parseInt(value), true));
+            }
+            value = appProps.getProperty("tmarker.colorNEGStaining2");
+            if (value != null) {
+                setLabelsColor(TMALabel.LABEL_NEG, TMALabel.STAINING_2, new Color(Integer.parseInt(value), true));
+            }
+            value = appProps.getProperty("tmarker.colorNEGStaining3");
+            if (value != null) {
+                setLabelsColor(TMALabel.LABEL_NEG, TMALabel.STAINING_3, new Color(Integer.parseInt(value), true));
+            }
+            value = appProps.getProperty("tmarker.colorUNKStaining0");
+            if (value != null) {
+                setLabelsColor(TMALabel.LABEL_UNK, TMALabel.STAINING_0, new Color(Integer.parseInt(value), true));
+            }
+            value = appProps.getProperty("tmarker.colorUNKStaining1");
+            if (value != null) {
+                setLabelsColor(TMALabel.LABEL_UNK, TMALabel.STAINING_1, new Color(Integer.parseInt(value), true));
+            }
+            value = appProps.getProperty("tmarker.colorUNKStaining2");
+            if (value != null) {
+                setLabelsColor(TMALabel.LABEL_UNK, TMALabel.STAINING_2, new Color(Integer.parseInt(value), true));
+            }
+            value = appProps.getProperty("tmarker.colorUNKStaining3");
+            if (value != null) {
+                setLabelsColor(TMALabel.LABEL_UNK, TMALabel.STAINING_3, new Color(Integer.parseInt(value), true));
+            }
+            value = appProps.getProperty("tmarker.colorBGStaining0");
+            if (value != null) {
+                setLabelsColor(TMALabel.LABEL_BG, TMALabel.STAINING_0, new Color(Integer.parseInt(value), true));
+            }
+            value = appProps.getProperty("tmarker.viewMemoryMonitor");
+            if (value != null) {
+                if (jCheckBoxMenuItem4.isSelected() != Boolean.parseBoolean(value)) {
+                    jCheckBoxMenuItem4.doClick();
+                }
+            }
+            value = appProps.getProperty("OD.saveParametersOnExit");
+            if (value != null) {
+                od.setStoreParamsOnExit(Boolean.parseBoolean(value));
+            }
+            value = appProps.getProperty("OD.labelsShapeGst");
+            if (value != null) {
+                od.setLabelsShape_Gst(Integer.parseInt(value));
+            }
+            value = appProps.getProperty("OD.labelsShapeEst");
+            if (value != null) {
+                od.setLabelsShape_Est(Integer.parseInt(value));
+            }
+            value = appProps.getProperty("OD.automaticESGSConversion");
+            if (value != null) {
+                od.setAutomaticESGSConversion(Boolean.parseBoolean(value));
+            }
+            value = appProps.getProperty("OD.useParallelProgramming");
+            if (value != null) {
+                od.setUseParallelProgramming(Boolean.parseBoolean(value));
+            }
+            value = appProps.getProperty("OD.useLocalPlugins");
+            if (value != null) {
+                od.setUseLocalPlugins(Boolean.parseBoolean(value));
+            }
+            value = appProps.getProperty("OD.localPluginFolder");
+            if (value != null) {
+                od.setLocalPluginFolder(value);
+            }
+            value = appProps.getProperty("OD.checkForUpdatesOnStart");
+            if (value != null) {
+                od.setCheckForUpdatesOnStart(Boolean.parseBoolean(value));
+            }
+            value = appProps.getProperty("OD.installUpdatesAutomatically");
+            if (value != null) {
+                od.setInstallUpdatesAutomatically(Boolean.parseBoolean(value));
+            }
+            value = appProps.getProperty("BCD.useColor");
+            if (value != null) {
+                bcd.setUseColor(Boolean.parseBoolean(value));
+            }
+
             //update toolbar according to new colors
             jToolBar1.repaint();
             jToolBar2.repaint();
         } else {
             // Set the plugin parameters
-            for (Pluggable p: plugins) {
+            for (Pluggable p : plugins) {
                 Properties p_props = new Properties();
                 Enumeration prop_names = appProps.propertyNames();
                 while (prop_names.hasMoreElements()) {
                     String prop_name = (String) prop_names.nextElement();
                     if (prop_name.toUpperCase().startsWith(p.getPluginName().toUpperCase())) {
-                        p_props.setProperty(prop_name.replaceFirst(p.getPluginName().toUpperCase()+".", ""), appProps.getProperty(prop_name));
+                        p_props.setProperty(prop_name.replaceFirst(p.getPluginName().toUpperCase() + ".", ""), appProps.getProperty(prop_name));
                     }
                 }
                 p.setParameters(p_props);
             }
         }
-            
-     }
-     
-     /**
-      * Resets the program parameters to default values.
-      */
-     void restoreParameterValuesDefaults() {
+
+    }
+
+    /**
+     * Resets the program parameters to default values.
+     */
+    void restoreParameterValuesDefaults() {
         setLabelRadius(8);
-        
+
         setLabelsColor(TMALabel.LABEL_POS, TMALabel.STAINING_0, Color.CYAN);
         setLabelsColor(TMALabel.LABEL_POS, TMALabel.STAINING_1, Color.RED);
         setLabelsColor(TMALabel.LABEL_POS, TMALabel.STAINING_2, Color.RED.darker());
@@ -5387,6 +5910,9 @@ public final class tmarker extends javax.swing.JFrame {
         setLabelsColor(TMALabel.LABEL_UNK, TMALabel.STAINING_2, Color.GRAY.darker());
         setLabelsColor(TMALabel.LABEL_UNK, TMALabel.STAINING_3, Color.GRAY.darker());
         setLabelsColor(TMALabel.LABEL_BG, TMALabel.STAINING_0, Color.WHITE);
+        if (!jCheckBoxMenuItem4.isSelected()) {
+            jCheckBoxMenuItem4.doClick();
+        }
         od.setStoreParamsOnExit(true);
         od.setLabelsShape_Gst(LABELS_SHAPE_CIRCLE);
         od.setLabelsShape_Est(LABELS_SHAPE_CROSS);
@@ -5396,20 +5922,19 @@ public final class tmarker extends javax.swing.JFrame {
         od.setUseLocalPlugins(false);
         od.setCheckForUpdatesOnStart(true);
         od.setInstallUpdatesAutomatically(true);
-        
+
         bcd.setUseColor(true);
-        
-        
+
         // Reset the plugin parameters
-        for (Pluggable p: plugins) {
+        for (Pluggable p : plugins) {
             p.setParameterDefaults();
         }
-              
-     }
-    
-    
+
+    }
+
     /**
      * Saves the current TMARKER Analysis on hard disk.
+     *
      * @param file The TMARKER Analysis file to be stored.
      */
     public void saveAnalysis(File file) {
@@ -5419,25 +5944,26 @@ public final class tmarker extends javax.swing.JFrame {
             //objOut.writeObject(mm.getGene());
             //objOut.writeObject(mm.getSamples());
             //objOut.writeObject(mm.getCpGFilters());
-            objOut.close(); 
-        }
-        catch (Exception e) {
+            objOut.close();
+        } catch (Exception e) {
             logger.log(java.util.logging.Level.WARNING, e.getMessage());
         }
     }
-    
+
     /**
-     * Checks online for updates and reportes to the user if there is one.
-     * DOES NOT UPDATE TMARKER AUTOMATICALLY
-     * @param verbose If true, the result will be displayed in any case. If false
-     * the result will be displayed only if this TMARKER version is out of date.
-     * @param installAutomatically If true, an update will be installed automatically. Else,
-     * the user would be asked.
+     * Checks online for updates and reportes to the user if there is one. DOES
+     * NOT UPDATE TMARKER AUTOMATICALLY
+     *
+     * @param verbose If true, the result will be displayed in any case. If
+     * false the result will be displayed only if this TMARKER version is out of
+     * date.
+     * @param installAutomatically If true, an update will be installed
+     * automatically. Else, the user would be asked.
      */
     public void checkForUpdates(final boolean verbose, final boolean installAutomatically) {
-        
+
         Thread updateCheck = new Thread(new Runnable() {
-            JFrame frame =  (JFrame) getParent();
+            JFrame frame = (JFrame) getParent();
 
             @Override
             public void run() {
@@ -5446,7 +5972,7 @@ public final class tmarker extends javax.swing.JFrame {
                 try {
                     WebConversation wc = new WebConversation();
                     WebResponse resp = wc.getResponse("http://www.nexus.ethz.ch/content/dam/ethz/special-interest/dual/nexus-dam/software/TMARKER/vnuc.txt");
-                    
+
                     // output is website with version number
                     String output = resp.getText();
                     if (tmarker.DEBUG > 3) {
@@ -5464,34 +5990,37 @@ public final class tmarker extends javax.swing.JFrame {
                 } catch (IOException ex) {
                     //Logger.getLogger(tmarker.class.getName()).log(Level.SEVERE, null, ex);
                 } catch (SAXException ex) {
-                     //Logger.getLogger(tmarker.class.getName()).log(Level.SEVERE, null, ex);
+                    //Logger.getLogger(tmarker.class.getName()).log(Level.SEVERE, null, ex);
                 } catch (Exception ex) {
-                     //Logger.getLogger(tmarker.class.getName()).log(Level.SEVERE, null, ex);
+                    //Logger.getLogger(tmarker.class.getName()).log(Level.SEVERE, null, ex);
                 } finally {
                     UpdateDialog.main(frame, thisRevision, remoteRevision, verbose, installAutomatically);
                 }
             }
         });
-        
+
         updateCheck.run();
     }
-    
+
     /**
      * Returns the TMAspot with the given name.
+     *
      * @param name The name to be searched for.
      * @return The TMAspot which has the indicated name.
      */
     public TMAspot getTMAspotWithName(String name) {
         List<TMAspot> spots = getTMAspots();
-        for (TMAspot ts: spots) {
-            if (ts.getName().equals(name)) return ts;
+        for (TMAspot ts : spots) {
+            if (ts.getName().equals(name)) {
+                return ts;
+            }
         }
         return null;
     }
-    
+
     /**
-     * Opens the white balance (background correction) dialog. Thereafter, TMARKER is
-     * in the "background correction mode".
+     * Opens the white balance (background correction) dialog. Thereafter,
+     * TMARKER is in the "background correction mode".
      */
     public void openBgCorrectionDialog() {
         if (bcd == null) {
@@ -5500,17 +6029,19 @@ public final class tmarker extends javax.swing.JFrame {
         bcd.setVisible(true);
         bcd.toFront();
     }
-    
+
     /**
      * Flips all TMApoints with label LABEL_UNK to a new given label.
+     *
      * @param t The current TMARKER session.
      * @param tss The TMAspots to be considered.
-     * @param positive If true, the new label will be LABEL_POS. Otherwise LABEL_NEG.
+     * @param positive If true, the new label will be LABEL_POS. Otherwise
+     * LABEL_NEG.
      */
     public static void flipUNKto(tmarker t, List<TMAspot> tss, boolean positive) {
-        for (TMAspot ts: tss) {
+        for (TMAspot ts : tss) {
             List<TMApoint> tps = ts.getPoints(TMALabel.LABEL_UNK);
-            for (TMApoint tp: tps) {
+            for (TMApoint tp : tps) {
                 tp.setLabel(positive ? TMALabel.LABEL_POS : TMALabel.LABEL_NEG);
             }
             if (t.getVisibleTMAspot() == ts) {
@@ -5520,7 +6051,7 @@ public final class tmarker extends javax.swing.JFrame {
             t.updateTMATable(ts);
         }
     }
-    
+
     /**
      * Loads the available Plugins and lists them in the Plugins Menu.
      */
@@ -5528,9 +6059,9 @@ public final class tmarker extends javax.swing.JFrame {
         try {
             // Preserve Security; important for plugins to be available with the TMARKER webstart version
             System.setSecurityManager(new TMARKERSecurityManager());
-            
+
             if (od.getUseLocalPlugins()) { // Local plugins in a folder (e.g. "/plugins")
-                plugins = PluginLoader.loadPlugins(new File(od.getLocalPluginFolder()), Thread.currentThread().getContextClassLoader() );
+                plugins = PluginLoader.loadPlugins(new File(od.getLocalPluginFolder()), Thread.currentThread().getContextClassLoader());
             } else {
                 // online plugins
                 try {
@@ -5539,18 +6070,18 @@ public final class tmarker extends javax.swing.JFrame {
                     //e.printStackTrace();
                 }
             }
-            
+
             if (DEBUG > 0) {
                 logger.log(Level.INFO, plugins.size() + " plugin(s) found (step 1 of 2).");
             }
-            
+
             // add the plugin manager
             PluginManager manager;
             manager = new TMARKERPluginManager(this);
             for (Pluggable p : plugins) {
                 p.setPluginManager(manager);
             }
-            
+
             // add an update thread to the plugin updaters
             for (final Pluggable p : plugins) {
                 Thread thread = new Thread(new Runnable() {
@@ -5561,11 +6092,11 @@ public final class tmarker extends javax.swing.JFrame {
                 });
                 pluginUpdaters.add(thread);
             }
-            
+
             // add the plugins into the menu
             for (final Pluggable p : plugins) {
                 try {
-                    JMenuItem mi = new JMenuItem(p.getPluginName(), (p.getIcon()!=null ? p.getIcon():new ImageIcon(getIconImage().getScaledInstance(16, 16, java.awt.Image.SCALE_DEFAULT))));
+                    JMenuItem mi = new JMenuItem(p.getPluginName(), (p.getIcon() != null ? p.getIcon() : new ImageIcon(getIconImage().getScaledInstance(16, 16, java.awt.Image.SCALE_DEFAULT))));
                     mi.addActionListener(new java.awt.event.ActionListener() {
                         @Override
                         public void actionPerformed(final java.awt.event.ActionEvent evt) {
@@ -5579,8 +6110,8 @@ public final class tmarker extends javax.swing.JFrame {
                             thread.start();
                         }
                     });
-                    jMenu5.add(mi, jMenu5.getItemCount()-2);
-                    
+                    jMenu5.add(mi, jMenu5.getItemCount() - 2);
+
                     Thread thread = new Thread(new Runnable() {
                         @Override
                         public void run() {
@@ -5593,11 +6124,11 @@ public final class tmarker extends javax.swing.JFrame {
                     Logger.getLogger(tmarker.class.getName()).log(Level.SEVERE, null, e);
                 }
             } //System.setSecurityManager(new TMARKERSecurityManager());
-            
+
             if (DEBUG > 0) {
-                logger.log(Level.INFO, (jMenu5.getItemCount()-2) + " plugin(s) loaded (step 2 of 2).");
+                logger.log(Level.INFO, (jMenu5.getItemCount() - 2) + " plugin(s) loaded (step 2 of 2).");
             }
-            
+
         } catch (IOException ex) {
             Logger.getLogger(tmarker.class.getName()).log(Level.SEVERE, null, ex);
         } catch (java.lang.NoClassDefFoundError | Exception ex) {
@@ -5606,9 +6137,10 @@ public final class tmarker extends javax.swing.JFrame {
             Logger.getLogger(tmarker.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
-    
+
     /**
      * Returns all currently loaded plugins.
+     *
      * @return All currently loaded plugins.
      */
     public List<Pluggable> getPlugins() {

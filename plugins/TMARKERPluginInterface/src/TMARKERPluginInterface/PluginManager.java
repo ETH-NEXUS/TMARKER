@@ -27,52 +27,201 @@
 package TMARKERPluginInterface;
 
 import java.awt.Color;
+import java.io.File;
 import java.util.List;
 import tmarker.TMAspot.TMAspot;
 
 /**
- * PluginManager for TMARKER. Defines all methods which are allowed as interface between plugins and TMARKER (e.g. getters, setters etc...).
+ * PluginManager for TMARKER. Defines all methods which are allowed as interface
+ * between plugins and TMARKER (e.g. getters, setters etc...).
  * @author Peter J. Schüffler
  */
 public interface PluginManager {
- 
-  
-  public List<TMAspot> getTMAspots();
-  
-  public List<TMAspot> getSelectedTMAspots();
-  
-  public TMAspot getVisibleTMAspot();
-  
-  public void repaintVisibleTMAspot();
-  
-  public void setProgressbar(int percentage);
-  
-  public void setStatusMessageLabel(String text);
-  
-  public String getTmpDir();
-  
-  public int getProgressbarValue();
-  
-  public String getStatusMessageLabelText();
-  
-  public void updateTMAspot(TMAspot ts);
-  
-  public void updateTMAspot(TMAspot ts, boolean forceRepaint);
-  
-  public Color getLabelsColor(byte label, byte staining);
-  
-  public int getLabelRadius();
 
-  public void setLabelRadius(int i);
-  
-  public boolean useParallelProgramming();
+    /**
+     * Returns all TMAspots of TMARKER.
+     *
+     * @return A list with all TMAspots (selected and not selected ones).
+     */
+    public List<TMAspot> getTMAspots();
 
-  public void setCurrentDir(String absolutePath);
-  
-  public String getCurrentDir();
-  
-  public void setInfoText(String text);
-  
-  public void selectAndShowTMAspot(TMAspot ts);
+    /**
+     * Returns all TMAspots which are currently selected by the user.
+     *
+     * @return A list with all selected TMAspots.
+     */
+    public List<TMAspot> getSelectedTMAspots();
+
+    /**
+     * Returns the TMAspot which is currently visible in the TMAview of TMARKER.
+     *
+     * @return The TMAspot currently visible in TMARKER. Null, if there is none.
+     */
+    public TMAspot getVisibleTMAspot();
+
+    /**
+     * Repaints the visible TMAspot. Forces the currently opened plugins to
+     * paint their information on the spot. Use this function if the plugin
+     * calculated something which should be made visible on the TMAspot. This
+     * function only refreshs the display of the spot. If you also want to
+     * update the cell counts, see updateTMAspot(TMAspot ts)
+     *
+     * @see #updateTMAspot(tmarker.TMAspot.TMAspot)
+     */
+    public void repaintVisibleTMAspot();
+
+    /**
+     * Sets the main progress bar in TMARKER to a specific value (between 0 and
+     * 100). Use this if you want to show progress of the plugin's calculation.
+     *
+     * @param percentage A value between 0 and 100.
+     */
+    public void setProgressbar(int percentage);
+
+    /**
+     * Sets TMARKER's status message to a certain String. Use this if you want
+     * to provide information of the current status of the plugin to the user.
+     *
+     * @param text The message to be shown.
+     */
+    public void setStatusMessageLabel(String text);
+
+    /**
+     * Returns the temporary directory of TMARKER, in which temp files can be
+     * created (e.g. temp image files). Please take care that temp files are
+     * deleted after TMARKER exit: File file = new File(...);
+     * file.deleteOnExit();
+     *
+     * @return TMARKER's temporary directory which should be deleted on exit.
+     */
+    public String getTmpDir();
+
+    /**
+     * Returns the current value of TMARKER's main progress bar.
+     *
+     * @return A percentage value between 0 and 100.
+     */
+    public int getProgressbarValue();
+
+    /**
+     * Return the currently shown status message.
+     *
+     * @return The currently shown status message.
+     */
+    public String getStatusMessageLabelText();
+
+    /**
+     * Updates the given TMAspot, i.e. recalculates the nucleus counts. Equals
+     * updateTMAspot(ts, false);
+     *
+     * @param ts The TMAspot to be updated. If it is the visible TMAspot, it is
+     * repainted, too.
+     */
+    public void updateTMAspot(TMAspot ts);
+
+    /**
+     * Updates the given TMAspot, i.e. recalculates the nucleus counts.
+     *
+     * @param ts The TMAspot to be updated. If it is the visible TMAspot, it is
+     * repainted, too.
+     * @param forceRepaint If true, the given TMAspot is repainted in any case.
+     * If false, the given TMAspot is only repainted, if it is not equal to the
+     * currently visible TMAspot.
+     */
+    public void updateTMAspot(TMAspot ts, boolean forceRepaint);
+
+    /**
+     * Returns the color of the labels with a specific label and staining
+     * intensity.
+     *
+     * @param staining One of TMALabel.STAINING_0, TMALabel.STAINING_1,
+     * TMALabel.STAINING_2, TMALabel.STAINING_3.
+     * @param label One of TMALabel.LABEL_POS, TMALabel.LABEL_NEG,
+     * TMALabel.LABEL_UNK, TMALabel.LABEL_BG.
+     * @return The color of the nuclei with this label and staining.
+     */
+    public Color getLabelsColor(byte label, byte staining);
+
+    /**
+     * Returns the current radius of the TMALabels (i.e. nuclei).
+     *
+     * @return The radius of the nuclei.
+     */
+    public int getLabelRadius();
+
+    /**
+     * Sets the current radius of the TMALabels (i.e. nuclei).
+     *
+     * @param i The radius of the nuclei.
+     */
+    public void setLabelRadius(int i);
+
+    /**
+     * Returns whether or not parallel computing can be used (as selected by the
+     * user in the main program).
+     *
+     * @return True, if all processors on the machine can be used. False, if
+     * not.
+     */
+    public boolean useParallelProgramming();
+
+    /**
+     * Sets the current directory of the main program. This directory is shown
+     * by default when an "Open File" or "Save File" dialog is shown. It can be
+     * set when the user selected a file to be opened or saved in a new
+     * directory.
+     *
+     * @param absolutePath The path of the current directory.
+     */
+    public void setCurrentDir(String absolutePath);
+
+    /**
+     * Gets the current directory of the main program. This directory can be
+     * shown by default when an "Open File" or "Save File" dialog is shown. It
+     * can be set when the user selected a file to be opened or saved in a new
+     * directory.
+     *
+     * @return The path of the current directory.
+     */
+    public String getCurrentDir();
+
+    /**
+     * Sets the text in TMARKER's Info View. This can be HTML code.
+     *
+     * @param text The text which is shown in the Info View.
+     */
+    public void setInfoText(String text);
+
+    /**
+     * Opens the "Open File..." dialog and lets the user to chose a valid,
+     * TMARKER readable file(s) to be opened in the main program.
+     *
+     * @param dir The default directory to be shown.
+     */
+    public void LoadFilesWithChooser(String dir);
+
+    /**
+     * Selects a given TMAspot in the main program.
+     *
+     * @param ts The TMAspot to be selected. If ts is null or is not found, no
+     * spot is selected.
+     */
+    public void selectAndShowTMAspot(TMAspot ts);
+
+    /**
+     * Load a specific file in TMARKER.
+     *
+     * @param file The file to be loaded. The file is only loaded if TMARKER can
+     * interpret it.
+     */
+    public void loadFile(File file);
+
+    /**
+     * Load specific files in TMARKER.
+     *
+     * @param files The files to be loaded. The files are only loaded if TMARKER
+     * can interpret them.
+     */
+    public void loadFiles(File[] files);
 
 }

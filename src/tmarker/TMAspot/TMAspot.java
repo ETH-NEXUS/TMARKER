@@ -7,6 +7,8 @@ package tmarker.TMAspot;
 import ij.ImagePlus;
 import ij.plugin.filter.GaussianBlur;
 import java.awt.Color;
+import java.awt.Cursor;
+import java.awt.Image;
 import java.awt.Polygon;
 import java.awt.image.BufferedImage;
 import java.io.*;
@@ -16,6 +18,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -26,6 +29,7 @@ import javax.swing.JOptionPane;
 import org.apache.commons.math3.stat.descriptive.moment.Mean;
 import org.apache.commons.math3.stat.descriptive.rank.Median;
 import org.imgscalr.Scalr;
+import org.openslide.OpenSlide;
 import tmarker.delaunay.ArraySet;
 import tmarker.misc.Misc;
 import tmarker.misc.SortedProperties;
@@ -38,7 +42,7 @@ import tmarker.tmarker;
  * in the TMA List.
  * @author Peter J. Schueffler
  */
-public final class TMAspot {
+public class TMAspot {
 
     private String original_filename = "";
     private String bgCorrected_filename = "";
@@ -76,6 +80,25 @@ public final class TMAspot {
     private int param_bgx = -1;
     private int param_bgy = -1;
     private int param_bg_rgb = -1;
+    
+    // params for NDPI support
+    OpenSlide os = null;
+    
+    /**
+     * Returns whether this TMAspot has a NDPI (OpenSlide) instance.
+     * @return True if the OpenSlide os is not null.
+     */
+    public boolean isNDPI() {
+        return os!=null;
+    }
+    
+    /**
+     * Sets the OpenSlide instance.
+     * @return The OpenSlide instance (for NDPI support).
+     */
+    public OpenSlide getNDPI() {
+        return os;
+    }
     
     /**
      * Returns the TMAspot_list_panel which represents this TMAspot.
@@ -293,13 +316,34 @@ public final class TMAspot {
         return excludingAreas;
     }
     
-    public TMAspot(tmarker tc, String imagename) {
+    /**
+     * Creates a new TMAspot which belongs to the TMARKER session. The filename is
+     * from its image (image file or NDPI file).
+     * @param tc The TMARKER session.
+     * @param filename The image file of the spot.
+     */
+    public TMAspot(tmarker tc, String filename) {
         this.tc = tc;
-        setImagename(imagename);
+        setFilename(filename);
+        if (filename.toLowerCase().endsWith("ndpi")) {
+            try {
+                this.os = new OpenSlide(new File(filename));
+                Map<String, String> props = os.getProperties();
+                Set<String> keys = props.keySet();
+                for (String key : keys) {
+                    addProperty(key, props.get(key));
+                }
+            } catch (IOException | java.lang.UnsatisfiedLinkError ex) {
+                tc.setCursor(Cursor.getDefaultCursor());
+                Logger.getLogger(TMAspot.class.getName()).log(Level.SEVERE, null, ex);
+                JOptionPane.showMessageDialog(tc, "The file " + filename + " could not be parsed.\n\n" + ex.getMessage(), "Error loading file", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+        }
         this.tlp = new TMAspot_list_panel(this);
         createThumbnail();
     }
-
+		
     /**
      * Creates the thumbnail image in the TMAList panel.
      */
@@ -308,7 +352,13 @@ public final class TMAspot {
             @Override
             public void run() {
                 try { 
-                    getTLP().setThumbnailImage(null);
+                    BufferedImage thumbnail;
+                    if (isNDPI()) {
+                        thumbnail = os.createThumbnailImage(83);
+                    } else {
+                        thumbnail = null;
+                    }
+                    getTLP().setThumbnailImage(thumbnail);
                 } catch (OutOfMemoryError e) {
                    Logger.getLogger(TMAspot.class.getName()).log(java.util.logging.Level.INFO, "Not enough memory for thumbnail creation.");
                 } catch (Exception e) {
@@ -322,10 +372,10 @@ public final class TMAspot {
     }
     
     /**
-     * Sets the name of this TMAspot and creates a temporary work folder on hard disk.
+     * Sets the file name of this TMAspot and creates a temporary work folder on hard disk.
      * @param original_filename The filename where this TMAspot originates.
      */
-    public void setImagename(String original_filename) {
+    public void setFilename(String original_filename) {
         this.original_filename = original_filename;
         String name = (new File(original_filename)).getName();
         int dotPos = name.lastIndexOf(".");
@@ -633,7 +683,7 @@ public final class TMAspot {
      * @param onlyVisible If true, only the currently visible TMApoints are searched. Otherwise, all TMApoints are searched.
      * @return The first TMApoint found at this location. Null if none is found.
      */
-    TMApoint getPointAt(int x, int y, int radius, boolean onlyVisible) {
+    public TMApoint getPointAt(int x, int y, int radius, boolean onlyVisible) {
         List<TMApoint> ps;
         if (onlyVisible) {
             ps = getVisiblePoints();
@@ -1716,7 +1766,7 @@ public final class TMAspot {
      */
     public void copyGoldStandardAsUnknownEstimated() {
         deleteAllPoints_ES();
-        List<TMApoint> tps = new ArrayList<TMApoint>();
+        List<TMApoint> tps = new ArrayList<>();
         for (TMApoint tp: getPoints()) {
             TMApoint tpnew = new TMApoint(this, tp.x, tp.y, TMALabel.LABEL_UNK);
             tps.add(tpnew);
@@ -1741,21 +1791,39 @@ public final class TMAspot {
      */
     public BufferedImage getBufferedImage(boolean asNewInstance) {
         BufferedImage bi = null;
-        //if (!asNewInstance && getCenter().getVisibleTMAspot()==this && getCenter().getTMAView().getImage()!=null) {
-        //    bi = (BufferedImage) getCenter().getTMAView().getImage();
-        //} else {
-            try {
-                //bi = ImageIO.read(new File(getOriginalImagename(whichImage)));
-                bi = Misc.loadImageFast(getImagename());
-            } catch (Exception ex) {
-                if (tmarker.DEBUG>0) {
-                    Logger.getLogger(TMAspot.class.getName()).log(Level.SEVERE, null, ex);
+        
+        if (isNDPI()) {
+            int maxbytes = (int) (0.8 *Runtime.getRuntime().maxMemory());
+            int levels = getNDPI().getLevelCount();
+            for(int i = 0; i<levels; i++) {
+                if (maxbytes > 4 * getNDPI().getLevelWidth(i) * getNDPI().getLevelHeight(i)) {
+                    try {
+                        bi = getNDPI().createThumbnailImage((int) Math.max(getNDPI().getLevelWidth(i), getNDPI().getLevelHeight(i)));
+                        break;
+                    } catch (IOException ex) {
+                        if (tmarker.DEBUG>2) {
+                            Logger.getLogger(TMAspot.class.getName()).log(Level.SEVERE, null, ex);
+                        }
+                    }
                 }
-                JOptionPane.showMessageDialog(getCenter(), "An error occurred while opening " + getImagename() + "\n\n"
-                    + "Maybe the thread that generates this image has not finished, yet\n"
-                    + "(e.g. after color deconvolution).", "Error opening image", JOptionPane.ERROR_MESSAGE);
             }
-        //}
+				} else {
+            //if (!asNewInstance && getCenter().getVisibleTMAspot()==this && getCenter().getTMAView().getImage()!=null) {
+            //    bi = (BufferedImage) getCenter().getTMAView().getImage();
+            //} else {
+                try {
+                    //bi = ImageIO.read(new File(getOriginalImagename(whichImage)));
+                    bi = Misc.loadImageFast(getImagename());
+                } catch (Exception ex) {
+                    if (tmarker.DEBUG>0) {
+                        Logger.getLogger(TMAspot.class.getName()).log(Level.SEVERE, null, ex);
+                    }
+                    JOptionPane.showMessageDialog(getCenter(), "An error occurred while opening " + getImagename() + "\n\n"
+                        + "Maybe the thread that generates this image has not finished, yet\n"
+                        + "(e.g. after color deconvolution).", "Error opening image", JOptionPane.ERROR_MESSAGE);
+                }
+            //}
+        }
         return bi;
     }
 
@@ -1764,7 +1832,7 @@ public final class TMAspot {
      * @param x The x-coordinate.
      * @param y The y-coordinate.
      */
-    void deletePolygonOnPoint(int x, int y) {
+    public void deletePolygonOnPoint(int x, int y) {
         for (Polygon p: getIncludingAreas()) {
             if (p.contains(x, y)) {
                 getIncludingAreas().remove(p);
@@ -1784,7 +1852,7 @@ public final class TMAspot {
      * @param x The x-coordinate.
      * @param y The y-coordinate.
      */
-    void switchPolygonOnPoint(int x, int y) {
+    public void switchPolygonOnPoint(int x, int y) {
         for (Polygon p: getIncludingAreas()) {
             if (p.contains(x, y)) {
                 getIncludingAreas().remove(p);
@@ -1858,19 +1926,25 @@ public final class TMAspot {
     public int getWidth() {
         if (w < 0) {
             try {
-                ImageInputStream in = ImageIO.createImageInputStream(new File(getImagename()));
-                final Iterator readers = ImageIO.getImageReaders(in);
-                if (readers.hasNext()) {
-                    ImageReader reader = (ImageReader) readers.next();
-                    try {
-                        reader.setInput(in);
-                        w = reader.getWidth(0);
-                    } finally {
-                        reader.dispose();
+                if (isNDPI()) {
+                    if (os!=null) {
+                        w = (int) os.getLevel0Width();
                     }
-                }
-                if (in != null) {
-                    in.close();
+                } else {
+                    ImageInputStream in = ImageIO.createImageInputStream(new File(getImagename()));
+                    final Iterator readers = ImageIO.getImageReaders(in);
+                    if (readers.hasNext()) {
+                        ImageReader reader = (ImageReader) readers.next();
+                        try {
+                            reader.setInput(in);
+                            w = reader.getWidth(0);
+                        } finally {
+                            reader.dispose();
+                        }
+                    }
+                    if (in != null) {
+                        in.close();
+                    }
                 }
             } catch (Exception e) {
                 if (tmarker.DEBUG>0) {
@@ -1888,19 +1962,25 @@ public final class TMAspot {
     public int getHeight() {
         if (h < 0) {
             try {
-                ImageInputStream in = ImageIO.createImageInputStream(new File(getImagename()));
-                final Iterator readers = ImageIO.getImageReaders(in);
-                if (readers.hasNext()) {
-                    ImageReader reader = (ImageReader) readers.next();
-                    try {
-                        reader.setInput(in);
-                        h = reader.getHeight(0);
-                    } finally {
-                        reader.dispose();
+                if (isNDPI()) {
+                    if (os!=null) {
+                        h = (int) os.getLevel0Height();
                     }
-                }
-                if (in != null) {
-                    in.close();
+                } else {
+                    ImageInputStream in = ImageIO.createImageInputStream(new File(getImagename()));
+                    final Iterator readers = ImageIO.getImageReaders(in);
+                    if (readers.hasNext()) {
+                        ImageReader reader = (ImageReader) readers.next();
+                        try {
+                            reader.setInput(in);
+                            h = reader.getHeight(0);
+                        } finally {
+                            reader.dispose();
+                        }
+                    }
+                    if (in != null) {
+                        in.close();
+                    }
                 }
             } catch (Exception e) {
                 if (tmarker.DEBUG>0) {
@@ -2165,7 +2245,31 @@ public final class TMAspot {
     }
 
     /**
-     * Comparator for the distance of two TMApoint o1 and o2 to a given point (x|y)
+     * Returns a thumbnail of this TMAspot of the given max width or max height.
+     * @param w_max Max width of the thumbnail image.
+     * @param h_max Max height of the thumbnail image.
+     * @param factor If not null and not empty, the rezise factor is written into factor[0]. Can be null.
+     * @return A new BufferedImage as a thumbnail of this TMAspot.
+     */
+    public Image getThumbnailImage(int w_max, int h_max, double [] factor) {
+        if (isNDPI()) {
+            try {
+                BufferedImage thumbnail = getNDPI().createThumbnailImage(Math.min(w_max, h_max));
+                if (factor!=null && factor.length>0) {
+                    factor[0] = 1.0*thumbnail.getWidth()/getNDPI().getLevel0Width();
+                }
+                return thumbnail;
+            } catch (IOException ex) {
+                return null;
+            }
+        } else {
+            double[] f = new double [] {1.0};
+            return Misc.getScaledImageWithMaxSize(getBufferedImage(), w_max, h_max, factor);
+        }
+    }
+
+    /**
+    * Comparator for the distance of two TMApoint o1 and o2 to a given point (x|y)
      */
     class TMApointComparator implements Comparator<TMApoint> {
 
