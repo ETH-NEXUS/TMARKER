@@ -66,6 +66,7 @@ public class StainingEstimation extends javax.swing.JFrame implements TMARKERPlu
     // For Plugin handling
     PluginManager manager = null;
     private static final String PLUGINNAME = "Color Deconvolution";
+    private static final String PLUGINVERSION = "1.0";
     
     StainingEstimationThread set = null;
     
@@ -1676,6 +1677,16 @@ public class StainingEstimation extends javax.swing.JFrame implements TMARKERPlu
     private org.jdesktop.beansbinding.BindingGroup bindingGroup;
     // End of variables declaration//GEN-END:variables
 
+    @Override
+    public String getAuthor() {
+        return "Peter J. Schüffler";
+    }
+    
+    @Override
+    public String getVersion() {
+        return PLUGINVERSION;
+    }
+    
     @Override
     public boolean start() {
         return true;

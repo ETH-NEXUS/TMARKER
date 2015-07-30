@@ -41,6 +41,8 @@ public abstract class AbstractFacade implements IFacade
     protected Config config;
 
     protected IOpenbisServiceFacade service;
+    
+    public Exception loginException = null;
 
     public AbstractFacade(Config config)
     {
@@ -48,6 +50,7 @@ public abstract class AbstractFacade implements IFacade
         try {
             service = OpenbisServiceFacade.tryCreate(config.getUser(), config.getPassword(), config.getUrl(), config.getTimeout());
         } catch (Exception e) {
+            loginException = e;
             service = null;
         }
     }

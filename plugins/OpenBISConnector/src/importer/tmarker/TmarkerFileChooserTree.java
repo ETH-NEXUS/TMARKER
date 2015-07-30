@@ -73,7 +73,7 @@ public class TmarkerFileChooserTree extends FileChooserTree {
                 projectNode.addChild(experimentNode);
             }
 
-            experimentNode.addChild(new FileChooserTreeNode(NodeType.DATASET, "Dataset " + dataset.getCode() + " (" + dataset.getDataSetTypeCode() + ")", dataset));
+            experimentNode.addChild(new FileChooserTreeNode(NodeType.DATASET, "Dataset " + dataset.getRegistrationDate().toString() + " (" + dataset.getDataSetTypeCode() + ")", dataset));
         }
         
         for (Sample sample : facade.listSamples()) {
@@ -110,7 +110,7 @@ public class TmarkerFileChooserTree extends FileChooserTree {
     }
 
     @Override
-    protected boolean isDownloadable(FileChooserTreeNode node) {
+    public boolean isDownloadable(FileChooserTreeNode node) {
         return NodeType.SAMPLE.equals(node.getType()) || NodeType.DATASET.equals(node.getType());
     }
 

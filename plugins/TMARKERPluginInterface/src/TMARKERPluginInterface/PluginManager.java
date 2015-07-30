@@ -223,5 +223,11 @@ public interface PluginManager {
      * can interpret them.
      */
     public void loadFiles(File[] files);
+    
+    /**
+     * Saves the TMARKER session as XML.
+     * @param file The file to be saved. Will be overwritten if it already exists.
+     */
+    public boolean SaveAsXML(File file);
 
 }

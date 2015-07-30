@@ -25,61 +25,68 @@ import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria.MatchClause;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria.MatchClauseAttribute;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchSubCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SpaceWithProjectsAndRoleAssignments;
 import common.config.Config;
 import importer.common.facade.AbstractFacade;
 import java.util.ArrayList;
 import java.util.Collection;
 import javax.imageio.ImageIO;
-import openbisconnector.OpenBISConnector;
+import openbisconnector.openBISConnector;
 
 /**
  * @author Peter J. Schueffler
  */
 public class TmarkerFacade extends AbstractFacade {
     
-    OpenBISConnector obc = null;
+    openBISConnector obc = null;
+    String space = "";
 
-    public TmarkerFacade(Config config, OpenBISConnector obc) {
+    public TmarkerFacade(Config config, openBISConnector obc, String space) {
         super(config);
         this.obc = obc;
+        this.space = space;
     }
 
     @Override
     public List<DataSet> listDataSets() {
+        
+        /*System.out.println("Found Spaces For Datasets:");
+        for (SpaceWithProjectsAndRoleAssignments space : service.getSpacesWithProjects()) {
+            System.out.println("  " + space.getCode());
+        }
+        System.out.println();*/
+        
         SearchCriteria searchCriteria = new SearchCriteria();
-        //System.out.println("Found Spaces:");
-        //for (SpaceWithProjectsAndRoleAssignments space : service.getSpacesWithProjects()) {
-        //    searchCriteria.addMatchClause(MatchClause.createAttributeMatch(MatchClauseAttribute.SPACE, space.getCode()));
-            //System.out.println("  " + space.getCode());
-        //}
+        if (space != null && !space.isEmpty()) {
+            searchCriteria.addMatchClause(MatchClause.createAttributeMatch(MatchClauseAttribute.SPACE, space));
+        
+            SearchCriteria dataSetCriteria = new SearchCriteria();
+            dataSetCriteria.addSubCriteria(SearchSubCriteria.createExperimentCriteria(searchCriteria));
+
+            return service.searchForDataSets(dataSetCriteria);
+        }
         return service.searchForDataSets(searchCriteria);
         
-        
-        /*SearchCriteria sampleCriteria = new SearchCriteria();
-        sampleCriteria.setOperator(SearchOperator.MATCH_ANY_CLAUSES);
-
-        List<Sample> samples = listSamples();
-        for (Sample sample : samples) {
-            sampleCriteria.addMatchClause(MatchClause.createAttributeMatch(
-                    MatchClauseAttribute.PERM_ID, sample.getPermId()));
-        }
-
-        SearchCriteria dataSetCriteria = new SearchCriteria();
-        dataSetCriteria.addSubCriteria(SearchSubCriteria.createSampleCriteria(sampleCriteria));
-
-        return service.searchForDataSets(dataSetCriteria);*/
     }
 
     @Override
     public List<Sample> listSamples() {
-        SearchCriteria sampleCriteria = new SearchCriteria();
-        //System.out.println("Found Spaces:");
+        
+        /*System.out.println("Found Spaces For Samples:");
         for (SpaceWithProjectsAndRoleAssignments space : service.getSpacesWithProjects()) {
-            sampleCriteria.addMatchClause(MatchClause.createAttributeMatch(MatchClauseAttribute.SPACE, space.getCode()));
-            //System.out.println("  " + space.getCode());
+            System.out.println("  " + space.getCode());
         }
-        //System.out.println();
+        System.out.println();*/
+            
+        SearchCriteria sampleCriteria = new SearchCriteria();
+        if (space != null && !space.isEmpty()) {
+            sampleCriteria.addMatchClause(MatchClause.createAttributeMatch(MatchClauseAttribute.SPACE, space));
+        } else {
+            for (SpaceWithProjectsAndRoleAssignments space : service.getSpacesWithProjects()) {
+                sampleCriteria.addMatchClause(MatchClause.createAttributeMatch(MatchClauseAttribute.SPACE, space.getCode()));
+            }
+        }
         
         /*System.out.println("Found SampleTypes:");
          for (SampleType st: service.listSampleTypes()) {
@@ -200,7 +207,15 @@ public class TmarkerFacade extends AbstractFacade {
      *
      * @return The current openBISconnector.
      */
-    public OpenBISConnector getOBC() {
+    public openBISConnector getOBC() {
         return obc;
+    }
+    
+    /**
+     * Sets the space considered in this facade
+     * @param space The space code of the considered Space.
+     */
+    public void setSpace(String space) {
+        this.space = space;
     }
 }

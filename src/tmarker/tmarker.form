@@ -244,6 +244,14 @@
               <SubComponents>
                 <MenuItem class="javax.swing.JPopupMenu$Separator" name="jSeparator16">
                 </MenuItem>
+                <MenuItem class="javax.swing.JMenuItem" name="jMenuItem26">
+                  <Properties>
+                    <Property name="text" type="java.lang.String" value="View Available Plugins..."/>
+                  </Properties>
+                  <Events>
+                    <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="jMenuItem26ActionPerformed"/>
+                  </Events>
+                </MenuItem>
                 <MenuItem class="javax.swing.JMenuItem" name="jMenuItem25">
                   <Properties>
                     <Property name="text" type="java.lang.String" value="Get More Plugins..."/>

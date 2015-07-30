@@ -38,6 +38,7 @@ public class SurvivalAnalysisFrame extends javax.swing.JFrame implements TMARKER
 
     // for the Plugin
     private final static String PLUGINNAME = "Survival Analysis";
+    private static final String PLUGINVERSION = "1.0";
     private TMARKERPluginManager manager = null;
     
     /**
@@ -433,6 +434,16 @@ public class SurvivalAnalysisFrame extends javax.swing.JFrame implements TMARKER
     private javax.swing.JTextPane jTextPane1;
     // End of variables declaration//GEN-END:variables
 
+    
+    @Override
+    public String getAuthor() {
+        return "Peter J. Schüffler";
+    }
+    
+    @Override
+    public String getVersion() {
+        return PLUGINVERSION;
+    }
     
     @Override
     public boolean start() {

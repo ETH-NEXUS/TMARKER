@@ -81,6 +81,7 @@ public class CancerNucleusClassification extends javax.swing.JFrame implements T
     // For Plugin handling
     PluginManager manager = null;
     private static final String PLUGINNAME = "Cancer Nucleus Classification";
+    private static final String PLUGINVERSION = "1.0";
     
     private CancerNucleusClassificationThread thread = null;
     
@@ -246,7 +247,6 @@ public class CancerNucleusClassification extends javax.swing.JFrame implements T
 
         jSeparator1.setName("jSeparator1"); // NOI18N
 
-        setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
         setTitle("Nucleus Classification Options"); // NOI18N
         setName("Form"); // NOI18N
 
@@ -1771,6 +1771,16 @@ public class CancerNucleusClassification extends javax.swing.JFrame implements T
     private org.jdesktop.beansbinding.BindingGroup bindingGroup;
     // End of variables declaration//GEN-END:variables
 
+    @Override
+    public String getAuthor() {
+        return "Peter J. Schüffler";
+    }
+    
+    @Override
+    public String getVersion() {
+        return PLUGINVERSION;
+    }
+    
     @Override
     public boolean start() {
         return true;

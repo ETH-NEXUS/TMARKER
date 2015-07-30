@@ -38,6 +38,8 @@ import java.util.jar.JarInputStream;
 import TMARKERPluginInterface.Pluggable;
 import java.io.InputStream;
 import java.net.URLConnection;
+import java.util.Arrays;
+import java.util.ListIterator;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.JOptionPane;
@@ -45,6 +47,7 @@ import static org.apache.commons.io.FileUtils.copyInputStreamToFile;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
+import org.jsoup.select.Elements;
 import tmarker.misc.Misc;
 import tmarker.tmarker;
 
@@ -55,6 +58,13 @@ import tmarker.tmarker;
  */
 public class PluginLoader {
 
+    /**
+     * Working function: Loads all plugins from a given local directory containing jar files, initializes and returns found Pluggables.
+     * @param plugDir The directory with jar files to be searched for Plugins.
+     * @param parentClassLoader The classloader to be used to load the plugins.
+     * @return A list of initialized plugin objects.
+     * @throws IOException If a jar cannot be read.
+     */
     public static List<Pluggable> loadPlugins(File plugDir, ClassLoader parentClassLoader) throws IOException {
         if (plugDir.exists()) {
             
@@ -79,10 +89,19 @@ public class PluginLoader {
         }
     }
     
-    public static List<Pluggable> loadPlugins(URL plugURL, String tmp_dir, ClassLoader parentClassLoader) throws IOException {
+    /**
+     * Working function: Loads all plugins from a given URL listing jar files, downloads them into a temp directory and initializes and returns found Pluggables.
+     * @param plugURL The URL with jar files to be scanned for jar files.
+     * @param tmp_dir The local temp directory where the jar files are downloaded for initialization.
+     * @param selectedPlugins An array indicating the names, Authors and versions of those plugins which should be loaded.
+     * @param parentClassLoader The classloader to be used to load the plugins.
+     * @return A list of initialized plugin objects.
+     * @throws IOException If a jar cannot be read.
+     */
+    public static List<Pluggable> loadPlugins(URL plugURL, String tmp_dir, String[] selectedPlugins, ClassLoader parentClassLoader) throws IOException {
         if (tmarker.DEBUG>0) Logger.getLogger(PluginLoader.class.getName()).log(Level.INFO, "  Try to load plugins from " + plugURL);
         
-        File[] plugJars = listFilesFromURL(plugURL, tmp_dir);
+        File[] plugJars = downloadSelectedJarFilesFromURL(plugURL, tmp_dir, selectedPlugins);
         
         if (tmarker.DEBUG>0) Logger.getLogger(PluginLoader.class.getName()).log(Level.INFO, "  " + plugJars.length + " plugin(s) listed.");
         
@@ -99,22 +118,37 @@ public class PluginLoader {
      * Use this to list the jar files in an online URL, if the server does not support folder content listing.
      * @param url The URL of a webpage which lists the jar files as links.
      * @param tmp_dir The jar files are copied to the local tmp_dir to load them into TMARKER.
+     * @param selectedPlugins An array indicating the names, Authors and versions of those plugins which should be loaded.
      * @return A list of jar files (plugins) which can be loaded into TMARKER.
      * @throws IOException From the function "copyURLToFile".
      */
-    public static File[] listFilesFromURL(URL url, String tmp_dir) throws IOException {
+    public static File[] downloadSelectedJarFilesFromURL(URL url, String tmp_dir, String[] selectedPlugins) throws IOException {
         Document doc = Jsoup.connect(url.toString()).userAgent("Mozilla/5.0 (Macintosh; Intel Mac OS X 10_9_2) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/33.0.1750.152 Safari/537.36").get();
         //Document doc = Jsoup.connect(url.toString()).get();
         List<File> files = new ArrayList<>();
         for (Element elem : doc.select("a[href*=.jar]")) {
+            
+            // Get the metainfos (name, author, version)
+            Element div = elem.parent().parent();
+            Elements elements = div.getElementsByTag("h2");
+            String name = elements.text().trim();
+            elements = div.getElementsByTag("h3");
+            String metainfo = elements.text();
+            String author = metainfo.replace("Author: ", "");
+            author = author.substring(0, author.indexOf(" Version: "));
+            String version = metainfo.substring(metainfo.indexOf("Version: ") + 9);
+            
+            // get the jar link
             String link = elem.attr("href");
             String fname = tmp_dir + Misc.FilePathStringtoFilename(link);
-            if (fname.toLowerCase().endsWith(".jar")) {
+            if (fname.toLowerCase().endsWith(".jar") && 
+                    (selectedPlugins == null || Arrays.asList(selectedPlugins).contains(name+"|||"+version+"|||"+author))) {
                 File destination = new File(fname);
                 destination.deleteOnExit();
                 
                 // Possibility 1: doesnt work, since the connection is blocked (Access denied, 403), due to robot protection.
                 //FileUtils.copyURLToFile(new URL(url.getProtocol() + "://" + url.getHost() + "/" + link), destination);
+                
                 // Possibility 2: mimic webbrowser connection, with webbrowser user agent
                 URL source = new URL(url.getProtocol() + "://" + url.getHost() + link);
                 URLConnection sourceConnection = source.openConnection();
@@ -132,7 +166,49 @@ public class PluginLoader {
         }
         return filearray;
     }
+    
+    /**
+     * Use this to list all available jar files in an online URL, if the server does not support folder content listing.
+     * @param url The URL of a webpage which lists the jar files as links.
+     * @return A list of plugins which could be loaded into TMARKER.
+     * @throws IOException From the function "Jsoup.connect()".
+     */
+    public static String[] listAvailablePluginsFromURL(URL url) throws IOException {
+        Document doc = Jsoup.connect(url.toString()).userAgent("Mozilla/5.0 (Macintosh; Intel Mac OS X 10_9_2) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/33.0.1750.152 Safari/537.36").get();
+        List<String> files = new ArrayList<>();
+        for (Element elem : doc.select("a[href*=.jar]")) {
+            
+            // Get the metainfos (name, author, version)
+            String name = elem.parent().parent().getElementsByTag("h2").first().text();
+            Element div = elem.parent().parent();
+            Elements elements = div.getElementsByTag("h3");
+            String metainfo = elements.text();
+            String author = metainfo.replace("Author: ", "");
+            author = author.substring(0, author.indexOf(" Version: "));
+            String version = metainfo.substring(metainfo.indexOf("Version: ") + 9);
+            String description = "<html>"+elem.parent().parent().getElementsByTag("p").first().html()+"</html>";
+            
+            // get the jar link
+            String link = elem.attr("href");
+            String fname = Misc.FilePathStringtoFilename(link);
+            if (fname.toLowerCase().endsWith(".jar")) {
+                
+                files.add(name+"|||"+version+"|||"+author+"|||"+description);
+            }
+        }
+        String[] filearray = new String[files.size()];
+        for (int i=0; i<files.size(); i++) {
+            filearray[i] = files.get(i);
+        }
+        return filearray;
+    }
 
+    /**
+     * Converts a file array to a URL array.
+     * @param files The files to be converted.
+     * @return A new URL array with the file urls in it.
+     * @throws MalformedURLException If a file cannot be converted.
+     */
     private static URL[] fileArrayToURLArray(File[] files) throws MalformedURLException {
         URL[] urls = new URL[files.length];
         for (int i = 0; i < files.length; i++) {
@@ -141,6 +217,13 @@ public class PluginLoader {
         return urls;
     }
 
+    /**
+     * Returns a list of potential Pluggable classes (not yet instantiated) within given jar files.
+     * @param jar The jar files from which the classes are to be extracted.
+     * @param cl The classloader to extract the classes.
+     * @return A list of Pluggables whithin the jar.
+     * @throws IOException If a jar cannot be read.
+     */
     private static List<Class<Pluggable>> extractClassesFromJARs(File[] jars, ClassLoader cl) throws IOException {
         List<Class<Pluggable>> classes = new ArrayList<>();
         for (File jar : jars) {
@@ -158,6 +241,13 @@ public class PluginLoader {
         return classes;
     }
 
+    /**
+     * Returns a list of potential Pluggable classes (not yet instantiated) within a given jar file.
+     * @param jar The jar file from which the classes are to be extracted.
+     * @param cl The classloader to extract the classes.
+     * @return A list of Pluggables whithin the jar.
+     * @throws IOException If the jar cannot be read.
+     */
     @SuppressWarnings("unchecked")
     private static List<Class<Pluggable>> extractClassesFromJAR(File jar, ClassLoader cl) throws IOException {
         List<Class<Pluggable>> classes = new ArrayList<>();
@@ -182,7 +272,7 @@ public class PluginLoader {
                     }
                 } catch (ClassNotFoundException | NoClassDefFoundError ex) {
                     if (tmarker.DEBUG>2) Logger.getLogger(PluginLoader.class.getName()).log(Level.INFO, "      Try to extract " + ent.getName() + "... FAILED."); 
-                    System.err.println("Issue loading plugin " + jar.getName() + ". Error: Can't load Class " + ent.getName());
+                    if (tmarker.DEBUG>0) System.err.println("Issue loading plugin " + jar.getName() + ". Error: Can't load Class " + ent.getName());
                     if (!warning_shown && tmarker.DEBUG>0) {
                         JOptionPane.showMessageDialog(null, "Issue loading plugin " + jar.getName() + ".\n\nError:\nCan't load Class " + ent.getName(), "Error Loading Plugin.", JOptionPane.ERROR_MESSAGE);
                     }
@@ -195,6 +285,12 @@ public class PluginLoader {
         return classes;
     }
 
+    /**
+     * Checks whether a plugin is a valid pluggable class (i.e. the test:
+     * cls.getInterfaces().get(i).equals(Pluggable.class)).
+     * @param cls The list of classes to be checked.
+     * @return True, if at least one interface of the class is a Pluggable class.
+     */
     private static boolean isPluggableClass(Class<?> cls) {
         for (Class<?> i : cls.getInterfaces()) {
             if (tmarker.DEBUG>3) Logger.getLogger(PluginLoader.class.getName()).log(Level.INFO, "          Pluggable: " + Pluggable.class.toString()+ " - Interface: " + i.toString());
@@ -205,6 +301,11 @@ public class PluginLoader {
         return false;
     }
 
+    /**
+     * Tries to create new instances from the given plugin objects.
+     * @param pluggables The list of potential plugin classes.
+     * @return The list of instances which could successfully be instantiated.
+     */
     private static List<Pluggable> createPluggableObjects(List<Class<Pluggable>> pluggables) {
         List<Pluggable> plugs = new ArrayList<>(pluggables.size());
         for (Class<Pluggable> plug : pluggables) {

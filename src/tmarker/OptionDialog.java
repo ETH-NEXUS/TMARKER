@@ -547,7 +547,7 @@ public class OptionDialog extends javax.swing.JDialog {
      * Sets the parameter whether the plugins should be searched locally.
      * @param b True, if the plugins should be searched locally. False, if they are searched online.
      */
-    void setUseLocalPlugins(boolean b) {
+    public void setUseLocalPlugins(boolean b) {
         if (b) {
             jRadioButton8.setSelected(true);
         } else {
@@ -559,7 +559,7 @@ public class OptionDialog extends javax.swing.JDialog {
      * Gets the parameter whether the plugins should be searched locally.
      * @return True, if the plugins should be searched locally. False, if they are searched online.
      */
-    boolean getUseLocalPlugins() {
+    public boolean getUseLocalPlugins() {
         return jRadioButton8.isSelected();
     }
     
@@ -568,7 +568,7 @@ public class OptionDialog extends javax.swing.JDialog {
      * Sets the local folder in which the local plugins should be searched.
      * @param folder The full folder path in which the plugins (.jar files) lie.
      */
-    void setLocalPluginFolder(String folder) {
+    public void setLocalPluginFolder(String folder) {
         jTextField1.setText(folder);
     }
     
@@ -576,7 +576,7 @@ public class OptionDialog extends javax.swing.JDialog {
      * Returns the local folder in which the local plugins should be searched.
      * @return The full folder path in which the plugins (.jar files) have to be.
      */
-    String getLocalPluginFolder() {
+    public String getLocalPluginFolder() {
         return jTextField1.getText();
     }
         

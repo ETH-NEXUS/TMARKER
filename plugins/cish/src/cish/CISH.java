@@ -55,7 +55,8 @@ public class CISH extends javax.swing.JFrame implements TMARKERPluginInterface.P
 
     // For Plugin handling
     TMARKERPluginManager manager = null;
-    private static final String PLUGINNAME = "CISH";
+    private static final String PLUGINNAME = "CISH Analysis";
+    private static final String PLUGINVERSION = "1.0";
     private CISH_Thread thread = null;
     
     /**
@@ -444,6 +445,16 @@ public class CISH extends javax.swing.JFrame implements TMARKERPluginInterface.P
     private org.jdesktop.beansbinding.BindingGroup bindingGroup;
     // End of variables declaration//GEN-END:variables
 
+    @Override
+    public String getAuthor() {
+        return "Qing Zhong, Peter J. Schüffler";
+    }
+    
+    @Override
+    public String getVersion() {
+        return PLUGINVERSION;
+    }
+    
     @Override
     public boolean start() {
         return true;

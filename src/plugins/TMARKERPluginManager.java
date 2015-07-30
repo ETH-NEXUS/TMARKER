@@ -285,6 +285,16 @@ public class TMARKERPluginManager implements PluginManager {
     }
     
     /**
+     * Saves the TMARKER session as XML.
+     * @param file The file to be saved. Will be overwritten if it already exists.
+     * @return True if the save process was successful, false if an error occured.
+     */
+    @Override
+    public boolean SaveAsXML(File file) {
+        return tmarker.SaveAsXML(t, file);
+    }
+    
+    /**
      * Returns the main program TMARKER.
      * @return The main program TMARKER.
      */

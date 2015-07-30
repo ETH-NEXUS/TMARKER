@@ -88,6 +88,8 @@ public class UpdateDialog extends javax.swing.JDialog {
         
         try {
             
+            jLabel6.setText("Downloading...");
+            
             //// download the new zipfile
             final Download download = new Download(new URL("http://www.nexus.ethz.ch/content/dam/ethz/special-interest/dual/nexus-dam/software/TMARKER/TMARKERv" + remoteRevision + ".zip"));
             
@@ -105,6 +107,8 @@ public class UpdateDialog extends javax.swing.JDialog {
             downloadThread.start();
             
             download.getThread().join();
+            
+            jLabel6.setText("Extracting...");
             
             File zipFile = new File(download.getFileName(new URL(download.getUrl())));
             
@@ -177,6 +181,7 @@ public class UpdateDialog extends javax.swing.JDialog {
 
             Logger.getLogger(UpdateDialog.class.getName()).log(Level.INFO, "file unzip done.");
             
+            jLabel6.setText("Update Successful. Please Restart TMARKER.");
             jButton2.setText("Restart");
             
         } catch(IOException | InterruptedException ex){
@@ -218,6 +223,7 @@ public class UpdateDialog extends javax.swing.JDialog {
         jLabel5 = new javax.swing.JLabel();
         jProgressBar1 = new javax.swing.JProgressBar();
         jButton3 = new javax.swing.JButton();
+        jLabel6 = new javax.swing.JLabel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
         setTitle("TMARKER Update Check");
@@ -260,7 +266,7 @@ public class UpdateDialog extends javax.swing.JDialog {
         });
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 1;
-        gridBagConstraints.gridy = 7;
+        gridBagConstraints.gridy = 8;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_END;
         gridBagConstraints.insets = new java.awt.Insets(10, 20, 10, 20);
         getContentPane().add(jButton2, gridBagConstraints);
@@ -268,7 +274,7 @@ public class UpdateDialog extends javax.swing.JDialog {
         jLabel3.setText("Update check failed.");
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 6;
+        gridBagConstraints.gridy = 7;
         gridBagConstraints.gridwidth = 2;
         gridBagConstraints.insets = new java.awt.Insets(10, 20, 10, 20);
         getContentPane().add(jLabel3, gridBagConstraints);
@@ -304,10 +310,17 @@ public class UpdateDialog extends javax.swing.JDialog {
         });
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 7;
+        gridBagConstraints.gridy = 8;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_START;
         gridBagConstraints.insets = new java.awt.Insets(10, 20, 4, 20);
         getContentPane().add(jButton3, gridBagConstraints);
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 6;
+        gridBagConstraints.gridwidth = 2;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_START;
+        gridBagConstraints.insets = new java.awt.Insets(0, 25, 0, 20);
+        getContentPane().add(jLabel6, gridBagConstraints);
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
@@ -385,6 +398,7 @@ public class UpdateDialog extends javax.swing.JDialog {
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;
     private javax.swing.JLabel jLabel5;
+    private javax.swing.JLabel jLabel6;
     private javax.swing.JProgressBar jProgressBar1;
     // End of variables declaration//GEN-END:variables
 

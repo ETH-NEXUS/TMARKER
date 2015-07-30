@@ -162,7 +162,7 @@ public abstract class FileChooserTree extends JTree {
         });
     }
 
-    private void onDownload(final FileChooserTreeNode node) {
+    public void onDownload(final FileChooserTreeNode node) {
         try {
             final String workspace = FileChooser.getWorkspace(config);
             
@@ -210,7 +210,7 @@ public abstract class FileChooserTree extends JTree {
         }
     }
 
-    protected abstract boolean isDownloadable(FileChooserTreeNode node);
+    public abstract boolean isDownloadable(FileChooserTreeNode node);
 
     protected abstract File download(FileChooserTreeNode node);
 }

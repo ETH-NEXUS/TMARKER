@@ -54,12 +54,11 @@ import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.lang.reflect.Field;
 import java.net.URL;
-import javax.swing.event.HyperlinkEvent;
-import javax.swing.event.HyperlinkListener;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import plugins.TMARKERPluginManager;
 import plugins.PluginLoader;
+import plugins.PluginSelector;
 import plugins.TMARKERSecurityManager;
 import tmarker.TMAspot.TMALabel;
 import tmarker.TMAspot.TMApoint;
@@ -120,6 +119,10 @@ public final class tmarker extends javax.swing.JFrame {
      * The update threads for the plugins.
      */
     List<Thread> pluginUpdaters = new ArrayList<>();
+    /**
+     * The Plugin selector (choose which plugins you want to use).
+     */
+    PluginSelector plugSel = new PluginSelector(this);
 
     private String currentDir = "";
     private String tmp_dir = "";
@@ -399,6 +402,7 @@ public final class tmarker extends javax.swing.JFrame {
         jMenu3 = new javax.swing.JMenu();
         jMenu5 = new javax.swing.JMenu();
         jSeparator16 = new javax.swing.JPopupMenu.Separator();
+        jMenuItem26 = new javax.swing.JMenuItem();
         jMenuItem25 = new javax.swing.JMenuItem();
         jSeparator14 = new javax.swing.JPopupMenu.Separator();
         jCheckBoxMenuItem1 = new javax.swing.JCheckBoxMenuItem();
@@ -821,7 +825,7 @@ public final class tmarker extends javax.swing.JFrame {
         jSplitPane1.setLeftComponent(jPanel2);
 
         jPanel5.setLayout(new java.awt.BorderLayout());
-        
+
         jScrollPane4.setBorder(javax.swing.BorderFactory.createTitledBorder("Info View"));
 
         jTextPane1.setEditable(false);
@@ -830,18 +834,6 @@ public final class tmarker extends javax.swing.JFrame {
         jTextPane1.setToolTipText("");
         jTextPane1.setMargin(new java.awt.Insets(5, 5, 5, 5));
         jScrollPane4.setViewportView(jTextPane1);
-        jTextPane1.addHyperlinkListener(new HyperlinkListener() {
-            @Override
-            public void hyperlinkUpdate(HyperlinkEvent hle) {
-                if (HyperlinkEvent.EventType.ACTIVATED.equals(hle.getEventType())) {
-                    try {
-                        openWebsite(hle.getURL().toURI().toString());
-                    } catch (Exception e) {
-
-                    }   
-                }
-            }
-        });
 
         jPanel5.add(jScrollPane4, java.awt.BorderLayout.CENTER);
 
@@ -850,7 +842,7 @@ public final class tmarker extends javax.swing.JFrame {
         jPanel5.add(jPanel6, java.awt.BorderLayout.PAGE_END);
 
         jSplitPane1.setRightComponent(jPanel5);
-        
+
         jSplitPane2.setRightComponent(jSplitPane1);
 
         jPanel4.add(jSplitPane2, java.awt.BorderLayout.CENTER);
@@ -1240,6 +1232,14 @@ public final class tmarker extends javax.swing.JFrame {
 
         jMenu5.setText("Plugins");
         jMenu5.add(jSeparator16);
+
+        jMenuItem26.setText("View Available Plugins...");
+        jMenuItem26.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jMenuItem26ActionPerformed(evt);
+            }
+        });
+        jMenu5.add(jMenuItem26);
 
         jMenuItem25.setText("Get More Plugins...");
         jMenuItem25.addActionListener(new java.awt.event.ActionListener() {
@@ -1631,6 +1631,14 @@ public final class tmarker extends javax.swing.JFrame {
         }
     }//GEN-LAST:event_jCheckBoxMenuItem4ActionPerformed
 
+    private void jMenuItem26ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem26ActionPerformed
+        if (plugSel == null) {
+            plugSel = new PluginSelector(this);
+        }
+        plugSel.initializePluginList();
+        plugSel.setVisible(true);
+    }//GEN-LAST:event_jMenuItem26ActionPerformed
+
     /**
      * Starts the TMARKER session.
      *
@@ -1829,6 +1837,7 @@ public final class tmarker extends javax.swing.JFrame {
     private javax.swing.JMenuItem jMenuItem23;
     private javax.swing.JMenuItem jMenuItem24;
     private javax.swing.JMenuItem jMenuItem25;
+    private javax.swing.JMenuItem jMenuItem26;
     private javax.swing.JMenuItem jMenuItem3;
     private javax.swing.JMenuItem jMenuItem4;
     private javax.swing.JMenuItem jMenuItem5;
@@ -4106,7 +4115,7 @@ public final class tmarker extends javax.swing.JFrame {
         });
 
         int processors = Runtime.getRuntime().availableProcessors();
-        setStatusMessageLabel("Connected to " + Integer.toString(processors) + " local processor" + (processors != 1 ? "s..." : "..."));
+        setStatusMessageLabel("Connected to " + Integer.toString(processors) + " local processor" + (processors != 1 ? "s." : "."));
 
         // System Performance panel
         if (pop == null) {
@@ -4114,12 +4123,12 @@ public final class tmarker extends javax.swing.JFrame {
             jPanel6.add(pop);
             jPanel5.add(jPanel6, BorderLayout.SOUTH);
         }
-
+        
         try {
             this.setIconImage(ImageIO.read((getClass().getResource("/tmarker/img/TMARKER32.png"))));
         } catch (Exception ex) {
         }
-
+        
         // Logo Panel on top left
         BufferedImage img;
         try {
@@ -4212,7 +4221,7 @@ public final class tmarker extends javax.swing.JFrame {
                 jSplitPane1.setDividerLocation((java.awt.Toolkit.getDefaultToolkit().getScreenSize().width - jSplitPane2.getDividerLocation() - 300.0) / (java.awt.Toolkit.getDefaultToolkit().getScreenSize().width - jSplitPane2.getDividerLocation()));
             }
         });
-
+        
         //logger.log(java.util.logging.Level.INFO, "Current Working Directory: {0}", getCurrentDir());
     }
 
@@ -5690,7 +5699,10 @@ public final class tmarker extends javax.swing.JFrame {
         appProps.setProperty("OD.checkForUpdatesOnStart", Boolean.toString(od.checkForUpdatesOnStart()));
         appProps.setProperty("OD.installUpdatesAutomatically", Boolean.toString(od.installUpdatesAutomatically()));
         appProps.setProperty("BCD.useColor", Boolean.toString(bcd.getUseColor()));
-
+        if (plugSel!=null) {
+            appProps.setProperty("PS.selectedPlugins", Misc.ArrayToString(plugSel.getParam_loadedPlugins(), ";"));
+        }
+        
         // Add the plugin properties
         for (Pluggable p : plugins) {
             Properties p_props = p.getParameters();
@@ -5870,6 +5882,12 @@ public final class tmarker extends javax.swing.JFrame {
             if (value != null) {
                 bcd.setUseColor(Boolean.parseBoolean(value));
             }
+            value = appProps.getProperty("PS.selectedPlugins");
+            if (value != null) {
+                plugSel.setParam_loadedPlugins(value.replace("[", "").replace("]", "").split(";"));
+            } else {
+                plugSel.setParam_loadedPlugins(new String[]{"ColorDeconvolution|||1.0|||Peter J. Schüffler"});
+            }
 
             //update toolbar according to new colors
             jToolBar1.repaint();
@@ -5924,6 +5942,8 @@ public final class tmarker extends javax.swing.JFrame {
         od.setInstallUpdatesAutomatically(true);
 
         bcd.setUseColor(true);
+        
+        plugSel.setParam_loadedPlugins(new String[] {"ColorDeconvolution|||1.0|||Peter J. Schüffler"});
 
         // Reset the plugin parameters
         for (Pluggable p : plugins) {
@@ -6065,7 +6085,7 @@ public final class tmarker extends javax.swing.JFrame {
             } else {
                 // online plugins
                 try {
-                    plugins = PluginLoader.loadPlugins(new URL("http://www.nexus.ethz.ch/equipment_tools/software/tmarker/Plugins.html"), getTmpDir(), Thread.currentThread().getContextClassLoader());
+                    plugins = PluginLoader.loadPlugins(new URL("http://www.nexus.ethz.ch/equipment_tools/software/tmarker/Plugins.html"), getTmpDir(), plugSel.getParam_loadedPlugins(), Thread.currentThread().getContextClassLoader());
                 } catch (Exception e) {
                     //e.printStackTrace();
                 }
@@ -6110,7 +6130,7 @@ public final class tmarker extends javax.swing.JFrame {
                             thread.start();
                         }
                     });
-                    jMenu5.add(mi, jMenu5.getItemCount() - 2);
+                    jMenu5.add(mi, jMenu5.getItemCount() - 3);
 
                     Thread thread = new Thread(new Runnable() {
                         @Override
@@ -6126,7 +6146,7 @@ public final class tmarker extends javax.swing.JFrame {
             } //System.setSecurityManager(new TMARKERSecurityManager());
 
             if (DEBUG > 0) {
-                logger.log(Level.INFO, (jMenu5.getItemCount() - 2) + " plugin(s) loaded (step 2 of 2).");
+                logger.log(Level.INFO, (jMenu5.getItemCount() - 3) + " plugin(s) loaded (step 2 of 2).");
             }
 
         } catch (IOException ex) {

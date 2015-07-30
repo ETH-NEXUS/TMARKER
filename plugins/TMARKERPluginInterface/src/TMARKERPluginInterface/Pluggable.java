@@ -43,6 +43,18 @@ import tmarker.TMAspot.TMAspot;
 public interface Pluggable {
     
   /**
+   * Return the Author of this plugin.
+   * @return The Author of this plugin.
+   */
+  String getAuthor();
+  
+  /**
+   * Returns the version of this plugin.
+   * @return The version of this plugin.
+   */
+  String getVersion();
+  
+  /**
    * This function is called when TMARKER is started and the plugin is loaded.
    * @return True, if the start process was successful.
    */
