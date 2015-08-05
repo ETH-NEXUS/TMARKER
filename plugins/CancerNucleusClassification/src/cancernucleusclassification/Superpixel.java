@@ -771,7 +771,7 @@ public class Superpixel implements Comparable {
         }*/
         SURF surf = new SURF();
         surf.runDescription(imp.getProcessor());
-        double[] fv = Arrays.copyOf(surf.getFeatures().get(0), 64);
+        double[] fv = Arrays.copyOfRange(surf.getFeatures().get(0), 6, 70);
         //normalize(fv);
         return fv;
     }

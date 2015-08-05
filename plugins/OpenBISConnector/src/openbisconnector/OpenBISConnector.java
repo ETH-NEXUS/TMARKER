@@ -14,8 +14,6 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.NewDataSetMetadataDTO;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SpaceWithProjectsAndRoleAssignments;
 import com.boxysystems.jgoogleanalytics.FocusPoint;
 import com.boxysystems.jgoogleanalytics.JGoogleAnalyticsTracker;
-import com.thoughtworks.xstream.XStream;
-import com.thoughtworks.xstream.io.xml.DomDriver;
 import common.config.Config;
 import importer.common.ui.FileChooserTree;
 import importer.common.ui.FileChooserTreeNode;
@@ -23,6 +21,7 @@ import importer.tmarker.TmarkerFacade;
 import importer.tmarker.TmarkerFileChooserTree;
 import java.awt.Color;
 import java.awt.Cursor;
+import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.event.ActionEvent;
 import java.awt.event.ItemEvent;
@@ -30,11 +29,8 @@ import java.awt.event.KeyEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.awt.image.BufferedImage;
-import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileWriter;
 import java.io.IOException;
-import java.io.ObjectOutputStream;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -54,7 +50,6 @@ import javax.swing.KeyStroke;
 import javax.swing.tree.TreePath;
 import plugins.TMARKERPluginManager;
 import thread.ThreadUtil;
-import tmarker.TMAspot.TMApoint;
 import tmarker.TMAspot.TMAspot;
 import tmarker.tmarker;
 import static tmarker.tmarker.logger;
@@ -112,6 +107,7 @@ public class openBISConnector extends javax.swing.JFrame implements TMARKERPlugi
     private void initComponents() {
         java.awt.GridBagConstraints gridBagConstraints;
 
+        jScrollPane2 = new javax.swing.JScrollPane();
         jPanel1 = new javax.swing.JPanel();
         jLabel1 = new javax.swing.JLabel();
         jLabel2 = new javax.swing.JLabel();
@@ -379,7 +375,9 @@ public class openBISConnector extends javax.swing.JFrame implements TMARKERPlugi
         gridBagConstraints.insets = new java.awt.Insets(5, 5, 5, 5);
         jPanel1.add(jLabel11, gridBagConstraints);
 
-        getContentPane().add(jPanel1, java.awt.BorderLayout.PAGE_START);
+        jScrollPane2.setViewportView(jPanel1);
+
+        getContentPane().add(jScrollPane2, java.awt.BorderLayout.CENTER);
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
@@ -584,6 +582,7 @@ public class openBISConnector extends javax.swing.JFrame implements TMARKERPlugi
     private javax.swing.JPanel jPanel2;
     private javax.swing.JPasswordField jPasswordField1;
     private javax.swing.JScrollPane jScrollPane1;
+    private javax.swing.JScrollPane jScrollPane2;
     private javax.swing.JTextArea jTextArea1;
     private javax.swing.JTextField jTextField1;
     private javax.swing.JTextField jTextField2;
@@ -790,6 +789,8 @@ public class openBISConnector extends javax.swing.JFrame implements TMARKERPlugi
         jPanel2.removeAll();
         jPanel2.add(jScrollPanel);
         
+        jPanel2.setPreferredSize(new Dimension(jPanel2.getPreferredSize().width, Math.min(250, jPanel2.getPreferredSize().height)));
+        
         pack();
 
         setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
@@ -870,7 +871,7 @@ public class openBISConnector extends javax.swing.JFrame implements TMARKERPlugi
                 // Inform user
                 String message = "TMARKER settings and image files have been uploaded to OpenBIS:\n"
                         + getSpace() + "/" + getProject() + "/" + getExperiment() + ".";
-                JOptionPane.showMessageDialog(this, message, "TMARKER successfully uploaded", JOptionPane.INFORMATION_MESSAGE);
+                JOptionPane.showMessageDialog(this, message, "Data successfully uploaded", JOptionPane.INFORMATION_MESSAGE);
                 logger.log(java.util.logging.Level.INFO, message);
             }
 
@@ -878,7 +879,7 @@ public class openBISConnector extends javax.swing.JFrame implements TMARKERPlugi
             // Inform user
             String message = "An error occured during the OpenBIS upload:\n"
                     + e.getMessage();
-            JOptionPane.showMessageDialog(this, message, "TMARKER successfully uploaded", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(this, message, "Data not uploaded", JOptionPane.ERROR_MESSAGE);
             logger.log(java.util.logging.Level.WARNING, e.getMessage());
         } finally {
             if (uploadFacade != null) {

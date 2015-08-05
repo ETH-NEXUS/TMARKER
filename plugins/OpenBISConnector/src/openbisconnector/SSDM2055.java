@@ -70,7 +70,7 @@ public class SSDM2055
 
     private static IOpenbisServiceFacade getService()
     {
-        return OpenbisServiceFacade.tryCreate("peschuef", "P3t3rS83+", "https://nexus-openbis.ethz.ch", 100000);
+        return OpenbisServiceFacade.tryCreate("user", "pw", "https://nexus-openbis.ethz.ch", 100000);
     }
 
 }

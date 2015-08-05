@@ -3789,8 +3789,8 @@ public final class tmarker extends javax.swing.JFrame {
 
             out.close();
         } catch (Exception ex) {
-            JOptionPane.showMessageDialog(t, "An error occurred while writing "
-                    + file.getName() + "\nMaybe it's still in use.", "Could not save file", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(t, "An error occurred while writing\n"
+                    + file.getPath() + "\nMaybe it's still in use.\n\nError Message:\n\n"+ex.getMessage(), "Could Not Save File", JOptionPane.ERROR_MESSAGE);
             logger.log(java.util.logging.Level.WARNING, ex.getMessage());
             return false;
         } finally {

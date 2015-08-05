@@ -47,63 +47,68 @@ public class TmarkerFileChooserTree extends FileChooserTree {
 
     private FileChooserTreeNode getRoot() {
         FileChooserTreeNode root = new FileChooserTreeNode(NodeType.ROOT, "openBIS");
-        
+
         for (DataSet dataset : facade.listDataSets()) {
-            String[] identifierParts = dataset.getExperimentIdentifier().split("/");
-            String spaceCode = identifierParts[1];
-            String projectCode = identifierParts[2];
-            String experimentCode = identifierParts[3];
+            String expID = dataset.getExperimentIdentifier();
+            if (expID != null && !expID.isEmpty()) {
+                String[] identifierParts = expID.split("/");
+                String spaceCode = identifierParts[1];
+                String projectCode = identifierParts[2];
+                String experimentCode = identifierParts[3];
 
-            FileChooserTreeNode spaceNode = root.getNode(NodeType.SPACE, spaceCode);
-            if (spaceNode == null) {
-                spaceNode = new FileChooserTreeNode(NodeType.SPACE, spaceCode);
-                root.addChild(spaceNode);
+                FileChooserTreeNode spaceNode = root.getNode(NodeType.SPACE, spaceCode);
+                if (spaceNode == null) {
+                    spaceNode = new FileChooserTreeNode(NodeType.SPACE, spaceCode);
+                    root.addChild(spaceNode);
+                }
+
+                FileChooserTreeNode projectNode = spaceNode.getNode(NodeType.PROJECT,
+                        projectCode);
+                if (projectNode == null) {
+                    projectNode = new FileChooserTreeNode(NodeType.PROJECT, projectCode);
+                    spaceNode.addChild(projectNode);
+                }
+
+                FileChooserTreeNode experimentNode = projectNode.getNode(NodeType.EXPERIMENT, experimentCode);
+                if (experimentNode == null) {
+                    experimentNode = new FileChooserTreeNode(NodeType.EXPERIMENT, experimentCode);
+                    projectNode.addChild(experimentNode);
+                }
+
+                experimentNode.addChild(new FileChooserTreeNode(NodeType.DATASET, "Dataset " + dataset.getRegistrationDate().toString() + " (" + dataset.getDataSetTypeCode() + ")", dataset));
             }
-
-            FileChooserTreeNode projectNode = spaceNode.getNode(NodeType.PROJECT,
-                    projectCode);
-            if (projectNode == null) {
-                projectNode = new FileChooserTreeNode(NodeType.PROJECT, projectCode);
-                spaceNode.addChild(projectNode);
-            }
-
-            FileChooserTreeNode experimentNode = projectNode.getNode(NodeType.EXPERIMENT, experimentCode);
-            if (experimentNode == null) {
-                experimentNode = new FileChooserTreeNode(NodeType.EXPERIMENT, experimentCode);
-                projectNode.addChild(experimentNode);
-            }
-
-            experimentNode.addChild(new FileChooserTreeNode(NodeType.DATASET, "Dataset " + dataset.getRegistrationDate().toString() + " (" + dataset.getDataSetTypeCode() + ")", dataset));
         }
-        
+
         for (Sample sample : facade.listSamples()) {
-            String[] identifierParts = sample.getExperimentIdentifierOrNull()
-                    .split("/");
-            String spaceCode = identifierParts[1];
-            String projectCode = identifierParts[2];
-            String experimentCode = identifierParts[3];
+            String sampleID = sample.getExperimentIdentifierOrNull();
+            if (sampleID != null && !sampleID.isEmpty()) {
+                String[] identifierParts = sampleID.split("/");
+                String spaceCode = identifierParts[1];
+                String projectCode = identifierParts[2];
+                String experimentCode = identifierParts[3];
 
-            FileChooserTreeNode spaceNode = root.getNode(NodeType.SPACE, spaceCode);
-            if (spaceNode == null) {
-                spaceNode = new FileChooserTreeNode(NodeType.SPACE, spaceCode);
-                root.addChild(spaceNode);
+                FileChooserTreeNode spaceNode = root.getNode(NodeType.SPACE, spaceCode);
+                if (spaceNode == null) {
+                    spaceNode = new FileChooserTreeNode(NodeType.SPACE, spaceCode);
+                    root.addChild(spaceNode);
+                }
+
+                FileChooserTreeNode projectNode = spaceNode.getNode(NodeType.PROJECT,
+                        projectCode);
+                if (projectNode == null) {
+                    projectNode = new FileChooserTreeNode(NodeType.PROJECT, projectCode);
+                    spaceNode.addChild(projectNode);
+                }
+
+                FileChooserTreeNode experimentNode = projectNode.getNode(NodeType.EXPERIMENT, experimentCode);
+                if (experimentNode == null) {
+                    experimentNode = new FileChooserTreeNode(NodeType.EXPERIMENT, experimentCode);
+                    projectNode.addChild(experimentNode);
+                }
+
+                String sampleTag = facade.listDataSetsBySample(sample.getPermId()).isEmpty() ? " (no data set)" : "";
+                experimentNode.addChild(new FileChooserTreeNode(NodeType.SAMPLE, "Sample " + sample.getCode() + sampleTag + " (" + sample.getSampleTypeCode() + ")", sample));
             }
-
-            FileChooserTreeNode projectNode = spaceNode.getNode(NodeType.PROJECT,
-                    projectCode);
-            if (projectNode == null) {
-                projectNode = new FileChooserTreeNode(NodeType.PROJECT, projectCode);
-                spaceNode.addChild(projectNode);
-            }
-
-            FileChooserTreeNode experimentNode = projectNode.getNode(NodeType.EXPERIMENT, experimentCode);
-            if (experimentNode == null) {
-                experimentNode = new FileChooserTreeNode(NodeType.EXPERIMENT, experimentCode);
-                projectNode.addChild(experimentNode);
-            }
-
-            String sampleTag = facade.listDataSetsBySample(sample.getPermId()).isEmpty() ? " (no data set)" : "";
-            experimentNode.addChild(new FileChooserTreeNode(NodeType.SAMPLE, "Sample " + sample.getCode() + sampleTag + " (" + sample.getSampleTypeCode() + ")", sample));
         }
 
         return root;
