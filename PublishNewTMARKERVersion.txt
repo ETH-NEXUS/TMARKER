@@ -1,0 +1,19 @@
+How to publish a new TMARKER version:
+
+- zip the "dist" folder of a TMARKER compilation (tmarker.jar and lib folder) to a folder called e.g. TMARKERv2.21665 (i.e. the version number in the name - just to have no confusion).
+
+- copy the zip folder here (/content/dam/ethz/special-interest/dual/nexus-dam/software/TMARKER/)
+
+- update the vnuc.txt to the new version number (TMARKER will look at this file for the "Search for updates" functionality).
+
+- update the download link on the Download website to the new zip file
+
+- activate the new new zip file, the edited vnuc.txt file and the edited Download website.
+
+Option 1: for minor revisions:
+ - delete the old TMARKERvx.xxxxx.zip file
+
+Option 2: for major revisions:
+ - move the old TMARKERvx.xxxxx.zip file into the folder old_versions
+ - create a new download link on the Download website under "old versions" to this moved zip file.
+ - activate the changes again.

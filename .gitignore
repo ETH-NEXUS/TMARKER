@@ -65,12 +65,9 @@ tmarker.conf
 Classifier.tma
 Datasets_TMARKER.lnk
 /plugins/*.jar
-vnuc.txt
 Screenshot.jpg
-src/tmarker/version.txt
 /devlibs/
 /Support/
-PublishNewTMARKERVersion.txt
 /plugins/OpenBISConnector/nbproject/private/
 /plugins/OpenBISConnector/build/
 /plugins/OpenBISConnector/dist/
