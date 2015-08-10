@@ -1489,7 +1489,7 @@
             <Component class="javax.swing.JButton" name="jButton7">
               <Properties>
                 <Property name="text" type="java.lang.String" value="Save Channel 1 ..."/>
-                <Property name="toolTipText" type="java.lang.String" value="Save channel 1 of selected images"/>
+                <Property name="toolTipText" type="java.lang.String" value="Save channel 1 of processed images"/>
               </Properties>
               <Events>
                 <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="jButton7ActionPerformed"/>
@@ -1503,7 +1503,7 @@
             <Component class="javax.swing.JButton" name="jButton8">
               <Properties>
                 <Property name="text" type="java.lang.String" value="Save Channel 2 ..."/>
-                <Property name="toolTipText" type="java.lang.String" value="Save channel 2 of selected images"/>
+                <Property name="toolTipText" type="java.lang.String" value="Save channel 2 of processed images"/>
               </Properties>
               <Events>
                 <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="jButton8ActionPerformed"/>
@@ -1517,7 +1517,7 @@
             <Component class="javax.swing.JButton" name="jButton9">
               <Properties>
                 <Property name="text" type="java.lang.String" value="Save Channel 3 ..."/>
-                <Property name="toolTipText" type="java.lang.String" value="Save channel 2 of selected images"/>
+                <Property name="toolTipText" type="java.lang.String" value="Save channel 2 of processed images"/>
               </Properties>
               <Events>
                 <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="jButton9ActionPerformed"/>

@@ -1325,8 +1325,8 @@ public class StainingEstimation extends javax.swing.JFrame implements TMARKERPlu
         gridBagConstraints.insets = new java.awt.Insets(0, 0, 5, 5);
         jPanel1.add(jButton1, gridBagConstraints);
 
-				jButton7.setText("Save Channel 1 ...");
-        jButton7.setToolTipText("Save channel 1 of selected images");
+        jButton7.setText("Save Channel 1 ...");
+        jButton7.setToolTipText("Save channel 1 of processed images");
         jButton7.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 jButton7ActionPerformed(evt);
@@ -1341,7 +1341,7 @@ public class StainingEstimation extends javax.swing.JFrame implements TMARKERPlu
         jPanel1.add(jButton7, gridBagConstraints);
 
         jButton8.setText("Save Channel 2 ...");
-        jButton8.setToolTipText("Save channel 2 of selected images");
+        jButton8.setToolTipText("Save channel 2 of processed images");
         jButton8.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 jButton8ActionPerformed(evt);
@@ -1356,7 +1356,7 @@ public class StainingEstimation extends javax.swing.JFrame implements TMARKERPlu
         jPanel1.add(jButton8, gridBagConstraints);
 
         jButton9.setText("Save Channel 3 ...");
-        jButton9.setToolTipText("Save channel 2 of selected images");
+        jButton9.setToolTipText("Save channel 2 of processed images");
         jButton9.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 jButton9ActionPerformed(evt);

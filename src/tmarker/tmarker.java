@@ -3790,7 +3790,7 @@ public final class tmarker extends javax.swing.JFrame {
             out.close();
         } catch (Exception ex) {
             JOptionPane.showMessageDialog(t, "An error occurred while writing\n"
-                    + file.getPath() + "\nMaybe it's still in use.\n\nError Message:\n\n"+ex.getMessage(), "Could Not Save File", JOptionPane.ERROR_MESSAGE);
+                    + file.getPath() + "\nMaybe it's still in use or Java does not have write permission.\n\nError Message:\n\n"+ex.getMessage(), "Could Not Save File", JOptionPane.ERROR_MESSAGE);
             logger.log(java.util.logging.Level.WARNING, ex.getMessage());
             return false;
         } finally {
@@ -4218,7 +4218,7 @@ public final class tmarker extends javax.swing.JFrame {
             @Override
             public void run() {
                 jSplitPane2.setDividerLocation(462);
-                jSplitPane1.setDividerLocation((java.awt.Toolkit.getDefaultToolkit().getScreenSize().width - jSplitPane2.getDividerLocation() - 300.0) / (java.awt.Toolkit.getDefaultToolkit().getScreenSize().width - jSplitPane2.getDividerLocation()));
+                jSplitPane1.setDividerLocation(jSplitPane1.getWidth() - 300);
             }
         });
         

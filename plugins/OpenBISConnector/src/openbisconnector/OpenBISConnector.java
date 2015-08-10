@@ -854,8 +854,8 @@ public class openBISConnector extends javax.swing.JFrame implements TMARKERPlugi
             Date date = new Date();
 
             // create a temp xml file
-            File xmlFile = new File(pluginmanager.getTmpDir() + File.separator + "TMARKER_" + date.toString().replaceAll(" ", "-").replaceAll(":", "-") + ".xml");
-
+            File xmlFile = File.createTempFile("TMARKER_" + date.toString().replaceAll(" ", "-").replaceAll(":", "-"), ".xml");
+            
             // Save TMARKER with the TMAspot to XML
             boolean success = pluginmanager.SaveAsXML(xmlFile);
 
