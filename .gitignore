@@ -1,6 +1,4 @@
 /TMARKER/nbproject/private/
-build.xml
-manifest.mf
 nbproject/private/private.properties
 plugins/CancerNucleusClassification/nbproject/build-impl.xml
 plugins/CancerNucleusClassification/nbproject/project.properties
