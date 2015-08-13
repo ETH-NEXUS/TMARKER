@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<library xmlns="http://www.netbeans.org/ns/library-declaration/3" version="3.0">
+    <name>jSoup</name>
+    <type>j2se</type>
+    <display-name>jSoup</display-name>
+    <volume>
+        <type>classpath</type>
+        <resource>jar:file:/E:/git/TMARKER/lib/jsoup/jsoup-1.8.1.jar!/</resource>
+    </volume>
+    <volume>
+        <type>src</type>
+        <resource>jar:file:/E:/git/TMARKER/lib/jsoup/jsoup-1.8.1-sources.jar!//</resource>
+    </volume>
+    <volume>
+        <type>javadoc</type>
+        <resource>jar:file:/E:/git/TMARKER/lib/jsoup/jsoup-1.8.1-javadoc.jar!//</resource>
+    </volume>
+    <volume>
+        <type>maven-pom</type>
+    </volume>
+    <properties/>
+</library>

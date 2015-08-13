@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<library xmlns="http://www.netbeans.org/ns/library-declaration/3" version="3.0">
+    <name>commons-lang</name>
+    <type>j2se</type>
+    <display-name>commons-lang</display-name>
+    <volume>
+        <type>classpath</type>
+        <resource>jar:file:/E:/git/TMARKER/lib/commons-lang/commons-lang3-3.2.1.jar!/</resource>
+    </volume>
+    <volume>
+        <type>src</type>
+        <resource>jar:file:/E:/git/TMARKER/lib/commons-lang/commons-lang3-3.2.1-sources.jar!//</resource>
+    </volume>
+    <volume>
+        <type>javadoc</type>
+        <resource>jar:file:/E:/git/TMARKER/lib/commons-lang/commons-lang3-3.2.1-javadoc.jar!//</resource>
+    </volume>
+    <volume>
+        <type>maven-pom</type>
+    </volume>
+    <properties/>
+</library>

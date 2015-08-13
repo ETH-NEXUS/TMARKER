@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<library xmlns="http://www.netbeans.org/ns/library-declaration/3" version="3.0">
+    <name>jFeatureLib</name>
+    <type>j2se</type>
+    <display-name>jFeatureLib</display-name>
+    <volume>
+        <type>classpath</type>
+        <resource>jar:file:/E:/git/TMARKER/lib/jFeatureLib/JFeatureLib-1.6.0-jar-with-dependencies.jar!/</resource>
+    </volume>
+    <volume>
+        <type>src</type>
+        <resource>jar:file:/E:/git/TMARKER/lib/jFeatureLib/JFeatureLib-1.6.0-sources.jar!//</resource>
+    </volume>
+    <volume>
+        <type>javadoc</type>
+        <resource>jar:file:/E:/git/TMARKER/lib/jFeatureLib/JFeatureLib-1.6.0-javadoc.jar!//</resource>
+    </volume>
+    <volume>
+        <type>maven-pom</type>
+    </volume>
+    <properties/>
+</library>

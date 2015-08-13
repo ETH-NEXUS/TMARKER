@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<library xmlns="http://www.netbeans.org/ns/library-declaration/3" version="3.0">
+    <name>openBIS</name>
+    <type>j2se</type>
+    <display-name>openBIS</display-name>
+    <volume>
+        <type>classpath</type>
+        <resource>jar:file:/E:/git/TMARKER/lib/openBIS/dss_client.jar!/</resource>
+        <resource>jar:file:/E:/git/TMARKER/lib/openBIS/openBIS-query-API-SNAPSHOT-r33887.jar!/</resource>
+        <resource>jar:file:/E:/git/TMARKER/lib/openBIS/openbis-common.jar!/</resource>
+    </volume>
+    <volume>
+        <type>src</type>
+        <resource>jar:file:/E:/git/TMARKER/lib/openBIS/sources-query-api.jar!//</resource>
+    </volume>
+    <volume>
+        <type>javadoc</type>
+        <resource>jar:file:/E:/git/TMARKER/lib/openBIS/javadoc-query-api.jar!//</resource>
+    </volume>
+    <volume>
+        <type>maven-pom</type>
+    </volume>
+    <properties/>
+</library>

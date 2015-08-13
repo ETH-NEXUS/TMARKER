@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<library xmlns="http://www.netbeans.org/ns/library-declaration/3" version="3.0">
+    <name>commons-math</name>
+    <type>j2se</type>
+    <display-name>commons-math</display-name>
+    <volume>
+        <type>classpath</type>
+        <resource>jar:file:/E:/git/TMARKER/lib/commons-math/commons-math3-3.4.1.jar!/</resource>
+    </volume>
+    <volume>
+        <type>src</type>
+    </volume>
+    <volume>
+        <type>javadoc</type>
+        <resource>jar:file:/E:/git/TMARKER/lib/commons-math/commons-math3-3.4.1-javadoc.jar!//</resource>
+    </volume>
+    <volume>
+        <type>maven-pom</type>
+    </volume>
+    <properties/>
+</library>

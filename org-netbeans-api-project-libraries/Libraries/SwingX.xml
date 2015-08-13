@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<library xmlns="http://www.netbeans.org/ns/library-declaration/3" version="3.0">
+    <name>SwingX</name>
+    <type>j2se</type>
+    <display-name>SwingX</display-name>
+    <volume>
+        <type>classpath</type>
+        <resource>jar:file:/E:/git/TMARKER/lib/swingX/swingx-all-1.6.4.jar!/</resource>
+        <resource>jar:file:/E:/git/TMARKER/lib/swingX/swingx-beaninfo-1.6.4.jar!/</resource>
+    </volume>
+    <volume>
+        <type>src</type>
+        <resource>jar:file:/E:/git/TMARKER/lib/swingX/swingx-all-1.6.4-sources.jar!//</resource>
+        <resource>jar:file:/E:/git/TMARKER/lib/swingX/swingx-beaninfo-1.6.4-sources.jar!//</resource>
+    </volume>
+    <volume>
+        <type>javadoc</type>
+        <resource>jar:file:/E:/git/TMARKER/lib/swingX/swingx-all-1.6.4-javadoc.jar!//</resource>
+        <resource>jar:file:/E:/git/TMARKER/lib/swingX/swingx-beaninfo-1.6.4-javadoc.jar!//</resource>
+    </volume>
+    <volume>
+        <type>maven-pom</type>
+    </volume>
+    <properties/>
+</library>
