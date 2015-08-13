@@ -25,12 +25,10 @@ tmarker.conf
 *preview-application.html
 /demonstration_dataset/
 /test_dataset/
-/DemonstrationData/
 /img/
 /izpack/
 /labeled_data/
 /Leila/
-/Licenses/
 /tutorial/
 Classifier.tma
 Datasets_TMARKER.lnk

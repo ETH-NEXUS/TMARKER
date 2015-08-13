@@ -1,0 +1,1981 @@
+<list>
+  <TMAspot>
+    <original__filename>..\..\prostate_cancer_mib_validation_4.jpg</original__filename>
+    <bgCorrected__filename></bgCorrected__filename>
+    <nuclei>
+      <TMApoint>
+        <x>247</x>
+        <y>350</y>
+        <label>1</label>
+        <goldStandard>1</goldStandard>
+        <isTrainingsPoint__classification>false</isTrainingsPoint__classification>
+        <isTrainingsPoint__detection>false</isTrainingsPoint__detection>
+        <ts reference="../../.."/>
+      </TMApoint>
+      <TMApoint>
+        <x>266</x>
+        <y>328</y>
+        <label>1</label>
+        <goldStandard>1</goldStandard>
+        <isTrainingsPoint__classification>false</isTrainingsPoint__classification>
+        <isTrainingsPoint__detection>false</isTrainingsPoint__detection>
+        <ts reference="../../.."/>
+      </TMApoint>
+      <TMApoint>
+        <x>289</x>
+        <y>305</y>
+        <label>1</label>
+        <goldStandard>1</goldStandard>
+        <isTrainingsPoint__classification>false</isTrainingsPoint__classification>
+        <isTrainingsPoint__detection>false</isTrainingsPoint__detection>
+        <ts reference="../../.."/>
+      </TMApoint>
+      <TMApoint>
+        <x>238</x>
+        <y>284</y>
+        <label>1</label>
+        <goldStandard>1</goldStandard>
+        <isTrainingsPoint__classification>false</isTrainingsPoint__classification>
+        <isTrainingsPoint__detection>false</isTrainingsPoint__detection>
+        <ts reference="../../.."/>
+      </TMApoint>
+      <TMApoint>
+        <x>205</x>
+        <y>310</y>
+        <label>1</label>
+        <goldStandard>1</goldStandard>
+        <isTrainingsPoint__classification>false</isTrainingsPoint__classification>
+        <isTrainingsPoint__detection>false</isTrainingsPoint__detection>
+        <ts reference="../../.."/>
+      </TMApoint>
+      <TMApoint>
+        <x>196</x>
+        <y>261</y>
+        <label>1</label>
+        <goldStandard>1</goldStandard>
+        <isTrainingsPoint__classification>false</isTrainingsPoint__classification>
+        <isTrainingsPoint__detection>false</isTrainingsPoint__detection>
+        <ts reference="../../.."/>
+      </TMApoint>
+      <TMApoint>
+        <x>205</x>
+        <y>217</y>
+        <label>1</label>
+        <goldStandard>1</goldStandard>
+        <isTrainingsPoint__classification>false</isTrainingsPoint__classification>
+        <isTrainingsPoint__detection>false</isTrainingsPoint__detection>
+        <ts reference="../../.."/>
+      </TMApoint>
+      <TMApoint>
+        <x>266</x>
+        <y>254</y>
+        <label>1</label>
+        <goldStandard>1</goldStandard>
+        <isTrainingsPoint__classification>false</isTrainingsPoint__classification>
+        <isTrainingsPoint__detection>false</isTrainingsPoint__detection>
+        <ts reference="../../.."/>
+      </TMApoint>
+      <TMApoint>
+        <x>296</x>
+        <y>240</y>
+        <label>1</label>
+        <goldStandard>1</goldStandard>
+        <isTrainingsPoint__classification>false</isTrainingsPoint__classification>
+        <isTrainingsPoint__detection>false</isTrainingsPoint__detection>
+        <ts reference="../../.."/>
+      </TMApoint>
+      <TMApoint>
+        <x>331</x>
+        <y>257</y>
+        <label>1</label>
+        <goldStandard>1</goldStandard>
+        <isTrainingsPoint__classification>false</isTrainingsPoint__classification>
+        <isTrainingsPoint__detection>false</isTrainingsPoint__detection>
+        <ts reference="../../.."/>
+      </TMApoint>
+      <TMApoint>
+        <x>361</x>
+        <y>224</y>
+        <label>1</label>
+        <goldStandard>1</goldStandard>
+        <isTrainingsPoint__classification>false</isTrainingsPoint__classification>
+        <isTrainingsPoint__detection>false</isTrainingsPoint__detection>
+        <ts reference="../../.."/>
+      </TMApoint>
+      <TMApoint>
+        <x>329</x>
+        <y>180</y>
+        <label>1</label>
+        <goldStandard>1</goldStandard>
+        <isTrainingsPoint__classification>false</isTrainingsPoint__classification>
+        <isTrainingsPoint__detection>false</isTrainingsPoint__detection>
+        <ts reference="../../.."/>
+      </TMApoint>
+      <TMApoint>
+        <x>363</x>
+        <y>142</y>
+        <label>1</label>
+        <goldStandard>1</goldStandard>
+        <isTrainingsPoint__classification>false</isTrainingsPoint__classification>
+        <isTrainingsPoint__detection>false</isTrainingsPoint__detection>
+        <ts reference="../../.."/>
+      </TMApoint>
+      <TMApoint>
+        <x>328</x>
+        <y>140</y>
+        <label>1</label>
+        <goldStandard>1</goldStandard>
+        <isTrainingsPoint__classification>false</isTrainingsPoint__classification>
+        <isTrainingsPoint__detection>false</isTrainingsPoint__detection>
+        <ts reference="../../.."/>
+      </TMApoint>
+      <TMApoint>
+        <x>331</x>
+        <y>108</y>
+        <label>1</label>
+        <goldStandard>1</goldStandard>
+        <isTrainingsPoint__classification>false</isTrainingsPoint__classification>
+        <isTrainingsPoint__detection>false</isTrainingsPoint__detection>
+        <ts reference="../../.."/>
+      </TMApoint>
+      <TMApoint>
+        <x>426</x>
+        <y>143</y>
+        <label>1</label>
+        <goldStandard>1</goldStandard>
+        <isTrainingsPoint__classification>false</isTrainingsPoint__classification>
+        <isTrainingsPoint__detection>false</isTrainingsPoint__detection>
+        <ts reference="../../.."/>
+      </TMApoint>
+      <TMApoint>
+        <x>389</x>
+        <y>173</y>
+        <label>1</label>
+        <goldStandard>1</goldStandard>
+        <isTrainingsPoint__classification>false</isTrainingsPoint__classification>
+        <isTrainingsPoint__detection>false</isTrainingsPoint__detection>
+        <ts reference="../../.."/>
+      </TMApoint>
+      <TMApoint>
+        <x>429</x>
+        <y>222</y>
+        <label>1</label>
+        <goldStandard>1</goldStandard>
+        <isTrainingsPoint__classification>false</isTrainingsPoint__classification>
+        <isTrainingsPoint__detection>false</isTrainingsPoint__detection>
+        <ts reference="../../.."/>
+      </TMApoint>
+      <TMApoint>
+        <x>401</x>
+        <y>236</y>
+        <label>1</label>
+        <goldStandard>1</goldStandard>
+        <isTrainingsPoint__classification>false</isTrainingsPoint__classification>
+        <isTrainingsPoint__detection>false</isTrainingsPoint__detection>
+        <ts reference="../../.."/>
+      </TMApoint>
+      <TMApoint>
+        <x>400</x>
+        <y>287</y>
+        <label>1</label>
+        <goldStandard>1</goldStandard>
+        <isTrainingsPoint__classification>false</isTrainingsPoint__classification>
+        <isTrainingsPoint__detection>false</isTrainingsPoint__detection>
+        <ts reference="../../.."/>
+      </TMApoint>
+      <TMApoint>
+        <x>368</x>
+        <y>319</y>
+        <label>1</label>
+        <goldStandard>1</goldStandard>
+        <isTrainingsPoint__classification>false</isTrainingsPoint__classification>
+        <isTrainingsPoint__detection>false</isTrainingsPoint__detection>
+        <ts reference="../../.."/>
+      </TMApoint>
+      <TMApoint>
+        <x>307</x>
+        <y>391</y>
+        <label>1</label>
+        <goldStandard>1</goldStandard>
+        <isTrainingsPoint__classification>false</isTrainingsPoint__classification>
+        <isTrainingsPoint__detection>false</isTrainingsPoint__detection>
+        <ts reference="../../.."/>
+      </TMApoint>
+      <TMApoint>
+        <x>343</x>
+        <y>391</y>
+        <label>1</label>
+        <goldStandard>1</goldStandard>
+        <isTrainingsPoint__classification>false</isTrainingsPoint__classification>
+        <isTrainingsPoint__detection>false</isTrainingsPoint__detection>
+        <ts reference="../../.."/>
+      </TMApoint>
+      <TMApoint>
+        <x>328</x>
+        <y>431</y>
+        <label>1</label>
+        <goldStandard>1</goldStandard>
+        <isTrainingsPoint__classification>false</isTrainingsPoint__classification>
+        <isTrainingsPoint__detection>false</isTrainingsPoint__detection>
+        <ts reference="../../.."/>
+      </TMApoint>
+      <TMApoint>
+        <x>319</x>
+        <y>459</y>
+        <label>1</label>
+        <goldStandard>1</goldStandard>
+        <isTrainingsPoint__classification>false</isTrainingsPoint__classification>
+        <isTrainingsPoint__detection>false</isTrainingsPoint__detection>
+        <ts reference="../../.."/>
+      </TMApoint>
+      <TMApoint>
+        <x>292</x>
+        <y>471</y>
+        <label>1</label>
+        <goldStandard>1</goldStandard>
+        <isTrainingsPoint__classification>false</isTrainingsPoint__classification>
+        <isTrainingsPoint__detection>false</isTrainingsPoint__detection>
+        <ts reference="../../.."/>
+      </TMApoint>
+      <TMApoint>
+        <x>228</x>
+        <y>517</y>
+        <label>1</label>
+        <goldStandard>1</goldStandard>
+        <isTrainingsPoint__classification>false</isTrainingsPoint__classification>
+        <isTrainingsPoint__detection>false</isTrainingsPoint__detection>
+        <ts reference="../../.."/>
+      </TMApoint>
+      <TMApoint>
+        <x>184</x>
+        <y>496</y>
+        <label>1</label>
+        <goldStandard>1</goldStandard>
+        <isTrainingsPoint__classification>false</isTrainingsPoint__classification>
+        <isTrainingsPoint__detection>false</isTrainingsPoint__detection>
+        <ts reference="../../.."/>
+      </TMApoint>
+      <TMApoint>
+        <x>196</x>
+        <y>459</y>
+        <label>1</label>
+        <goldStandard>1</goldStandard>
+        <isTrainingsPoint__classification>false</isTrainingsPoint__classification>
+        <isTrainingsPoint__detection>false</isTrainingsPoint__detection>
+        <ts reference="../../.."/>
+      </TMApoint>
+      <TMApoint>
+        <x>119</x>
+        <y>431</y>
+        <label>1</label>
+        <goldStandard>1</goldStandard>
+        <isTrainingsPoint__classification>false</isTrainingsPoint__classification>
+        <isTrainingsPoint__detection>false</isTrainingsPoint__detection>
+        <ts reference="../../.."/>
+      </TMApoint>
+      <TMApoint>
+        <x>91</x>
+        <y>419</y>
+        <label>1</label>
+        <goldStandard>1</goldStandard>
+        <isTrainingsPoint__classification>false</isTrainingsPoint__classification>
+        <isTrainingsPoint__detection>false</isTrainingsPoint__detection>
+        <ts reference="../../.."/>
+      </TMApoint>
+      <TMApoint>
+        <x>98</x>
+        <y>359</y>
+        <label>1</label>
+        <goldStandard>1</goldStandard>
+        <isTrainingsPoint__classification>false</isTrainingsPoint__classification>
+        <isTrainingsPoint__detection>false</isTrainingsPoint__detection>
+        <ts reference="../../.."/>
+      </TMApoint>
+      <TMApoint>
+        <x>126</x>
+        <y>349</y>
+        <label>1</label>
+        <goldStandard>1</goldStandard>
+        <isTrainingsPoint__classification>false</isTrainingsPoint__classification>
+        <isTrainingsPoint__detection>false</isTrainingsPoint__detection>
+        <ts reference="../../.."/>
+      </TMApoint>
+      <TMApoint>
+        <x>147</x>
+        <y>322</y>
+        <label>1</label>
+        <goldStandard>1</goldStandard>
+        <isTrainingsPoint__classification>false</isTrainingsPoint__classification>
+        <isTrainingsPoint__detection>false</isTrainingsPoint__detection>
+        <ts reference="../../.."/>
+      </TMApoint>
+      <TMApoint>
+        <x>68</x>
+        <y>350</y>
+        <label>1</label>
+        <goldStandard>1</goldStandard>
+        <isTrainingsPoint__classification>false</isTrainingsPoint__classification>
+        <isTrainingsPoint__detection>false</isTrainingsPoint__detection>
+        <ts reference="../../.."/>
+      </TMApoint>
+      <TMApoint>
+        <x>101</x>
+        <y>252</y>
+        <label>1</label>
+        <goldStandard>1</goldStandard>
+        <isTrainingsPoint__classification>false</isTrainingsPoint__classification>
+        <isTrainingsPoint__detection>false</isTrainingsPoint__detection>
+        <ts reference="../../.."/>
+      </TMApoint>
+      <TMApoint>
+        <x>63</x>
+        <y>275</y>
+        <label>1</label>
+        <goldStandard>1</goldStandard>
+        <isTrainingsPoint__classification>false</isTrainingsPoint__classification>
+        <isTrainingsPoint__detection>false</isTrainingsPoint__detection>
+        <ts reference="../../.."/>
+      </TMApoint>
+      <TMApoint>
+        <x>33</x>
+        <y>263</y>
+        <label>1</label>
+        <goldStandard>1</goldStandard>
+        <isTrainingsPoint__classification>false</isTrainingsPoint__classification>
+        <isTrainingsPoint__detection>false</isTrainingsPoint__detection>
+        <ts reference="../../.."/>
+      </TMApoint>
+      <TMApoint>
+        <x>8</x>
+        <y>261</y>
+        <label>1</label>
+        <goldStandard>1</goldStandard>
+        <isTrainingsPoint__classification>false</isTrainingsPoint__classification>
+        <isTrainingsPoint__detection>false</isTrainingsPoint__detection>
+        <ts reference="../../.."/>
+      </TMApoint>
+      <TMApoint>
+        <x>21</x>
+        <y>224</y>
+        <label>1</label>
+        <goldStandard>1</goldStandard>
+        <isTrainingsPoint__classification>false</isTrainingsPoint__classification>
+        <isTrainingsPoint__detection>false</isTrainingsPoint__detection>
+        <ts reference="../../.."/>
+      </TMApoint>
+      <TMApoint>
+        <x>147</x>
+        <y>257</y>
+        <label>1</label>
+        <goldStandard>1</goldStandard>
+        <isTrainingsPoint__classification>false</isTrainingsPoint__classification>
+        <isTrainingsPoint__detection>false</isTrainingsPoint__detection>
+        <ts reference="../../.."/>
+      </TMApoint>
+      <TMApoint>
+        <x>163</x>
+        <y>233</y>
+        <label>1</label>
+        <goldStandard>1</goldStandard>
+        <isTrainingsPoint__classification>false</isTrainingsPoint__classification>
+        <isTrainingsPoint__detection>false</isTrainingsPoint__detection>
+        <ts reference="../../.."/>
+      </TMApoint>
+      <TMApoint>
+        <x>119</x>
+        <y>205</y>
+        <label>1</label>
+        <goldStandard>1</goldStandard>
+        <isTrainingsPoint__classification>false</isTrainingsPoint__classification>
+        <isTrainingsPoint__detection>false</isTrainingsPoint__detection>
+        <ts reference="../../.."/>
+      </TMApoint>
+      <TMApoint>
+        <x>143</x>
+        <y>178</y>
+        <label>1</label>
+        <goldStandard>1</goldStandard>
+        <isTrainingsPoint__classification>false</isTrainingsPoint__classification>
+        <isTrainingsPoint__detection>false</isTrainingsPoint__detection>
+        <ts reference="../../.."/>
+      </TMApoint>
+      <TMApoint>
+        <x>175</x>
+        <y>133</y>
+        <label>1</label>
+        <goldStandard>1</goldStandard>
+        <isTrainingsPoint__classification>false</isTrainingsPoint__classification>
+        <isTrainingsPoint__detection>false</isTrainingsPoint__detection>
+        <ts reference="../../.."/>
+      </TMApoint>
+      <TMApoint>
+        <x>96</x>
+        <y>121</y>
+        <label>1</label>
+        <goldStandard>1</goldStandard>
+        <isTrainingsPoint__classification>false</isTrainingsPoint__classification>
+        <isTrainingsPoint__detection>false</isTrainingsPoint__detection>
+        <ts reference="../../.."/>
+      </TMApoint>
+      <TMApoint>
+        <x>49</x>
+        <y>122</y>
+        <label>1</label>
+        <goldStandard>1</goldStandard>
+        <isTrainingsPoint__classification>false</isTrainingsPoint__classification>
+        <isTrainingsPoint__detection>false</isTrainingsPoint__detection>
+        <ts reference="../../.."/>
+      </TMApoint>
+      <TMApoint>
+        <x>61</x>
+        <y>68</y>
+        <label>1</label>
+        <goldStandard>1</goldStandard>
+        <isTrainingsPoint__classification>false</isTrainingsPoint__classification>
+        <isTrainingsPoint__detection>false</isTrainingsPoint__detection>
+        <ts reference="../../.."/>
+      </TMApoint>
+      <TMApoint>
+        <x>184</x>
+        <y>98</y>
+        <label>1</label>
+        <goldStandard>1</goldStandard>
+        <isTrainingsPoint__classification>false</isTrainingsPoint__classification>
+        <isTrainingsPoint__detection>false</isTrainingsPoint__detection>
+        <ts reference="../../.."/>
+      </TMApoint>
+      <TMApoint>
+        <x>264</x>
+        <y>87</y>
+        <label>1</label>
+        <goldStandard>1</goldStandard>
+        <isTrainingsPoint__classification>false</isTrainingsPoint__classification>
+        <isTrainingsPoint__detection>false</isTrainingsPoint__detection>
+        <ts reference="../../.."/>
+      </TMApoint>
+      <TMApoint>
+        <x>221</x>
+        <y>59</y>
+        <label>1</label>
+        <goldStandard>1</goldStandard>
+        <isTrainingsPoint__classification>false</isTrainingsPoint__classification>
+        <isTrainingsPoint__detection>false</isTrainingsPoint__detection>
+        <ts reference="../../.."/>
+      </TMApoint>
+      <TMApoint>
+        <x>168</x>
+        <y>601</y>
+        <label>1</label>
+        <goldStandard>1</goldStandard>
+        <isTrainingsPoint__classification>false</isTrainingsPoint__classification>
+        <isTrainingsPoint__detection>false</isTrainingsPoint__detection>
+        <ts reference="../../.."/>
+      </TMApoint>
+      <TMApoint>
+        <x>198</x>
+        <y>582</y>
+        <label>1</label>
+        <goldStandard>1</goldStandard>
+        <isTrainingsPoint__classification>false</isTrainingsPoint__classification>
+        <isTrainingsPoint__detection>false</isTrainingsPoint__detection>
+        <ts reference="../../.."/>
+      </TMApoint>
+      <TMApoint>
+        <x>192</x>
+        <y>556</y>
+        <label>1</label>
+        <goldStandard>1</goldStandard>
+        <isTrainingsPoint__classification>false</isTrainingsPoint__classification>
+        <isTrainingsPoint__detection>false</isTrainingsPoint__detection>
+        <ts reference="../../.."/>
+      </TMApoint>
+      <TMApoint>
+        <x>143</x>
+        <y>557</y>
+        <label>1</label>
+        <goldStandard>1</goldStandard>
+        <isTrainingsPoint__classification>false</isTrainingsPoint__classification>
+        <isTrainingsPoint__detection>false</isTrainingsPoint__detection>
+        <ts reference="../../.."/>
+      </TMApoint>
+      <TMApoint>
+        <x>107</x>
+        <y>557</y>
+        <label>1</label>
+        <goldStandard>1</goldStandard>
+        <isTrainingsPoint__classification>false</isTrainingsPoint__classification>
+        <isTrainingsPoint__detection>false</isTrainingsPoint__detection>
+        <ts reference="../../.."/>
+      </TMApoint>
+      <TMApoint>
+        <x>80</x>
+        <y>582</y>
+        <label>1</label>
+        <goldStandard>1</goldStandard>
+        <isTrainingsPoint__classification>false</isTrainingsPoint__classification>
+        <isTrainingsPoint__detection>false</isTrainingsPoint__detection>
+        <ts reference="../../.."/>
+      </TMApoint>
+      <TMApoint>
+        <x>42</x>
+        <y>566</y>
+        <label>1</label>
+        <goldStandard>1</goldStandard>
+        <isTrainingsPoint__classification>false</isTrainingsPoint__classification>
+        <isTrainingsPoint__detection>false</isTrainingsPoint__detection>
+        <ts reference="../../.."/>
+      </TMApoint>
+      <TMApoint>
+        <x>346</x>
+        <y>586</y>
+        <label>1</label>
+        <goldStandard>1</goldStandard>
+        <isTrainingsPoint__classification>false</isTrainingsPoint__classification>
+        <isTrainingsPoint__detection>false</isTrainingsPoint__detection>
+        <ts reference="../../.."/>
+      </TMApoint>
+      <TMApoint>
+        <x>352</x>
+        <y>624</y>
+        <label>1</label>
+        <goldStandard>1</goldStandard>
+        <isTrainingsPoint__classification>false</isTrainingsPoint__classification>
+        <isTrainingsPoint__detection>false</isTrainingsPoint__detection>
+        <ts reference="../../.."/>
+      </TMApoint>
+      <TMApoint>
+        <x>301</x>
+        <y>616</y>
+        <label>1</label>
+        <goldStandard>1</goldStandard>
+        <isTrainingsPoint__classification>false</isTrainingsPoint__classification>
+        <isTrainingsPoint__detection>false</isTrainingsPoint__detection>
+        <ts reference="../../.."/>
+      </TMApoint>
+      <TMApoint>
+        <x>282</x>
+        <y>569</y>
+        <label>1</label>
+        <goldStandard>1</goldStandard>
+        <isTrainingsPoint__classification>false</isTrainingsPoint__classification>
+        <isTrainingsPoint__detection>false</isTrainingsPoint__detection>
+        <ts reference="../../.."/>
+      </TMApoint>
+      <TMApoint>
+        <x>312</x>
+        <y>573</y>
+        <label>1</label>
+        <goldStandard>1</goldStandard>
+        <isTrainingsPoint__classification>false</isTrainingsPoint__classification>
+        <isTrainingsPoint__detection>false</isTrainingsPoint__detection>
+        <ts reference="../../.."/>
+      </TMApoint>
+      <TMApoint>
+        <x>254</x>
+        <y>543</y>
+        <label>-1</label>
+        <goldStandard>1</goldStandard>
+        <isTrainingsPoint__classification>false</isTrainingsPoint__classification>
+        <isTrainingsPoint__detection>false</isTrainingsPoint__detection>
+        <ts reference="../../.."/>
+      </TMApoint>
+      <TMApoint>
+        <x>151</x>
+        <y>669</y>
+        <label>0</label>
+        <goldStandard>1</goldStandard>
+        <isTrainingsPoint__classification>false</isTrainingsPoint__classification>
+        <isTrainingsPoint__detection>false</isTrainingsPoint__detection>
+        <ts reference="../../.."/>
+      </TMApoint>
+      <TMApoint>
+        <x>398</x>
+        <y>341</y>
+        <label>-1</label>
+        <goldStandard>1</goldStandard>
+        <isTrainingsPoint__classification>false</isTrainingsPoint__classification>
+        <isTrainingsPoint__detection>false</isTrainingsPoint__detection>
+        <ts reference="../../.."/>
+      </TMApoint>
+      <TMApoint>
+        <x>415</x>
+        <y>573</y>
+        <label>-1</label>
+        <goldStandard>1</goldStandard>
+        <isTrainingsPoint__classification>false</isTrainingsPoint__classification>
+        <isTrainingsPoint__detection>false</isTrainingsPoint__detection>
+        <ts reference="../../.."/>
+      </TMApoint>
+      <TMApoint>
+        <x>396</x>
+        <y>517</y>
+        <label>-1</label>
+        <goldStandard>1</goldStandard>
+        <isTrainingsPoint__classification>false</isTrainingsPoint__classification>
+        <isTrainingsPoint__detection>false</isTrainingsPoint__detection>
+        <ts reference="../../.."/>
+      </TMApoint>
+      <TMApoint>
+        <x>388</x>
+        <y>459</y>
+        <label>-1</label>
+        <goldStandard>1</goldStandard>
+        <isTrainingsPoint__classification>false</isTrainingsPoint__classification>
+        <isTrainingsPoint__detection>false</isTrainingsPoint__detection>
+        <ts reference="../../.."/>
+      </TMApoint>
+      <TMApoint>
+        <x>398</x>
+        <y>484</y>
+        <label>-1</label>
+        <goldStandard>1</goldStandard>
+        <isTrainingsPoint__classification>false</isTrainingsPoint__classification>
+        <isTrainingsPoint__detection>false</isTrainingsPoint__detection>
+        <ts reference="../../.."/>
+      </TMApoint>
+      <TMApoint>
+        <x>393</x>
+        <y>426</y>
+        <label>-1</label>
+        <goldStandard>1</goldStandard>
+        <isTrainingsPoint__classification>false</isTrainingsPoint__classification>
+        <isTrainingsPoint__detection>false</isTrainingsPoint__detection>
+        <ts reference="../../.."/>
+      </TMApoint>
+      <TMApoint>
+        <x>211</x>
+        <y>357</y>
+        <label>1</label>
+        <goldStandard>1</goldStandard>
+        <isTrainingsPoint__classification>false</isTrainingsPoint__classification>
+        <isTrainingsPoint__detection>false</isTrainingsPoint__detection>
+        <ts reference="../../.."/>
+      </TMApoint>
+      <TMApoint>
+        <x>174</x>
+        <y>371</y>
+        <label>1</label>
+        <goldStandard>1</goldStandard>
+        <isTrainingsPoint__classification>false</isTrainingsPoint__classification>
+        <isTrainingsPoint__detection>false</isTrainingsPoint__detection>
+        <ts reference="../../.."/>
+      </TMApoint>
+      <TMApoint>
+        <x>29</x>
+        <y>400</y>
+        <label>-1</label>
+        <goldStandard>1</goldStandard>
+        <isTrainingsPoint__classification>false</isTrainingsPoint__classification>
+        <isTrainingsPoint__detection>false</isTrainingsPoint__detection>
+        <ts reference="../../.."/>
+      </TMApoint>
+      <TMApoint>
+        <x>30</x>
+        <y>381</y>
+        <label>-1</label>
+        <goldStandard>1</goldStandard>
+        <isTrainingsPoint__classification>false</isTrainingsPoint__classification>
+        <isTrainingsPoint__detection>false</isTrainingsPoint__detection>
+        <ts reference="../../.."/>
+      </TMApoint>
+      <TMApoint>
+        <x>268</x>
+        <y>723</y>
+        <label>0</label>
+        <goldStandard>1</goldStandard>
+        <isTrainingsPoint__classification>false</isTrainingsPoint__classification>
+        <isTrainingsPoint__detection>false</isTrainingsPoint__detection>
+        <ts reference="../../.."/>
+      </TMApoint>
+      <TMApoint>
+        <x>177</x>
+        <y>721</y>
+        <label>0</label>
+        <goldStandard>1</goldStandard>
+        <isTrainingsPoint__classification>false</isTrainingsPoint__classification>
+        <isTrainingsPoint__detection>false</isTrainingsPoint__detection>
+        <ts reference="../../.."/>
+      </TMApoint>
+      <TMApoint>
+        <x>198</x>
+        <y>701</y>
+        <label>0</label>
+        <goldStandard>1</goldStandard>
+        <isTrainingsPoint__classification>false</isTrainingsPoint__classification>
+        <isTrainingsPoint__detection>false</isTrainingsPoint__detection>
+        <ts reference="../../.."/>
+      </TMApoint>
+      <TMApoint>
+        <x>345</x>
+        <y>694</y>
+        <label>0</label>
+        <goldStandard>1</goldStandard>
+        <isTrainingsPoint__classification>false</isTrainingsPoint__classification>
+        <isTrainingsPoint__detection>false</isTrainingsPoint__detection>
+        <ts reference="../../.."/>
+      </TMApoint>
+      <TMApoint>
+        <x>172</x>
+        <y>781</y>
+        <label>-1</label>
+        <goldStandard>1</goldStandard>
+        <isTrainingsPoint__classification>false</isTrainingsPoint__classification>
+        <isTrainingsPoint__detection>false</isTrainingsPoint__detection>
+        <ts reference="../../.."/>
+      </TMApoint>
+      <TMApoint>
+        <x>759</x>
+        <y>724</y>
+        <label>1</label>
+        <goldStandard>1</goldStandard>
+        <isTrainingsPoint__classification>false</isTrainingsPoint__classification>
+        <isTrainingsPoint__detection>false</isTrainingsPoint__detection>
+        <ts reference="../../.."/>
+      </TMApoint>
+      <TMApoint>
+        <x>689</x>
+        <y>753</y>
+        <label>1</label>
+        <goldStandard>1</goldStandard>
+        <isTrainingsPoint__classification>false</isTrainingsPoint__classification>
+        <isTrainingsPoint__detection>false</isTrainingsPoint__detection>
+        <ts reference="../../.."/>
+      </TMApoint>
+      <TMApoint>
+        <x>714</x>
+        <y>767</y>
+        <label>1</label>
+        <goldStandard>1</goldStandard>
+        <isTrainingsPoint__classification>false</isTrainingsPoint__classification>
+        <isTrainingsPoint__detection>false</isTrainingsPoint__detection>
+        <ts reference="../../.."/>
+      </TMApoint>
+      <TMApoint>
+        <x>767</x>
+        <y>773</y>
+        <label>1</label>
+        <goldStandard>1</goldStandard>
+        <isTrainingsPoint__classification>false</isTrainingsPoint__classification>
+        <isTrainingsPoint__detection>false</isTrainingsPoint__detection>
+        <ts reference="../../.."/>
+      </TMApoint>
+      <TMApoint>
+        <x>791</x>
+        <y>764</y>
+        <label>1</label>
+        <goldStandard>1</goldStandard>
+        <isTrainingsPoint__classification>false</isTrainingsPoint__classification>
+        <isTrainingsPoint__detection>false</isTrainingsPoint__detection>
+        <ts reference="../../.."/>
+      </TMApoint>
+      <TMApoint>
+        <x>730</x>
+        <y>785</y>
+        <label>1</label>
+        <goldStandard>1</goldStandard>
+        <isTrainingsPoint__classification>false</isTrainingsPoint__classification>
+        <isTrainingsPoint__detection>false</isTrainingsPoint__detection>
+        <ts reference="../../.."/>
+      </TMApoint>
+      <TMApoint>
+        <x>643</x>
+        <y>697</y>
+        <label>1</label>
+        <goldStandard>1</goldStandard>
+        <isTrainingsPoint__classification>false</isTrainingsPoint__classification>
+        <isTrainingsPoint__detection>false</isTrainingsPoint__detection>
+        <ts reference="../../.."/>
+      </TMApoint>
+      <TMApoint>
+        <x>616</x>
+        <y>666</y>
+        <label>1</label>
+        <goldStandard>1</goldStandard>
+        <isTrainingsPoint__classification>false</isTrainingsPoint__classification>
+        <isTrainingsPoint__detection>false</isTrainingsPoint__detection>
+        <ts reference="../../.."/>
+      </TMApoint>
+      <TMApoint>
+        <x>645</x>
+        <y>623</y>
+        <label>1</label>
+        <goldStandard>1</goldStandard>
+        <isTrainingsPoint__classification>false</isTrainingsPoint__classification>
+        <isTrainingsPoint__detection>false</isTrainingsPoint__detection>
+        <ts reference="../../.."/>
+      </TMApoint>
+      <TMApoint>
+        <x>707</x>
+        <y>609</y>
+        <label>1</label>
+        <goldStandard>1</goldStandard>
+        <isTrainingsPoint__classification>false</isTrainingsPoint__classification>
+        <isTrainingsPoint__detection>false</isTrainingsPoint__detection>
+        <ts reference="../../.."/>
+      </TMApoint>
+      <TMApoint>
+        <x>645</x>
+        <y>583</y>
+        <label>1</label>
+        <goldStandard>1</goldStandard>
+        <isTrainingsPoint__classification>false</isTrainingsPoint__classification>
+        <isTrainingsPoint__detection>false</isTrainingsPoint__detection>
+        <ts reference="../../.."/>
+      </TMApoint>
+      <TMApoint>
+        <x>603</x>
+        <y>598</y>
+        <label>1</label>
+        <goldStandard>1</goldStandard>
+        <isTrainingsPoint__classification>false</isTrainingsPoint__classification>
+        <isTrainingsPoint__detection>false</isTrainingsPoint__detection>
+        <ts reference="../../.."/>
+      </TMApoint>
+      <TMApoint>
+        <x>574</x>
+        <y>602</y>
+        <label>1</label>
+        <goldStandard>1</goldStandard>
+        <isTrainingsPoint__classification>false</isTrainingsPoint__classification>
+        <isTrainingsPoint__detection>false</isTrainingsPoint__detection>
+        <ts reference="../../.."/>
+      </TMApoint>
+      <TMApoint>
+        <x>631</x>
+        <y>533</y>
+        <label>1</label>
+        <goldStandard>1</goldStandard>
+        <isTrainingsPoint__classification>false</isTrainingsPoint__classification>
+        <isTrainingsPoint__detection>false</isTrainingsPoint__detection>
+        <ts reference="../../.."/>
+      </TMApoint>
+      <TMApoint>
+        <x>636</x>
+        <y>484</y>
+        <label>1</label>
+        <goldStandard>1</goldStandard>
+        <isTrainingsPoint__classification>false</isTrainingsPoint__classification>
+        <isTrainingsPoint__detection>false</isTrainingsPoint__detection>
+        <ts reference="../../.."/>
+      </TMApoint>
+      <TMApoint>
+        <x>748</x>
+        <y>569</y>
+        <label>1</label>
+        <goldStandard>1</goldStandard>
+        <isTrainingsPoint__classification>false</isTrainingsPoint__classification>
+        <isTrainingsPoint__detection>false</isTrainingsPoint__detection>
+        <ts reference="../../.."/>
+      </TMApoint>
+      <TMApoint>
+        <x>712</x>
+        <y>572</y>
+        <label>1</label>
+        <goldStandard>1</goldStandard>
+        <isTrainingsPoint__classification>false</isTrainingsPoint__classification>
+        <isTrainingsPoint__detection>false</isTrainingsPoint__detection>
+        <ts reference="../../.."/>
+      </TMApoint>
+      <TMApoint>
+        <x>686</x>
+        <y>538</y>
+        <label>1</label>
+        <goldStandard>1</goldStandard>
+        <isTrainingsPoint__classification>false</isTrainingsPoint__classification>
+        <isTrainingsPoint__detection>false</isTrainingsPoint__detection>
+        <ts reference="../../.."/>
+      </TMApoint>
+      <TMApoint>
+        <x>756</x>
+        <y>517</y>
+        <label>1</label>
+        <goldStandard>1</goldStandard>
+        <isTrainingsPoint__classification>false</isTrainingsPoint__classification>
+        <isTrainingsPoint__detection>false</isTrainingsPoint__detection>
+        <ts reference="../../.."/>
+      </TMApoint>
+      <TMApoint>
+        <x>769</x>
+        <y>477</y>
+        <label>1</label>
+        <goldStandard>1</goldStandard>
+        <isTrainingsPoint__classification>false</isTrainingsPoint__classification>
+        <isTrainingsPoint__detection>false</isTrainingsPoint__detection>
+        <ts reference="../../.."/>
+      </TMApoint>
+      <TMApoint>
+        <x>725</x>
+        <y>490</y>
+        <label>1</label>
+        <goldStandard>1</goldStandard>
+        <isTrainingsPoint__classification>false</isTrainingsPoint__classification>
+        <isTrainingsPoint__detection>false</isTrainingsPoint__detection>
+        <ts reference="../../.."/>
+      </TMApoint>
+      <TMApoint>
+        <x>693</x>
+        <y>449</y>
+        <label>1</label>
+        <goldStandard>1</goldStandard>
+        <isTrainingsPoint__classification>false</isTrainingsPoint__classification>
+        <isTrainingsPoint__detection>false</isTrainingsPoint__detection>
+        <ts reference="../../.."/>
+      </TMApoint>
+      <TMApoint>
+        <x>742</x>
+        <y>427</y>
+        <label>1</label>
+        <goldStandard>1</goldStandard>
+        <isTrainingsPoint__classification>false</isTrainingsPoint__classification>
+        <isTrainingsPoint__detection>false</isTrainingsPoint__detection>
+        <ts reference="../../.."/>
+      </TMApoint>
+      <TMApoint>
+        <x>752</x>
+        <y>395</y>
+        <label>1</label>
+        <goldStandard>1</goldStandard>
+        <isTrainingsPoint__classification>false</isTrainingsPoint__classification>
+        <isTrainingsPoint__detection>false</isTrainingsPoint__detection>
+        <ts reference="../../.."/>
+      </TMApoint>
+      <TMApoint>
+        <x>709</x>
+        <y>390</y>
+        <label>1</label>
+        <goldStandard>1</goldStandard>
+        <isTrainingsPoint__classification>false</isTrainingsPoint__classification>
+        <isTrainingsPoint__detection>false</isTrainingsPoint__detection>
+        <ts reference="../../.."/>
+      </TMApoint>
+      <TMApoint>
+        <x>659</x>
+        <y>411</y>
+        <label>1</label>
+        <goldStandard>1</goldStandard>
+        <isTrainingsPoint__classification>false</isTrainingsPoint__classification>
+        <isTrainingsPoint__detection>false</isTrainingsPoint__detection>
+        <ts reference="../../.."/>
+      </TMApoint>
+      <TMApoint>
+        <x>636</x>
+        <y>370</y>
+        <label>1</label>
+        <goldStandard>1</goldStandard>
+        <isTrainingsPoint__classification>false</isTrainingsPoint__classification>
+        <isTrainingsPoint__detection>false</isTrainingsPoint__detection>
+        <ts reference="../../.."/>
+      </TMApoint>
+      <TMApoint>
+        <x>586</x>
+        <y>397</y>
+        <label>1</label>
+        <goldStandard>1</goldStandard>
+        <isTrainingsPoint__classification>false</isTrainingsPoint__classification>
+        <isTrainingsPoint__detection>false</isTrainingsPoint__detection>
+        <ts reference="../../.."/>
+      </TMApoint>
+      <TMApoint>
+        <x>575</x>
+        <y>364</y>
+        <label>1</label>
+        <goldStandard>1</goldStandard>
+        <isTrainingsPoint__classification>false</isTrainingsPoint__classification>
+        <isTrainingsPoint__detection>false</isTrainingsPoint__detection>
+        <ts reference="../../.."/>
+      </TMApoint>
+      <TMApoint>
+        <x>531</x>
+        <y>451</y>
+        <label>1</label>
+        <goldStandard>1</goldStandard>
+        <isTrainingsPoint__classification>false</isTrainingsPoint__classification>
+        <isTrainingsPoint__detection>false</isTrainingsPoint__detection>
+        <ts reference="../../.."/>
+      </TMApoint>
+      <TMApoint>
+        <x>478</x>
+        <y>450</y>
+        <label>1</label>
+        <goldStandard>1</goldStandard>
+        <isTrainingsPoint__classification>false</isTrainingsPoint__classification>
+        <isTrainingsPoint__detection>false</isTrainingsPoint__detection>
+        <ts reference="../../.."/>
+      </TMApoint>
+      <TMApoint>
+        <x>477</x>
+        <y>420</y>
+        <label>1</label>
+        <goldStandard>1</goldStandard>
+        <isTrainingsPoint__classification>false</isTrainingsPoint__classification>
+        <isTrainingsPoint__detection>false</isTrainingsPoint__detection>
+        <ts reference="../../.."/>
+      </TMApoint>
+      <TMApoint>
+        <x>456</x>
+        <y>534</y>
+        <label>1</label>
+        <goldStandard>1</goldStandard>
+        <isTrainingsPoint__classification>false</isTrainingsPoint__classification>
+        <isTrainingsPoint__detection>false</isTrainingsPoint__detection>
+        <ts reference="../../.."/>
+      </TMApoint>
+      <TMApoint>
+        <x>401</x>
+        <y>537</y>
+        <label>1</label>
+        <goldStandard>1</goldStandard>
+        <isTrainingsPoint__classification>false</isTrainingsPoint__classification>
+        <isTrainingsPoint__detection>false</isTrainingsPoint__detection>
+        <ts reference="../../.."/>
+      </TMApoint>
+      <TMApoint>
+        <x>370</x>
+        <y>508</y>
+        <label>1</label>
+        <goldStandard>1</goldStandard>
+        <isTrainingsPoint__classification>false</isTrainingsPoint__classification>
+        <isTrainingsPoint__detection>false</isTrainingsPoint__detection>
+        <ts reference="../../.."/>
+      </TMApoint>
+      <TMApoint>
+        <x>418</x>
+        <y>361</y>
+        <label>1</label>
+        <goldStandard>1</goldStandard>
+        <isTrainingsPoint__classification>false</isTrainingsPoint__classification>
+        <isTrainingsPoint__detection>false</isTrainingsPoint__detection>
+        <ts reference="../../.."/>
+      </TMApoint>
+      <TMApoint>
+        <x>387</x>
+        <y>387</y>
+        <label>1</label>
+        <goldStandard>1</goldStandard>
+        <isTrainingsPoint__classification>false</isTrainingsPoint__classification>
+        <isTrainingsPoint__detection>false</isTrainingsPoint__detection>
+        <ts reference="../../.."/>
+      </TMApoint>
+      <TMApoint>
+        <x>467</x>
+        <y>267</y>
+        <label>1</label>
+        <goldStandard>1</goldStandard>
+        <isTrainingsPoint__classification>false</isTrainingsPoint__classification>
+        <isTrainingsPoint__detection>false</isTrainingsPoint__detection>
+        <ts reference="../../.."/>
+      </TMApoint>
+      <TMApoint>
+        <x>487</x>
+        <y>235</y>
+        <label>1</label>
+        <goldStandard>1</goldStandard>
+        <isTrainingsPoint__classification>false</isTrainingsPoint__classification>
+        <isTrainingsPoint__detection>false</isTrainingsPoint__detection>
+        <ts reference="../../.."/>
+      </TMApoint>
+      <TMApoint>
+        <x>540</x>
+        <y>254</y>
+        <label>1</label>
+        <goldStandard>1</goldStandard>
+        <isTrainingsPoint__classification>false</isTrainingsPoint__classification>
+        <isTrainingsPoint__detection>false</isTrainingsPoint__detection>
+        <ts reference="../../.."/>
+      </TMApoint>
+      <TMApoint>
+        <x>572</x>
+        <y>222</y>
+        <label>1</label>
+        <goldStandard>1</goldStandard>
+        <isTrainingsPoint__classification>false</isTrainingsPoint__classification>
+        <isTrainingsPoint__detection>false</isTrainingsPoint__detection>
+        <ts reference="../../.."/>
+      </TMApoint>
+      <TMApoint>
+        <x>583</x>
+        <y>186</y>
+        <label>1</label>
+        <goldStandard>1</goldStandard>
+        <isTrainingsPoint__classification>false</isTrainingsPoint__classification>
+        <isTrainingsPoint__detection>false</isTrainingsPoint__detection>
+        <ts reference="../../.."/>
+      </TMApoint>
+      <TMApoint>
+        <x>735</x>
+        <y>219</y>
+        <label>1</label>
+        <goldStandard>1</goldStandard>
+        <isTrainingsPoint__classification>false</isTrainingsPoint__classification>
+        <isTrainingsPoint__detection>false</isTrainingsPoint__detection>
+        <ts reference="../../.."/>
+      </TMApoint>
+      <TMApoint>
+        <x>677</x>
+        <y>245</y>
+        <label>1</label>
+        <goldStandard>1</goldStandard>
+        <isTrainingsPoint__classification>false</isTrainingsPoint__classification>
+        <isTrainingsPoint__detection>false</isTrainingsPoint__detection>
+        <ts reference="../../.."/>
+      </TMApoint>
+      <TMApoint>
+        <x>647</x>
+        <y>271</y>
+        <label>1</label>
+        <goldStandard>1</goldStandard>
+        <isTrainingsPoint__classification>false</isTrainingsPoint__classification>
+        <isTrainingsPoint__detection>false</isTrainingsPoint__detection>
+        <ts reference="../../.."/>
+      </TMApoint>
+      <TMApoint>
+        <x>678</x>
+        <y>321</y>
+        <label>1</label>
+        <goldStandard>1</goldStandard>
+        <isTrainingsPoint__classification>false</isTrainingsPoint__classification>
+        <isTrainingsPoint__detection>false</isTrainingsPoint__detection>
+        <ts reference="../../.."/>
+      </TMApoint>
+      <TMApoint>
+        <x>789</x>
+        <y>222</y>
+        <label>1</label>
+        <goldStandard>1</goldStandard>
+        <isTrainingsPoint__classification>false</isTrainingsPoint__classification>
+        <isTrainingsPoint__detection>false</isTrainingsPoint__detection>
+        <ts reference="../../.."/>
+      </TMApoint>
+      <TMApoint>
+        <x>769</x>
+        <y>193</y>
+        <label>1</label>
+        <goldStandard>1</goldStandard>
+        <isTrainingsPoint__classification>false</isTrainingsPoint__classification>
+        <isTrainingsPoint__detection>false</isTrainingsPoint__detection>
+        <ts reference="../../.."/>
+      </TMApoint>
+      <TMApoint>
+        <x>789</x>
+        <y>320</y>
+        <label>1</label>
+        <goldStandard>1</goldStandard>
+        <isTrainingsPoint__classification>false</isTrainingsPoint__classification>
+        <isTrainingsPoint__detection>false</isTrainingsPoint__detection>
+        <ts reference="../../.."/>
+      </TMApoint>
+      <TMApoint>
+        <x>788</x>
+        <y>568</y>
+        <label>1</label>
+        <goldStandard>1</goldStandard>
+        <isTrainingsPoint__classification>false</isTrainingsPoint__classification>
+        <isTrainingsPoint__detection>false</isTrainingsPoint__detection>
+        <ts reference="../../.."/>
+      </TMApoint>
+      <TMApoint>
+        <x>773</x>
+        <y>603</y>
+        <label>1</label>
+        <goldStandard>1</goldStandard>
+        <isTrainingsPoint__classification>false</isTrainingsPoint__classification>
+        <isTrainingsPoint__detection>false</isTrainingsPoint__detection>
+        <ts reference="../../.."/>
+      </TMApoint>
+      <TMApoint>
+        <x>680</x>
+        <y>693</y>
+        <label>1</label>
+        <goldStandard>1</goldStandard>
+        <isTrainingsPoint__classification>false</isTrainingsPoint__classification>
+        <isTrainingsPoint__detection>false</isTrainingsPoint__detection>
+        <ts reference="../../.."/>
+      </TMApoint>
+      <TMApoint>
+        <x>710</x>
+        <y>713</y>
+        <label>1</label>
+        <goldStandard>1</goldStandard>
+        <isTrainingsPoint__classification>false</isTrainingsPoint__classification>
+        <isTrainingsPoint__detection>false</isTrainingsPoint__detection>
+        <ts reference="../../.."/>
+      </TMApoint>
+      <TMApoint>
+        <x>361</x>
+        <y>15</y>
+        <label>1</label>
+        <goldStandard>1</goldStandard>
+        <isTrainingsPoint__classification>false</isTrainingsPoint__classification>
+        <isTrainingsPoint__detection>false</isTrainingsPoint__detection>
+        <ts reference="../../.."/>
+      </TMApoint>
+      <TMApoint>
+        <x>404</x>
+        <y>29</y>
+        <label>1</label>
+        <goldStandard>1</goldStandard>
+        <isTrainingsPoint__classification>false</isTrainingsPoint__classification>
+        <isTrainingsPoint__detection>false</isTrainingsPoint__detection>
+        <ts reference="../../.."/>
+      </TMApoint>
+      <TMApoint>
+        <x>467</x>
+        <y>12</y>
+        <label>1</label>
+        <goldStandard>1</goldStandard>
+        <isTrainingsPoint__classification>false</isTrainingsPoint__classification>
+        <isTrainingsPoint__detection>false</isTrainingsPoint__detection>
+        <ts reference="../../.."/>
+      </TMApoint>
+      <TMApoint>
+        <x>474</x>
+        <y>33</y>
+        <label>1</label>
+        <goldStandard>1</goldStandard>
+        <isTrainingsPoint__classification>false</isTrainingsPoint__classification>
+        <isTrainingsPoint__detection>false</isTrainingsPoint__detection>
+        <ts reference="../../.."/>
+      </TMApoint>
+      <TMApoint>
+        <x>600</x>
+        <y>40</y>
+        <label>1</label>
+        <goldStandard>1</goldStandard>
+        <isTrainingsPoint__classification>false</isTrainingsPoint__classification>
+        <isTrainingsPoint__detection>false</isTrainingsPoint__detection>
+        <ts reference="../../.."/>
+      </TMApoint>
+      <TMApoint>
+        <x>675</x>
+        <y>35</y>
+        <label>1</label>
+        <goldStandard>1</goldStandard>
+        <isTrainingsPoint__classification>false</isTrainingsPoint__classification>
+        <isTrainingsPoint__detection>false</isTrainingsPoint__detection>
+        <ts reference="../../.."/>
+      </TMApoint>
+      <TMApoint>
+        <x>687</x>
+        <y>64</y>
+        <label>1</label>
+        <goldStandard>1</goldStandard>
+        <isTrainingsPoint__classification>false</isTrainingsPoint__classification>
+        <isTrainingsPoint__detection>false</isTrainingsPoint__detection>
+        <ts reference="../../.."/>
+      </TMApoint>
+      <TMApoint>
+        <x>650</x>
+        <y>78</y>
+        <label>1</label>
+        <goldStandard>1</goldStandard>
+        <isTrainingsPoint__classification>false</isTrainingsPoint__classification>
+        <isTrainingsPoint__detection>false</isTrainingsPoint__detection>
+        <ts reference="../../.."/>
+      </TMApoint>
+      <TMApoint>
+        <x>712</x>
+        <y>11</y>
+        <label>1</label>
+        <goldStandard>1</goldStandard>
+        <isTrainingsPoint__classification>false</isTrainingsPoint__classification>
+        <isTrainingsPoint__detection>false</isTrainingsPoint__detection>
+        <ts reference="../../.."/>
+      </TMApoint>
+      <TMApoint>
+        <x>793</x>
+        <y>58</y>
+        <label>1</label>
+        <goldStandard>1</goldStandard>
+        <isTrainingsPoint__classification>false</isTrainingsPoint__classification>
+        <isTrainingsPoint__detection>false</isTrainingsPoint__detection>
+        <ts reference="../../.."/>
+      </TMApoint>
+      <TMApoint>
+        <x>781</x>
+        <y>104</y>
+        <label>1</label>
+        <goldStandard>1</goldStandard>
+        <isTrainingsPoint__classification>false</isTrainingsPoint__classification>
+        <isTrainingsPoint__detection>false</isTrainingsPoint__detection>
+        <ts reference="../../.."/>
+      </TMApoint>
+      <TMApoint>
+        <x>773</x>
+        <y>132</y>
+        <label>1</label>
+        <goldStandard>1</goldStandard>
+        <isTrainingsPoint__classification>false</isTrainingsPoint__classification>
+        <isTrainingsPoint__detection>false</isTrainingsPoint__detection>
+        <ts reference="../../.."/>
+      </TMApoint>
+      <TMApoint>
+        <x>730</x>
+        <y>131</y>
+        <label>1</label>
+        <goldStandard>1</goldStandard>
+        <isTrainingsPoint__classification>false</isTrainingsPoint__classification>
+        <isTrainingsPoint__detection>false</isTrainingsPoint__detection>
+        <ts reference="../../.."/>
+      </TMApoint>
+      <TMApoint>
+        <x>743</x>
+        <y>108</y>
+        <label>1</label>
+        <goldStandard>1</goldStandard>
+        <isTrainingsPoint__classification>false</isTrainingsPoint__classification>
+        <isTrainingsPoint__detection>false</isTrainingsPoint__detection>
+        <ts reference="../../.."/>
+      </TMApoint>
+      <TMApoint>
+        <x>560</x>
+        <y>132</y>
+        <label>1</label>
+        <goldStandard>1</goldStandard>
+        <isTrainingsPoint__classification>false</isTrainingsPoint__classification>
+        <isTrainingsPoint__detection>false</isTrainingsPoint__detection>
+        <ts reference="../../.."/>
+      </TMApoint>
+      <TMApoint>
+        <x>525</x>
+        <y>97</y>
+        <label>1</label>
+        <goldStandard>1</goldStandard>
+        <isTrainingsPoint__classification>false</isTrainingsPoint__classification>
+        <isTrainingsPoint__detection>false</isTrainingsPoint__detection>
+        <ts reference="../../.."/>
+      </TMApoint>
+      <TMApoint>
+        <x>651</x>
+        <y>152</y>
+        <label>1</label>
+        <goldStandard>1</goldStandard>
+        <isTrainingsPoint__classification>false</isTrainingsPoint__classification>
+        <isTrainingsPoint__detection>false</isTrainingsPoint__detection>
+        <ts reference="../../.."/>
+      </TMApoint>
+      <TMApoint>
+        <x>612</x>
+        <y>192</y>
+        <label>0</label>
+        <goldStandard>1</goldStandard>
+        <isTrainingsPoint__classification>false</isTrainingsPoint__classification>
+        <isTrainingsPoint__detection>false</isTrainingsPoint__detection>
+        <ts reference="../../.."/>
+      </TMApoint>
+      <TMApoint>
+        <x>623</x>
+        <y>154</y>
+        <label>0</label>
+        <goldStandard>1</goldStandard>
+        <isTrainingsPoint__classification>false</isTrainingsPoint__classification>
+        <isTrainingsPoint__detection>false</isTrainingsPoint__detection>
+        <ts reference="../../.."/>
+      </TMApoint>
+      <TMApoint>
+        <x>615</x>
+        <y>302</y>
+        <label>0</label>
+        <goldStandard>1</goldStandard>
+        <isTrainingsPoint__classification>false</isTrainingsPoint__classification>
+        <isTrainingsPoint__detection>false</isTrainingsPoint__detection>
+        <ts reference="../../.."/>
+      </TMApoint>
+      <TMApoint>
+        <x>594</x>
+        <y>322</y>
+        <label>0</label>
+        <goldStandard>1</goldStandard>
+        <isTrainingsPoint__classification>false</isTrainingsPoint__classification>
+        <isTrainingsPoint__detection>false</isTrainingsPoint__detection>
+        <ts reference="../../.."/>
+      </TMApoint>
+      <TMApoint>
+        <x>583</x>
+        <y>475</y>
+        <label>-1</label>
+        <goldStandard>1</goldStandard>
+        <isTrainingsPoint__classification>false</isTrainingsPoint__classification>
+        <isTrainingsPoint__detection>false</isTrainingsPoint__detection>
+        <ts reference="../../.."/>
+      </TMApoint>
+      <TMApoint>
+        <x>595</x>
+        <y>458</y>
+        <label>-1</label>
+        <goldStandard>1</goldStandard>
+        <isTrainingsPoint__classification>false</isTrainingsPoint__classification>
+        <isTrainingsPoint__detection>false</isTrainingsPoint__detection>
+        <ts reference="../../.."/>
+      </TMApoint>
+      <TMApoint>
+        <x>623</x>
+        <y>455</y>
+        <label>-1</label>
+        <goldStandard>1</goldStandard>
+        <isTrainingsPoint__classification>false</isTrainingsPoint__classification>
+        <isTrainingsPoint__detection>false</isTrainingsPoint__detection>
+        <ts reference="../../.."/>
+      </TMApoint>
+      <TMApoint>
+        <x>544</x>
+        <y>567</y>
+        <label>-1</label>
+        <goldStandard>1</goldStandard>
+        <isTrainingsPoint__classification>false</isTrainingsPoint__classification>
+        <isTrainingsPoint__detection>false</isTrainingsPoint__detection>
+        <ts reference="../../.."/>
+      </TMApoint>
+      <TMApoint>
+        <x>530</x>
+        <y>538</y>
+        <label>-1</label>
+        <goldStandard>1</goldStandard>
+        <isTrainingsPoint__classification>false</isTrainingsPoint__classification>
+        <isTrainingsPoint__detection>false</isTrainingsPoint__detection>
+        <ts reference="../../.."/>
+      </TMApoint>
+      <TMApoint>
+        <x>734</x>
+        <y>173</y>
+        <label>1</label>
+        <goldStandard>1</goldStandard>
+        <isTrainingsPoint__classification>false</isTrainingsPoint__classification>
+        <isTrainingsPoint__detection>false</isTrainingsPoint__detection>
+        <ts reference="../../.."/>
+      </TMApoint>
+      <TMApoint>
+        <x>710</x>
+        <y>190</y>
+        <label>1</label>
+        <goldStandard>1</goldStandard>
+        <isTrainingsPoint__classification>false</isTrainingsPoint__classification>
+        <isTrainingsPoint__detection>false</isTrainingsPoint__detection>
+        <ts reference="../../.."/>
+      </TMApoint>
+      <TMApoint>
+        <x>676</x>
+        <y>177</y>
+        <label>1</label>
+        <goldStandard>1</goldStandard>
+        <isTrainingsPoint__classification>false</isTrainingsPoint__classification>
+        <isTrainingsPoint__detection>false</isTrainingsPoint__detection>
+        <ts reference="../../.."/>
+      </TMApoint>
+      <TMApoint>
+        <x>656</x>
+        <y>220</y>
+        <label>1</label>
+        <goldStandard>1</goldStandard>
+        <isTrainingsPoint__classification>false</isTrainingsPoint__classification>
+        <isTrainingsPoint__detection>false</isTrainingsPoint__detection>
+        <ts reference="../../.."/>
+      </TMApoint>
+      <TMApoint>
+        <x>629</x>
+        <y>223</y>
+        <label>1</label>
+        <goldStandard>1</goldStandard>
+        <isTrainingsPoint__classification>false</isTrainingsPoint__classification>
+        <isTrainingsPoint__detection>false</isTrainingsPoint__detection>
+        <ts reference="../../.."/>
+      </TMApoint>
+      <TMApoint>
+        <x>717</x>
+        <y>64</y>
+        <label>1</label>
+        <goldStandard>1</goldStandard>
+        <isTrainingsPoint__classification>false</isTrainingsPoint__classification>
+        <isTrainingsPoint__detection>false</isTrainingsPoint__detection>
+        <ts reference="../../.."/>
+      </TMApoint>
+      <TMApoint>
+        <x>673</x>
+        <y>111</y>
+        <label>-1</label>
+        <goldStandard>1</goldStandard>
+        <isTrainingsPoint__classification>false</isTrainingsPoint__classification>
+        <isTrainingsPoint__detection>false</isTrainingsPoint__detection>
+        <ts reference="../../.."/>
+      </TMApoint>
+      <TMApoint>
+        <x>585</x>
+        <y>120</y>
+        <label>-1</label>
+        <goldStandard>1</goldStandard>
+        <isTrainingsPoint__classification>false</isTrainingsPoint__classification>
+        <isTrainingsPoint__detection>false</isTrainingsPoint__detection>
+        <ts reference="../../.."/>
+      </TMApoint>
+      <TMApoint>
+        <x>645</x>
+        <y>313</y>
+        <label>-1</label>
+        <goldStandard>1</goldStandard>
+        <isTrainingsPoint__classification>false</isTrainingsPoint__classification>
+        <isTrainingsPoint__detection>false</isTrainingsPoint__detection>
+        <ts reference="../../.."/>
+      </TMApoint>
+      <TMApoint>
+        <x>721</x>
+        <y>536</y>
+        <label>-1</label>
+        <goldStandard>1</goldStandard>
+        <isTrainingsPoint__classification>false</isTrainingsPoint__classification>
+        <isTrainingsPoint__detection>false</isTrainingsPoint__detection>
+        <ts reference="../../.."/>
+      </TMApoint>
+      <TMApoint>
+        <x>525</x>
+        <y>742</y>
+        <label>-1</label>
+        <goldStandard>1</goldStandard>
+        <isTrainingsPoint__classification>false</isTrainingsPoint__classification>
+        <isTrainingsPoint__detection>false</isTrainingsPoint__detection>
+        <ts reference="../../.."/>
+      </TMApoint>
+      <TMApoint>
+        <x>487</x>
+        <y>732</y>
+        <label>-1</label>
+        <goldStandard>1</goldStandard>
+        <isTrainingsPoint__classification>false</isTrainingsPoint__classification>
+        <isTrainingsPoint__detection>false</isTrainingsPoint__detection>
+        <ts reference="../../.."/>
+      </TMApoint>
+      <TMApoint>
+        <x>457</x>
+        <y>747</y>
+        <label>-1</label>
+        <goldStandard>1</goldStandard>
+        <isTrainingsPoint__classification>false</isTrainingsPoint__classification>
+        <isTrainingsPoint__detection>false</isTrainingsPoint__detection>
+        <ts reference="../../.."/>
+      </TMApoint>
+      <TMApoint>
+        <x>441</x>
+        <y>721</y>
+        <label>-1</label>
+        <goldStandard>1</goldStandard>
+        <isTrainingsPoint__classification>false</isTrainingsPoint__classification>
+        <isTrainingsPoint__detection>false</isTrainingsPoint__detection>
+        <ts reference="../../.."/>
+      </TMApoint>
+      <TMApoint>
+        <x>455</x>
+        <y>695</y>
+        <label>-1</label>
+        <goldStandard>1</goldStandard>
+        <isTrainingsPoint__classification>false</isTrainingsPoint__classification>
+        <isTrainingsPoint__detection>false</isTrainingsPoint__detection>
+        <ts reference="../../.."/>
+      </TMApoint>
+      <TMApoint>
+        <x>462</x>
+        <y>668</y>
+        <label>-1</label>
+        <goldStandard>1</goldStandard>
+        <isTrainingsPoint__classification>false</isTrainingsPoint__classification>
+        <isTrainingsPoint__detection>false</isTrainingsPoint__detection>
+        <ts reference="../../.."/>
+      </TMApoint>
+      <TMApoint>
+        <x>486</x>
+        <y>666</y>
+        <label>-1</label>
+        <goldStandard>1</goldStandard>
+        <isTrainingsPoint__classification>false</isTrainingsPoint__classification>
+        <isTrainingsPoint__detection>false</isTrainingsPoint__detection>
+        <ts reference="../../.."/>
+      </TMApoint>
+      <TMApoint>
+        <x>520</x>
+        <y>673</y>
+        <label>-1</label>
+        <goldStandard>1</goldStandard>
+        <isTrainingsPoint__classification>false</isTrainingsPoint__classification>
+        <isTrainingsPoint__detection>false</isTrainingsPoint__detection>
+        <ts reference="../../.."/>
+      </TMApoint>
+      <TMApoint>
+        <x>559</x>
+        <y>706</y>
+        <label>-1</label>
+        <goldStandard>1</goldStandard>
+        <isTrainingsPoint__classification>false</isTrainingsPoint__classification>
+        <isTrainingsPoint__detection>false</isTrainingsPoint__detection>
+        <ts reference="../../.."/>
+      </TMApoint>
+      <TMApoint>
+        <x>434</x>
+        <y>759</y>
+        <label>-1</label>
+        <goldStandard>1</goldStandard>
+        <isTrainingsPoint__classification>false</isTrainingsPoint__classification>
+        <isTrainingsPoint__detection>false</isTrainingsPoint__detection>
+        <ts reference="../../.."/>
+      </TMApoint>
+      <TMApoint>
+        <x>446</x>
+        <y>794</y>
+        <label>-1</label>
+        <goldStandard>1</goldStandard>
+        <isTrainingsPoint__classification>false</isTrainingsPoint__classification>
+        <isTrainingsPoint__detection>false</isTrainingsPoint__detection>
+        <ts reference="../../.."/>
+      </TMApoint>
+      <TMApoint>
+        <x>401</x>
+        <y>792</y>
+        <label>-1</label>
+        <goldStandard>1</goldStandard>
+        <isTrainingsPoint__classification>false</isTrainingsPoint__classification>
+        <isTrainingsPoint__detection>false</isTrainingsPoint__detection>
+        <ts reference="../../.."/>
+      </TMApoint>
+      <TMApoint>
+        <x>590</x>
+        <y>783</y>
+        <label>-1</label>
+        <goldStandard>1</goldStandard>
+        <isTrainingsPoint__classification>false</isTrainingsPoint__classification>
+        <isTrainingsPoint__detection>false</isTrainingsPoint__detection>
+        <ts reference="../../.."/>
+      </TMApoint>
+      <TMApoint>
+        <x>522</x>
+        <y>327</y>
+        <label>1</label>
+        <goldStandard>1</goldStandard>
+        <isTrainingsPoint__classification>false</isTrainingsPoint__classification>
+        <isTrainingsPoint__detection>false</isTrainingsPoint__detection>
+        <ts reference="../../.."/>
+      </TMApoint>
+      <TMApoint>
+        <x>538</x>
+        <y>348</y>
+        <label>-1</label>
+        <goldStandard>1</goldStandard>
+        <isTrainingsPoint__classification>false</isTrainingsPoint__classification>
+        <isTrainingsPoint__detection>false</isTrainingsPoint__detection>
+        <ts reference="../../.."/>
+      </TMApoint>
+      <TMApoint>
+        <x>506</x>
+        <y>253</y>
+        <label>-1</label>
+        <goldStandard>1</goldStandard>
+        <isTrainingsPoint__classification>false</isTrainingsPoint__classification>
+        <isTrainingsPoint__detection>false</isTrainingsPoint__detection>
+        <ts reference="../../.."/>
+      </TMApoint>
+      <TMApoint>
+        <x>470</x>
+        <y>350</y>
+        <label>-1</label>
+        <goldStandard>1</goldStandard>
+        <isTrainingsPoint__classification>false</isTrainingsPoint__classification>
+        <isTrainingsPoint__detection>false</isTrainingsPoint__detection>
+        <ts reference="../../.."/>
+      </TMApoint>
+      <TMApoint>
+        <x>468</x>
+        <y>173</y>
+        <label>-1</label>
+        <goldStandard>1</goldStandard>
+        <isTrainingsPoint__classification>false</isTrainingsPoint__classification>
+        <isTrainingsPoint__detection>false</isTrainingsPoint__detection>
+        <ts reference="../../.."/>
+      </TMApoint>
+      <TMApoint>
+        <x>539</x>
+        <y>28</y>
+        <label>-1</label>
+        <goldStandard>1</goldStandard>
+        <isTrainingsPoint__classification>false</isTrainingsPoint__classification>
+        <isTrainingsPoint__detection>false</isTrainingsPoint__detection>
+        <ts reference="../../.."/>
+      </TMApoint>
+      <TMApoint>
+        <x>569</x>
+        <y>27</y>
+        <label>-1</label>
+        <goldStandard>1</goldStandard>
+        <isTrainingsPoint__classification>false</isTrainingsPoint__classification>
+        <isTrainingsPoint__detection>false</isTrainingsPoint__detection>
+        <ts reference="../../.."/>
+      </TMApoint>
+      <TMApoint>
+        <x>255</x>
+        <y>631</y>
+        <label>-1</label>
+        <goldStandard>1</goldStandard>
+        <isTrainingsPoint__classification>false</isTrainingsPoint__classification>
+        <isTrainingsPoint__detection>false</isTrainingsPoint__detection>
+        <ts reference="../../.."/>
+      </TMApoint>
+      <TMApoint>
+        <x>236</x>
+        <y>250</y>
+        <label>-1</label>
+        <goldStandard>1</goldStandard>
+        <isTrainingsPoint__classification>false</isTrainingsPoint__classification>
+        <isTrainingsPoint__detection>false</isTrainingsPoint__detection>
+        <ts reference="../../.."/>
+      </TMApoint>
+      <TMApoint>
+        <x>190</x>
+        <y>193</y>
+        <label>-1</label>
+        <goldStandard>1</goldStandard>
+        <isTrainingsPoint__classification>false</isTrainingsPoint__classification>
+        <isTrainingsPoint__detection>false</isTrainingsPoint__detection>
+        <ts reference="../../.."/>
+      </TMApoint>
+      <TMApoint>
+        <x>216</x>
+        <y>108</y>
+        <label>-1</label>
+        <goldStandard>1</goldStandard>
+        <isTrainingsPoint__classification>false</isTrainingsPoint__classification>
+        <isTrainingsPoint__detection>false</isTrainingsPoint__detection>
+        <ts reference="../../.."/>
+      </TMApoint>
+      <TMApoint>
+        <x>192</x>
+        <y>61</y>
+        <label>-1</label>
+        <goldStandard>1</goldStandard>
+        <isTrainingsPoint__classification>false</isTrainingsPoint__classification>
+        <isTrainingsPoint__detection>false</isTrainingsPoint__detection>
+        <ts reference="../../.."/>
+      </TMApoint>
+      <TMApoint>
+        <x>156</x>
+        <y>35</y>
+        <label>-1</label>
+        <goldStandard>1</goldStandard>
+        <isTrainingsPoint__classification>false</isTrainingsPoint__classification>
+        <isTrainingsPoint__detection>false</isTrainingsPoint__detection>
+        <ts reference="../../.."/>
+      </TMApoint>
+      <TMApoint>
+        <x>128</x>
+        <y>68</y>
+        <label>-1</label>
+        <goldStandard>1</goldStandard>
+        <isTrainingsPoint__classification>false</isTrainingsPoint__classification>
+        <isTrainingsPoint__detection>false</isTrainingsPoint__detection>
+        <ts reference="../../.."/>
+      </TMApoint>
+      <TMApoint>
+        <x>244</x>
+        <y>41</y>
+        <label>0</label>
+        <goldStandard>1</goldStandard>
+        <isTrainingsPoint__classification>false</isTrainingsPoint__classification>
+        <isTrainingsPoint__detection>false</isTrainingsPoint__detection>
+        <ts reference="../../.."/>
+      </TMApoint>
+      <TMApoint>
+        <x>280</x>
+        <y>16</y>
+        <label>1</label>
+        <goldStandard>1</goldStandard>
+        <isTrainingsPoint__classification>false</isTrainingsPoint__classification>
+        <isTrainingsPoint__detection>false</isTrainingsPoint__detection>
+        <ts reference="../../.."/>
+      </TMApoint>
+      <TMApoint>
+        <x>396</x>
+        <y>87</y>
+        <label>-1</label>
+        <goldStandard>1</goldStandard>
+        <isTrainingsPoint__classification>false</isTrainingsPoint__classification>
+        <isTrainingsPoint__detection>false</isTrainingsPoint__detection>
+        <ts reference="../../.."/>
+      </TMApoint>
+      <TMApoint>
+        <x>17</x>
+        <y>150</y>
+        <label>1</label>
+        <goldStandard>1</goldStandard>
+        <isTrainingsPoint__classification>false</isTrainingsPoint__classification>
+        <isTrainingsPoint__detection>false</isTrainingsPoint__detection>
+        <ts reference="../../.."/>
+      </TMApoint>
+      <TMApoint>
+        <x>29</x>
+        <y>189</y>
+        <label>1</label>
+        <goldStandard>1</goldStandard>
+        <isTrainingsPoint__classification>false</isTrainingsPoint__classification>
+        <isTrainingsPoint__detection>false</isTrainingsPoint__detection>
+        <ts reference="../../.."/>
+      </TMApoint>
+      <TMApoint>
+        <x>115</x>
+        <y>45</y>
+        <label>-1</label>
+        <goldStandard>1</goldStandard>
+        <isTrainingsPoint__classification>false</isTrainingsPoint__classification>
+        <isTrainingsPoint__detection>false</isTrainingsPoint__detection>
+        <ts reference="../../.."/>
+      </TMApoint>
+      <TMApoint>
+        <x>84</x>
+        <y>29</y>
+        <label>-1</label>
+        <goldStandard>1</goldStandard>
+        <isTrainingsPoint__classification>false</isTrainingsPoint__classification>
+        <isTrainingsPoint__detection>false</isTrainingsPoint__detection>
+        <ts reference="../../.."/>
+      </TMApoint>
+      <TMApoint>
+        <x>361</x>
+        <y>444</y>
+        <label>1</label>
+        <goldStandard>1</goldStandard>
+        <isTrainingsPoint__classification>false</isTrainingsPoint__classification>
+        <isTrainingsPoint__detection>false</isTrainingsPoint__detection>
+        <ts reference="../../.."/>
+      </TMApoint>
+      <TMApoint>
+        <x>440</x>
+        <y>480</y>
+        <label>-1</label>
+        <goldStandard>1</goldStandard>
+        <isTrainingsPoint__classification>false</isTrainingsPoint__classification>
+        <isTrainingsPoint__detection>false</isTrainingsPoint__detection>
+        <ts reference="../../.."/>
+      </TMApoint>
+      <TMApoint>
+        <x>442</x>
+        <y>313</y>
+        <label>-1</label>
+        <goldStandard>1</goldStandard>
+        <isTrainingsPoint__classification>false</isTrainingsPoint__classification>
+        <isTrainingsPoint__detection>false</isTrainingsPoint__detection>
+        <ts reference="../../.."/>
+      </TMApoint>
+      <TMApoint>
+        <x>501</x>
+        <y>173</y>
+        <label>-1</label>
+        <goldStandard>1</goldStandard>
+        <isTrainingsPoint__classification>false</isTrainingsPoint__classification>
+        <isTrainingsPoint__detection>false</isTrainingsPoint__detection>
+        <ts reference="../../.."/>
+      </TMApoint>
+      <TMApoint>
+        <x>11</x>
+        <y>687</y>
+        <label>0</label>
+        <goldStandard>1</goldStandard>
+        <isTrainingsPoint__classification>false</isTrainingsPoint__classification>
+        <isTrainingsPoint__detection>false</isTrainingsPoint__detection>
+        <ts reference="../../.."/>
+      </TMApoint>
+      <TMApoint>
+        <x>27</x>
+        <y>668</y>
+        <label>0</label>
+        <goldStandard>1</goldStandard>
+        <isTrainingsPoint__classification>false</isTrainingsPoint__classification>
+        <isTrainingsPoint__detection>false</isTrainingsPoint__detection>
+        <ts reference="../../.."/>
+      </TMApoint>
+      <TMApoint>
+        <x>247</x>
+        <y>791</y>
+        <label>-1</label>
+        <goldStandard>1</goldStandard>
+        <isTrainingsPoint__classification>false</isTrainingsPoint__classification>
+        <isTrainingsPoint__detection>false</isTrainingsPoint__detection>
+        <ts reference="../../.."/>
+      </TMApoint>
+      <TMApoint>
+        <x>334</x>
+        <y>63</y>
+        <label>0</label>
+        <goldStandard>1</goldStandard>
+        <isTrainingsPoint__classification>false</isTrainingsPoint__classification>
+        <isTrainingsPoint__detection>false</isTrainingsPoint__detection>
+        <ts reference="../../.."/>
+      </TMApoint>
+      <TMApoint>
+        <x>314</x>
+        <y>48</y>
+        <label>-1</label>
+        <goldStandard>1</goldStandard>
+        <isTrainingsPoint__classification>false</isTrainingsPoint__classification>
+        <isTrainingsPoint__detection>false</isTrainingsPoint__detection>
+        <ts reference="../../.."/>
+      </TMApoint>
+      <TMApoint>
+        <x>310</x>
+        <y>93</y>
+        <label>-1</label>
+        <goldStandard>1</goldStandard>
+        <isTrainingsPoint__classification>false</isTrainingsPoint__classification>
+        <isTrainingsPoint__detection>false</isTrainingsPoint__detection>
+        <ts reference="../../.."/>
+      </TMApoint>
+      <TMApoint>
+        <x>91</x>
+        <y>148</y>
+        <label>-1</label>
+        <goldStandard>1</goldStandard>
+        <isTrainingsPoint__classification>false</isTrainingsPoint__classification>
+        <isTrainingsPoint__detection>false</isTrainingsPoint__detection>
+        <ts reference="../../.."/>
+      </TMApoint>
+      <TMApoint>
+        <x>419</x>
+        <y>649</y>
+        <label>-1</label>
+        <goldStandard>1</goldStandard>
+        <isTrainingsPoint__classification>false</isTrainingsPoint__classification>
+        <isTrainingsPoint__detection>false</isTrainingsPoint__detection>
+        <ts reference="../../.."/>
+      </TMApoint>
+      <TMApoint>
+        <x>788</x>
+        <y>284</y>
+        <label>-1</label>
+        <goldStandard>1</goldStandard>
+        <isTrainingsPoint__classification>false</isTrainingsPoint__classification>
+        <isTrainingsPoint__detection>false</isTrainingsPoint__detection>
+        <ts reference="../../.."/>
+      </TMApoint>
+      <TMApoint>
+        <x>760</x>
+        <y>294</y>
+        <label>-1</label>
+        <goldStandard>1</goldStandard>
+        <isTrainingsPoint__classification>false</isTrainingsPoint__classification>
+        <isTrainingsPoint__detection>false</isTrainingsPoint__detection>
+        <ts reference="../../.."/>
+      </TMApoint>
+      <TMApoint>
+        <x>772</x>
+        <y>9</y>
+        <label>-1</label>
+        <goldStandard>1</goldStandard>
+        <isTrainingsPoint__classification>false</isTrainingsPoint__classification>
+        <isTrainingsPoint__detection>false</isTrainingsPoint__detection>
+        <ts reference="../../.."/>
+      </TMApoint>
+    </nuclei>
+    
+    <param__r>-1</param__r>
+    <param__t2>-1</param__t2>
+    <param__t1>-1</param__t1>
+    <param__lastStain></param__lastStain>
+    <param__nsuperpx>0</param__nsuperpx>
+    <param__smoothness>-1</param__smoothness>
+    <param__lab__space>true</param__lab__space>
+    <param__bgx>-1</param__bgx>
+    <param__bgy>-1</param__bgy>
+    <param__bg__rgb>0</param__bg__rgb>
+  </TMAspot>
+</list>
