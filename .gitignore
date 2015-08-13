@@ -39,7 +39,6 @@ plugins/CancerNucleusClassification/nbproject/private/private.properties
 /plugins/cish/*.png
 /plugins/cish/*.jpg
 *private.xml
-*project.xml
 *build-impl.xml
 *config.properties
 *genfiles.properties
@@ -48,6 +47,7 @@ plugins/CancerNucleusClassification/nbproject/private/private.properties
 *JWS_generated.properties
 *private.properties
 tmarker.conf
+.DS_Store
 *preview-application.html
 /demonstration_dataset/
 /test_dataset/
