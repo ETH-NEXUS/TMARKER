@@ -10,7 +10,6 @@ nbproject/private/private.xml
 plugins/CancerNucleusClassification/nbproject/private/private.xml
 nbproject/genfiles.properties
 nbproject/private/
-nbproject/project.properties
 nbproject/build-impl.xml
 plugins/CancerNucleusClassification/nbproject/private/private.properties
 /dist/
@@ -42,7 +41,6 @@ plugins/CancerNucleusClassification/nbproject/private/private.properties
 *private.xml
 *project.xml
 *build-impl.xml
-*project.properties
 *config.properties
 *genfiles.properties
 *jnlp-impl.xml
