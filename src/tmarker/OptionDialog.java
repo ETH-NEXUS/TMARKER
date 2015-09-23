@@ -54,6 +54,8 @@ public class OptionDialog extends javax.swing.JDialog {
         jButton3 = new javax.swing.JButton();
         jCheckBox4 = new javax.swing.JCheckBox();
         jCheckBox5 = new javax.swing.JCheckBox();
+        jLabel3 = new javax.swing.JLabel();
+        jTextField2 = new javax.swing.JTextField();
         jPanel3 = new javax.swing.JPanel();
         jRadioButton1 = new javax.swing.JRadioButton();
         jRadioButton5 = new javax.swing.JRadioButton();
@@ -83,7 +85,7 @@ public class OptionDialog extends javax.swing.JDialog {
         jCheckBox1.setName("jCheckBox1"); // NOI18N
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 7;
+        gridBagConstraints.gridy = 8;
         gridBagConstraints.gridwidth = java.awt.GridBagConstraints.REMAINDER;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
         gridBagConstraints.insets = new java.awt.Insets(0, 10, 10, 10);
@@ -193,9 +195,30 @@ public class OptionDialog extends javax.swing.JDialog {
         bindingGroup.addBinding(binding);
 
         gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridwidth = java.awt.GridBagConstraints.REMAINDER;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
         gridBagConstraints.insets = new java.awt.Insets(0, 30, 0, 0);
         jPanel1.add(jCheckBox5, gridBagConstraints);
+
+        jLabel3.setText(bundle.getString("OptionDialog.jLabel3.text")); // NOI18N
+        jLabel3.setName("jLabel3"); // NOI18N
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 7;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
+        gridBagConstraints.insets = new java.awt.Insets(0, 10, 0, 0);
+        jPanel1.add(jLabel3, gridBagConstraints);
+
+        jTextField2.setColumns(2);
+        jTextField2.setHorizontalAlignment(javax.swing.JTextField.TRAILING);
+        jTextField2.setText(bundle.getString("OptionDialog.jTextField2.text")); // NOI18N
+        jTextField2.setName("jTextField2"); // NOI18N
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 1;
+        gridBagConstraints.gridy = 7;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
+        gridBagConstraints.insets = new java.awt.Insets(0, 5, 0, 0);
+        jPanel1.add(jTextField2, gridBagConstraints);
 
         jTabbedPane1.addTab(bundle.getString("OptionDialog.jPanel1.TabConstraints.tabTitle"), jPanel1); // NOI18N
 
@@ -633,7 +656,7 @@ public class OptionDialog extends javax.swing.JDialog {
     }
     
     /**
-     * Sets wether or not manually reviewed estimated nuclei should be converted to goldstandard nuclei.
+     * Sets whether or not manually reviewed estimated nuclei should be converted to goldstandard nuclei.
      * @param b True if manually reviewed estimated nuclei should be converted to goldstandard nuclei.
      */
     public void setAutomaticESGSConversion(boolean b) {
@@ -641,11 +664,27 @@ public class OptionDialog extends javax.swing.JDialog {
     }
     
     /**
-     * Wether or not manually reviewed estimated nuclei should be converted to goldstandard nuclei.
+     * Whether or not manually reviewed estimated nuclei should be converted to goldstandard nuclei.
      * @return True if manually reviewed estimated nuclei should be converted to goldstandard nuclei.
      */
     public boolean isAutomaticESGSConversion() {
         return jCheckBox2.isSelected();
+    }
+    
+    /**
+     * Returns the column separator for excel files which the user has set.
+     * @return Mostly ";" or ",".
+     */
+    public String getParam_ColumnSeparator() {
+        return jTextField2.getText();
+    }
+    
+    /**
+     * Sets the column separator for excel files which the user has set.
+     * @param sep Mostly ";" or ",".
+     */
+    public void setParam_ColumnSeparator(String sep) {
+        jTextField2.setText(sep);
     }
     
     // Variables declaration - do not modify//GEN-BEGIN:variables
@@ -663,6 +702,7 @@ public class OptionDialog extends javax.swing.JDialog {
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel10;
     private javax.swing.JLabel jLabel2;
+    private javax.swing.JLabel jLabel3;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel2;
     private javax.swing.JPanel jPanel3;
@@ -676,6 +716,7 @@ public class OptionDialog extends javax.swing.JDialog {
     private javax.swing.JRadioButton jRadioButton8;
     private javax.swing.JTabbedPane jTabbedPane1;
     private javax.swing.JTextField jTextField1;
+    private javax.swing.JTextField jTextField2;
     private org.jdesktop.beansbinding.BindingGroup bindingGroup;
     // End of variables declaration//GEN-END:variables
 

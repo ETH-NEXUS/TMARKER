@@ -44,6 +44,14 @@ public interface PluginManager {
      * @return A list with all TMAspots (selected and not selected ones).
      */
     public List<TMAspot> getTMAspots();
+    
+    /**
+     * Returns the TAMspot with a given name.
+     * @param name The name of the searched TMAspot.
+     *
+     * @return The TAMspot with a given name or null if not found.
+     */
+    public TMAspot getTMAspot(String name);
 
     /**
      * Returns all TMAspots which are currently selected by the user.
@@ -229,5 +237,25 @@ public interface PluginManager {
      * @param file The file to be saved. Will be overwritten if it already exists.
      */
     public boolean SaveAsXML(File file);
+    
+    /**
+     * Returns the column separator for excel files which the user has set.
+     * @return Mostly ";" or ",".
+     */
+    public String getColumnSeparator();
 
+    /**
+     * Returns a list of currently loaded plugins.
+     * @return A list of currently loaded plugins.
+     */
+    public List<Pluggable> getPlugins();
+    
+    /**
+     * Returns the first plugin with given name.
+     * @param name The name of the plugin (has to match [p].getPluginName()).
+     * @return The loaded plugin with given name. Can be null if not existing.
+     */
+    public Pluggable getPlugin(String name);
+    
+    
 }

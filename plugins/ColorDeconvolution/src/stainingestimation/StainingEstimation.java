@@ -2510,6 +2510,7 @@ public class StainingEstimation extends javax.swing.JFrame implements TMARKERPlu
      */
     private void saveTable() {
         if (previewOriginal!=null && jXTable1.getRowCount()>0) {
+            String sep = manager.getColumnSeparator();
             String currentDir = manager.getCurrentDir();
             File file;
             List<String> exts = new ArrayList<>(1); exts.add("csv");
@@ -2528,7 +2529,7 @@ public class StainingEstimation extends javax.swing.JFrame implements TMARKERPlu
                     BufferedWriter bfw = new BufferedWriter(new FileWriter(file));
                     for(int i=0 ; i<jXTable1.getModel().getColumnCount(); i++) {
                         bfw.write("\"" + jXTable1.getModel().getColumnName(i) + "\"");
-                        if (i<jXTable1.getModel().getColumnCount()-1) bfw.write(";");
+                        if (i<jXTable1.getModel().getColumnCount()-1) bfw.write(sep);
                     }
                     for (int i=0 ; i<jXTable1.getRowCount(); i++) {
                         bfw.newLine();
@@ -2543,7 +2544,7 @@ public class StainingEstimation extends javax.swing.JFrame implements TMARKERPlu
                             } else {
                                 bfw.write(jXTable1.getModel().getValueAt(i,j).toString());
                             }
-                            if (i<jXTable1.getModel().getColumnCount()-1) bfw.write(";");
+                            if (j<jXTable1.getModel().getColumnCount()-1) bfw.write(sep);
                         }
                     }
                     bfw.close();

@@ -25,6 +25,7 @@
  */
 package plugins;
 
+import TMARKERPluginInterface.Pluggable;
 import java.util.List;
 import TMARKERPluginInterface.PluginManager;
 import java.awt.Color;
@@ -51,6 +52,23 @@ public class TMARKERPluginManager implements PluginManager {
     @Override
     public List<TMAspot> getTMAspots() {
         return t.getTMAspots();
+    }
+    
+    /**
+     * Returns the TAMspot with a given name.
+     * @param name The name of the searched TMAspot.
+     *
+     * @return The TAMspot with a given name or null if not found.
+     */
+    @Override
+    public TMAspot getTMAspot(String name) {
+        List<TMAspot> tss = getTMAspots();
+        for (TMAspot ts: tss) {
+            if (ts.getName().equalsIgnoreCase(name)) {
+                return ts;
+            }
+        }
+        return null;
     }
 
     /**
@@ -300,5 +318,38 @@ public class TMARKERPluginManager implements PluginManager {
      */
     public tmarker getTMARKER() {
         return t;
+    }
+    
+    /**
+     * Returns the column separator for excel files which the user has set.
+     * @return Mostly ";" or ",".
+     */
+    @Override
+    public String getColumnSeparator() {
+        return t.getOptionDialog().getParam_ColumnSeparator();
+    }
+    
+    /**
+     * Returns a list of currently loaded plugins.
+     * @return A list of currently loaded plugins.
+     */
+    @Override
+    public List<Pluggable> getPlugins() {
+        return t.getPlugins();
+    }
+    
+    /**
+     * Returns the first plugin with given name.
+     * @param name The name of the plugin (has to match [p].getPluginName()).
+     * @return The loaded plugin with given name. Can be null if not existing.
+     */
+    @Override
+    public Pluggable getPlugin(String name) {
+        for (Pluggable p: t.getPlugins()) {
+            if (name.equalsIgnoreCase(p.getPluginName())) {
+                return p;
+            }
+        }
+        return null;
     }
 }

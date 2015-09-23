@@ -59,7 +59,7 @@ public class TMARKERSecurityManager extends java.lang.SecurityManager {
     	public void checkCreateClassLoader() { trusted(); }
         public void checkAccess (Thread g) { trusted(); }
 	public void checkAccess (ThreadGroup g) { trusted(); }
-	public void checkExit (int status) { trusted_notForPlugins(); }
+	public void checkExit (int status) { trusted_notForPlugins(); } // DONT LET THE PLUGIN CLOSE TMARKER (especially the closing operation of JFrame Plugins should be "hide")!!
 	public void checkExec (String cmd) { trusted(); }
 	public void checkLink (String lib) { trusted(); }
 	public void checkRead (java.io.FileDescriptor fd) { trusted(); }

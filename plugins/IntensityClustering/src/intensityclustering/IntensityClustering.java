@@ -126,6 +126,7 @@ public class IntensityClustering extends javax.swing.JFrame implements TMARKERPl
         jRadioButton7 = new javax.swing.JRadioButton();
         jRadioButton8 = new javax.swing.JRadioButton();
         jRadioButton13 = new javax.swing.JRadioButton();
+        jButton1 = new javax.swing.JButton();
         jLabel37 = new javax.swing.JLabel();
         jPanel17 = new javax.swing.JPanel();
         jRadioButton9 = new javax.swing.JRadioButton();
@@ -370,8 +371,22 @@ public class IntensityClustering extends javax.swing.JFrame implements TMARKERPl
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 2;
         gridBagConstraints.gridy = 0;
+        gridBagConstraints.gridwidth = java.awt.GridBagConstraints.REMAINDER;
         gridBagConstraints.insets = new java.awt.Insets(5, 0, 5, 0);
         jPanel18.add(jRadioButton13, gridBagConstraints);
+
+        jButton1.setText("Show Nucleus Singlets (very slow)");
+        jButton1.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton1ActionPerformed(evt);
+            }
+        });
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 3;
+        gridBagConstraints.gridy = 1;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        gridBagConstraints.insets = new java.awt.Insets(2, 5, 2, 2);
+        jPanel18.add(jButton1, gridBagConstraints);
 
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
@@ -684,6 +699,12 @@ public class IntensityClustering extends javax.swing.JFrame implements TMARKERPl
         tracker.trackAsynchronously(focusPoint);
     }//GEN-LAST:event_jButton18ActionPerformed
 
+    private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
+        List<TMAspot> tss = manager.getSelectedTMAspots();
+        drawNucleiIntensities3DSinglets(tss);
+        jLabel41.setText(" ");
+    }//GEN-LAST:event_jButton1ActionPerformed
+
     /**
      * @param args the command line arguments
      */
@@ -725,6 +746,7 @@ public class IntensityClustering extends javax.swing.JFrame implements TMARKERPl
     private javax.swing.ButtonGroup buttonGroup2;
     private javax.swing.ButtonGroup buttonGroup3;
     private javax.swing.ButtonGroup buttonGroup4;
+    private javax.swing.JButton jButton1;
     private javax.swing.JButton jButton13;
     private javax.swing.JButton jButton14;
     private javax.swing.JButton jButton15;
@@ -993,7 +1015,7 @@ public class IntensityClustering extends javax.swing.JFrame implements TMARKERPl
      * @param tss The TMAspots whose nuclei are considered (both gold-standard
      * and estimated nuclei).
      * @param doAlsoClustering If true, the TMApoints are also clustered
-     * according to the histrogram.
+     * according to the histogram.
      */
     void drawNucleiIntensities2D(List<TMAspot> tss, boolean doAlsoClustering) {
         // draw the plot
@@ -1254,6 +1276,7 @@ public class IntensityClustering extends javax.swing.JFrame implements TMARKERPl
             plot.addLegend(PlotPanel.SOUTH);
             plot.plotLegend.setBackground(jPanel2.getBackground());
         }
+        plot.plotLegend.setVisible(true);
         String colorSpace = getParam_ColorSpace();
         if (colorSpace.equalsIgnoreCase("hsb")) {
             plot.setAxisLabels("Hue", "Saturation", "Brightness");
@@ -1383,6 +1406,72 @@ public class IntensityClustering extends javax.swing.JFrame implements TMARKERPl
                     }
                 }
 
+            } finally {
+                this.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+            }
+        }
+    }
+    
+    /**
+     * Draws the 3D Plot in the IntensityClustering. Axis are color values
+     * (either RGB or HSB), points are nuclei. Each nucleus is displayed with its color (rather than with its class color).
+     *
+     * @param tss The TMAspots whose nuclei are to be drawn (both gold-standard
+     * and estimated nuclei).
+     */
+    void drawNucleiIntensities3DSinglets(List<TMAspot> tss) {
+        // draw the plot
+        Plot3DPanel plot;
+        if (((java.awt.BorderLayout) (jPanel2.getLayout())).getLayoutComponent(java.awt.BorderLayout.CENTER) != null) {
+            plot = (Plot3DPanel) ((java.awt.BorderLayout) (jPanel2.getLayout())).getLayoutComponent(java.awt.BorderLayout.CENTER);
+            plot.removeAllPlots();
+        } else {
+            plot = new Plot3DPanel();
+            plot.plotCanvas.setBackground(jPanel2.getBackground());
+            plot.plotToolBar.setBackground(plot.plotCanvas.getBackground());
+            plot.addLegend(PlotPanel.SOUTH);
+            plot.plotLegend.setBackground(jPanel2.getBackground());
+        }
+        plot.plotLegend.setVisible(false);
+        String colorSpace = getParam_ColorSpace();
+        if (colorSpace.equalsIgnoreCase("hsb")) {
+            plot.setAxisLabels("Hue", "Saturation", "Brightness");
+        } else if (colorSpace.equalsIgnoreCase("rtp")) {
+            plot.setAxisLabels("R", "Theta", "Phi");
+        } else {
+            plot.setAxisLabels("Red", "Green", "Blue");
+        }
+        if (((java.awt.BorderLayout) (jPanel2.getLayout())).getLayoutComponent(java.awt.BorderLayout.CENTER) == null) {
+            jPanel2.add(plot, java.awt.BorderLayout.CENTER);
+            validate();
+            pack();
+        }
+
+        if (tss.size() > 0) {
+            try {
+                this.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+
+                Color c;
+                BufferedImage img;
+                float[] features = new float[3];
+                double[] xs_0 = new double[1];
+                double[] ys_0 = new double[1];
+                double[] zs_0 = new double[1];
+                for (TMAspot ts : tss) {
+                    img = ts.getBufferedImage();
+                    List<TMApoint> tps = ts.getPoints();
+                    for (TMApoint tp : tps) {
+                        c = TMAspot.getAverageColorAtPoint(img, tp.x, tp.y, ts.getParam_r(), false);
+                        Color2Feature(c, colorSpace, features);
+                        
+                        xs_0[0] = features[0];
+                        ys_0[0] = features[1];
+                        zs_0[0] = features[2];
+
+                        plot.addScatterPlot(null, c, xs_0, ys_0, zs_0);
+                    }
+                }
+                
             } finally {
                 this.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
             }

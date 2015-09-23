@@ -1645,7 +1645,7 @@ public final class tmarker extends javax.swing.JFrame {
      * @param args the command line arguments
      */
     public static void main(String args[]) {
-        int debug = 0; // SET THIS TO 0 IF YOU COMPILE FOR PUBLIC DISTRIBUTION OTHERWISE 1-5 FOR LESS OR MORE DEBUG INFO
+        int debug = 5; // SET THIS TO 0 IF YOU COMPILE FOR PUBLIC DISTRIBUTION OTHERWISE 1-5 FOR LESS OR MORE DEBUG INFO
 
         if (args.length > 0) {
             try {
@@ -1716,12 +1716,19 @@ public final class tmarker extends javax.swing.JFrame {
                 // Load Dll for NPI Support on Windows Systems
                 if (System.getProperty("os.name").startsWith("Windows")) {
                     logger.info("Loading DLL");
-                    String[] libs = new String[]{"iconv", "libffi-6",
+                    final String[] libs = new String[]{"iconv", "libffi-6",
                         "libintl-8", "libjpeg-62", "libopenjpeg", "libpixman-1-0", "libsqlite3-0",
                         "openslide-jni", "zlib1", "libcairo-2", "libgdk_pixbuf-2.0-0", "libglib-2.0-0",
                         "libxml2-2", "libtiff-5", "libpng16-16", "libopenslide-0", "libgthread-2.0-0",
                         "libgobject-2.0-0", "libgmodule-2.0-0", "libgio-2.0-0"};
-                    ExtractLibrariesFromJar("/tmarker/ndpi/", libs);
+                    Thread thread = new Thread(new Runnable() {
+
+                        @Override
+                        public void run() {
+                            ExtractLibrariesFromJar("/tmarker/ndpi/", libs);
+                        }
+                    });
+                    thread.start();
                 }
 
                 frame.setExtendedState(frame.getExtendedState() | JFrame.MAXIMIZED_BOTH);
@@ -5698,6 +5705,7 @@ public final class tmarker extends javax.swing.JFrame {
         appProps.setProperty("OD.localPluginFolder", od.getLocalPluginFolder());
         appProps.setProperty("OD.checkForUpdatesOnStart", Boolean.toString(od.checkForUpdatesOnStart()));
         appProps.setProperty("OD.installUpdatesAutomatically", Boolean.toString(od.installUpdatesAutomatically()));
+        appProps.setProperty("OD.columnSeparator", od.getParam_ColumnSeparator());
         appProps.setProperty("BCD.useColor", Boolean.toString(bcd.getUseColor()));
         if (plugSel!=null) {
             appProps.setProperty("PS.selectedPlugins", Misc.ArrayToString(plugSel.getParam_loadedPlugins(), ";"));
@@ -5743,6 +5751,9 @@ public final class tmarker extends javax.swing.JFrame {
             out.close();
         } catch (Exception ex) {
             logger.log(java.util.logging.Level.WARNING, "Unable to write file tmarker.conf. Maybe no write permission? TMARKER default parameters used.");
+            if (DEBUG>0) {
+                logger.log(java.util.logging.Level.SEVERE, ex.getMessage(), ex);
+            }
         }
     }
 
@@ -5874,9 +5885,9 @@ public final class tmarker extends javax.swing.JFrame {
             if (value != null) {
                 od.setCheckForUpdatesOnStart(Boolean.parseBoolean(value));
             }
-            value = appProps.getProperty("OD.installUpdatesAutomatically");
+            value = appProps.getProperty("OD.columnSeparator");
             if (value != null) {
-                od.setInstallUpdatesAutomatically(Boolean.parseBoolean(value));
+                od.setParam_ColumnSeparator(value);
             }
             value = appProps.getProperty("BCD.useColor");
             if (value != null) {
@@ -5940,6 +5951,7 @@ public final class tmarker extends javax.swing.JFrame {
         od.setUseLocalPlugins(false);
         od.setCheckForUpdatesOnStart(true);
         od.setInstallUpdatesAutomatically(true);
+        od.setParam_ColumnSeparator(";");
 
         bcd.setUseColor(true);
         

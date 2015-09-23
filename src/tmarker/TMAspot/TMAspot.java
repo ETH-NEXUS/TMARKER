@@ -2248,7 +2248,7 @@ public class TMAspot {
      * Returns a thumbnail of this TMAspot of the given max width or max height.
      * @param w_max Max width of the thumbnail image.
      * @param h_max Max height of the thumbnail image.
-     * @param factor If not null and not empty, the rezise factor is written into factor[0]. Can be null.
+     * @param factor If not null and not empty, the resize factor is written into factor[0]. Can be null.
      * @return A new BufferedImage as a thumbnail of this TMAspot.
      */
     public Image getThumbnailImage(int w_max, int h_max, double [] factor) {

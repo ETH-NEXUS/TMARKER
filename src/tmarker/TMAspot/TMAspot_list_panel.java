@@ -307,12 +307,14 @@ public class TMAspot_list_panel extends javax.swing.JPanel {
     }
 
     /**
-     * Initilializes the name and size of this component.
+     * Initializes the name and size of this component.
      */
     private void initComponents2() {
         sizeComponent();
         setMinimumSize(dim);
         setMaximumSize(dim);
+        setPreferredSize(dim);
+        setSize(dim);
         name = ts.getName() + "   (" + ts.getWidth() + " x " + ts.getHeight() + ")";
     }
 

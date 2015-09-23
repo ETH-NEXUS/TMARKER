@@ -813,9 +813,11 @@ public class Misc {
     */
    public static String ArrayToString(String[] ss, String delim) {
        String s2 = "";
-       for (int i=0; i<ss.length; i++) {
-           s2 += ss[i];
-           if (i<ss.length-1) s2 += delim;
+       if (ss!=null) {
+            for (int i=0; i<ss.length; i++) {
+                s2 += ss[i];
+                if (i<ss.length-1) s2 += delim;
+            }
        }
        return s2;
    }
