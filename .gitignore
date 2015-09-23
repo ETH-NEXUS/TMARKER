@@ -22,6 +22,7 @@ nb-configuration.xml
 
 tmarker.conf
 .DS_Store
+Thumbs.db
 *preview-application.html
 /test_dataset/
 /img/
