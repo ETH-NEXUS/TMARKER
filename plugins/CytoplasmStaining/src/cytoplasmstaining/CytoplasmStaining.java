@@ -14,6 +14,7 @@ import java.awt.Graphics2D;
 import java.awt.Image;
 import java.awt.Stroke;
 import java.awt.event.ActionEvent;
+import java.awt.event.MouseEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.awt.image.BufferedImage;
@@ -318,20 +319,17 @@ public class CytoplasmStaining extends javax.swing.JFrame implements TMARKERPlug
 
         jXTable1.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
-                {null, null, null, null, null, null, null, null, null, null},
-                {null, null, null, null, null, null, null, null, null, null},
-                {null, null, null, null, null, null, null, null, null, null},
-                {null, null, null, null, null, null, null, null, null, null}
+
             },
             new String [] {
-                "Name", "Avg R", "Avg G", "Avg B", "% 0+ cells", "% 1+ cells", "% 2+ cells", "% 3+ cells", "Avg Gray", "Avg Channel 2"
+                "Name", "Avg R", "Avg G", "Avg B", "% 0+ cells", "% 1+ cells", "% 2+ cells", "% 3+ cells", "Avg Gray", "Avg Channel 2", "H-Score"
             }
         ) {
             Class[] types = new Class [] {
-                java.lang.String.class, java.lang.Double.class, java.lang.Double.class, java.lang.Double.class, java.lang.Double.class, java.lang.Double.class, java.lang.Double.class, java.lang.Double.class, java.lang.Double.class, java.lang.Double.class
+                java.lang.String.class, java.lang.Double.class, java.lang.Double.class, java.lang.Double.class, java.lang.Double.class, java.lang.Double.class, java.lang.Double.class, java.lang.Double.class, java.lang.Double.class, java.lang.Double.class, java.lang.Double.class
             };
             boolean[] canEdit = new boolean [] {
-                false, false, false, false, false, false, false, false, false, false
+                false, false, false, false, false, false, false, false, false, false, false
             };
 
             public Class getColumnClass(int columnIndex) {
@@ -577,8 +575,69 @@ public class CytoplasmStaining extends javax.swing.JFrame implements TMARKERPlug
     }
 
     @Override
-    public String getHTMLReport(String HTMLFolderName) {
-        return "";
+    public String getHTMLReport(String HTMLFolderPath) {
+        String output = "<html>";
+        if (jXTable1.getRowCount()>0) {
+            char linebreak = '\n';
+            String HTMLFolderName = new File(HTMLFolderPath).getName() + File.separator;
+
+            output += "<script>" + linebreak
+                        + "	$(function(){" + linebreak
+                        + "		$('#tableCytoplasmStaining thead th').data(\"sorter\", true);" + linebreak
+                        + "		$('#tableCytoplasmStaining').tablesorter({" + linebreak
+                        + "			widgets        : ['zebra', 'columns']," + linebreak
+                        + "			usNumberFormat : false," + linebreak
+                        + "			sortReset      : true," + linebreak
+                        + "			sortRestart    : true" + linebreak
+                        + "		});" + linebreak
+                        + "	});" + linebreak
+                        + "</script>" + linebreak + linebreak;
+
+            output += "<table><tr>" + linebreak
+                    + "  <td colspan=2><i><u>Cytoplasm Staining Parameters</u></i></td>" + linebreak
+                    + " </tr>" + linebreak
+
+                    + " <tr>" + linebreak
+                    + "  <td><b>Include gold-standard cells</b></td>" + linebreak
+                    + "  <td>" + getParam_useGSTPoints() + "</td>" + linebreak
+                    + " </tr>" + linebreak
+
+                    + " <tr>" + linebreak
+                    + "  <td><b>Include estimated cells</b></td>" + linebreak
+                    + "  <td>" + getParam_useESTPoints() + "</td>" + linebreak
+                    + " </tr>" + linebreak
+
+                    + " <tr>" + linebreak
+                    + "  <td><b>Cell diameter</b></td>" + linebreak
+                    + "  <td>" + getParam_patchsize() + "</td>" + linebreak
+                    + " </tr>" + linebreak
+
+                    + " <tr>" + linebreak
+                    + "  <td><b>Blurring</b></td>" + linebreak
+                    + "  <td>" + getParam_blur() + "</td>" + linebreak
+                    + " </tr>" + linebreak;
+
+            output += "</table><br>" + linebreak;
+
+            // write table
+            output += "<table id=\"tableCytoplasmStaining\" class=\"sortable\"><thead><tr>" + linebreak;
+            for (int i=0; i<jXTable1.getColumnCount(); i++) {
+                output += "  <th><b>" + jXTable1.getColumnName(i) + "</b></th>" + linebreak;
+            }
+            output += " </tr></thead><tbody>" + linebreak;
+
+            for (int j=0; j<jXTable1.getRowCount(); j++) {
+                output += " <tr>" + linebreak;
+                for (int i=0; i<jXTable1.getColumnCount(); i++) {
+                    output += "  <td>" + jXTable1.getStringAt(j, i) + "</td>" + linebreak;
+                }
+                output += " </tr>" + linebreak;
+            }
+            output += "</tbody></table><br>" + linebreak;
+        }        
+        
+        output += "</html>";
+        return output;
     }
 
     @Override
@@ -646,6 +705,11 @@ public class CytoplasmStaining extends javax.swing.JFrame implements TMARKERPlug
     @Override
     public BufferedImage showAlternativeImage(TMAspot ts) {
         return null;
+    }
+    
+    @Override
+    public void TMAspotMouseClicked(TMAspot ts, TMApoint tp, MouseEvent evt) {
+        
     }
     
     /**
@@ -799,17 +863,21 @@ public class CytoplasmStaining extends javax.swing.JFrame implements TMARKERPlug
                         // if the coordinates are within the image...
                         if (x>=0 && y>=0 && x<img.getWidth() && y<img.getHeight()) {
                             //... and the coordinates are within a circle...
-                            if (Math.sqrt(Math.pow(tp.x-x, 2) + Math.pow(tp.y-y, 2)) < w/2) {
-                                c = img.getRGB(x, y);
-                                r = (c & 0x00FF0000) >> 16;
-                                g = (c & 0x0000FF00) >>  8;
-                                b = (c & 0x000000FF);
-                                local_avg_r += r;
-                                local_avg_g += g;
-                                local_avg_b += b;
-                                local_avg_gray += 0.2989 * r + 0.5870 * g + 0.1140 * b; ;
-                                local_avg_ch2 += (ch2 == null)? 0 : (ch2.getRGB(x, y) & 0x000000FF);
-                                j++;
+                            double r_ = Math.sqrt(Math.pow(tp.x-x, 2) + Math.pow(tp.y-y, 2));
+                            if (r_ < w/2) { 
+                                // ... and the coordinates are outside the nucleus radius
+                                if (r_ >= ts.getCenter().getLabelRadius()) { 
+                                    c = img.getRGB(x, y);
+                                    r = (c & 0x00FF0000) >> 16;
+                                    g = (c & 0x0000FF00) >>  8;
+                                    b = (c & 0x000000FF);
+                                    local_avg_r += r;
+                                    local_avg_g += g;
+                                    local_avg_b += b;
+                                    local_avg_gray += 0.2989 * r + 0.5870 * g + 0.1140 * b; ;
+                                    local_avg_ch2 += (ch2 == null)? 0 : (ch2.getRGB(x, y) & 0x000000FF);
+                                    j++;
+                                }
                             }
                         }
                     }
@@ -860,7 +928,7 @@ public class CytoplasmStaining extends javax.swing.JFrame implements TMARKERPlug
             }
             
             // add the average of this TMAspot to the table
-            ((DefaultTableModel) jXTable1.getModel()).addRow(new Object[]{ts.getName(), average_r, average_g, average_b, perc_0cells, perc_1cells, perc_2cells, perc_3cells, average_gray, average_ch2});
+            ((DefaultTableModel) jXTable1.getModel()).addRow(new Object[]{ts.getName(), average_r, average_g, average_b, perc_0cells, perc_1cells, perc_2cells, perc_3cells, average_gray, average_ch2, ts.getHScore()});
         }
         setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
     }

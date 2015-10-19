@@ -32,6 +32,7 @@ public class StainingEstimationFork extends RecursiveAction {
     private final boolean hide_legend;
     private final boolean markCancerous;
     private final String myStain;
+    private final boolean substractChannels;
     private final int TMblur_hema;
     private final int TMblur_dab;
     private final int mStart;
@@ -57,12 +58,13 @@ public class StainingEstimationFork extends RecursiveAction {
      * @param hide_legend If false, a legend of the color deconvolution algorithm will appear.
      * @param markCancerous If true, all found nuclei will be labeled as "cancerous" nuclei
      * @param myStain String of the staining protocol (e.g. "H&E" or "H DAB").
+     * @param substractChannels If true, channel 2 will be substracted from channel 1.
      * @param mStart Starting point of this fork (default: 0).
      * @param mLength Length of this fork (default: tss.size()).
      * @param doFork If true, the fork is run in parallel. Otherwise, not parallel (no fork).
      * @param progress_value A container for the progress bar over the forks.
      */
-    public StainingEstimationFork(TMARKERPluginManager tpm, StainingEstimation se, List<TMAspot> tss, int radius, double blur, int tolerance, int TMblur_hema, int TMblur_dab, int t_hema, int t_dab, boolean delete_cur_gs_spots, boolean delete_cur_es_spots, boolean hide_legend, boolean markCancerous, String myStain, int mStart, int mLength, boolean doFork, int[] progress_value) {
+    public StainingEstimationFork(TMARKERPluginManager tpm, StainingEstimation se, List<TMAspot> tss, int radius, double blur, int tolerance, int TMblur_hema, int TMblur_dab, int t_hema, int t_dab, boolean delete_cur_gs_spots, boolean delete_cur_es_spots, boolean hide_legend, boolean markCancerous, String myStain, boolean substractChannels, int mStart, int mLength, boolean doFork, int[] progress_value) {
         this.tpm = tpm;
         this.se = se;
         this.tss = tss;
@@ -76,6 +78,7 @@ public class StainingEstimationFork extends RecursiveAction {
         this.hide_legend = hide_legend;
         this.markCancerous = markCancerous;
         this.myStain = myStain;
+        this.substractChannels = substractChannels;
         this.TMblur_hema = TMblur_hema;
         this.TMblur_dab = TMblur_dab;
         this.mStart = mStart;
@@ -100,7 +103,7 @@ public class StainingEstimationFork extends RecursiveAction {
         List<ForkJoinTask> fjt = new ArrayList<>();
         for (int i=0; i<n_proc; i++) {
             split_adj = Math.min(split, tss.size()-(mStart + i*split));
-            fjt.add(new StainingEstimationFork(tpm, se, tss, radius, blur, tolerance, TMblur_hema, TMblur_dab, t_hema, t_dab, delete_cur_gs_spots, delete_cur_es_spots, hide_legend, markCancerous, myStain, mStart + i*split, split_adj, false, progress_container));
+            fjt.add(new StainingEstimationFork(tpm, se, tss, radius, blur, tolerance, TMblur_hema, TMblur_dab, t_hema, t_dab, delete_cur_gs_spots, delete_cur_es_spots, hide_legend, markCancerous, myStain, substractChannels, mStart + i*split, split_adj, false, progress_container));
         }
         invokeAll(fjt);
     }
@@ -113,7 +116,7 @@ public class StainingEstimationFork extends RecursiveAction {
             tpm.setProgressbar((int)(1.0*progress_container[0]/mLength));
             se.setProgressNumber(progress_container[0], tss.size(), startTime);
             
-            StainingEstimation.doStainingEstimation(se, ts, radius, blur, tolerance, TMblur_hema, TMblur_dab, t_hema, t_dab, delete_cur_gs_spots, delete_cur_es_spots, hide_legend, markCancerous, myStain, true);
+            StainingEstimation.doStainingEstimation(se, ts, radius, blur, tolerance, TMblur_hema, TMblur_dab, t_hema, t_dab, delete_cur_gs_spots, delete_cur_es_spots, hide_legend, markCancerous, myStain, substractChannels, true);
             
             progress_container[0]++;
             
@@ -122,9 +125,9 @@ public class StainingEstimationFork extends RecursiveAction {
     }
     
     
-    public static void StainingEstimation_Fork(TMARKERPluginManager tpm, StainingEstimation se, List<TMAspot> tss, int radius, double blur, int tolerance, int TMblur_hema, int TMblur_dab, int t_hema, int t_dab, boolean delete_cur_gs_spots, boolean delete_cur_es_spots, boolean hide_legend, boolean markCancerous, String myStain) {
+    public static void StainingEstimation_Fork(TMARKERPluginManager tpm, StainingEstimation se, List<TMAspot> tss, int radius, double blur, int tolerance, int TMblur_hema, int TMblur_dab, int t_hema, int t_dab, boolean delete_cur_gs_spots, boolean delete_cur_es_spots, boolean hide_legend, boolean markCancerous, String myStain, boolean substractChannels) {
         int[] progress_container = new int[]{1};
-        StainingEstimationFork fb = new StainingEstimationFork(tpm, se, tss, radius, blur, tolerance, TMblur_hema, TMblur_dab, t_hema, t_dab, delete_cur_gs_spots, delete_cur_es_spots, hide_legend, markCancerous, myStain, 0, tss.size(), tpm.useParallelProgramming(), progress_container);
+        StainingEstimationFork fb = new StainingEstimationFork(tpm, se, tss, radius, blur, tolerance, TMblur_hema, TMblur_dab, t_hema, t_dab, delete_cur_gs_spots, delete_cur_es_spots, hide_legend, markCancerous, myStain, substractChannels, 0, tss.size(), tpm.useParallelProgramming(), progress_container);
 
         ForkJoinPool pool = new ForkJoinPool();
 

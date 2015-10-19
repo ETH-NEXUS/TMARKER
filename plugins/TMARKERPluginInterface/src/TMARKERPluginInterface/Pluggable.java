@@ -27,10 +27,12 @@
 package TMARKERPluginInterface;
 
 import java.awt.Graphics;
+import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
 import java.util.List;
 import java.util.Properties;
 import javax.swing.Icon;
+import tmarker.TMAspot.TMApoint;
 import tmarker.TMAspot.TMAspot;
 
 
@@ -153,5 +155,13 @@ public interface Pluggable {
    * @return The image to be shown alternatively to the orginal TMAspot. Can be null, if the original TMAspot should be shown.
    */
   public BufferedImage showAlternativeImage(TMAspot ts);
+  
+  /**
+   * Allows the plugin to do something after a mouse click on the image has been done.
+   * @param ts The TMAspot on which the click was done
+   * @param tp The TMApoint in the location of the click (can be null, if none is found).
+   * @param evt The MouseClick event.
+   */
+  public void TMAspotMouseClicked(TMAspot ts, TMApoint tp, MouseEvent evt);
   
 }

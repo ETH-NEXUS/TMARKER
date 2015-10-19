@@ -18,6 +18,7 @@ import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Image;
 import java.awt.Polygon;
+import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -80,6 +81,7 @@ public class StainingEstimation extends javax.swing.JFrame implements TMARKERPlu
     Color userColor3 = Color.WHITE;
     double imageResizeFactor = 1.0;
     String param_lastStain = "";
+    boolean param_lastSubstractChannels = false;
     StainingEstimationParameterChangeThread sepct = null;
     TMAspot current_TMAspot = null;
     List<TMAspot> processedTMAspots = new ArrayList<>();
@@ -239,6 +241,7 @@ public class StainingEstimation extends javax.swing.JFrame implements TMARKERPlu
         jButton7 = new javax.swing.JButton();
         jButton8 = new javax.swing.JButton();
         jButton9 = new javax.swing.JButton();
+        jCheckBox1 = new javax.swing.JCheckBox();
 
         setTitle(PLUGINNAME);
 
@@ -397,7 +400,7 @@ public class StainingEstimation extends javax.swing.JFrame implements TMARKERPlu
         jCheckBox4.setVerticalTextPosition(javax.swing.SwingConstants.TOP);
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 18;
+        gridBagConstraints.gridy = 19;
         gridBagConstraints.gridwidth = 8;
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
@@ -452,7 +455,7 @@ public class StainingEstimation extends javax.swing.JFrame implements TMARKERPlu
         jLabel10.setText(bundle.getString("StainingEstimationDialog.jLabel10.text")); // NOI18N
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 12;
+        gridBagConstraints.gridy = 13;
         gridBagConstraints.gridwidth = 2;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.FIRST_LINE_START;
         gridBagConstraints.insets = new java.awt.Insets(0, 5, 0, 0);
@@ -462,7 +465,7 @@ public class StainingEstimation extends javax.swing.JFrame implements TMARKERPlu
         jLabel11.setText(bundle.getString("StainingEstimationDialog.jLabel11.text")); // NOI18N
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 2;
-        gridBagConstraints.gridy = 12;
+        gridBagConstraints.gridy = 13;
         gridBagConstraints.gridwidth = 2;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.FIRST_LINE_START;
         gridBagConstraints.insets = new java.awt.Insets(0, 3, 0, 0);
@@ -472,7 +475,7 @@ public class StainingEstimation extends javax.swing.JFrame implements TMARKERPlu
         jLabel12.setText(bundle.getString("StainingEstimationDialog.jLabel12.text")); // NOI18N
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 4;
-        gridBagConstraints.gridy = 12;
+        gridBagConstraints.gridy = 13;
         gridBagConstraints.gridwidth = 2;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.FIRST_LINE_START;
         gridBagConstraints.insets = new java.awt.Insets(0, 3, 0, 0);
@@ -482,7 +485,7 @@ public class StainingEstimation extends javax.swing.JFrame implements TMARKERPlu
         jLabel13.setText(bundle.getString("StainingEstimationDialog.jLabel13.text")); // NOI18N
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 6;
-        gridBagConstraints.gridy = 12;
+        gridBagConstraints.gridy = 13;
         gridBagConstraints.gridwidth = 2;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.FIRST_LINE_START;
         gridBagConstraints.insets = new java.awt.Insets(0, 3, 0, 5);
@@ -529,7 +532,7 @@ public class StainingEstimation extends javax.swing.JFrame implements TMARKERPlu
 
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 19;
+        gridBagConstraints.gridy = 20;
         gridBagConstraints.gridwidth = 8;
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.FIRST_LINE_START;
@@ -559,7 +562,7 @@ public class StainingEstimation extends javax.swing.JFrame implements TMARKERPlu
         jXLabel5.setText(bundle.getString("StainingEstimationDialog.jXLabel5.text")); // NOI18N
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 13;
+        gridBagConstraints.gridy = 14;
         gridBagConstraints.gridwidth = 2;
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.FIRST_LINE_START;
@@ -569,7 +572,7 @@ public class StainingEstimation extends javax.swing.JFrame implements TMARKERPlu
         jXLabel6.setText(bundle.getString("StainingEstimationDialog.jXLabel6.text")); // NOI18N
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 6;
-        gridBagConstraints.gridy = 13;
+        gridBagConstraints.gridy = 14;
         gridBagConstraints.gridwidth = 2;
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.FIRST_LINE_START;
@@ -579,7 +582,7 @@ public class StainingEstimation extends javax.swing.JFrame implements TMARKERPlu
         jXLabel7.setText(bundle.getString("StainingEstimationDialog.jXLabel7.text")); // NOI18N
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 2;
-        gridBagConstraints.gridy = 13;
+        gridBagConstraints.gridy = 14;
         gridBagConstraints.gridwidth = 2;
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.FIRST_LINE_START;
@@ -589,7 +592,7 @@ public class StainingEstimation extends javax.swing.JFrame implements TMARKERPlu
         jXLabel8.setText(bundle.getString("StainingEstimationDialog.jXLabel8.text")); // NOI18N
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 4;
-        gridBagConstraints.gridy = 13;
+        gridBagConstraints.gridy = 14;
         gridBagConstraints.gridwidth = 2;
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.FIRST_LINE_START;
@@ -615,7 +618,7 @@ public class StainingEstimation extends javax.swing.JFrame implements TMARKERPlu
         });
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 14;
+        gridBagConstraints.gridy = 15;
         gridBagConstraints.gridwidth = 8;
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.LAST_LINE_START;
@@ -671,7 +674,7 @@ public class StainingEstimation extends javax.swing.JFrame implements TMARKERPlu
         jLabel16.setText(bundle.getString("StainingEstimationDialog.jLabel16.text")); // NOI18N
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 17;
+        gridBagConstraints.gridy = 18;
         gridBagConstraints.gridwidth = 8;
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
@@ -681,7 +684,7 @@ public class StainingEstimation extends javax.swing.JFrame implements TMARKERPlu
         jLabel18.setText(bundle.getString("StainingEstimationDialog.jLabel18.text")); // NOI18N
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 2;
-        gridBagConstraints.gridy = 10;
+        gridBagConstraints.gridy = 11;
         gridBagConstraints.gridwidth = 2;
         gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.FIRST_LINE_START;
@@ -691,7 +694,7 @@ public class StainingEstimation extends javax.swing.JFrame implements TMARKERPlu
         jLabel19.setText(bundle.getString("StainingEstimationDialog.jLabel19.text")); // NOI18N
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 4;
-        gridBagConstraints.gridy = 10;
+        gridBagConstraints.gridy = 11;
         gridBagConstraints.gridwidth = 2;
         gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.FIRST_LINE_START;
@@ -701,7 +704,7 @@ public class StainingEstimation extends javax.swing.JFrame implements TMARKERPlu
         jLabel20.setText(bundle.getString("StainingEstimationDialog.jLabel20.text")); // NOI18N
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 6;
-        gridBagConstraints.gridy = 10;
+        gridBagConstraints.gridy = 11;
         gridBagConstraints.gridwidth = 2;
         gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.FIRST_LINE_START;
@@ -711,7 +714,7 @@ public class StainingEstimation extends javax.swing.JFrame implements TMARKERPlu
         jXLabel9.setText(bundle.getString("StainingEstimationDialog.jXLabel9.text")); // NOI18N
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 6;
-        gridBagConstraints.gridy = 11;
+        gridBagConstraints.gridy = 12;
         gridBagConstraints.gridwidth = 2;
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.FIRST_LINE_START;
@@ -721,7 +724,7 @@ public class StainingEstimation extends javax.swing.JFrame implements TMARKERPlu
         jXLabel10.setText(bundle.getString("StainingEstimationDialog.jXLabel10.text")); // NOI18N
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 2;
-        gridBagConstraints.gridy = 11;
+        gridBagConstraints.gridy = 12;
         gridBagConstraints.gridwidth = 2;
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.FIRST_LINE_START;
@@ -731,7 +734,7 @@ public class StainingEstimation extends javax.swing.JFrame implements TMARKERPlu
         jXLabel11.setText(bundle.getString("StainingEstimationDialog.jXLabel11.text")); // NOI18N
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 4;
-        gridBagConstraints.gridy = 11;
+        gridBagConstraints.gridy = 12;
         gridBagConstraints.gridwidth = 2;
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.FIRST_LINE_START;
@@ -816,7 +819,7 @@ public class StainingEstimation extends javax.swing.JFrame implements TMARKERPlu
         gridBagConstraints.gridx = 8;
         gridBagConstraints.gridy = 5;
         gridBagConstraints.gridwidth = java.awt.GridBagConstraints.REMAINDER;
-        gridBagConstraints.gridheight = 18;
+        gridBagConstraints.gridheight = 19;
         gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.LAST_LINE_END;
         gridBagConstraints.insets = new java.awt.Insets(0, 10, 5, 5);
@@ -840,7 +843,7 @@ public class StainingEstimation extends javax.swing.JFrame implements TMARKERPlu
         jLabel5.setText("<html>See: <cite>Ruifrok AC, Johnston DA.<br><b>Quantification of histochemical staining by color deconvolution.</b><br><i>Anal Quant Cytol Histol 23: 291-299, 2001.</i></cite></html>");
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 21;
+        gridBagConstraints.gridy = 22;
         gridBagConstraints.gridwidth = 6;
         gridBagConstraints.gridheight = 2;
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
@@ -859,7 +862,7 @@ public class StainingEstimation extends javax.swing.JFrame implements TMARKERPlu
         });
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 15;
+        gridBagConstraints.gridy = 16;
         gridBagConstraints.gridwidth = 2;
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_START;
@@ -876,7 +879,7 @@ public class StainingEstimation extends javax.swing.JFrame implements TMARKERPlu
         });
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 2;
-        gridBagConstraints.gridy = 15;
+        gridBagConstraints.gridy = 16;
         gridBagConstraints.gridwidth = 2;
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_START;
@@ -893,7 +896,7 @@ public class StainingEstimation extends javax.swing.JFrame implements TMARKERPlu
         });
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 4;
-        gridBagConstraints.gridy = 15;
+        gridBagConstraints.gridy = 16;
         gridBagConstraints.gridwidth = 2;
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_START;
@@ -910,7 +913,7 @@ public class StainingEstimation extends javax.swing.JFrame implements TMARKERPlu
         });
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 6;
-        gridBagConstraints.gridy = 15;
+        gridBagConstraints.gridy = 16;
         gridBagConstraints.gridwidth = 2;
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_START;
@@ -920,7 +923,7 @@ public class StainingEstimation extends javax.swing.JFrame implements TMARKERPlu
         jLabel30.setText(" ");
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 20;
+        gridBagConstraints.gridy = 21;
         gridBagConstraints.gridwidth = 8;
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_START;
@@ -1319,7 +1322,7 @@ public class StainingEstimation extends javax.swing.JFrame implements TMARKERPlu
         });
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 7;
-        gridBagConstraints.gridy = 22;
+        gridBagConstraints.gridy = 23;
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.LAST_LINE_END;
         gridBagConstraints.insets = new java.awt.Insets(0, 0, 5, 5);
@@ -1334,7 +1337,7 @@ public class StainingEstimation extends javax.swing.JFrame implements TMARKERPlu
         });
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 2;
-        gridBagConstraints.gridy = 16;
+        gridBagConstraints.gridy = 17;
         gridBagConstraints.gridwidth = 2;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
         gridBagConstraints.insets = new java.awt.Insets(0, 0, 5, 0);
@@ -1349,7 +1352,7 @@ public class StainingEstimation extends javax.swing.JFrame implements TMARKERPlu
         });
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 4;
-        gridBagConstraints.gridy = 16;
+        gridBagConstraints.gridy = 17;
         gridBagConstraints.gridwidth = 2;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
         gridBagConstraints.insets = new java.awt.Insets(0, 0, 5, 0);
@@ -1364,11 +1367,26 @@ public class StainingEstimation extends javax.swing.JFrame implements TMARKERPlu
         });
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 6;
-        gridBagConstraints.gridy = 16;
+        gridBagConstraints.gridy = 17;
         gridBagConstraints.gridwidth = 2;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
         gridBagConstraints.insets = new java.awt.Insets(0, 0, 5, 0);
         jPanel1.add(jButton9, gridBagConstraints);
+
+        jCheckBox1.setText("Substract channel 2 from channel 1 for enhanced nucleus detection");
+        jCheckBox1.setToolTipText("Select this if channel 1 and 2 show large overlap on deconvoluted images.");
+        jCheckBox1.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jCheckBox1ActionPerformed(evt);
+            }
+        });
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 10;
+        gridBagConstraints.gridwidth = 8;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.FIRST_LINE_START;
+        gridBagConstraints.insets = new java.awt.Insets(5, 5, 5, 5);
+        jPanel1.add(jCheckBox1, gridBagConstraints);
 
         jScrollPane1.setViewportView(jPanel1);
 
@@ -1537,6 +1555,13 @@ public class StainingEstimation extends javax.swing.JFrame implements TMARKERPlu
         saveChannelImages(SHOW_CHANNEL3_IMAGE);
     }//GEN-LAST:event_jButton9ActionPerformed
 
+    private void jCheckBox1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jCheckBox1ActionPerformed
+        if (previewOriginal != null) {
+            calculatePreviewConvolution(new ImagePlus("", previewOriginal.getScaledInstance(-1, -1, Image.SCALE_DEFAULT)));
+            displayPreviewImages();
+        }
+    }//GEN-LAST:event_jCheckBox1ActionPerformed
+
     /**
      * @param args the command line arguments
      */
@@ -1585,6 +1610,7 @@ public class StainingEstimation extends javax.swing.JFrame implements TMARKERPlu
     private javax.swing.JButton jButton7;
     private javax.swing.JButton jButton8;
     private javax.swing.JButton jButton9;
+    private javax.swing.JCheckBox jCheckBox1;
     private javax.swing.JCheckBox jCheckBox10;
     private javax.swing.JCheckBox jCheckBox11;
     private javax.swing.JCheckBox jCheckBox12;
@@ -1733,6 +1759,7 @@ public class StainingEstimation extends javax.swing.JFrame implements TMARKERPlu
         setParam_respectAreas(true);
         setParam_useThresholdMap(false);
         setParam_blur(1);
+        setParam_substractChannels(false);
     }
     
     @Override
@@ -1749,6 +1776,7 @@ public class StainingEstimation extends javax.swing.JFrame implements TMARKERPlu
         value = parameters.getProperty("respectAreas"); if (value!=null) { setParam_respectAreas(Boolean.parseBoolean(value)); }
         value = parameters.getProperty("useThresholdMap"); if (value!=null) { setParam_useThresholdMap(Boolean.parseBoolean(value)); }
         value = parameters.getProperty("blur"); if (value!=null) { setParam_blur(Integer.parseInt(value)); }
+        value = parameters.getProperty("substractChannels"); if (value!=null) { setParam_substractChannels(Boolean.parseBoolean(value)); }
     }
     
     @Override
@@ -1765,6 +1793,7 @@ public class StainingEstimation extends javax.swing.JFrame implements TMARKERPlu
         parameters.setProperty("respectAreas", Boolean.toString(getParam_respectAreas()));
         parameters.setProperty("useThresholdMap", Boolean.toString(getParam_useThresholdMap()));
         parameters.setProperty("blur", Integer.toString(getParam_blur()));
+        parameters.setProperty("substractChannels", Boolean.toString(getParam_substractChannels()));
         return parameters;
     }
     
@@ -1840,6 +1869,11 @@ public class StainingEstimation extends javax.swing.JFrame implements TMARKERPlu
             return getBufferedImage(ts, SHOW_CHANNEL3_IMAGE);
         }
         return null;
+    }
+    
+    @Override
+    public void TMAspotMouseClicked(TMAspot ts, TMApoint tp, MouseEvent evt) {
+        
     }
     
     /**
@@ -1947,7 +1981,7 @@ public class StainingEstimation extends javax.swing.JFrame implements TMARKERPlu
      * @param imp The images to be deconvolved.
      */
     void calculatePreviewConvolution(ImagePlus imp) {
-        HE_preview = Colour_Deconvolution.get_deconvolution_images(imp, this, manager.getVisibleTMAspot(), true, getParam_ColorChannel());
+        HE_preview = Colour_Deconvolution.get_deconvolution_images(imp, this, manager.getVisibleTMAspot(), true, getParam_ColorChannel(), getParam_substractChannels());
         calculatePreviewConvolution_gray(showNucleiPreview());
     }
     
@@ -2131,6 +2165,22 @@ public class StainingEstimation extends javax.swing.JFrame implements TMARKERPlu
     }
     
     /**
+     * Sets the flag of substraction of channel 2 from channel 1.
+     * @param b True, if channel 2 should be substracted from channel 1.
+     */
+    public void setParam_substractChannels(boolean b) {
+        jCheckBox1.setSelected(b);
+    }
+    
+    /**
+     * Returns the flag of substraction of channel 2 from channel 1.
+     * @return True, if channel 2 should be substracted from channel 1.
+     */
+    public boolean getParam_substractChannels() {
+        return jCheckBox1.isSelected();
+    }
+    
+    /**
      * Sets the selected staining protocol.
      * @param c The selected staining protocol (e.g. "H&E" or "H DAB").
      */
@@ -2278,8 +2328,24 @@ public class StainingEstimation extends javax.swing.JFrame implements TMARKERPlu
     }
     
     /**
-     * Returns whether or not the nuclei should be scetched when the sliders are moved.
-     * @return True, if the nuclei should be scetched as preview (might cost runtime).
+     * Returns the flag parameter of substract channels in the last processing.
+     * @return The last "substractChannels" parameter used for color deconvolution.
+     */
+    public boolean getParam_lastSubstractChannels() {
+        return param_lastSubstractChannels;
+    }
+    
+    /**
+     * Sets the flag parameter of substract channels in the last processing.
+     * @param b The last "substractChannels" parameter used for color deconvolution.
+     */
+    public void setParam_lastSubstractChannels(boolean b) {
+        this.param_lastSubstractChannels = b;
+    }
+    
+    /**
+     * Returns whether or not the nuclei should be sketched when the sliders are moved.
+     * @return True, if the nuclei should be sketched as preview (might cost runtime).
      */
     private boolean showNucleiPreview() {
         return jCheckBox7.isSelected();
@@ -2290,7 +2356,7 @@ public class StainingEstimation extends javax.swing.JFrame implements TMARKERPlu
      * @param asParallelThread If true, the staining estimation is done on a second thread, and the program can be used in parallel. 
      */
     public void doStainingEstimation(boolean asParallelThread) {
-        performStainingEstimation(null, manager.getLabelRadius(), getParam_blur(), jSlider1.getValue(), 10, 10, jSlider3.getValue(), jSlider2.getValue(), false, true, getParam_hideLegend(), false, getParam_ColorChannel(), asParallelThread);
+        performStainingEstimation(null, manager.getLabelRadius(), getParam_blur(), jSlider1.getValue(), 10, 10, jSlider3.getValue(), jSlider2.getValue(), false, true, getParam_hideLegend(), false, getParam_ColorChannel(), getParam_substractChannels(), asParallelThread);
     }
     
     /**
@@ -2310,8 +2376,9 @@ public class StainingEstimation extends javax.swing.JFrame implements TMARKERPlu
      * @param markCancerous If true, found nuclei are marked as TMAspot.LABEL_POS, otherwise as TMAspot.LABEL_UNK
      * @param asParallelThread If true, saving of the Channel Images is done in a parallel thread.
      * @param myStain The staining colors description (e.g. "H&E" or "H DAB") (used by the color devconvolution method).
+     * @param substractChannels If true, channel 2 will be substracted from channel 1.
      */
-    public static void doStainingEstimation(StainingEstimation se, TMAspot ts, int radius, double blur, int tolerance, int TMblur_hema, int TMblur_dab, int t_hema, int t_dab, boolean delete_cur_gs_spots, boolean delete_cur_es_spots, boolean hide_legend, boolean markCancerous, String myStain, boolean asParallelThread) {
+    public static void doStainingEstimation(StainingEstimation se, TMAspot ts, int radius, double blur, int tolerance, int TMblur_hema, int TMblur_dab, int t_hema, int t_dab, boolean delete_cur_gs_spots, boolean delete_cur_es_spots, boolean hide_legend, boolean markCancerous, String myStain, boolean substractChannels, boolean asParallelThread) {
         if (delete_cur_gs_spots) {
             ts.deleteAllPoints_GS();
         }
@@ -2322,7 +2389,7 @@ public class StainingEstimation extends javax.swing.JFrame implements TMARKERPlu
         ts.setParam_tolerance(tolerance);
         ts.setParam_t_hema(t_hema);
         ts.setParam_t_dab(t_dab);
-        List<TMApoint> tps = StainingEstimation.tma_stain(se, ts, radius, blur, tolerance, TMblur_hema, TMblur_dab, t_hema, t_dab, hide_legend, myStain, false, true, asParallelThread);
+        List<TMApoint> tps = StainingEstimation.tma_stain(se, ts, radius, blur, tolerance, TMblur_hema, TMblur_dab, t_hema, t_dab, hide_legend, myStain, substractChannels, false, true, asParallelThread);
         if (tps != null) {
             if (markCancerous) {
                 for (TMApoint tp: tps) {
@@ -2352,9 +2419,10 @@ public class StainingEstimation extends javax.swing.JFrame implements TMARKERPlu
      * @param hide_legend If false, a legend of the color deconvolution algorithm will appear.
      * @param markCancerous If true, all found nuclei will be labeled as "cancerous" nuclei
      * @param myStain String of the staining protocol (e.g. "H&E" or "H DAB").
+     * @param substractChannels If true, channel 2 will be substracted from channel 1.
      */
-    public void performStainingEstimation(List<TMAspot> tss, int radius, double blur, int tolerance, int TMblur_hema, int TMblur_dab, int t_hema, int t_dab, boolean delete_cur_gs_spots, boolean delete_cur_es_spots, boolean hide_legend, boolean markCancerous, String myStain) { 
-        performStainingEstimation(tss, radius, blur, tolerance, TMblur_hema, TMblur_dab, t_hema, t_dab, delete_cur_gs_spots, delete_cur_es_spots, hide_legend, markCancerous, myStain, true);    
+    public void performStainingEstimation(List<TMAspot> tss, int radius, double blur, int tolerance, int TMblur_hema, int TMblur_dab, int t_hema, int t_dab, boolean delete_cur_gs_spots, boolean delete_cur_es_spots, boolean hide_legend, boolean markCancerous, String myStain, boolean substractChannels) { 
+        performStainingEstimation(tss, radius, blur, tolerance, TMblur_hema, TMblur_dab, t_hema, t_dab, delete_cur_gs_spots, delete_cur_es_spots, hide_legend, markCancerous, myStain, substractChannels, true);    
     }
     
     /**
@@ -2372,9 +2440,10 @@ public class StainingEstimation extends javax.swing.JFrame implements TMARKERPlu
      * @param hide_legend If false, a legend of the color deconvolution algorithm will appear.
      * @param markCancerous If true, all found nuclei will be labeled as "cancerous" nuclei
      * @param myStain String of the staining protocol (e.g. "H&E" or "H DAB").
+     * @param substractChannels If true, channel 2 will be substracted from channel 1.
      * @param asParallelThread If true, staining estimation is done in a separate thread. Otherwise, TMARKER is blocked as long as the TMAspots are processed.
      */
-    public void performStainingEstimation(List<TMAspot> tss, int radius, double blur, int tolerance, int TMblur_hema, int TMblur_dab, int t_hema, int t_dab, boolean delete_cur_gs_spots, boolean delete_cur_es_spots, boolean hide_legend, boolean markCancerous, String myStain, boolean asParallelThread) {
+    public void performStainingEstimation(List<TMAspot> tss, int radius, double blur, int tolerance, int TMblur_hema, int TMblur_dab, int t_hema, int t_dab, boolean delete_cur_gs_spots, boolean delete_cur_es_spots, boolean hide_legend, boolean markCancerous, String myStain, boolean substractChannels, boolean asParallelThread) {
         if (tss==null) {
             tss = manager.getSelectedTMAspots();
         }
@@ -2382,11 +2451,11 @@ public class StainingEstimation extends javax.swing.JFrame implements TMARKERPlu
             if (set!=null) {
                 if (set.isAlive()) set.interrupt();
             }
-            set = new StainingEstimationThread((TMARKERPluginManager) manager, this, tss, radius, blur, tolerance, TMblur_hema, TMblur_dab, t_hema, t_dab, delete_cur_gs_spots, delete_cur_es_spots, hide_legend, markCancerous, myStain);
+            set = new StainingEstimationThread((TMARKERPluginManager) manager, this, tss, radius, blur, tolerance, TMblur_hema, TMblur_dab, t_hema, t_dab, delete_cur_gs_spots, delete_cur_es_spots, hide_legend, markCancerous, myStain, substractChannels);
             set.start();
         } else {
              for (TMAspot ts: tss) {
-                doStainingEstimation(this, ts, radius, blur, tolerance, TMblur_hema, TMblur_dab, t_hema, t_dab, delete_cur_gs_spots, delete_cur_es_spots, hide_legend, markCancerous, myStain, false);
+                doStainingEstimation(this, ts, radius, blur, tolerance, TMblur_hema, TMblur_dab, t_hema, t_dab, delete_cur_gs_spots, delete_cur_es_spots, hide_legend, markCancerous, myStain, substractChannels, false);
             }
             String infoText = "<html><font size=\"3\" face=\"Arial\"><h2><strong>Congratulations! :-) <br><br>Automatic nucleus detection was successful!</strong></h2></strong><br>"
                 + "<u>You might want to review TMARKER's guesses by:</u>"
@@ -2615,9 +2684,10 @@ public class StainingEstimation extends javax.swing.JFrame implements TMARKERPlu
      * @param useThresholdMap If true, a dynamic threshold map is used for maximum acceptance instead of a fixed value.
      * @param respectAreas If true, including and excluding areas (ROI) on the images are respected and found nuclei are filtered accordingly.
      * @param myStain String of the staining protocol (e.g. "H&E" or "H DAB").
+     * @param substractChannels If true, channel 2 will be substracted from channel 1. 
      * @return A list of all found TMApoints on the given TMAspot. Points are already filtered by the including or excluding areas. Also, points to not overlap to each other (in the given radius).
      */
-    public static List<TMApoint> tma_stain(StainingEstimation se, TMAspot ts, int radius, double blur, int tolerance, int TMblur_hema, int TMblur_dab, int t_hema, int t_dab, boolean hide_legend, String myStain, boolean useThresholdMap, boolean respectAreas, boolean asParallelThread) {
+    public static List<TMApoint> tma_stain(StainingEstimation se, TMAspot ts, int radius, double blur, int tolerance, int TMblur_hema, int TMblur_dab, int t_hema, int t_dab, boolean hide_legend, String myStain, boolean substractChannels, boolean useThresholdMap, boolean respectAreas, boolean asParallelThread) {
         tmarker tm = ts.getCenter();
         
         // RANDOM STREAM RESETTEN
@@ -2638,13 +2708,13 @@ public class StainingEstimation extends javax.swing.JFrame implements TMARKERPlu
             List<ImagePlus> HE;
             List<ImagePlus> HE_old = getChannelImages(se, ts);
             List<ImagePlus> ThresholdMaps = null; // = ts.getThresholdMaps();
-            if (!myStain.equalsIgnoreCase("User values") && myStain.equalsIgnoreCase(se.getParam_lastStain()) && HE_old != null && !HE_old.isEmpty()) { // if the staining did not change, use the old channel images
+            if (!myStain.equalsIgnoreCase("User values") && myStain.equalsIgnoreCase(se.getParam_lastStain()) && substractChannels == se.getParam_lastSubstractChannels() && HE_old != null && !HE_old.isEmpty()) { // if the staining did not change, use the old channel images
                 HE = new ArrayList<>();
                 HE.add(HE_old.get(0));
                 HE.add(HE_old.get(1));
                 HE.add(HE_old.get(2));
             } else { // otherwise create new channel images
-                HE = deconvolveImage(img, tm, se, ts, hide_legend, myStain, asParallelThread);
+                HE = deconvolveImage(img, tm, se, ts, hide_legend, myStain, substractChannels, asParallelThread);
             }
             
             // What to do if we use dynamic thresholds instead of fixed thresholds
@@ -2740,7 +2810,7 @@ public class StainingEstimation extends javax.swing.JFrame implements TMARKERPlu
         return brown_spots;
     }
     
-    public static List<ImagePlus> deconvolveImage(Image img, tmarker tm, StainingEstimation se, TMAspot ts, boolean hide_legend, String myStain, boolean asParallelThread) {
+    public static List<ImagePlus> deconvolveImage(Image img, tmarker tm, StainingEstimation se, TMAspot ts, boolean hide_legend, String myStain, boolean substractChannels, boolean asParallelThread) {
         ImagePlus imp = new ImagePlus("", img);
         List<ImagePlus> HE;
         
@@ -2750,8 +2820,9 @@ public class StainingEstimation extends javax.swing.JFrame implements TMARKERPlu
         }
         if (se!=null) {
             se.setParam_lastStain(myStain);
+            se.setParam_lastSubstractChannels(substractChannels);
         }
-        HE = Colour_Deconvolution.get_deconvolution_images(imp, se, ts, hide_legend, myStain);
+        HE = Colour_Deconvolution.get_deconvolution_images(imp, se, ts, hide_legend, myStain, substractChannels);
         //while (HE.size()>2) {
         //    HE.remove(2);
         //}
@@ -2792,7 +2863,7 @@ public class StainingEstimation extends javax.swing.JFrame implements TMARKERPlu
         List<ImagePlus> HEs = new ArrayList<>();
         if (se.processedTMAspots.contains(ts)) {
             for (int i=0; i<3; i++) {
-                String ext = Misc.FilePathStringtoExtension(ts.getOriginalImagename());
+                String ext = Misc.FilePathStringtoExtension(ts.getOriginalImagename()).toLowerCase();
                 // read the images from hard disk. Otherwise they have to be stored in the TMARKER session which drastically increases RAM demand.
                 HEs.add(new ImagePlus(ts.getTmpDir() + File.separator + "channel" + Integer.toString(i+1) + "." + ext));
             }
@@ -2815,16 +2886,16 @@ public class StainingEstimation extends javax.swing.JFrame implements TMARKERPlu
             if (!se.processedTMAspots.contains(ts)) {
                 se.processedTMAspots.add(ts);
             }
-            String ext = Misc.FilePathStringtoExtension(ts.getOriginalImagename());
+            String ext = Misc.FilePathStringtoExtension(ts.getOriginalImagename()).toLowerCase();
             if (asParallelThread) {
-                saveImagesThread sit = new saveImagesThread(HE, ext.toUpperCase(), ts.getTmpDir() + File.separator, null, "");
+                saveImagesThread sit = new saveImagesThread(HE, ext, ts.getTmpDir() + File.separator, null, "");
                 sit.start();
             } else {
                 for (int i=0; i<HE.size(); i++) {
                     try {
                         File file = new File(ts.getTmpDir() + File.separator + "channel" + Integer.toString(i+1) + "." + ext);
                         file.deleteOnExit();
-                        ImageIO.write(HE.get(i).getBufferedImage(), ext.toUpperCase(), file);
+                        ImageIO.write(HE.get(i).getBufferedImage(), ext, file);
                     } catch (IOException ex) {
                         Logger.getLogger(StainingEstimation.class.getName()).log(Level.SEVERE, null, ex);
                     }
@@ -2842,7 +2913,7 @@ public class StainingEstimation extends javax.swing.JFrame implements TMARKERPlu
      */
     public String getImagename(TMAspot ts, int which_image) {
         String name = null;
-        String ext = Misc.FilePathStringtoExtension(ts.getOriginalImagename());
+        String ext = Misc.FilePathStringtoExtension(ts.getOriginalImagename()).toLowerCase();
         switch (which_image) {
             case SHOW_ORIGINAL_IMAGE : ts.getImagename(); break;
             case SHOW_CHANNEL1_IMAGE : name = ts.getTmpDir() + File.separator + "channel1." + ext; break;
@@ -3043,5 +3114,6 @@ public class StainingEstimation extends javax.swing.JFrame implements TMARKERPlu
             }
         }
     }
+
     
 }

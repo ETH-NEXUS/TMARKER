@@ -90,9 +90,10 @@ public class Colour_Deconvolution implements PlugIn {
          * @param ts The currently visible TMAspots, used for user value input, if myStaing = "User values".
          * @param hideLegend If true, the legend of the color deconvolution method is hidden.
          * @param myStain The staining protocol string (e.g. "H&E" or "H DAB").
+         * @param substractChannels If true, channel 2 will be substracted from channel 1.
          * @return The three calculated channel images of the deconvolution.
          */
-	public static java.util.List<ImagePlus> get_deconvolution_images(ImagePlus imp, StainingEstimation se, TMAspot ts, boolean hideLegend, String myStain) {
+	public static java.util.List<ImagePlus> get_deconvolution_images(ImagePlus imp, StainingEstimation se, TMAspot ts, boolean hideLegend, String myStain, boolean substractChannels) {
 		if (imp==null){
 			IJ.error("No image!");
 			return null;
@@ -376,6 +377,24 @@ public class Colour_Deconvolution implements PlugIn {
                                     newpixels[i][j]=(byte)(0xff&(int)(Math.floor(output+.5)));
 				}
 			}
+                        
+                        // substract channel 2 from channel 1 for H DAB staining
+                        if (substractChannels) {
+                            for (j=0;j<imagesize;j++) {
+                                byte c1 = newpixels[0][j];
+                                byte c2 = newpixels[1][j];
+                                int ch1i = 0x000000ff&c1;
+                                int ch2i = 0x000000ff&c2;
+                                int ch1ii = 255-ch1i;
+                                int ch2ii = 255-ch2i;
+                                int d = ch1ii-ch2ii;
+                                int df = Math.min(255, Math.max(0, d));
+                                int dfi = 255-Math.min(255, Math.max(0, df));
+                                byte db = (byte) (0xff&(int)(dfi));
+                                newpixels[0][j] = db;
+                            }
+                        }
+                
 			 // add new values to output images
 			outputstack[0].addSlice(label,newpixels[0]);
 			outputstack[1].addSlice(label,newpixels[1]);

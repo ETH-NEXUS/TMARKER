@@ -10,6 +10,17 @@
  */
 package tmarker;
 
+import java.awt.Cursor;
+import java.io.File;
+import java.nio.file.Files;
+import java.nio.file.StandardCopyOption;
+import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import javax.swing.JOptionPane;
+import tmarker.TMAspot.TMAspot;
+import tmarker.misc.Misc;
+
 /**
  *
  * @author Peter J. Schueffler
@@ -39,6 +50,7 @@ public class BgCorrectionDialog extends javax.swing.JDialog {
         jLabel1 = new javax.swing.JLabel();
         jLabel2 = new javax.swing.JLabel();
         jButton1 = new javax.swing.JButton();
+        jButton3 = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
         setTitle("White Balance");
@@ -65,6 +77,7 @@ public class BgCorrectionDialog extends javax.swing.JDialog {
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
         gridBagConstraints.gridy = 3;
+        gridBagConstraints.gridwidth = java.awt.GridBagConstraints.REMAINDER;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.FIRST_LINE_START;
         gridBagConstraints.insets = new java.awt.Insets(2, 5, 2, 0);
         jPanel1.add(jButton2, gridBagConstraints);
@@ -93,11 +106,24 @@ public class BgCorrectionDialog extends javax.swing.JDialog {
             }
         });
         gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 1;
+        gridBagConstraints.gridy = 4;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.FIRST_LINE_END;
+        gridBagConstraints.insets = new java.awt.Insets(15, 0, 0, 5);
+        jPanel1.add(jButton1, gridBagConstraints);
+
+        jButton3.setText("Save BG corrected images...");
+        jButton3.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton3ActionPerformed(evt);
+            }
+        });
+        gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
         gridBagConstraints.gridy = 4;
-        gridBagConstraints.gridwidth = java.awt.GridBagConstraints.REMAINDER;
-        gridBagConstraints.insets = new java.awt.Insets(33, 0, 0, 0);
-        jPanel1.add(jButton1, gridBagConstraints);
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.FIRST_LINE_START;
+        gridBagConstraints.insets = new java.awt.Insets(15, 5, 0, 0);
+        jPanel1.add(jButton3, gridBagConstraints);
 
         getContentPane().add(jPanel1, java.awt.BorderLayout.CENTER);
 
@@ -111,6 +137,10 @@ public class BgCorrectionDialog extends javax.swing.JDialog {
     private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
         ((tmarker)(super.getParent())).performBGCorrectionAutomatic(true);
     }//GEN-LAST:event_jButton2ActionPerformed
+
+    private void jButton3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton3ActionPerformed
+        saveBGcorrectedImages();
+    }//GEN-LAST:event_jButton3ActionPerformed
 
     /**
      * @param args the command line arguments
@@ -172,9 +202,46 @@ public class BgCorrectionDialog extends javax.swing.JDialog {
         jCheckBox1.setSelected(useColor);
     }
     
+    /**
+     * Lets the user choose a folder in which the BG corrected images of selected images are saved.
+     * I a selected image does not have a BG corrected image, it is skipped.
+     */
+    public void saveBGcorrectedImages() {
+        List<TMAspot> tss = ((tmarker)(super.getParent())).getSelectedTMAspots();
+        if (!tss.isEmpty()) {
+            // Let the user chose a folder
+            File file = FileChooser.chooseSavingFolder(((tmarker)(super.getParent())), ((tmarker)(super.getParent())).getCurrentDir());
+
+            String noBGversion = "";
+            if (file != null) {
+                this.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+                ((tmarker)(super.getParent())).setCurrentDir(file.getPath());
+                for (TMAspot ts : tss) {
+                    try {
+                        if (ts.hasBGCorrection()) {
+                            Files.copy((new File(ts.getImagename())).toPath(), (new File(file.getPath() + File.separator + ts.getName() + "_BGcorrected." + Misc.FilePathStringtoExtension(ts.getImagename()))).toPath(), StandardCopyOption.REPLACE_EXISTING);
+                        } else {
+                            noBGversion += "\n"+ts.getImagename();
+                        }
+                    } catch (Exception ex) {
+                        if (tmarker.DEBUG > 0) {
+                            Logger.getLogger(BgCorrectionDialog.class.getName()).log(Level.SEVERE, null, ex);
+                        }
+                    }
+                }
+                this.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+                
+                if (!noBGversion.isEmpty()) {
+                    JOptionPane.showMessageDialog(this, "Following image(s) did not have a BG correction\n" + noBGversion, "No BG correction found", JOptionPane.INFORMATION_MESSAGE);
+                }
+            }
+        }
+    }
+    
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton jButton1;
     private javax.swing.JButton jButton2;
+    private javax.swing.JButton jButton3;
     private javax.swing.JCheckBox jCheckBox1;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;

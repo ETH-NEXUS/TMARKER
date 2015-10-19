@@ -29,6 +29,7 @@ import java.awt.Rectangle;
 import java.awt.Shape;
 import java.awt.Stroke;
 import java.awt.event.ActionEvent;
+import java.awt.event.MouseEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.awt.geom.AffineTransform;
@@ -84,11 +85,12 @@ public class CancerNucleusClassification extends javax.swing.JFrame implements T
     private static final String PLUGINVERSION = "1.0";
     
     private CancerNucleusClassificationThread thread = null;
+    private Thread onTheFlyLabeling = null;
     
     private final StringToIntConverter stic = new StringToIntConverter();
     
     /**
-     * Segmentations after nucleus segmentation are drawn to the visisble TMAspot.
+     * Segmentations after nucleus segmentation are drawn to the visible TMAspot.
      */
     private final List<LocalizedROI> segmentations = new ArrayList<>();
     
@@ -244,6 +246,7 @@ public class CancerNucleusClassification extends javax.swing.JFrame implements T
         jLabel24 = new javax.swing.JLabel();
         jLabel29 = new javax.swing.JLabel();
         jLabel31 = new javax.swing.JLabel();
+        jToggleButton1 = new javax.swing.JToggleButton();
 
         jSeparator1.setName("jSeparator1"); // NOI18N
 
@@ -1512,6 +1515,21 @@ public class CancerNucleusClassification extends javax.swing.JFrame implements T
         gridBagConstraints.insets = new java.awt.Insets(5, 25, 0, 0);
         jPanel18.add(jLabel31, gridBagConstraints);
 
+        jToggleButton1.setText(bundle.getString("CancerNucleusClassification.jToggleButton1.text")); // NOI18N
+        jToggleButton1.setToolTipText(bundle.getString("CancerNucleusClassification.jToggleButton1.toolTipText")); // NOI18N
+        jToggleButton1.setName("jToggleButton1"); // NOI18N
+        jToggleButton1.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jToggleButton1ActionPerformed(evt);
+            }
+        });
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 16;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        gridBagConstraints.insets = new java.awt.Insets(25, 22, 0, 0);
+        jPanel18.add(jToggleButton1, gridBagConstraints);
+
         jPanel16.add(jPanel18);
 
         jTabbedPane1.addTab(bundle.getString("CancerNucleusClassification.jPanel16.TabConstraints.tabTitle"), jPanel16); // NOI18N
@@ -1530,7 +1548,7 @@ public class CancerNucleusClassification extends javax.swing.JFrame implements T
     }// </editor-fold>//GEN-END:initComponents
 
     private void jButton30ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton30ActionPerformed
-        performNucleusClassification(true);
+        performNucleusClassification(manager.getSelectedTMAspots(), true);
         manager.repaintVisibleTMAspot();
         JGoogleAnalyticsTracker tracker = new JGoogleAnalyticsTracker("TMARKER","UA-61194283-1");
         FocusPoint focusPoint = new FocusPoint("CancerNucleusClassificationTestinglUsage");
@@ -1538,7 +1556,7 @@ public class CancerNucleusClassification extends javax.swing.JFrame implements T
     }//GEN-LAST:event_jButton30ActionPerformed
 
     private void jButton26ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton26ActionPerformed
-        performClassifierCreation();
+        performClassifierCreation(manager.getSelectedTMAspots());
         if (getParam_useFeature_Segmentation()) {
             manager.repaintVisibleTMAspot();
         }
@@ -1615,6 +1633,42 @@ public class CancerNucleusClassification extends javax.swing.JFrame implements T
     private void jButton5ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton5ActionPerformed
         saveSegmentationMask();
     }//GEN-LAST:event_jButton5ActionPerformed
+
+    private void jToggleButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jToggleButton1ActionPerformed
+        if (jToggleButton1.isSelected()) {
+            if (onTheFlyLabeling == null || !onTheFlyLabeling.isAlive()) {
+                onTheFlyLabeling = new Thread(new Runnable() {
+                    @Override
+                    public void run() {
+                        while (jToggleButton1.isSelected()) {
+                            try {
+                                
+                                // Classifier Creation
+                                performClassifierCreation(manager.getTMAspots());
+                                
+                                // Nucleus classification
+                                List<TMAspot> tss = new ArrayList<>();
+                                tss.add(manager.getVisibleTMAspot());
+                                performNucleusClassification(tss, false);
+                                manager.repaintVisibleTMAspot();
+                                
+                                Thread.sleep(5000);
+                            } catch (InterruptedException ex) {
+                                if (tmarker.DEBUG>0) {
+                                    Logger.getLogger(CancerNucleusClassification.class.getName()).log(Level.SEVERE, null, ex);
+                                }
+                            }
+                        }
+                    }
+                });
+                onTheFlyLabeling.start();
+            }
+        } else {
+            if (onTheFlyLabeling != null && onTheFlyLabeling.isAlive()) {
+                onTheFlyLabeling.interrupt();
+            }
+        }
+    }//GEN-LAST:event_jToggleButton1ActionPerformed
 
     /**
      * @param args the command line arguments
@@ -1768,6 +1822,7 @@ public class CancerNucleusClassification extends javax.swing.JFrame implements T
     private javax.swing.JTextField jTextField7;
     private javax.swing.JTextField jTextField8;
     private javax.swing.JTextField jTextField9;
+    private javax.swing.JToggleButton jToggleButton1;
     private org.jdesktop.beansbinding.BindingGroup bindingGroup;
     // End of variables declaration//GEN-END:variables
 
@@ -1926,6 +1981,12 @@ public class CancerNucleusClassification extends javax.swing.JFrame implements T
 
     @Override
     public void updateOptionsToTMAspot(TMAspot visible_TMAspot, List<TMAspot> selected_TMAspots) {
+        if (onTheFlyLabeling != null && onTheFlyLabeling.isAlive()) {
+            // Nucleus classification
+            List<TMAspot> tss = new ArrayList<>();
+            tss.add(manager.getVisibleTMAspot());
+            performNucleusClassification(tss, false);
+        }
         if (manager!=null && manager.getVisibleTMAspot()!=null) {
             manager.updateTMAspot(manager.getVisibleTMAspot());
             manager.repaintVisibleTMAspot();
@@ -2017,6 +2078,11 @@ public class CancerNucleusClassification extends javax.swing.JFrame implements T
     @Override
     public BufferedImage showAlternativeImage(TMAspot ts) {
         return null;
+    }
+    
+    @Override
+    public void TMAspotMouseClicked(TMAspot ts, TMApoint tp, MouseEvent evt) {
+        
     }
     
     /**
@@ -2450,13 +2516,13 @@ public class CancerNucleusClassification extends javax.swing.JFrame implements T
      * If a 1-Step classification is selected by the user, the first classifier will be null.
      * There has to be at least one trainings point for each relevant class on the selected TMAspots.
      * Otherwise, nothing will be created and a popup window will appear to inform the user.
+     * @param tss The TMAspots which provide training labels.
      */
-    void performClassifierCreation() {
+    void performClassifierCreation(List<TMAspot> tss) {
         setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
         
         boolean withDetector = getParam_2StepClassification();
         
-        List<TMAspot> tss = manager.getSelectedTMAspots();
         Instances inst_detect = null;
         Instances inst_class = null;
         for (int i=0; i<tss.size(); i++) {
@@ -2986,9 +3052,9 @@ public class CancerNucleusClassification extends javax.swing.JFrame implements T
      * Performs the nucleus classification on detected (non-goldstandard) TMALabels.
      * If 1-step is selected, only the classifier benign/malignant is used.
      * If 2-step is selected, the classifier foreground/background is used beforehand.
+     * @param tss The TMAspots to be processed.
      */
-     private void performNucleusClassification(boolean asParallelThread) {
-        List<TMAspot> tss = manager.getSelectedTMAspots();
+     private void performNucleusClassification(List<TMAspot> tss, boolean asParallelThread) {
         if (asParallelThread) {
             if (thread!=null) {
                 if (thread.isAlive()) {

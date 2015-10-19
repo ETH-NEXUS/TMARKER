@@ -31,6 +31,7 @@ public class StainingEstimationThread extends Thread {
     boolean hide_legend;
     boolean markCancerous;
     String myStain;
+    boolean substractChannels;
     public boolean continu = true;
     int TMblur_hema;
     int TMblur_dab;
@@ -52,8 +53,9 @@ public class StainingEstimationThread extends Thread {
      * @param hide_legend If false, a legend of the color deconvolution algorithm will appear.
      * @param markCancerous If true, all found nuclei will be labeled as "cancerous" nuclei
      * @param myStain String of the staining protocol (e.g. "H&E" or "H DAB").
+     * @param substractChannels If true, channel 2 will be substracted from channel 1.
      */
-    public StainingEstimationThread (TMARKERPluginManager tpm, StainingEstimation se, List<TMAspot> aTMAspots, int radius, double blur, int tolerance, int TMblur_hema, int TMblur_dab, int t_hema, int t_dab, boolean delete_cur_gs_spots, boolean delete_cur_es_spots, boolean hide_legend, boolean markCancerous, String myStain) {
+    public StainingEstimationThread (TMARKERPluginManager tpm, StainingEstimation se, List<TMAspot> aTMAspots, int radius, double blur, int tolerance, int TMblur_hema, int TMblur_dab, int t_hema, int t_dab, boolean delete_cur_gs_spots, boolean delete_cur_es_spots, boolean hide_legend, boolean markCancerous, String myStain, boolean substractChannels) {
         this.tpm = tpm;
         this.se = se;
         this.aTMAspots = aTMAspots;
@@ -67,6 +69,7 @@ public class StainingEstimationThread extends Thread {
         this.hide_legend = hide_legend;
         this.markCancerous = markCancerous;
         this.myStain = myStain;
+        this.substractChannels = substractChannels;
         this.TMblur_hema = TMblur_hema;
         this.TMblur_dab = TMblur_dab;
     }
@@ -82,7 +85,7 @@ public class StainingEstimationThread extends Thread {
             }
             t.setState_stainingEstimation();
             */
-            StainingEstimationFork.StainingEstimation_Fork(tpm, se, aTMAspots, radius, blur, tolerance, TMblur_hema, TMblur_dab, t_hema, t_dab, delete_cur_gs_spots, delete_cur_es_spots, hide_legend, markCancerous, myStain);
+            StainingEstimationFork.StainingEstimation_Fork(tpm, se, aTMAspots, radius, blur, tolerance, TMblur_hema, TMblur_dab, t_hema, t_dab, delete_cur_gs_spots, delete_cur_es_spots, hide_legend, markCancerous, myStain, substractChannels);
             
             tpm.setStatusMessageLabel("Performing Staining Estimation ... Done.");
             tpm.setProgressbar(0);

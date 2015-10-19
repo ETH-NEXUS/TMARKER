@@ -15,6 +15,7 @@ import java.awt.Cursor;
 import java.awt.Graphics;
 import java.awt.SystemColor;
 import java.awt.event.KeyEvent;
+import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
@@ -1005,6 +1006,11 @@ public class IntensityClustering extends javax.swing.JFrame implements TMARKERPl
     @Override
     public BufferedImage showAlternativeImage(TMAspot ts) {
         return null;
+    }
+    
+    @Override
+    public void TMAspotMouseClicked(TMAspot ts, TMApoint tp, MouseEvent evt) {
+        
     }
     
     /**

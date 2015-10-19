@@ -410,6 +410,14 @@ public class TMAspot {
     }
     
     /**
+     * Returns if this TMAspot has a BG corrected version (White balance).
+     * @return True, if this TMAspot has a BG corrected image.
+     */
+    public boolean hasBGCorrection() {
+        return !bgCorrected_filename.isEmpty();
+    }
+    
+    /**
      * Returns the filename of the original TMAspot image.
      * @return The filename of the original TMAspot image.
      */
@@ -1401,6 +1409,28 @@ public class TMAspot {
             }
         }
         return gs;
+    }
+    
+    public double getHScore() {
+        List<TMApoint> ps = getPoints();
+        double n_0 = 0;
+        double n_1 = 0;
+        double n_2 = 0;
+        double n_3 = 0;
+        for (TMApoint tp: ps) {
+            switch (tp.getStaining()) {
+                case (TMALabel.STAINING_1): n_1++; break;
+                case (TMALabel.STAINING_2): n_2++; break;
+                case (TMALabel.STAINING_3): n_3++; break;
+                default: n_0++;        
+            }
+        }
+        double sum = n_0 + n_1 + n_2 + n_3;
+        n_1 /= sum;
+        n_2 /= sum;
+        n_3 /= sum;
+        
+        return 100*n_1 + 200*n_2 + 300*n_3;
     }
 
     

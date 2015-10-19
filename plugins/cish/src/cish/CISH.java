@@ -16,6 +16,7 @@ import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Point;
 import java.awt.event.ActionEvent;
+import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
@@ -36,6 +37,7 @@ import org.jfree.chart.JFreeChart;
 import org.jfree.chart.plot.PlotOrientation;
 import org.jfree.data.xy.DefaultXYDataset;
 import plugins.TMARKERPluginManager;
+import tmarker.TMAspot.TMApoint;
 import tmarker.TMAspot.TMAspot;
 import tmarker.misc.Misc;
 import tmarker.misc.StringToIntConverter;
@@ -625,6 +627,11 @@ public class CISH extends javax.swing.JFrame implements TMARKERPluginInterface.P
     @Override
     public BufferedImage showAlternativeImage(TMAspot ts) {
         return null;
+    }
+    
+    @Override
+    public void TMAspotMouseClicked(TMAspot ts, TMApoint tp, MouseEvent evt) {
+        
     }
     
     /**

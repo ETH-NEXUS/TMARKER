@@ -5068,8 +5068,8 @@ public final class tmarker extends javax.swing.JFrame {
                 // Save the processed image
                 if (!ts.getPoints().isEmpty() || !ts.getExcludingAreas().isEmpty() || !ts.getIncludingAreas().isEmpty()) {
                     file_tmp = new File(path + folderName + ts.getName() + "_processed.jpg");
-                    //TMA_view_panel.drawCellCounts(ts, bi.getGraphics(), 1, 0, 0, ts.getWidth(), ts.getHeight());
-                    //TMA_view_panel.drawAreas(ts, bi.getGraphics(), 1, 0, 0, ts.getWidth(), ts.getHeight());
+                    TMAspot_view_panel.drawCellCounts(ts, bi.getGraphics(), 1, 0, 0, ts.getWidth(), ts.getHeight());
+                    TMAspot_view_panel.drawAreas(ts, bi.getGraphics(), 1, 0, 0, ts.getWidth(), ts.getHeight());
                     ImageIO.write(bi, "jpg", file_tmp);
                 }
 

@@ -223,8 +223,10 @@ public class TMAspot_view_panel extends ZoomableImagePanel implements TMA_view_p
                             TMApoint tp = ts.getPointAt((int)(p.getX()/getZoom()), (int)(p.getY()/getZoom()), ts.getParam_r(), true);
                             if (tp==null) {
                                 tp = new TMApoint(ts, (int)(p.getX()/getZoom()), (int)(p.getY()/getZoom()), TMALabel.LABEL_POS, ts.getCenter().getCurrentStainingIntensity());
-                            } 
+                            }
                             //tp.calculateStaining();
+                            tp.setLabel(TMALabel.LABEL_POS);
+                            tp.setStaining(ts.getCenter().getCurrentStainingIntensity());
                             tp.setGoldStandard(t.getGSNumberForLabeling());
                             ts.addPoint(tp);
                             break;
@@ -235,6 +237,8 @@ public class TMAspot_view_panel extends ZoomableImagePanel implements TMA_view_p
                                 tp = new TMApoint(ts, (int)(p.getX()/getZoom()), (int)(p.getY()/getZoom()), TMALabel.LABEL_NEG, ts.getCenter().getCurrentStainingIntensity());
                             }
                             //tp.calculateStaining();
+                            tp.setLabel(TMALabel.LABEL_NEG);
+                            tp.setStaining(ts.getCenter().getCurrentStainingIntensity());
                             tp.setGoldStandard(t.getGSNumberForLabeling());
                             ts.addPoint(tp);
                             break;
@@ -245,6 +249,8 @@ public class TMAspot_view_panel extends ZoomableImagePanel implements TMA_view_p
                                 tp = new TMApoint(ts, (int)(p.getX()/getZoom()), (int)(p.getY()/getZoom()), TMALabel.LABEL_UNK, ts.getCenter().getCurrentStainingIntensity());
                             }
                             //tp.calculateStaining();
+                            tp.setLabel(TMALabel.LABEL_UNK);
+                            tp.setStaining(ts.getCenter().getCurrentStainingIntensity());
                             tp.setGoldStandard(t.getGSNumberForLabeling());
                             ts.addPoint(tp);
                             break;
@@ -255,6 +261,7 @@ public class TMAspot_view_panel extends ZoomableImagePanel implements TMA_view_p
                                 tp = new TMApoint(ts, (int)(p.getX()/getZoom()), (int)(p.getY()/getZoom()), TMALabel.LABEL_BG);
                             }
                             //tp.calculateStaining();
+                            tp.setLabel(TMALabel.LABEL_BG);
                             tp.setGoldStandard(t.getGSNumberForLabeling());
                             ts.addPoint(tp);
                             break;
@@ -269,12 +276,18 @@ public class TMAspot_view_panel extends ZoomableImagePanel implements TMA_view_p
                     ts.dispStainingInfo();
                 }
             }
+            // Allow the plugins to do s.th. with the TMApoint
+            Point p = new Point(evt.getPoint());
+            for (Pluggable plugin: t.getPlugins()) {
+                plugin.TMAspotMouseClicked(ts, ts.getPointAt((int)(p.getX()/getZoom()), (int)(p.getY()/getZoom()), ts.getParam_r(), true), evt);
+            }
         }
         if (!t.getSelectedTMAspots(false).contains(ts)) {
             for (TMAspot ts_: t.getTMAspots()) {
                     ts_.setSelected(ts_==ts);
                 }
         }
+        
     }//GEN-LAST:event_formMouseClicked
 
     private void formMousePressed(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_formMousePressed

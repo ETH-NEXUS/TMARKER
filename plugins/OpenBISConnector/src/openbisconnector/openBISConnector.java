@@ -26,6 +26,7 @@ import java.awt.Graphics;
 import java.awt.event.ActionEvent;
 import java.awt.event.ItemEvent;
 import java.awt.event.KeyEvent;
+import java.awt.event.MouseEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.awt.image.BufferedImage;
@@ -50,6 +51,7 @@ import javax.swing.KeyStroke;
 import javax.swing.tree.TreePath;
 import plugins.TMARKERPluginManager;
 import thread.ThreadUtil;
+import tmarker.TMAspot.TMApoint;
 import tmarker.TMAspot.TMAspot;
 import tmarker.tmarker;
 import static tmarker.tmarker.logger;
@@ -683,6 +685,11 @@ public class openBISConnector extends javax.swing.JFrame implements TMARKERPlugi
     @Override
     public BufferedImage showAlternativeImage(TMAspot ts) {
         return null;
+    }
+    
+    @Override
+    public void TMAspotMouseClicked(TMAspot ts, TMApoint tp, MouseEvent evt) {
+        
     }
 
     /**

@@ -7,6 +7,7 @@ package tmarker.TMAspot;
 import java.awt.Color;
 import java.awt.Cursor;
 import java.awt.Dimension;
+import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
@@ -17,17 +18,27 @@ import java.awt.event.MouseEvent;
 import java.awt.font.TextAttribute;
 import java.awt.geom.AffineTransform;
 import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.IOException;
 import java.text.AttributedString;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import javax.swing.BoxLayout;
 import javax.swing.ImageIcon;
+import javax.swing.JButton;
+import javax.swing.JComboBox;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
 import javax.swing.JScrollPane;
-import javax.swing.SwingUtilities;
 import org.imgscalr.Scalr;
 import org.imgscalr.Scalr.Method;
 import org.jdesktop.swingx.JXDialog;
 import org.jdesktop.swingx.JXTable;
+import tmarker.FileChooser;
+import tmarker.misc.Misc;
 import tmarker.misc.SortedProperties;
 import tmarker.tmarker;
 
@@ -330,8 +341,8 @@ public class TMAspot_list_panel extends javax.swing.JPanel {
         jLabel6 = new javax.swing.JLabel();
 
         setBackground(new java.awt.Color(255, 255, 255));
-        setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(255, 255, 255)));
         setAlignmentX(0.0F);
+        setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(255, 255, 255)));
         setInheritsPopupMenu(true);
         addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
@@ -1237,7 +1248,7 @@ public class TMAspot_list_panel extends javax.swing.JPanel {
         // no shift and not ctr key is pressed and double click
         else if (evt.getClickCount()==2) {
         
-            SortedProperties props = ts.getProperties();
+            final SortedProperties props = ts.getProperties();
             //if (!props.isEmpty()) {
                 String[] columnNames = {"Name", "Value"};
                 String[][] rowData = new String[props.size()][2];
@@ -1251,7 +1262,56 @@ public class TMAspot_list_panel extends javax.swing.JPanel {
                 }
                 JXTable propTable = new JXTable(rowData, columnNames);
                 JScrollPane scrollpane = new JScrollPane(propTable);
-                JXDialog dialog = new JXDialog(ts.getCenter(), scrollpane);
+                final JXDialog dialog = new JXDialog(ts.getCenter(), scrollpane);
+                dialog.getContentPane().setLayout(new javax.swing.BoxLayout(dialog.getContentPane(), javax.swing.BoxLayout.PAGE_AXIS));
+                if (ts.isNDPI()) {
+                    JPanel saveLevelsPanel = new JPanel(new FlowLayout(FlowLayout.LEADING, 15, 15));
+                    String[] levelData = new String[ts.getNDPI().getLevelCount()];
+                    for (int k = 0; k < ts.getNDPI().getLevelCount(); k++) {
+                        levelData[k] = "Level " + k + " (" + props.getProperty("openslide.level[" + k + "].width") + " x " + props.getProperty("openslide.level[" + k + "].height") + ", " + Double.toString(Double.valueOf(props.getProperty("openslide.objective-power"))/Double.valueOf(props.getProperty("openslide.level[" + k + "].downsample"))) + "x)";
+                    }
+                    final JComboBox levels = new JComboBox(levelData);
+                    saveLevelsPanel.add(levels);
+                    final JButton saveAsJPG = new JButton("Save as JPG...");
+                    saveAsJPG.setToolTipText("Only images smaller than " + Integer.MAX_VALUE + "px are supported.");
+                    levels.addItemListener(new java.awt.event.ItemListener() {
+                        @Override
+                        public void itemStateChanged(java.awt.event.ItemEvent evt) {
+                            if (evt.getStateChange()==java.awt.event.ItemEvent.SELECTED) {
+                                int k = levels.getSelectedIndex();
+                                int w = Integer.parseInt(props.getProperty("openslide.level[" + k + "].width"));
+                                int h = Integer.parseInt(props.getProperty("openslide.level[" + k + "].height"));
+                                saveAsJPG.setEnabled(h<Integer.MAX_VALUE/w);
+                            }
+                        }
+                    });
+                    levels.setSelectedIndex(1);
+                    levels.setSelectedIndex(0);
+                    saveAsJPG.addActionListener(new java.awt.event.ActionListener() {
+                        @Override
+                        public void actionPerformed(java.awt.event.ActionEvent evt) {
+                            int k = levels.getSelectedIndex();
+                            try {
+                                List<String> ext = new ArrayList();
+                                List<String> expl = new ArrayList();
+                                ext.add("jpg");
+                                expl.add("JPEG Image");
+                                File file = FileChooser.chooseSavingFile(ts.getCenter(), ts.getCenter().getCurrentDir(), Misc.FilePathStringtoFilenameWOExtension(ts.getName()) + "_level" + Integer.toString(k) + ".jpg", ext, expl);
+                                if (file != null) {
+                                    dialog.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+                                    ts.getCenter().setCurrentDir(file.getParent());
+                                    BufferedImage bi = ts.getNDPI().createThumbnailImage(Math.max(Integer.parseInt(props.getProperty("openslide.level[" + k + "].width")), Integer.parseInt(props.getProperty("openslide.level[" + k + "].height"))));
+                                    Misc.writeImage(bi, file.getAbsolutePath());
+                                    dialog.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+                                }
+                            } catch (IOException ex) {
+                                Logger.getLogger(TMAspot_list_panel.class.getName()).log(Level.SEVERE, null, ex);
+                            }
+                        }
+                    });
+                    saveLevelsPanel.add(saveAsJPG);
+                    dialog.add(saveLevelsPanel, 1);
+                }
                 dialog.setTitle(ts.getName() + " - Properties");
                 dialog.revalidate();
                 dialog.pack();

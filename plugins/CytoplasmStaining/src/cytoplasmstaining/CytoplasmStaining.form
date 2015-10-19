@@ -288,7 +288,7 @@
                     <Component class="org.jdesktop.swingx.JXTable" name="jXTable1">
                       <Properties>
                         <Property name="model" type="javax.swing.table.TableModel" editor="org.netbeans.modules.form.editors2.TableModelEditor">
-                          <Table columnCount="10" rowCount="4">
+                          <Table columnCount="11" rowCount="0">
                             <Column editable="false" title="Name" type="java.lang.String"/>
                             <Column editable="false" title="Avg R" type="java.lang.Double"/>
                             <Column editable="false" title="Avg G" type="java.lang.Double"/>
@@ -299,10 +299,16 @@
                             <Column editable="false" title="% 3+ cells" type="java.lang.Double"/>
                             <Column editable="false" title="Avg Gray" type="java.lang.Double"/>
                             <Column editable="false" title="Avg Channel 2" type="java.lang.Double"/>
+                            <Column editable="false" title="H-Score" type="java.lang.Double"/>
                           </Table>
                         </Property>
                         <Property name="columnModel" type="javax.swing.table.TableColumnModel" editor="org.netbeans.modules.form.editors2.TableColumnModelEditor">
                           <TableColumnModel selectionModel="3">
+                            <Column maxWidth="-1" minWidth="-1" prefWidth="-1" resizable="true">
+                              <Title/>
+                              <Editor/>
+                              <Renderer/>
+                            </Column>
                             <Column maxWidth="-1" minWidth="-1" prefWidth="-1" resizable="true">
                               <Title/>
                               <Editor/>

@@ -9,6 +9,7 @@ import com.boxysystems.jgoogleanalytics.FocusPoint;
 import com.boxysystems.jgoogleanalytics.JGoogleAnalyticsTracker;
 import java.awt.Graphics;
 import java.awt.event.ActionEvent;
+import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
@@ -25,6 +26,7 @@ import javax.swing.Icon;
 import javax.swing.JOptionPane;
 import org.jfree.chart.ChartPanel;
 import plugins.TMARKERPluginManager;
+import tmarker.TMAspot.TMApoint;
 import tmarker.TMAspot.TMAspot;
 import tmarker.misc.Misc;
 import tmarker.misc.SortedProperties;
@@ -544,6 +546,11 @@ public class SurvivalAnalysisFrame extends javax.swing.JFrame implements TMARKER
     @Override
     public BufferedImage showAlternativeImage(TMAspot ts) {
         return null;
+    }
+    
+    @Override
+    public void TMAspotMouseClicked(TMAspot ts, TMApoint tp, MouseEvent evt) {
+        
     }
     
     /**
