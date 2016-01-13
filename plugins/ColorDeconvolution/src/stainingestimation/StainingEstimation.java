@@ -2066,7 +2066,7 @@ public class StainingEstimation extends javax.swing.JFrame implements TMARKERPlu
      * @param t The minimum value of a local maximum.
      */
     void calculateNucleiPreview(ImagePlus imp, double blur, int tolerance, int t) {
-        List<TMApoint> tps = StainingEstimation.find_nucleus_lm(null, imp.duplicate(), blur, tolerance, t, TMALabel.STAINING_0);
+        List<TMApoint> tps = StainingEstimation.find_nucleus_lm(null, imp.duplicate(), blur, tolerance, t, TMALabel.STAINING_0, true);
         new ImageConverter(imp).convertToRGB();
         Graphics g = imp.getImage().getGraphics();
         g.setColor(Color.RED);
@@ -2083,7 +2083,7 @@ public class StainingEstimation extends javax.swing.JFrame implements TMARKERPlu
      * @param tmap The grayscaled image (same size as imp). Each pixel give a minimum value of a local maximum at this point.
      */
     void calculateNucleiPreview(ImagePlus imp, double blur, int tolerance, ImagePlus tmap) {
-        List<TMApoint> tps = StainingEstimation.find_nucleus_lm(null, imp.duplicate(), blur, tolerance, tmap, TMALabel.STAINING_0);
+        List<TMApoint> tps = StainingEstimation.find_nucleus_lm(null, imp.duplicate(), blur, tolerance, tmap, TMALabel.STAINING_0, true);
         new ImageConverter(imp).convertToRGB();
         Graphics g = imp.getImage().getGraphics();
         g.setColor(Color.RED);
@@ -2706,7 +2706,7 @@ public class StainingEstimation extends javax.swing.JFrame implements TMARKERPlu
             
             // Retrieve the Channel images HE
             List<ImagePlus> HE;
-            List<ImagePlus> HE_old = getChannelImages(se, ts);
+            List<ImagePlus> HE_old = ts.isNDPI() ? null : getChannelImages(se, ts);
             List<ImagePlus> ThresholdMaps = null; // = ts.getThresholdMaps();
             if (!myStain.equalsIgnoreCase("User values") && myStain.equalsIgnoreCase(se.getParam_lastStain()) && substractChannels == se.getParam_lastSubstractChannels() && HE_old != null && !HE_old.isEmpty()) { // if the staining did not change, use the old channel images
                 HE = new ArrayList<>();
@@ -2747,9 +2747,9 @@ public class StainingEstimation extends javax.swing.JFrame implements TMARKERPlu
                     tm.setProgressbar(70);
                 }
                 if (useThresholdMap) {
-                    blue_spots = find_nucleus_lm(ts, HE.get(0), blur, tolerance, ThresholdMaps.get(0), TMALabel.STAINING_0);
+                    blue_spots = find_nucleus_lm(ts, HE.get(0), blur, tolerance, ThresholdMaps.get(0), TMALabel.STAINING_0, false);
                 } else {
-                    blue_spots = find_nucleus_lm(ts, HE.get(0), blur, tolerance, t_hema, TMALabel.STAINING_0);
+                    blue_spots = find_nucleus_lm(ts, HE.get(0), blur, tolerance, t_hema, TMALabel.STAINING_0, false);
                 }
             } 
             
@@ -2760,9 +2760,9 @@ public class StainingEstimation extends javax.swing.JFrame implements TMARKERPlu
                     tm.setProgressbar(80);
                 }
                 if (useThresholdMap) {
-                    brown_spots = find_nucleus_lm(ts, HE.get(1), blur, tolerance, ThresholdMaps.get(1), TMALabel.STAINING_3);
+                    brown_spots = find_nucleus_lm(ts, HE.get(1), blur, tolerance, ThresholdMaps.get(1), TMALabel.STAINING_3, false);
                 } else {
-                    brown_spots = find_nucleus_lm(ts, HE.get(1), blur, tolerance, t_dab, TMALabel.STAINING_3);
+                    brown_spots = find_nucleus_lm(ts, HE.get(1), blur, tolerance, t_dab, TMALabel.STAINING_3, false);
                 }
                 
             }
@@ -2973,23 +2973,36 @@ public class StainingEstimation extends javax.swing.JFrame implements TMARKERPlu
      * @param threshold A threshold (0-255) below which all maxima are rejected.
      * @param staining A staining label which is stored in the found TMApoints. If the channel represents e.g. "no staining", this could be TMAspot.STAINING_0.
      * If the channel is the DAB channel, this could be TMAspot.STAINING_3.
+     * @param forPreview Set this TRUE, if this function is used for the small preview images. Upscaling of coordinates is for whole slide images is then skipped.
      * @return A list with all found local maxima on this image.
      */
-    public static List<TMApoint> find_nucleus_lm(TMAspot ts, ImagePlus imp, double blur, double tolerance, double threshold, byte staining) {
+    public static List<TMApoint> find_nucleus_lm(TMAspot ts, ImagePlus imp, double blur, double tolerance, double threshold, byte staining, boolean forPreview) {
         List<TMApoint> tps = new ArrayList<>();
         
         //if (imp!=null && imp.getProcessor()!=null) {
             imp.getProcessor().invert();
             
+            // For whole slide images: if the image at hand is downscaled, the loci have to be upscaled again.
+            double factor_x = 1.0;
+            double factor_y = 1.0;
+            if (!forPreview && ts.isNDPI()) {
+                if (imp.getWidth()<ts.getWidth()) {
+                    factor_x = ts.getWidth()/imp.getWidth();
+                }
+                if (imp.getHeight()<ts.getHeight()) {
+                    factor_y = ts.getHeight()/imp.getHeight();
+                }
+            }
+            
             if (blur>0) {
                 GaussianBlur gb = new GaussianBlur();
-                gb.blurGaussian(imp.getProcessor(), blur, blur, 0.2);
+                gb.blurGaussian(imp.getProcessor(), blur/factor_x, blur/factor_y, 0.2);
             }
 
             MaximumFinder mf = new MaximumFinder();
             Polygon pol = mf.getMaxima(imp.getProcessor(), tolerance, threshold, true);
             for (int i=0; i<pol.npoints; i++) {
-                tps.add(new TMApoint(ts, pol.xpoints[i], pol.ypoints[i], TMALabel.LABEL_UNK, staining));
+                tps.add(new TMApoint(ts, (int)(factor_x*pol.xpoints[i]), (int)(factor_y*pol.ypoints[i]), TMALabel.LABEL_UNK, staining));
             }
         //}
         return tps;
@@ -3005,22 +3018,35 @@ public class StainingEstimation extends javax.swing.JFrame implements TMARKERPlu
      * Otherwise it will be rejected.
      * @param staining A staining label which is stored in the found TMApoints. If the channel represents e.g. "no staining", this could be TMAspot.STAINING_0.
      * If the channel is the DAB channel, this could be TMAspot.STAINING_3.
+     * @param forPreview Set this TRUE, if this function is used for the small preview images. Upscaling of coordinates is for whole slide images is then skipped.
      * @return A list with all found local maxima on this image.
      */
-    public static List<TMApoint> find_nucleus_lm(TMAspot ts, ImagePlus imp, double blur, double tolerance, ImagePlus threshold, byte staining) {
+    public static List<TMApoint> find_nucleus_lm(TMAspot ts, ImagePlus imp, double blur, double tolerance, ImagePlus threshold, byte staining, boolean forPreview) {
         List<TMApoint> tps = new ArrayList<>();
         
         //if (imp!=null && imp.getProcessor()!=null) {
             imp.getProcessor().invert();
             
+            // For whole slide images: if the image at hand is downscaled, the loci have to be upscaled again.
+            double factor_x = 1.0;
+            double factor_y = 1.0;
+            if (!forPreview && ts.isNDPI()) {
+                if (imp.getWidth()<ts.getWidth()) {
+                    factor_x = ts.getWidth()/imp.getWidth();
+                }
+                if (imp.getHeight()<ts.getHeight()) {
+                    factor_y = ts.getHeight()/imp.getHeight();
+                }
+            }
+            
             if (blur>0) {
                 GaussianBlur gb = new GaussianBlur();
-                gb.blurGaussian(imp.getProcessor(), blur, blur, 0.2);
+                gb.blurGaussian(imp.getProcessor(), blur/factor_x, blur/factor_y, 0.2);
             }
             MaximumFinder mf = new MaximumFinder();
             Polygon pol = mf.getMaxima(imp.getProcessor(), tolerance, threshold, true);
             for (int i=0; i<pol.npoints; i++) {
-                tps.add(new TMApoint(ts, pol.xpoints[i], pol.ypoints[i], TMALabel.LABEL_UNK, staining));
+                tps.add(new TMApoint(ts, (int)(factor_x*pol.xpoints[i]), (int)(factor_y*pol.ypoints[i]), TMALabel.LABEL_UNK, staining));
             }
             
         //}
