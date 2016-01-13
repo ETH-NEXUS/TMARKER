@@ -24,7 +24,6 @@ import java.util.List;
 import javax.swing.JLabel;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
-import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableColumnModel;
 import org.jdesktop.swingx.JXTable;
 import tmarker.tmarker;
@@ -101,7 +100,7 @@ public class PluginSelector extends javax.swing.JFrame {
 
         jPanel1.setLayout(new java.awt.FlowLayout(java.awt.FlowLayout.LEFT));
 
-        jLabel1.setText("Following plugins are available at http://www.nexus.ethz.ch. Please choose the plugins you want to use and restart TMARKER:");
+        jLabel1.setText("<html>Following plugins are available at<a href=\"http://www.nexus.ethz.ch\">http://www.nexus.ethz.ch</a>. Please choose the plugins you want to use and restart <b>TMARKER using online plugins</b>:<br>\n(<b>Hint:</b> if you want to select local plugins, just copy the desired plugins into the local plugin folder.)</html>");
         jPanel1.add(jLabel1);
 
         getContentPane().add(jPanel1, java.awt.BorderLayout.PAGE_START);

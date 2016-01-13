@@ -185,7 +185,7 @@
           <Connection code="&quot;&lt;html&gt;&lt;a href=\&quot;\&quot;&gt;TMARKER v&quot; + tmarker.REVISION + &quot;&lt;/a&gt;&lt;/html&gt;&quot;" type="code"/>
         </Property>
         <Property name="cursor" type="java.awt.Cursor" editor="org.netbeans.modules.form.editors2.CursorEditor">
-          <Color id="Handcursor"/>
+          <Color id="Default Cursor"/>
         </Property>
         <Property name="name" type="java.lang.String" value="appVersionLabel" noResource="true"/>
       </Properties>
@@ -214,7 +214,7 @@
     </Component>
     <Component class="javax.swing.JLabel" name="appVendorLabel">
       <Properties>
-        <Property name="text" type="java.lang.String" value="&lt;html&gt;Peter Sch&#xfc;ffler, ETH Zurich, Switzerland,&lt;br&gt;&#xa;Thomas Fuchs, Caltech California, USA&lt;br&gt;&#xa;Cheng Soon Ong, NICTA Melbourne, Australia&lt;br&gt;&#xa;Peter Wild, USZ Zurich, Switzerland&lt;br&gt;&#xa;Niels Rupp, USZ Zurich, Switzerland&lt;br&gt;&#xa;&lt;/html&gt;" noResource="true"/>
+        <Property name="text" type="java.lang.String" value="&lt;html&gt;Peter Sch&#xfc;ffler, MSKCC New York, USA,&lt;br&gt;&#xa;Thomas Fuchs, MSKCC New York, USA&lt;br&gt;&#xa;Cheng Soon Ong, NICTA Melbourne, Australia&lt;br&gt;&#xa;Peter Wild, USZ Zurich, Switzerland&lt;br&gt;&#xa;Niels Rupp, USZ Zurich, Switzerland&lt;br&gt;&#xa;Daniel Stekhoven, NEXUS Zurich, Switzerland&lt;br&gt;&#xa;&lt;/html&gt;" noResource="true"/>
         <Property name="name" type="java.lang.String" value="appVendorLabel" noResource="true"/>
       </Properties>
       <AuxValues>
@@ -241,7 +241,7 @@
       <Properties>
         <Property name="text" type="java.lang.String" value="&lt;html&gt;&lt;a href=\u005c&quot;http://www.nexus.ethz.ch\u005c&quot;&gt;http://www.nexus.ethz.ch&lt;/a&gt;&lt;/html&gt;" noResource="true" containsInvalidXMLChars="true"/>
         <Property name="cursor" type="java.awt.Cursor" editor="org.netbeans.modules.form.editors2.CursorEditor">
-          <Color id="Handcursor"/>
+          <Color id="Default Cursor"/>
         </Property>
         <Property name="name" type="java.lang.String" value="appHomepageLabel" noResource="true"/>
       </Properties>
@@ -291,7 +291,7 @@
       <Properties>
         <Property name="text" type="java.lang.String" value="&lt;html&gt;&lt;a href=\u005c&quot;mailto:peter.schueffler@inf.ethz.ch\u005c&quot;&gt;peter.schueffler@inf.ethz.ch&lt;/a&gt;&lt;/html&gt;" noResource="true" containsInvalidXMLChars="true"/>
         <Property name="cursor" type="java.awt.Cursor" editor="org.netbeans.modules.form.editors2.CursorEditor">
-          <Color id="Handcursor"/>
+          <Color id="Default Cursor"/>
         </Property>
         <Property name="name" type="java.lang.String" value="appFeedbackLabel" noResource="true"/>
       </Properties>
@@ -322,7 +322,7 @@
       <Properties>
         <Property name="text" type="java.lang.String" value="&lt;html&gt;&#xa;Peter J Sch&#xfc;ffler, Thomas J Fuchs, Cheng Soon Ong, Peter J Wild, Niels J Rupp, Joachim M Buhmann&lt;br&gt;&#xa;&lt;b&gt;&lt;a href=#&gt;TMARKER: A free software toolkit for histopathological cell counting and staining estimation.&lt;/a&gt;&lt;/b&gt;&lt;br&gt;&#xa;&lt;i&gt;J Pathol Inform 4:2, 2013&lt;/i&gt;&#xa;&lt;/html&gt;" noResource="true"/>
         <Property name="cursor" type="java.awt.Cursor" editor="org.netbeans.modules.form.editors2.CursorEditor">
-          <Color id="Handcursor"/>
+          <Color id="Default Cursor"/>
         </Property>
         <Property name="name" type="java.lang.String" value="appCiteLabel" noResource="true"/>
       </Properties>
@@ -382,7 +382,9 @@
     </Component>
     <Component class="javax.swing.JLabel" name="jLabel3">
       <Properties>
-        <Property name="text" type="java.lang.String" value="&lt;html&gt;&lt;a href=\u005c&quot;http://www.comp-path.inf.ethz.ch\u005c&quot;&gt;http://www.comp-path.inf.ethz.ch&lt;/a&gt;&lt;/html&gt;" containsInvalidXMLChars="true"/>
+        <Property name="text" type="java.lang.String" editor="org.netbeans.modules.i18n.form.FormI18nStringEditor">
+          <ResourceString bundle="tmarker/Bundle.properties" key="TMARKERAboutBox.jLabel3.text" replaceFormat="java.util.ResourceBundle.getBundle(&quot;{bundleNameSlashes}&quot;).getString(&quot;{key}&quot;)"/>
+        </Property>
         <Property name="name" type="java.lang.String" value="jLabel3" noResource="true"/>
       </Properties>
       <Events>

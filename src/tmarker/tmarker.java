@@ -1233,7 +1233,7 @@ public final class tmarker extends javax.swing.JFrame {
         jMenu5.setText("Plugins");
         jMenu5.add(jSeparator16);
 
-        jMenuItem26.setText("View Available Plugins...");
+        jMenuItem26.setText("View Available Online Plugins...");
         jMenuItem26.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 jMenuItem26ActionPerformed(evt);
@@ -2744,6 +2744,8 @@ public final class tmarker extends javax.swing.JFrame {
                     headers.add(key.replaceAll("\"", ""));
                 }
             }
+            
+            TMAspot ts = null;
 
             //read each line of text file
             while ((line = bufRdr.readLine()) != null && userWantsSearchOtherFiles) {
@@ -2766,9 +2768,11 @@ public final class tmarker extends javax.swing.JFrame {
                 if (!prop.isEmpty()) {
                     // first: try to match the spots with already opened spots
                     // find the TMA image with the right imagename
-                    TMAspot ts = null;
                     String imgname = prop.getProperty(headers.get(imagename_ind));
                     if (imgname != null && !imgname.equals("")) {
+                        if (ts != null) {
+                            ts.dispStainingInfo(); // from the previous ts.
+                        }
                         ts = t.getTMAspotWithName(imgname);
                         if (ts != null) {
                             ts.addProperties(prop);
@@ -2867,7 +2871,37 @@ public final class tmarker extends javax.swing.JFrame {
                             continue;
                         }
                     }
+                    
+                    if (ts!=null) {
+                        String x = prop.getProperty("nucleus_x");
+                        String y = prop.getProperty("nucleus_y");
+                        String l = prop.getProperty("nucleus_label");
+                        String s = prop.getProperty("nucleus_staining");
+                        String g = prop.getProperty("nucleus_manuallyDrawn");
+                        if (x!=null && y!=null && l!=null && s!=null && g!=null) {
+                            try {
+                                if (ts.getPointAt(Integer.parseInt(x), Integer.parseInt(y), 0, false) == null) {
+                                    Byte label = l.equalsIgnoreCase("unknown") ? TMALabel.LABEL_UNK : (l.equalsIgnoreCase("malignant") ? TMALabel.LABEL_POS : (l.equalsIgnoreCase("benign") ? TMALabel.LABEL_NEG : TMALabel.LABEL_BG));
+                                    TMApoint tp = new TMApoint(ts, Integer.parseInt(x), Integer.parseInt(y), label, Byte.parseByte(s));
+                                    tp.setGoldStandard((byte) (Boolean.parseBoolean(g) ? 1 : 0));
+                                    ts.addPoint(tp);
+                                }
+                            } catch (Exception e) {
+                                if (tmarker.DEBUG > 4) {
+                                    logger.log(java.util.logging.Level.WARNING, e.getMessage(), e);
+                                }
+                            }
+                        }
+                        ts.getProperties().remove("nucleus_x");
+                        ts.getProperties().remove("nucleus_y");
+                        ts.getProperties().remove("nucleus_label");
+                        ts.getProperties().remove("nucleus_staining");
+                        ts.getProperties().remove("nucleus_manuallyDrawn");
+                    }
                 }
+            }
+            if (ts != null) {
+                ts.dispStainingInfo();
             }
             bufRdr.close();
         } catch (Exception ex) {
@@ -2916,6 +2950,7 @@ public final class tmarker extends javax.swing.JFrame {
         }
 
         allowed_ext.add("ndpi");
+        allowed_ext.add("svs");
         return allowed_ext;
     }
 

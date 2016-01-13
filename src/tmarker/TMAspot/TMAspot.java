@@ -325,7 +325,7 @@ public class TMAspot {
     public TMAspot(tmarker tc, String filename) {
         this.tc = tc;
         setFilename(filename);
-        if (filename.toLowerCase().endsWith("ndpi")) {
+        if (filename.toLowerCase().endsWith("ndpi") || filename.toLowerCase().endsWith("svs")) {
             try {
                 this.os = new OpenSlide(new File(filename));
                 Map<String, String> props = os.getProperties();
@@ -1239,6 +1239,9 @@ public class TMAspot {
      */
     public void flipAllPoints() {
         if (hasStainingEstimation()) {
+            // recalculate HScore
+            getHScore();
+            
             List<TMApoint> ps = getPoints();
             for (int i=0; i<ps.size(); i++) {
                 ps.get(i).flipLabel(true);
@@ -1247,6 +1250,8 @@ public class TMAspot {
             if (this==getCenter().getVisibleTMAspot()) {
                 getCenter().getTMAView().repaint();
             }
+            
+            
         }
     }
     
@@ -1256,7 +1261,7 @@ public class TMAspot {
      */
     public List<TMApoint> getPoints_GoldStandard() {
         List<TMApoint> ps = getPoints();
-        List<TMApoint> gs = new ArrayList<TMApoint>();
+        List<TMApoint> gs = new ArrayList<>();
         for (int i=0; i<ps.size(); i++) {
             if (ps.get(i).isGoldStandard()) {
                 gs.add(ps.get(i));
@@ -1272,7 +1277,7 @@ public class TMAspot {
      */
     public List<TMApoint> getPoints_GoldStandard(byte label) {
         List<TMApoint> ps = getPoints();
-        List<TMApoint> gs = new ArrayList<TMApoint>();
+        List<TMApoint> gs = new ArrayList<>();
         for (int i=0; i<ps.size(); i++) {
             if (ps.get(i).isGoldStandard() && ps.get(i).getLabel()==label) {
                 gs.add(ps.get(i));
@@ -1289,7 +1294,7 @@ public class TMAspot {
      */
     public List<TMApoint> getPoints_GoldStandard(byte gs_number, byte label) {
         List<TMApoint> ps = getPoints();
-        List<TMApoint> gs = new ArrayList<TMApoint>();
+        List<TMApoint> gs = new ArrayList<>();
         for (int i=0; i<ps.size(); i++) {
             if (ps.get(i).getGoldStandard()==gs_number && ps.get(i).getLabel()==label) {
                 gs.add(ps.get(i));
@@ -1304,7 +1309,7 @@ public class TMAspot {
      */
     public List<TMApoint> getPoints_Estimated() {
         List<TMApoint> ps = getPoints();
-        List<TMApoint> gs = new ArrayList<TMApoint>();
+        List<TMApoint> gs = new ArrayList<>();
         for (int i=0; i<ps.size(); i++) {
             if (!ps.get(i).isGoldStandard()) {
                 gs.add(ps.get(i));
@@ -1320,7 +1325,7 @@ public class TMAspot {
      */
     public List<TMApoint> getPoints_Estimated(byte label) {
         List<TMApoint> ps = getPoints();
-        List<TMApoint> gs = new ArrayList<TMApoint>();
+        List<TMApoint> gs = new ArrayList<>();
         for (int i=0; i<ps.size(); i++) {
             if (!ps.get(i).isGoldStandard() && ps.get(i).getLabel()==label) {
                 gs.add(ps.get(i));
@@ -1337,7 +1342,7 @@ public class TMAspot {
      */
     public List<TMApoint> getPoints_Estimated(byte label, boolean stained) {
         List<TMApoint> ps = getPoints();
-        List<TMApoint> gs = new ArrayList<TMApoint>();
+        List<TMApoint> gs = new ArrayList<>();
         for (int i=0; i<ps.size(); i++) {
             if (!ps.get(i).isGoldStandard() && ps.get(i).getLabel()==label && ps.get(i).isStained()==stained) {
                 gs.add(ps.get(i));
@@ -1354,7 +1359,7 @@ public class TMAspot {
      */
     public List<TMApoint> getPoints_Estimated(byte label, byte staining) {
         List<TMApoint> ps = getPoints();
-        List<TMApoint> gs = new ArrayList<TMApoint>();
+        List<TMApoint> gs = new ArrayList<>();
         for (int i=0; i<ps.size(); i++) {
             if (!ps.get(i).isGoldStandard() && ps.get(i).getLabel()==label && ps.get(i).getStaining()==staining) {
                 gs.add(ps.get(i));
@@ -1370,7 +1375,7 @@ public class TMAspot {
      */
     public List<TMApoint> getNonTrainingPoints(boolean classification) {
         List<TMApoint> ps = getPoints();
-        List<TMApoint> gs = new ArrayList<TMApoint>();
+        List<TMApoint> gs = new ArrayList<>();
         for (int i=0; i<ps.size(); i++) {
             if (!ps.get(i).isTrainingPoint(classification)) {
                 gs.add(ps.get(i));
@@ -1386,7 +1391,7 @@ public class TMAspot {
      */
     public List<TMApoint> getTrainingPoints(boolean classification) {
         List<TMApoint> ps = getPoints();
-        List<TMApoint> gs = new ArrayList<TMApoint>();
+        List<TMApoint> gs = new ArrayList<>();
         for (int i=0; i<ps.size(); i++) {
             if (ps.get(i).isTrainingPoint(classification)) {
                 gs.add(ps.get(i));
@@ -1402,7 +1407,7 @@ public class TMAspot {
      */
     public List<TMApoint> getTrainingPoints_Consensus(boolean classification) {
         List<TMApoint> ps = getPoints();
-        List<TMApoint> gs = new ArrayList<TMApoint>();
+        List<TMApoint> gs = new ArrayList<>();
         for (TMApoint tp: ps) {
             if (tp.getGoldStandard()==TMApoint.CONSENSUS && tp.isTrainingPoint(classification)) {
                 gs.add(tp);
@@ -1411,6 +1416,12 @@ public class TMAspot {
         return gs;
     }
     
+    /**
+     * Calculates and returns the nucleus H-Score of this spot as 100*n_1 + 200*n_2 + 300*n_3, where
+     * n_1 is the relative amount of 1+ nuclei, n_2 the relative amount of 2+ nuclei and n_3 the relative
+     * amount of 3+ nuclei.
+     * @return The nucleus H-Score of this spot.
+     */
     public double getHScore() {
         List<TMApoint> ps = getPoints();
         double n_0 = 0;
@@ -1430,7 +1441,14 @@ public class TMAspot {
         n_2 /= sum;
         n_3 /= sum;
         
-        return 100*n_1 + 200*n_2 + 300*n_3;
+        double s = 100*n_1 + 200*n_2 + 300*n_3;
+        
+        // add the staining estimation as property        
+        if (prop==null) {
+            prop = new SortedProperties();
+        }
+        prop.setProperty("TMARKERNucleusHScore", Double.toString(s));
+        return s;
     }
 
     
@@ -1830,14 +1848,14 @@ public class TMAspot {
                     try {
                         bi = getNDPI().createThumbnailImage((int) Math.max(getNDPI().getLevelWidth(i), getNDPI().getLevelHeight(i)));
                         break;
-                    } catch (IOException ex) {
+                    } catch (IOException | Error ex) {
                         if (tmarker.DEBUG>2) {
                             Logger.getLogger(TMAspot.class.getName()).log(Level.SEVERE, null, ex);
                         }
                     }
                 }
             }
-				} else {
+	} else {
             //if (!asNewInstance && getCenter().getVisibleTMAspot()==this && getCenter().getTMAView().getImage()!=null) {
             //    bi = (BufferedImage) getCenter().getTMAView().getImage();
             //} else {

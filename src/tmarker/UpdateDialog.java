@@ -141,21 +141,15 @@ public class UpdateDialog extends javax.swing.JDialog {
             //get the zipped file list entry
             ZipEntry ze; // = zis.getNextEntry();
             
-            String rootFolder = "";
+            String rootFolder = "TMARKER";
             int i = 0;
             while((ze = zis.getNextEntry()) != null) {
                 
-                if (rootFolder.isEmpty()) {
-                    rootFolder = ze.getName();
-                    i++;
-                    continue;
-                }
-
-                String fileName = ze.getName().replace(rootFolder, "");
+                String fileName = ze.getName().replaceFirst(rootFolder, ".");
                 File newFile = new File(outputFolder + File.separator + fileName);
                 //newFile.deleteOnExit();
 
-                Logger.getLogger(UpdateDialog.class.getName()).log(Level.INFO, "file unzip : "+ newFile.getAbsoluteFile());
+                Logger.getLogger(UpdateDialog.class.getName()).log(Level.INFO, "file unzip : {0}", newFile.getAbsolutePath());
 
                 String sep  = "/" ;
                 //create all non exists folders
@@ -163,14 +157,12 @@ public class UpdateDialog extends javax.swing.JDialog {
                 if (fileName.endsWith(sep) || fileName.endsWith(File.separator)) { 
                     new File(newFile.getPath()).mkdir();
                 } else {
-                    FileOutputStream fos = new FileOutputStream(newFile);             
-
-                    int len;
-                    while ((len = zis.read(buffer)) > 0) {
-                        fos.write(buffer, 0, len);
+                    try (FileOutputStream fos = new FileOutputStream(newFile)) {
+                        int len;
+                        while ((len = zis.read(buffer)) > 0) {
+                            fos.write(buffer, 0, len);
+                        }
                     }
-
-                    fos.close();   
                 }
                 jProgressBar1.setValue(50 + 50*++i/numFiles);
             }
@@ -312,7 +304,7 @@ public class UpdateDialog extends javax.swing.JDialog {
         gridBagConstraints.gridx = 0;
         gridBagConstraints.gridy = 8;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_START;
-        gridBagConstraints.insets = new java.awt.Insets(10, 20, 4, 20);
+        gridBagConstraints.insets = new java.awt.Insets(10, 20, 10, 20);
         getContentPane().add(jButton3, gridBagConstraints);
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;

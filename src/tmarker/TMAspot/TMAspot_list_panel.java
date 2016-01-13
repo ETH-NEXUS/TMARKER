@@ -1018,6 +1018,10 @@ public class TMAspot_list_panel extends javax.swing.JPanel {
         
         tlp.bg_gst = tlp.ts.getNumBG_goldst();
         //tlp.drawNucleiCounts(tlp.getGraphics());
+        
+        //update H-Score
+        tlp.ts.getHScore();
+        
         tlp.repaint();
     }
     
@@ -1268,7 +1272,7 @@ public class TMAspot_list_panel extends javax.swing.JPanel {
                     JPanel saveLevelsPanel = new JPanel(new FlowLayout(FlowLayout.LEADING, 15, 15));
                     String[] levelData = new String[ts.getNDPI().getLevelCount()];
                     for (int k = 0; k < ts.getNDPI().getLevelCount(); k++) {
-                        levelData[k] = "Level " + k + " (" + props.getProperty("openslide.level[" + k + "].width") + " x " + props.getProperty("openslide.level[" + k + "].height") + ", " + Double.toString(Double.valueOf(props.getProperty("openslide.objective-power"))/Double.valueOf(props.getProperty("openslide.level[" + k + "].downsample"))) + "x)";
+                        levelData[k] = "Level " + k + " (" + props.getProperty("openslide.level[" + k + "].width") + " x " + props.getProperty("openslide.level[" + k + "].height") + ", " + String.format("%.2f", (Double.valueOf(props.getProperty("openslide.objective-power"))/Double.valueOf(props.getProperty("openslide.level[" + k + "].downsample")))) + "x)";
                     }
                     final JComboBox levels = new JComboBox(levelData);
                     saveLevelsPanel.add(levels);

@@ -39,7 +39,6 @@ import TMARKERPluginInterface.Pluggable;
 import java.io.InputStream;
 import java.net.URLConnection;
 import java.util.Arrays;
-import java.util.ListIterator;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.JOptionPane;

@@ -71,7 +71,7 @@ public class TMARKERAboutBox extends javax.swing.JDialog {
         versionLabel.setName("versionLabel"); // NOI18N
 
         appVersionLabel.setText("<html><a href=\"\">TMARKER v" + tmarker.REVISION + "</a></html>");
-        appVersionLabel.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
+        appVersionLabel.setCursor(new java.awt.Cursor(java.awt.Cursor.DEFAULT_CURSOR));
         appVersionLabel.setName("appVersionLabel"); // NOI18N
         appVersionLabel.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
@@ -83,7 +83,7 @@ public class TMARKERAboutBox extends javax.swing.JDialog {
         vendorLabel.setText("Developer:"); // NOI18N
         vendorLabel.setName("vendorLabel"); // NOI18N
 
-        appVendorLabel.setText("<html>Peter Schüffler, ETH Zurich, Switzerland,<br>\nThomas Fuchs, Caltech California, USA<br>\nCheng Soon Ong, NICTA Melbourne, Australia<br>\nPeter Wild, USZ Zurich, Switzerland<br>\nNiels Rupp, USZ Zurich, Switzerland<br>\n</html>"); // NOI18N
+        appVendorLabel.setText("<html>Peter Schüffler, MSKCC New York, USA,<br>\nThomas Fuchs, MSKCC New York, USA<br>\nCheng Soon Ong, NICTA Melbourne, Australia<br>\nPeter Wild, USZ Zurich, Switzerland<br>\nNiels Rupp, USZ Zurich, Switzerland<br>\nDaniel Stekhoven, NEXUS Zurich, Switzerland<br>\n</html>"); // NOI18N
         appVendorLabel.setName("appVendorLabel"); // NOI18N
 
         homepageLabel.setFont(homepageLabel.getFont().deriveFont(homepageLabel.getFont().getStyle() | java.awt.Font.BOLD));
@@ -91,7 +91,7 @@ public class TMARKERAboutBox extends javax.swing.JDialog {
         homepageLabel.setName("homepageLabel"); // NOI18N
 
         appHomepageLabel.setText("<html><a href=\\\"http://www.nexus.ethz.ch\\\">http://www.nexus.ethz.ch</a></html>"); // NOI18N
-        appHomepageLabel.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
+        appHomepageLabel.setCursor(new java.awt.Cursor(java.awt.Cursor.DEFAULT_CURSOR));
         appHomepageLabel.setName("appHomepageLabel"); // NOI18N
         appHomepageLabel.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
@@ -109,7 +109,7 @@ public class TMARKERAboutBox extends javax.swing.JDialog {
         FeedbackLabel.setName("FeedbackLabel"); // NOI18N
 
         appFeedbackLabel.setText("<html><a href=\\\"mailto:peter.schueffler@inf.ethz.ch\\\">peter.schueffler@inf.ethz.ch</a></html>"); // NOI18N
-        appFeedbackLabel.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
+        appFeedbackLabel.setCursor(new java.awt.Cursor(java.awt.Cursor.DEFAULT_CURSOR));
         appFeedbackLabel.setName("appFeedbackLabel"); // NOI18N
         appFeedbackLabel.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
@@ -122,7 +122,7 @@ public class TMARKERAboutBox extends javax.swing.JDialog {
         CiteLabel.setName("CiteLabel"); // NOI18N
 
         appCiteLabel.setText("<html>\nPeter J Schüffler, Thomas J Fuchs, Cheng Soon Ong, Peter J Wild, Niels J Rupp, Joachim M Buhmann<br>\n<b><a href=#>TMARKER: A free software toolkit for histopathological cell counting and staining estimation.</a></b><br>\n<i>J Pathol Inform 4:2, 2013</i>\n</html>"); // NOI18N
-        appCiteLabel.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
+        appCiteLabel.setCursor(new java.awt.Cursor(java.awt.Cursor.DEFAULT_CURSOR));
         appCiteLabel.setName("appCiteLabel"); // NOI18N
         appCiteLabel.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
@@ -152,7 +152,7 @@ public class TMARKERAboutBox extends javax.swing.JDialog {
         jLabel2.setText("Session ID: " + ((tmarker) getParent()).UID.toString());
         jLabel2.setName("jLabel2"); // NOI18N
 
-        jLabel3.setText("<html><a href=\\\"http://www.comp-path.inf.ethz.ch\\\">http://www.comp-path.inf.ethz.ch</a></html>");
+        jLabel3.setText(bundle.getString("TMARKERAboutBox.jLabel3.text")); // NOI18N
         jLabel3.setName("jLabel3"); // NOI18N
         jLabel3.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
@@ -280,7 +280,7 @@ public class TMARKERAboutBox extends javax.swing.JDialog {
     }//GEN-LAST:event_appHomepageLabelMouseClicked
 
     private void jLabel3MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jLabel3MouseClicked
-        tmarker.openWebsite("http://www.comp-path.inf.ethz.ch");
+        tmarker.openWebsite("http://www.thomasfuchslab.org");
     }//GEN-LAST:event_jLabel3MouseClicked
     
     // Variables declaration - do not modify//GEN-BEGIN:variables

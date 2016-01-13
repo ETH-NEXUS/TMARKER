@@ -430,7 +430,7 @@ public class WholeSlide_view_panel extends ZoomableNDPIPanel implements TMA_view
         if (forceRepaint || this.ts!=ts) {
             String text = t.getStatusMessageLabel().getText();
             if (ts!=null && ts.getNDPI()!=null) {
-                t.setStatusMessageLabel("Loading NDPI " + ts.getName() + " ...");
+                t.setStatusMessageLabel("Loading Image " + ts.getName() + " ...");
                 setOpenSlide(ts.getNDPI());
                 Image_Width = (int) ts.getNDPI().getLevel0Width();
                 Image_Height = (int) ts.getNDPI().getLevel0Height();
@@ -503,18 +503,21 @@ public class WholeSlide_view_panel extends ZoomableNDPIPanel implements TMA_view
     private static void drawScaleBar(TMAspot ts, Graphics g, double z, int x_min, int y_min, int x_max, int y_max) {
         try {
             int length = 80; // scalebar length in pixels
-            int offsetx = 50; // offset from the image border
-            int offsety = 20; // offset from the image border
+            int offsetx = 50; // offset from the image right border
+            int offsety = 20; // offset from the image buttom border
 
             SortedProperties props = ts.getProperties();
-            String unit = (String) props.get("tiff.ResolutionUnit");
-            double resolution = Double.parseDouble((String) props.get("tiff.XResolution"));
+            String unit = "μm";
+            double mmp = Double.parseDouble((String) props.get("openslide.mpp-x"));
 
             // format the scale
-            double scale = (length/resolution)/z;
+            double scale = (length*mmp)/z;
 
             if (unit.toLowerCase().equals("centimeter")) {
                 scale = 10000 * scale;
+                unit = "μm";
+            } else if (unit.toLowerCase().equals("inch")) {
+                scale = 25400 * scale;
                 unit = "μm";
             }
 
