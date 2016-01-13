@@ -3211,6 +3211,7 @@ public class CancerNucleusClassification extends javax.swing.JFrame implements T
                     manager.updateTMAspot(ts, ts == ts.getCenter().getVisibleTMAspot());
                     
                     ts.addProperty("TMARKERStainingEstimation", Integer.toString(ts.getStainingEstimation()));
+                    ts.addProperty("TMARKERNucleusHScore", Double.toString(ts.getHScore()));
                     
                 } catch (Exception ex) {
                     if (tmarker.DEBUG>3) {
