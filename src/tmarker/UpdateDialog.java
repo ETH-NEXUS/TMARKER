@@ -54,10 +54,10 @@ public class UpdateDialog extends javax.swing.JDialog {
         String thisRevision_tmp = thisRevision;
         String remoteRevision_tmp = remoteRevision;
         while (thisRevision_tmp.length()>remoteRevision_tmp.length()) {
-            remoteRevision_tmp = remoteRevision_tmp.concat("0");
+            remoteRevision_tmp = remoteRevision_tmp.replaceFirst("\\.", "\\.0");
         }
         while (remoteRevision_tmp.length()>thisRevision_tmp.length()) {
-            thisRevision_tmp = thisRevision_tmp.concat("0");
+            thisRevision_tmp = thisRevision_tmp.replaceFirst("\\.", "\\.0");
         }
         int thisRevisionInt = Integer.parseInt(thisRevision_tmp.replaceAll("\\.", "").replaceAll("'", ""));
         int remoteRevisionInt = Integer.parseInt(remoteRevision_tmp.replaceAll("\\.", "").replaceAll("'", ""));

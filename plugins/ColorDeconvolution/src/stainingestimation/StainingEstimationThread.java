@@ -6,6 +6,8 @@ package stainingestimation;
 
 import java.awt.Cursor;
 import java.util.List;
+import java.util.Set;
+import java.util.concurrent.ForkJoinPool;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import plugins.TMARKERPluginManager;
@@ -35,6 +37,8 @@ public class StainingEstimationThread extends Thread {
     public boolean continu = true;
     int TMblur_hema;
     int TMblur_dab;
+    boolean respectAreas;
+    StainingEstimationFork fb = null;
     
     /**
      * Performs the staining estimation of all given TMAspots in a separate thread.
@@ -55,7 +59,7 @@ public class StainingEstimationThread extends Thread {
      * @param myStain String of the staining protocol (e.g. "H&E" or "H DAB").
      * @param substractChannels If true, channel 2 will be substracted from channel 1.
      */
-    public StainingEstimationThread (TMARKERPluginManager tpm, StainingEstimation se, List<TMAspot> aTMAspots, int radius, double blur, int tolerance, int TMblur_hema, int TMblur_dab, int t_hema, int t_dab, boolean delete_cur_gs_spots, boolean delete_cur_es_spots, boolean hide_legend, boolean markCancerous, String myStain, boolean substractChannels) {
+    public StainingEstimationThread (TMARKERPluginManager tpm, StainingEstimation se, List<TMAspot> aTMAspots, int radius, double blur, int tolerance, int TMblur_hema, int TMblur_dab, int t_hema, int t_dab, boolean delete_cur_gs_spots, boolean delete_cur_es_spots, boolean hide_legend, boolean markCancerous, String myStain, boolean substractChannels, boolean respectAreas) {
         this.tpm = tpm;
         this.se = se;
         this.aTMAspots = aTMAspots;
@@ -72,31 +76,64 @@ public class StainingEstimationThread extends Thread {
         this.substractChannels = substractChannels;
         this.TMblur_hema = TMblur_hema;
         this.TMblur_dab = TMblur_dab;
+        this.respectAreas = respectAreas;
     }
     
     @Override
     public void run() {
+        ForkJoinPool pool = null;
         try{ 
             se.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
-            /*for (TMAspot ts : aTMAspots) {
-                if (continu) {
-                    ts.doStainingEstimation(t, radius, blur, tolerance, TMblur_hema, TMblur_dab, t_hema, t_dab, delete_cur_gs_spots, delete_cur_es_spots, hide_legend, markCancerous, myStain, true);
-                }
-            }
-            t.setState_stainingEstimation();
-            */
-            StainingEstimationFork.StainingEstimation_Fork(tpm, se, aTMAspots, radius, blur, tolerance, TMblur_hema, TMblur_dab, t_hema, t_dab, delete_cur_gs_spots, delete_cur_es_spots, hide_legend, markCancerous, myStain, substractChannels);
+                //StainingEstimationFork.StainingEstimation_Fork(tpm, se, aTMAspots, radius, blur, tolerance, TMblur_hema, TMblur_dab, t_hema, t_dab, delete_cur_gs_spots, delete_cur_es_spots, hide_legend, markCancerous, myStain, substractChannels, respectAreas);
+            
+            int[] progress_container = new int[]{1};
+            fb = new StainingEstimationFork(tpm, se, aTMAspots, radius, blur, tolerance, TMblur_hema, TMblur_dab, t_hema, t_dab, delete_cur_gs_spots, delete_cur_es_spots, hide_legend, markCancerous, myStain, substractChannels, respectAreas, 0, aTMAspots.size(), tpm.useParallelProgramming(), progress_container);
+
+            pool = new ForkJoinPool();
+            
+            long startTime = System.currentTimeMillis();
+            pool.invoke(fb);
+            long endTime = System.currentTimeMillis();
+            pool.shutdown();
+
+            se.setProgressNumber(0, 0, 0);
+
+            System.out.println("StainingEstimation_Fork took " + (endTime - startTime) + 
+                    " milliseconds.");
+            
             
             tpm.setStatusMessageLabel("Performing Staining Estimation ... Done.");
             tpm.setProgressbar(0);
             se.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
         } catch (Exception e) {
             continu = false;
+            
+            // search for all CORE Threads, and stop them
+            Set<Thread> threadSet = Thread.getAllStackTraces().keySet();
+            for (Thread thread: threadSet) {
+                if (thread.getClass().equals(StainingEstimationCoreThread.class)) {
+                    thread.interrupt();
+                }
+            }
+            
+            fb.interrupt();
+            if (pool!=null) {
+                pool.shutdownNow();
+            }
+            
             tpm.setStatusMessageLabel("Staining Estimation Stopped."); tpm.setProgressbar(0);
             se.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
             if (tmarker.DEBUG>0) {
                 Logger.getLogger(StainingEstimationThread.class.getName()).log(Level.WARNING, e.getMessage(), e);
             }
         }
+    }
+    
+    @Override
+    public void interrupt() {
+        if (fb!=null) {
+            fb.cancel(true);
+        }
+        super.interrupt();
     }
 }

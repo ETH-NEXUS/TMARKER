@@ -279,7 +279,7 @@ public class TMAspot_view_panel extends ZoomableImagePanel implements TMA_view_p
             // Allow the plugins to do s.th. with the TMApoint
             Point p = new Point(evt.getPoint());
             for (Pluggable plugin: t.getPlugins()) {
-                plugin.TMAspotMouseClicked(ts, ts.getPointAt((int)(p.getX()/getZoom()), (int)(p.getY()/getZoom()), ts.getParam_r(), true), evt);
+                plugin.TMAspotMouseClicked(ts, ts.getPointAt((int)(p.getX()/getZoom()), (int)(p.getY()/getZoom()), ts.getParam_r(), false), evt);
             }
         }
         if (!t.getSelectedTMAspots(false).contains(ts)) {

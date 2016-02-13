@@ -5,6 +5,7 @@
  */
 package cytoplasmstaining;
 
+import java.awt.Polygon;
 import tmarker.TMAspot.TMAspot;
 
 /**
@@ -15,9 +16,11 @@ public class Sample {
     
     double[] feature_vector;
     TMAspot ts;
+    Polygon roi = null;
     
-    public Sample(TMAspot ts, double[] f) {
+    public Sample(TMAspot ts, Polygon roi, double[] f) {
         this.ts = ts;
+        this.roi = roi;
         this.feature_vector=f;
     }
     

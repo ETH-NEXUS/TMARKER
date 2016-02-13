@@ -17,7 +17,11 @@ import java.awt.SystemColor;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -35,6 +39,9 @@ import org.math.plot.Plot2DPanel;
 import org.math.plot.Plot3DPanel;
 import org.math.plot.PlotPanel;
 import org.math.plot.plotObjects.Line;
+import org.math.plot.plots.Plot;
+import plugins.TMARKERPluginManager;
+import tmarker.FileChooser;
 import tmarker.TMAspot.TMALabel;
 import tmarker.TMAspot.TMApoint;
 import tmarker.TMAspot.TMAspot;
@@ -66,6 +73,7 @@ public class IntensityClustering extends javax.swing.JFrame implements TMARKERPl
     PluginManager manager;
     List<TMAspot> current_TMAspots_Intensity = null;
     JFrame clusterVisualizer = null; // for visualization of the hierarchical clusterer.
+    private String dispayed3DColorSpace = "";
 
     /**
      * Creates new form IntensityClusteringFrame
@@ -136,6 +144,8 @@ public class IntensityClustering extends javax.swing.JFrame implements TMARKERPl
         jRadioButton12 = new javax.swing.JRadioButton();
         jButton16 = new javax.swing.JButton();
         jButton17 = new javax.swing.JButton();
+        jButton2 = new javax.swing.JButton();
+        jButton3 = new javax.swing.JButton();
         jPanel22 = new javax.swing.JPanel();
         jPanel26 = new javax.swing.JPanel();
         jPanel23 = new javax.swing.JPanel();
@@ -468,6 +478,32 @@ public class IntensityClustering extends javax.swing.JFrame implements TMARKERPl
         gridBagConstraints.insets = new java.awt.Insets(0, 5, 5, 0);
         jPanel4.add(jButton17, gridBagConstraints);
 
+        jButton2.setText("Save Cluster Centers...");
+        jButton2.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton2ActionPerformed(evt);
+            }
+        });
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 1;
+        gridBagConstraints.gridy = 5;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        gridBagConstraints.insets = new java.awt.Insets(0, 20, 5, 0);
+        jPanel4.add(jButton2, gridBagConstraints);
+
+        jButton3.setText("Load Cluster Centers...");
+        jButton3.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton3ActionPerformed(evt);
+            }
+        });
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 2;
+        gridBagConstraints.gridy = 5;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        gridBagConstraints.insets = new java.awt.Insets(0, 5, 5, 0);
+        jPanel4.add(jButton3, gridBagConstraints);
+
         jPanel25.add(jPanel4, java.awt.BorderLayout.LINE_START);
 
         jPanel5.add(jPanel25, java.awt.BorderLayout.PAGE_START);
@@ -650,15 +686,18 @@ public class IntensityClustering extends javax.swing.JFrame implements TMARKERPl
     }//GEN-LAST:event_jButton13ActionPerformed
 
     private void jRadioButton7ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jRadioButton7ActionPerformed
-        drawNucleiIntensities3D(manager.getSelectedTMAspots());
+        //drawNucleiIntensities3D(manager.getSelectedTMAspots());
+        change3DPlotAxis();
     }//GEN-LAST:event_jRadioButton7ActionPerformed
 
     private void jRadioButton8ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jRadioButton8ActionPerformed
-        drawNucleiIntensities3D(manager.getSelectedTMAspots());
+        //drawNucleiIntensities3D(manager.getSelectedTMAspots());
+        change3DPlotAxis();
     }//GEN-LAST:event_jRadioButton8ActionPerformed
 
     private void jRadioButton13ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jRadioButton13ActionPerformed
-        drawNucleiIntensities3D(manager.getSelectedTMAspots());
+        //drawNucleiIntensities3D(manager.getSelectedTMAspots());
+        change3DPlotAxis();
     }//GEN-LAST:event_jRadioButton13ActionPerformed
 
     private void jButton16ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton16ActionPerformed
@@ -705,6 +744,14 @@ public class IntensityClustering extends javax.swing.JFrame implements TMARKERPl
         drawNucleiIntensities3DSinglets(tss);
         jLabel41.setText(" ");
     }//GEN-LAST:event_jButton1ActionPerformed
+
+    private void jButton3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton3ActionPerformed
+        loadClusterCenters();
+    }//GEN-LAST:event_jButton3ActionPerformed
+
+    private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
+        saveClusterCenters();
+    }//GEN-LAST:event_jButton2ActionPerformed
 
     /**
      * @param args the command line arguments
@@ -754,6 +801,8 @@ public class IntensityClustering extends javax.swing.JFrame implements TMARKERPl
     private javax.swing.JButton jButton16;
     private javax.swing.JButton jButton17;
     private javax.swing.JButton jButton18;
+    private javax.swing.JButton jButton2;
+    private javax.swing.JButton jButton3;
     private javax.swing.JComboBox jComboBox2;
     private javax.swing.JLabel jLabel30;
     private javax.swing.JLabel jLabel34;
@@ -1261,6 +1310,62 @@ public class IntensityClustering extends javax.swing.JFrame implements TMARKERPl
             }
         }
     }
+    
+    /**
+     * Changes the plot axes and transfers the datapoints into another color space (which the user clicked on).
+     */
+    void change3DPlotAxis(){
+        Plot3DPanel plot;
+        if (((java.awt.BorderLayout) (jPanel2.getLayout())).getLayoutComponent(java.awt.BorderLayout.CENTER) != null) {
+            plot = (Plot3DPanel) ((java.awt.BorderLayout) (jPanel2.getLayout())).getLayoutComponent(java.awt.BorderLayout.CENTER);
+        } else {
+            plot = new Plot3DPanel();
+            plot.plotCanvas.setBackground(jPanel2.getBackground());
+            plot.plotToolBar.setBackground(plot.plotCanvas.getBackground());
+            plot.addLegend(PlotPanel.SOUTH);
+            plot.plotLegend.setBackground(jPanel2.getBackground());
+        }
+        String newcolorSpace = getParam_ColorSpace();
+        if (newcolorSpace.equalsIgnoreCase("hsb")) {
+            plot.setAxisLabels("Hue", "Saturation", "Brightness");
+        } else if (newcolorSpace.equalsIgnoreCase("rtp")) {
+            plot.setAxisLabels("R", "Theta", "Phi");
+        } else {
+            plot.setAxisLabels("Red", "Green", "Blue");
+        }
+        
+        List<Plot> plots = plot.getPlots();
+        float[] container = new float[3];
+        for (Plot scatter : plots) {
+            double[][] data = scatter.getData();
+            for (int i=0; i<data.length; i++) {
+                double[] point = data[i];
+                Color c;
+                if (dispayed3DColorSpace.equalsIgnoreCase("rgb")) {
+                    c = new Color((int)(point[0]), (int)(point[1]), (int)(point[2]));
+                } else if (dispayed3DColorSpace.equalsIgnoreCase("hsb")) {
+                    c = new Color(Color.HSBtoRGB((float)(point[0]), (float)(point[1]), (float)(point[2])));
+                } else {
+                    RTPtoRGB((float)(point[0]), (float)(point[1]), (float)(point[2]), container);
+                    try {
+                        c = new Color(container[0]/255.0f, container[1]/255.0f, container[2]/255.0f);
+                    } catch (Exception e) {
+                        c = Color.BLACK;
+                    }
+                }
+                Color2Feature(c, newcolorSpace, container);
+                point[0] = container[0];
+                point[1] = container[1];
+                point[2] = container[2]; 
+            }
+        }
+        // reset axes
+        plot.revalidate();
+        plot.plotCanvas.resetBase();
+        plot.plotCanvas.resetMapData();
+        
+        dispayed3DColorSpace = newcolorSpace;
+    }
 
     /**
      * Draws the 3D Plot in the IntensityClustering. Axis are color values
@@ -1425,7 +1530,7 @@ public class IntensityClustering extends javax.swing.JFrame implements TMARKERPl
      * @param tss The TMAspots whose nuclei are to be drawn (both gold-standard
      * and estimated nuclei).
      */
-    void drawNucleiIntensities3DSinglets(List<TMAspot> tss) {
+    void drawNucleiIntensities3DSinglets2(List<TMAspot> tss) {
         // draw the plot
         Plot3DPanel plot;
         if (((java.awt.BorderLayout) (jPanel2.getLayout())).getLayoutComponent(java.awt.BorderLayout.CENTER) != null) {
@@ -1482,6 +1587,68 @@ public class IntensityClustering extends javax.swing.JFrame implements TMARKERPl
                 this.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
             }
         }
+    }
+    
+    /**
+     * Draws the 3D Plot in the IntensityClustering. Axis are color values
+     * (either RGB or HSB), points are nuclei. Each nucleus is displayed with its color (rather than with its class color).
+     *
+     * @param tss The TMAspots whose nuclei are to be drawn (both gold-standard
+     * and estimated nuclei).
+     */
+    void drawNucleiIntensities3DSinglets(List<TMAspot> tss) {
+        // draw the plot
+        Plot3DPanel plot;
+        if (((java.awt.BorderLayout) (jPanel2.getLayout())).getLayoutComponent(java.awt.BorderLayout.CENTER) != null) {
+            plot = (Plot3DPanel) ((java.awt.BorderLayout) (jPanel2.getLayout())).getLayoutComponent(java.awt.BorderLayout.CENTER);
+            plot.removeAllPlots();
+        } else {
+            plot = new Plot3DPanel();
+            plot.plotCanvas.setBackground(jPanel2.getBackground());
+            plot.plotToolBar.setBackground(plot.plotCanvas.getBackground());
+            plot.addLegend(PlotPanel.SOUTH);
+            plot.plotLegend.setBackground(jPanel2.getBackground());
+        }
+        plot.plotLegend.setVisible(false);
+        String colorSpace = getParam_ColorSpace();
+        if (colorSpace.equalsIgnoreCase("hsb")) {
+            plot.setAxisLabels("Hue", "Saturation", "Brightness");
+        } else if (colorSpace.equalsIgnoreCase("rtp")) {
+            plot.setAxisLabels("R", "Theta", "Phi");
+        } else {
+            plot.setAxisLabels("Red", "Green", "Blue");
+        }
+        if (((java.awt.BorderLayout) (jPanel2.getLayout())).getLayoutComponent(java.awt.BorderLayout.CENTER) == null) {
+            jPanel2.add(plot, java.awt.BorderLayout.CENTER);
+            validate();
+            pack();
+        }
+
+        if (tss.size() > 0) {
+            try {
+                this.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+
+                BufferedImage img;
+                for (TMAspot ts : tss) {
+                    img = ts.getBufferedImage();
+                    List<TMApoint> tps = ts.getPoints();
+                    DrawNucleiIntensitySingletsFork.DrawNucleiIntensitySinglets_Fork((TMARKERPluginManager) manager, this, ts, img, tps, colorSpace, plot);
+                }
+                
+            } finally {
+                this.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+            }
+        }
+    }
+    
+    static NucleusIntensity3DSinglet drawNucleiIntensity3DSingletsCore(TMAspot ts, BufferedImage img, TMApoint tp, String colorSpace, Plot3DPanel plot) {
+        float[] features = new float[3];
+        Color c = TMAspot.getAverageColorAtPoint(img, tp.x, tp.y, ts.getParam_r(), false);
+        Color2Feature(c, colorSpace, features);
+        
+        return(new NucleusIntensity3DSinglet(c, features));
+
+        //plot.addScatterPlot(null, c, new double[]{features[0]}, new double[]{features[1]}, new double[]{features[2]});
     }
 
     /**
@@ -1686,6 +1853,13 @@ public class IntensityClustering extends javax.swing.JFrame implements TMARKERPl
 
                 Clusterer clusterer = getClusterer();
                 String[] options = getClustererOptions();
+                if (false && colorSpace.equalsIgnoreCase("hsb")) {
+                    String[] newoptions = new String[options.length+2];
+                    System.arraycopy(options, 0, newoptions, 0, options.length);
+                    newoptions[options.length] = "-A";
+                    newoptions[options.length+1] = "weka.core.MyHSBDistance";
+                    options = newoptions;
+                }
 
                 if (tmarker.DEBUG > 3) {
                     if (options.length > 0) {
@@ -1878,6 +2052,92 @@ public class IntensityClustering extends javax.swing.JFrame implements TMARKERPl
                     + "or could not be computed.");
         }
     }
+    
+    /**
+     * Saves the current cluster centers into a file which the users chooses.
+     */
+    private void saveClusterCenters() {
+        
+        int n = getParam_nClusters();
+        
+        ArrayList exts = new ArrayList();
+        ArrayList descs = new ArrayList();
+        exts.add("txt");
+        descs.add("Text file");
+        File file = FileChooser.chooseSavingFile(null, "", "clusters.txt", exts, descs);
+        String sep = ";";
+        
+        if (file!=null) {
+            BufferedWriter writer = null;
+            try {
+                writer = new BufferedWriter(new FileWriter(file));
+                for (int i = 0; i < n; i++) {
+                    Color c = getParam_ColorOfClassK(i);
+                    writer.write(Integer.toString(c.getRed()) + sep);
+                    writer.write(Integer.toString(c.getGreen()) + sep);
+                    writer.write(Integer.toString(c.getBlue()));
+                    writer.newLine();
+                }
+            } catch (IOException ex) {
+                Logger.getLogger(IntensityClustering.class.getName()).log(Level.SEVERE, null, ex);
+            } finally {
+                try {
+                    writer.close();
+                } catch (IOException ex) {
+                    Logger.getLogger(IntensityClustering.class.getName()).log(Level.SEVERE, null, ex);
+                }
+            }
+        }
+    }
+    
+    /**
+     * Loads cluster centers and sets into the plugin. They can be used for manual clustering.
+     */
+    private void loadClusterCenters() {
+        ArrayList exts = new ArrayList();
+        ArrayList descs = new ArrayList();
+        exts.add("txt");
+        descs.add("Text file");
+        File file = FileChooser.chooseLoadingFile(null, "", exts, descs);
+        String sep = ";";
+        
+        if (file!=null) {
+            BufferedReader reader = null;
+            try {
+                reader = new BufferedReader(new FileReader(file));
+                int n = 0;
+                String line;
+                Color c;
+                while (reader.ready() && !(line = reader.readLine()).isEmpty()) {
+                    String[] split = line.split(sep);
+                    c = new Color(Integer.parseInt(split[0]), Integer.parseInt(split[1]), Integer.parseInt(split[2]));
+                    setParam_ColorOfClassK(n, c);
+                    n++;
+                }
+                setParam_nClusters(n);
+            } catch (IOException ex) {
+                Logger.getLogger(IntensityClustering.class.getName()).log(Level.SEVERE, null, ex);
+            } finally {
+                try {
+                    reader.close();
+                } catch (IOException ex) {
+                    Logger.getLogger(IntensityClustering.class.getName()).log(Level.SEVERE, null, ex);
+                }
+            }
+        }
+        
+        int n = getParam_nClusters();
+        double[][] centers = new double[n][3];
+        float[] features = new float[3];
+        String colorSpace = getParam_ColorSpace();
+        for (int i = 0; i < n; i++) {
+            Color2Feature(getParam_ColorOfClassK(i), colorSpace, features);
+            centers[i][0] = features[0];
+            centers[i][1] = features[1];
+            centers[i][2] = features[2];
+        }
+        
+    }
 
     /**
      * Returns a new weka clusterer used for nucleus staining intensity
@@ -2021,7 +2281,7 @@ public class IntensityClustering extends javax.swing.JFrame implements TMARKERPl
      *
      * @param c The color to be processed.
      * @param colorSpace If "rgb", the color is directly used. If "hsb", the c
-     * is first converted to HSB. If "rtp" the color is firt converted to r
+     * is first converted to HSB. If "rtp" the color is first converted to r
      * theta phi.
      * @param feature The container in which the feature is written. If null or
      * length is smaller than 3, a new container is created.
@@ -2057,16 +2317,60 @@ public class IntensityClustering extends javax.swing.JFrame implements TMARKERPl
         if (container == null || container.length < 3) {
             container = new float[3];
         }
-        double r_rad = Math.toRadians(1.0 * r);
-        double g_rad = Math.toRadians(1.0 * g);
-        double b_rad = Math.toRadians(1.0 * b);
+        
+        double r_double = 1.0*r;
+        double g_double = 1.0*g;
+        double b_double = 1.0*b;
+        
+        double rad = Math.sqrt(Math.pow(r_double, 2) + Math.pow(g_double, 2) + Math.pow(b_double, 2));
 
-        container[0] = (float) (r * Math.cos(g_rad) * Math.sin(b_rad));
-        container[1] = (float) (r * Math.sin(g_rad) * Math.sin(b_rad));
-        container[2] = (float) (r * Math.cos(b_rad));
-        //container[0] = (float) Math.sqrt(r*r + g*g + b*b);
-        //container[1] = (float) Math.atan2(g, r);
-        //container[2] = (float) Math.acos(b/container[0]);
+        double theta_deg;
+        if (r_double==0) {
+            theta_deg=0;
+        } else {
+            double p = g_double / r_double;
+            double theta = Math.atan(p);
+            theta_deg = Math.toDegrees(theta);
+        }
+
+        double phi_deg;
+        if (rad==0) {
+            phi_deg=0;
+        } else {
+            double q = Math.sqrt(Math.pow(r_double, 2) + Math.pow(g_double, 2))/rad;
+            double phi = Math.asin(q);
+            phi_deg = Math.toDegrees(phi);
+        }
+        
+        container[0] = (float) (rad);
+        container[1] = (float) (theta_deg);
+        container[2] = (float) (phi_deg);
+        
+        return (container);
+    }
+    
+    /**
+     * Converts a r theta phi color to RGB.
+     *
+     * @param rad The radius value (double).
+     * @param theta The theta angle (double).
+     * @param phi The phi angle (double).
+     * @param container the RGB value is stored here. If Null or length less
+     * then 3, a new float array is created.
+     * @return A float array with the RGB (0-255) values calculated from r theta phi values.
+     */
+    static float[] RTPtoRGB(double rad, double theta, double phi, float[] container) {
+        if (container == null || container.length < 3) {
+            container = new float[3];
+        }
+
+        double theta_rad = Math.toRadians(1.0 * theta);
+        double phi_rad = Math.toRadians(1.0 * phi);
+
+        container[0] = (float) Math.round(rad * Math.cos(theta_rad) * Math.sin(phi_rad));
+        container[1] = (float) Math.round(rad * Math.sin(theta_rad) * Math.sin(phi_rad));
+        container[2] = (float) Math.round(rad * Math.cos(phi_rad));
+
         return (container);
     }
 
@@ -2101,6 +2405,7 @@ public class IntensityClustering extends javax.swing.JFrame implements TMARKERPl
         } else {
             jRadioButton13.setSelected(true);
         }
+        dispayed3DColorSpace = colorSpace.toLowerCase();
     }
 
     /**

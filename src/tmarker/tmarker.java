@@ -5920,6 +5920,10 @@ public final class tmarker extends javax.swing.JFrame {
             if (value != null) {
                 od.setCheckForUpdatesOnStart(Boolean.parseBoolean(value));
             }
+            value = appProps.getProperty("OD.installUpdatesAutomatically");
+            if (value != null) {
+                od.setInstallUpdatesAutomatically(Boolean.parseBoolean(value));
+            }
             value = appProps.getProperty("OD.columnSeparator");
             if (value != null) {
                 od.setParam_ColumnSeparator(value);

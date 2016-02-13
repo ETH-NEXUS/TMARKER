@@ -66,6 +66,7 @@ public class StainingEstimationParameterChangeThread extends Thread {
     int t_dab_end;
     int t_dab_d;
     boolean lock_thresholds;
+    boolean respectAreas;
     public boolean continu = true;
 
     /**
@@ -92,7 +93,7 @@ public class StainingEstimationParameterChangeThread extends Thread {
      * @param t_dab_d Threshold for channel 2 increment.
      * @param lock_thresholds If true, t_dab will be kept identical to t_hema, such that both parameters shift equally.
      */
-    StainingEstimationParameterChangeThread(TMARKERPluginManager tpm, StainingEstimation se, List<TMAspot> tss, int radius_start, int radius_end, int radius_d, int tol_start, int tol_end, int tol_d, int blur_start, int blur_end, int blur_d, int t_hema_start, int t_hema_end, int t_hema_d, int t_dab_start, int t_dab_end, int t_dab_d, boolean lock_thresholds) {
+    StainingEstimationParameterChangeThread(TMARKERPluginManager tpm, StainingEstimation se, List<TMAspot> tss, int radius_start, int radius_end, int radius_d, int tol_start, int tol_end, int tol_d, int blur_start, int blur_end, int blur_d, int t_hema_start, int t_hema_end, int t_hema_d, int t_dab_start, int t_dab_end, int t_dab_d, boolean lock_thresholds, boolean respectAreas) {
         this.tpm=tpm;
         this.se=se;
         this.tss=tss;
@@ -112,6 +113,7 @@ public class StainingEstimationParameterChangeThread extends Thread {
         this.t_dab_end=t_dab_end;
         this.t_dab_d = t_dab_d;
         this.lock_thresholds = lock_thresholds;
+        this.respectAreas = respectAreas;
     }
     
     @Override
@@ -163,7 +165,7 @@ public class StainingEstimationParameterChangeThread extends Thread {
                                 if (!lock_thresholds || t_hema==t_dab) {
                                     se.setParam_t_dab(t_dab);
                                     // do the Staining Estimation
-                                    if (continu) se.performStainingEstimation(tss, radius, blur, tolerance, TMblur, TMblur, t_hema, t_dab, false, true, true, false, colorChannel, false);
+                                    if (continu) se.performStainingEstimation(tss, radius, blur, tolerance, TMblur, TMblur, t_hema, t_dab, false, true, true, false, colorChannel, false, respectAreas);
                                     // collect the Scores
                                     for (int i = 0; i < tss.size(); i++) {
                                         if (continu) {

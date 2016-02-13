@@ -2634,7 +2634,7 @@ public class CancerNucleusClassification extends javax.swing.JFrame implements T
         segmentations.clear();
         for (int i = 0; i < tps.size(); i++) {
             if (i%10==0) {
-                manager.setStatusMessageLabel(getName() + ": Transform Labels (" + Integer.toString(i) + "/" + Integer.toString(tps.size()) + ") ...");
+                manager.setStatusMessageLabel(getPluginName() + ": Transform Labels (" + Integer.toString(i) + "/" + Integer.toString(tps.size()) + ") ...");
                 manager.setProgressbar(10 + (int)((1.0*i/tps.size())*70));
             }
             Rectangle rect = PatchRectangle(tps.get(i), getParam_patchsize());
@@ -3096,9 +3096,9 @@ public class CancerNucleusClassification extends javax.swing.JFrame implements T
             if (!tps.isEmpty()) {
                 if (!asParallelThread) {
                     if (foregroundDetection) {
-                        manager.setStatusMessageLabel(cnc.getName() + ": Classify Foreground / Background ...");
+                        manager.setStatusMessageLabel(cnc.getPluginName() + ": Classify Foreground / Background ...");
                     } else {
-                        manager.setStatusMessageLabel(cnc.getName() + ": Classify Malignant / Benign Nuclei ...");
+                        manager.setStatusMessageLabel(cnc.getPluginName() + ": Classify Malignant / Benign Nuclei ...");
                     }
                     manager.setProgressbar(10);
                 }
@@ -3145,9 +3145,9 @@ public class CancerNucleusClassification extends javax.swing.JFrame implements T
                     for (int i=0; i<tps.size(); i++) {
                         if (!asParallelThread && i%10==0) {
                             if (foregroundDetection) {
-                                manager.setStatusMessageLabel(cnc.getName() + ": Classify Classify Foreground / Background (" + Integer.toString(i) + "/" + Integer.toString(tps.size()) + ") ...");
+                                manager.setStatusMessageLabel(cnc.getPluginName() + ": Classify Classify Foreground / Background (" + Integer.toString(i) + "/" + Integer.toString(tps.size()) + ") ...");
                             } else {
-                                manager.setStatusMessageLabel(cnc.getName() + ": Classify Classify Malignant / Benign Nuclei (" + Integer.toString(i) + "/" + Integer.toString(tps.size()) + ") ...");
+                                manager.setStatusMessageLabel(cnc.getPluginName() + ": Classify Classify Malignant / Benign Nuclei (" + Integer.toString(i) + "/" + Integer.toString(tps.size()) + ") ...");
                             }
                             manager.setProgressbar((int)(10 + (1.0*i/tps.size())*90));
                         }
@@ -3201,7 +3201,7 @@ public class CancerNucleusClassification extends javax.swing.JFrame implements T
                         }
                     }
                     if (!asParallelThread) {
-                        manager.setStatusMessageLabel(cnc.getName() + ": Done.");
+                        manager.setStatusMessageLabel(cnc.getPluginName() + ": Done.");
                         manager.setProgressbar(100);
                     } 
                     if (foregroundDetection) {
@@ -3286,7 +3286,7 @@ public class CancerNucleusClassification extends javax.swing.JFrame implements T
             List<TMApoint> tps = ts.getPoints();
             for (int i = 0; i < tps.size(); i++) {
                 if (i%10==0) {
-                    manager.setStatusMessageLabel(getName() + ": Transform Labels (" + Integer.toString(i) + "/" + Integer.toString(tps.size()) + ") ...");
+                    manager.setStatusMessageLabel(getPluginName()+ ": Transform Labels (" + Integer.toString(i) + "/" + Integer.toString(tps.size()) + ") ...");
                     manager.setProgressbar(10 + (int)((1.0*i/tps.size())*70));
                 }
                 Rectangle rect = PatchRectangle(tps.get(i), getParam_patchsize());

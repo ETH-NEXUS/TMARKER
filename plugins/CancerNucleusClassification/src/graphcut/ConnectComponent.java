@@ -24,7 +24,7 @@ public class ConnectComponent
     int next_label = 1;
 
     /**
-     * label and re-arrange the labels to make the numbers of label continous
+     * label and re-arrange the labels to make the numbers of label contiunous
      * @param zeroAsBg Leaving label 0 untouched
      */
     public int[] compactLabeling(int[] image, Dimension d, boolean zeroAsBg)

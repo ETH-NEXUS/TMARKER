@@ -17,7 +17,9 @@ import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Image;
+import java.awt.Point;
 import java.awt.Polygon;
+import java.awt.Rectangle;
 import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
 import java.io.BufferedReader;
@@ -242,6 +244,7 @@ public class StainingEstimation extends javax.swing.JFrame implements TMARKERPlu
         jButton8 = new javax.swing.JButton();
         jButton9 = new javax.swing.JButton();
         jCheckBox1 = new javax.swing.JCheckBox();
+        jLabel34 = new javax.swing.JLabel();
 
         setTitle(PLUGINNAME);
 
@@ -843,7 +846,7 @@ public class StainingEstimation extends javax.swing.JFrame implements TMARKERPlu
         jLabel5.setText("<html>See: <cite>Ruifrok AC, Johnston DA.<br><b>Quantification of histochemical staining by color deconvolution.</b><br><i>Anal Quant Cytol Histol 23: 291-299, 2001.</i></cite></html>");
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 22;
+        gridBagConstraints.gridy = 23;
         gridBagConstraints.gridwidth = 6;
         gridBagConstraints.gridheight = 2;
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
@@ -923,7 +926,7 @@ public class StainingEstimation extends javax.swing.JFrame implements TMARKERPlu
         jLabel30.setText(" ");
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 21;
+        gridBagConstraints.gridy = 22;
         gridBagConstraints.gridwidth = 8;
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_START;
@@ -1322,7 +1325,7 @@ public class StainingEstimation extends javax.swing.JFrame implements TMARKERPlu
         });
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 7;
-        gridBagConstraints.gridy = 23;
+        gridBagConstraints.gridy = 24;
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.LAST_LINE_END;
         gridBagConstraints.insets = new java.awt.Insets(0, 0, 5, 5);
@@ -1387,6 +1390,13 @@ public class StainingEstimation extends javax.swing.JFrame implements TMARKERPlu
         gridBagConstraints.anchor = java.awt.GridBagConstraints.FIRST_LINE_START;
         gridBagConstraints.insets = new java.awt.Insets(5, 5, 5, 5);
         jPanel1.add(jCheckBox1, gridBagConstraints);
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 21;
+        gridBagConstraints.gridwidth = 8;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        gridBagConstraints.insets = new java.awt.Insets(0, 10, 5, 5);
+        jPanel1.add(jLabel34, gridBagConstraints);
 
         jScrollPane1.setViewportView(jPanel1);
 
@@ -1646,6 +1656,7 @@ public class StainingEstimation extends javax.swing.JFrame implements TMARKERPlu
     private javax.swing.JLabel jLabel31;
     private javax.swing.JLabel jLabel32;
     private javax.swing.JLabel jLabel33;
+    private javax.swing.JLabel jLabel34;
     private javax.swing.JLabel jLabel4;
     private javax.swing.JLabel jLabel5;
     private javax.swing.JLabel jLabel6;
@@ -1727,6 +1738,10 @@ public class StainingEstimation extends javax.swing.JFrame implements TMARKERPlu
     @Override
     public void setPluginManager(PluginManager manager) {
         this.manager = manager;
+    }
+    
+    public PluginManager getPluginManager() {
+        return this.manager;
     }
 
 
@@ -1916,7 +1931,7 @@ public class StainingEstimation extends javax.swing.JFrame implements TMARKERPlu
         t_dab_d = Integer.parseInt(jTextField23.getText());
         
         interruptStainingEstimationParameterChangeThread();
-        sepct = new StainingEstimationParameterChangeThread((TMARKERPluginManager) manager, this, tss, radius_start, radius_end, radius_d, tol_start, tol_end, tol_d, blur_start, blur_end, blur_d, t_hema_start, t_hema_end, t_hema_d, t_dab_start, t_dab_end, t_dab_d, jToggleButton2.isSelected());
+        sepct = new StainingEstimationParameterChangeThread((TMARKERPluginManager) manager, this, tss, radius_start, radius_end, radius_d, tol_start, tol_end, tol_d, blur_start, blur_end, blur_d, t_hema_start, t_hema_end, t_hema_d, t_dab_start, t_dab_end, t_dab_d, jToggleButton2.isSelected(), jCheckBox4.isSelected());
         sepct.start();
     }
     
@@ -2066,7 +2081,7 @@ public class StainingEstimation extends javax.swing.JFrame implements TMARKERPlu
      * @param t The minimum value of a local maximum.
      */
     void calculateNucleiPreview(ImagePlus imp, double blur, int tolerance, int t) {
-        List<TMApoint> tps = StainingEstimation.find_nucleus_lm(null, imp.duplicate(), blur, tolerance, t, TMALabel.STAINING_0, true);
+        List<TMApoint> tps = StainingEstimation.find_nucleus_lm(null, imp.duplicate(), 0, 0, blur, tolerance, t, TMALabel.STAINING_0, true);
         new ImageConverter(imp).convertToRGB();
         Graphics g = imp.getImage().getGraphics();
         g.setColor(Color.RED);
@@ -2083,7 +2098,7 @@ public class StainingEstimation extends javax.swing.JFrame implements TMARKERPlu
      * @param tmap The grayscaled image (same size as imp). Each pixel give a minimum value of a local maximum at this point.
      */
     void calculateNucleiPreview(ImagePlus imp, double blur, int tolerance, ImagePlus tmap) {
-        List<TMApoint> tps = StainingEstimation.find_nucleus_lm(null, imp.duplicate(), blur, tolerance, tmap, TMALabel.STAINING_0, true);
+        List<TMApoint> tps = StainingEstimation.find_nucleus_lm(null, imp.duplicate(), 0, 0, blur, tolerance, tmap, TMALabel.STAINING_0, true);
         new ImageConverter(imp).convertToRGB();
         Graphics g = imp.getImage().getGraphics();
         g.setColor(Color.RED);
@@ -2356,7 +2371,7 @@ public class StainingEstimation extends javax.swing.JFrame implements TMARKERPlu
      * @param asParallelThread If true, the staining estimation is done on a second thread, and the program can be used in parallel. 
      */
     public void doStainingEstimation(boolean asParallelThread) {
-        performStainingEstimation(null, manager.getLabelRadius(), getParam_blur(), jSlider1.getValue(), 10, 10, jSlider3.getValue(), jSlider2.getValue(), false, true, getParam_hideLegend(), false, getParam_ColorChannel(), getParam_substractChannels(), asParallelThread);
+        performStainingEstimation(null, manager.getLabelRadius(), getParam_blur(), jSlider1.getValue(), 10, 10, jSlider3.getValue(), jSlider2.getValue(), false, true, getParam_hideLegend(), false, getParam_ColorChannel(), getParam_substractChannels(), getParam_respectAreas(), asParallelThread);
     }
     
     /**
@@ -2376,9 +2391,10 @@ public class StainingEstimation extends javax.swing.JFrame implements TMARKERPlu
      * @param markCancerous If true, found nuclei are marked as TMAspot.LABEL_POS, otherwise as TMAspot.LABEL_UNK
      * @param asParallelThread If true, saving of the Channel Images is done in a parallel thread.
      * @param myStain The staining colors description (e.g. "H&E" or "H DAB") (used by the color devconvolution method).
+     * @param respectAreas If true, including and excluding areas (ROI) on the images are respected and found nuclei are filtered accordingly.
      * @param substractChannels If true, channel 2 will be substracted from channel 1.
      */
-    public static void doStainingEstimation(StainingEstimation se, TMAspot ts, int radius, double blur, int tolerance, int TMblur_hema, int TMblur_dab, int t_hema, int t_dab, boolean delete_cur_gs_spots, boolean delete_cur_es_spots, boolean hide_legend, boolean markCancerous, String myStain, boolean substractChannels, boolean asParallelThread) {
+    public static void doStainingEstimation(StainingEstimation se, TMAspot ts, int radius, double blur, int tolerance, int TMblur_hema, int TMblur_dab, int t_hema, int t_dab, boolean delete_cur_gs_spots, boolean delete_cur_es_spots, boolean hide_legend, boolean markCancerous, String myStain, boolean substractChannels, boolean respectAreas, boolean asParallelThread) {
         if (delete_cur_gs_spots) {
             ts.deleteAllPoints_GS();
         }
@@ -2389,7 +2405,7 @@ public class StainingEstimation extends javax.swing.JFrame implements TMARKERPlu
         ts.setParam_tolerance(tolerance);
         ts.setParam_t_hema(t_hema);
         ts.setParam_t_dab(t_dab);
-        List<TMApoint> tps = StainingEstimation.tma_stain(se, ts, radius, blur, tolerance, TMblur_hema, TMblur_dab, t_hema, t_dab, hide_legend, myStain, substractChannels, false, true, asParallelThread);
+        List<TMApoint> tps = StainingEstimation.tma_stain(se, ts, radius, blur, tolerance, TMblur_hema, TMblur_dab, t_hema, t_dab, hide_legend, myStain, substractChannels, false, respectAreas, asParallelThread);
         if (tps != null) {
             if (markCancerous) {
                 for (TMApoint tp: tps) {
@@ -2419,10 +2435,11 @@ public class StainingEstimation extends javax.swing.JFrame implements TMARKERPlu
      * @param hide_legend If false, a legend of the color deconvolution algorithm will appear.
      * @param markCancerous If true, all found nuclei will be labeled as "cancerous" nuclei
      * @param myStain String of the staining protocol (e.g. "H&E" or "H DAB").
+     * @param respectAreas If true, including and excluding areas (ROI) on the images are respected and found nuclei are filtered accordingly.
      * @param substractChannels If true, channel 2 will be substracted from channel 1.
      */
-    public void performStainingEstimation(List<TMAspot> tss, int radius, double blur, int tolerance, int TMblur_hema, int TMblur_dab, int t_hema, int t_dab, boolean delete_cur_gs_spots, boolean delete_cur_es_spots, boolean hide_legend, boolean markCancerous, String myStain, boolean substractChannels) { 
-        performStainingEstimation(tss, radius, blur, tolerance, TMblur_hema, TMblur_dab, t_hema, t_dab, delete_cur_gs_spots, delete_cur_es_spots, hide_legend, markCancerous, myStain, substractChannels, true);    
+    public void performStainingEstimation(List<TMAspot> tss, int radius, double blur, int tolerance, int TMblur_hema, int TMblur_dab, int t_hema, int t_dab, boolean delete_cur_gs_spots, boolean delete_cur_es_spots, boolean hide_legend, boolean markCancerous, String myStain, boolean respectAreas, boolean substractChannels) { 
+        performStainingEstimation(tss, radius, blur, tolerance, TMblur_hema, TMblur_dab, t_hema, t_dab, delete_cur_gs_spots, delete_cur_es_spots, hide_legend, markCancerous, myStain, substractChannels, respectAreas, true);    
     }
     
     /**
@@ -2441,9 +2458,10 @@ public class StainingEstimation extends javax.swing.JFrame implements TMARKERPlu
      * @param markCancerous If true, all found nuclei will be labeled as "cancerous" nuclei
      * @param myStain String of the staining protocol (e.g. "H&E" or "H DAB").
      * @param substractChannels If true, channel 2 will be substracted from channel 1.
+     * @param respectAreas If true, including and excluding areas (ROI) on the images are respected and found nuclei are filtered accordingly.
      * @param asParallelThread If true, staining estimation is done in a separate thread. Otherwise, TMARKER is blocked as long as the TMAspots are processed.
      */
-    public void performStainingEstimation(List<TMAspot> tss, int radius, double blur, int tolerance, int TMblur_hema, int TMblur_dab, int t_hema, int t_dab, boolean delete_cur_gs_spots, boolean delete_cur_es_spots, boolean hide_legend, boolean markCancerous, String myStain, boolean substractChannels, boolean asParallelThread) {
+    public void performStainingEstimation(List<TMAspot> tss, int radius, double blur, int tolerance, int TMblur_hema, int TMblur_dab, int t_hema, int t_dab, boolean delete_cur_gs_spots, boolean delete_cur_es_spots, boolean hide_legend, boolean markCancerous, String myStain, boolean substractChannels, boolean respectAreas, boolean asParallelThread) {
         if (tss==null) {
             tss = manager.getSelectedTMAspots();
         }
@@ -2451,11 +2469,11 @@ public class StainingEstimation extends javax.swing.JFrame implements TMARKERPlu
             if (set!=null) {
                 if (set.isAlive()) set.interrupt();
             }
-            set = new StainingEstimationThread((TMARKERPluginManager) manager, this, tss, radius, blur, tolerance, TMblur_hema, TMblur_dab, t_hema, t_dab, delete_cur_gs_spots, delete_cur_es_spots, hide_legend, markCancerous, myStain, substractChannels);
+            set = new StainingEstimationThread((TMARKERPluginManager) manager, this, tss, radius, blur, tolerance, TMblur_hema, TMblur_dab, t_hema, t_dab, delete_cur_gs_spots, delete_cur_es_spots, hide_legend, markCancerous, myStain, substractChannels, respectAreas);
             set.start();
         } else {
              for (TMAspot ts: tss) {
-                doStainingEstimation(this, ts, radius, blur, tolerance, TMblur_hema, TMblur_dab, t_hema, t_dab, delete_cur_gs_spots, delete_cur_es_spots, hide_legend, markCancerous, myStain, substractChannels, false);
+                doStainingEstimation(this, ts, radius, blur, tolerance, TMblur_hema, TMblur_dab, t_hema, t_dab, delete_cur_gs_spots, delete_cur_es_spots, hide_legend, markCancerous, myStain, substractChannels, respectAreas, false);
             }
             String infoText = "<html><font size=\"3\" face=\"Arial\"><h2><strong>Congratulations! :-) <br><br>Automatic nucleus detection was successful!</strong></h2></strong><br>"
                 + "<u>You might want to review TMARKER's guesses by:</u>"
@@ -2669,9 +2687,100 @@ public class StainingEstimation extends javax.swing.JFrame implements TMARKERPlu
     }
     
     /**
-     * Performs the staining estimation of a given TMAspot.
+     * Performs the staining estimation of a given TMAspot. The image is patchized into small chunks (regular images are one patch, NDPIs might be cut into real patches. For NDPI, only the region of interests are processed).
+     * Then the staining estimation is done in parallel for the patches, and the found nuclei are stored in a list of TMApoints. The size of the patches for NDPI is calculated by the number of available processors and max Memory.
      * @param se The StainingEstimation instance.
-     * @param ts The TMAspot which is to be processed.
+     * @param ts The TMAspot of the image.
+     * @param radius The radius of the nuclei.
+     * @param blur The blurring applied to the channels prior to local maxima finding.
+     * @param tolerance The tolerance used for local maxima finding.
+     * @param TMblur_hema The blurring for the dynamic threshold map for the channel 1 (if any).
+     * @param TMblur_dab The blurring for the dynamic threshold map for the channel 2 (if any).
+     * @param t_hema The fixed channel 1 threshold (between 0-255).
+     * @param t_dab The fixed channel 2 threshold (between 0-255).
+     * @param hide_legend If false, a legend of the color deconvolution algorithm will appear.
+     * @param myStain String of the staining protocol (e.g. "H&E" or "H DAB").
+     * @param substractChannels If true, channel 2 will be substracted from channel 1. 
+     * @param asParallelThread If true, saving of the images will be done in a parallel thread. Saving the channel images takes long CPU time.
+     * @param useThresholdMap If true, a dynamic threshold map is used for maximum acceptance instead of a fixed value.
+     * @param respectAreas If true, including and excluding areas (ROI) on the images are respected and found nuclei are filtered accordingly.
+     * @return A list of all found TMApoints on the given TMAspot. Points are already filtered by the including or excluding areas. Also, points to not overlap to each other (in the given radius).
+     */
+    public static List<TMApoint> tma_stain(StainingEstimation se, TMAspot ts, int radius, double blur, int tolerance, int TMblur_hema, int TMblur_dab, int t_hema, int t_dab, boolean hide_legend, String myStain, boolean substractChannels, boolean useThresholdMap, boolean respectAreas, boolean asParallelThread) {
+        tmarker tm = ts.getCenter();
+        
+        // RANDOM STREAM RESETTEN
+        tm.resetRandomSeed();
+        
+        List<TMApoint> brown_spots_total = new ArrayList<>();
+                    
+        try {
+            String text = tm.getStatusMessageLabel().getText();
+            
+            if (!asParallelThread) {
+                tm.setStatusMessageLabel(ts.getName() + ": Performing Staining Estimation ...");
+                tm.setProgressbar(15);
+            }
+            
+            List<Point> offsets = new ArrayList();
+            List<Point> sizes = new ArrayList();
+            
+            int maxbytes = (int) (0.3 * Runtime.getRuntime().maxMemory() / Runtime.getRuntime().availableProcessors());
+            int size = (int) Math.floor(Math.sqrt(maxbytes/4.0));
+            int w = ts.getWidth();
+            int h = ts.getHeight();
+                   
+            // collect the ROIS (we do only need to compute everything here, which is faster for large NDPI images)
+            List<Polygon> rois_incl = new ArrayList();
+            if (respectAreas && ts.isNDPI()) {
+                rois_incl.addAll(ts.getIncludingAreas());
+            }
+            if (rois_incl.isEmpty()) rois_incl.add(new Polygon(new int[]{0, 0, w, w}, new int[]{0, h, h, 0}, 4)); // for tif, jpeg and other normal images, compute the whole image (not ROIS), since we can store the deconvolved channels on harddisk, making post-processing faster.
+            
+            // union overlaping ROIS
+            List<Rectangle> rects = new ArrayList();
+            rects.add(rois_incl.get(0).getBounds());
+            for (int z=1; z<rois_incl.size(); z++) {
+                for (int k=0; k<rects.size(); k++) {
+                    if (rects.get(k).intersects(rois_incl.get(z).getBounds())) {
+                        rects.get(k).add(rois_incl.get(z).getBounds());
+                    } else {
+                        rects.add(rois_incl.get(z).getBounds());
+                    }
+                }
+            }
+
+            for (int z=0; z<rects.size(); z++) {
+                Rectangle rect = rects.get(z);
+                int r_w = rect.width;
+                int r_h = rect.height;
+
+                // Patchize the large image
+                for (int i=0; i<1.0*r_w/size; i++) {
+                    for (int j=0; j<1.0*r_h/size; j++) {
+                        int size_x = Math.min(size, r_w-i*size);
+                        int size_y = Math.min(size, r_h-j*size);
+                        sizes.add(new Point(size_x, size_y));
+                        offsets.add(new Point(rect.x+i*size, rect.y+j*size));
+                    }
+                }
+            }
+            
+            StainingEstimationCoreThread sect = new StainingEstimationCoreThread((TMARKERPluginManager) se.getPluginManager(), se, ts, radius, blur, tolerance, TMblur_hema, TMblur_dab, t_hema, t_dab, hide_legend, myStain, substractChannels, useThresholdMap, respectAreas, brown_spots_total, offsets, sizes, size);
+            sect.start();
+            
+            sect.join();
+        } catch (InterruptedException ex) {
+            Logger.getLogger(StainingEstimation.class.getName()).log(Level.SEVERE, null, ex);
+        }
+            return brown_spots_total;
+    }
+    
+    
+    /**
+     * Performs the staining estimation of a given TMAspot and a given sub-patch (workhorse function).
+     * @param se The StainingEstimation instance.
+     * @param ts The TMAspot of the image.
      * @param radius The radius of the nuclei.
      * @param blur The blurring applied to the channels prior to local maxima finding.
      * @param tolerance The tolerance used for local maxima finding.
@@ -2685,132 +2794,138 @@ public class StainingEstimation extends javax.swing.JFrame implements TMARKERPlu
      * @param respectAreas If true, including and excluding areas (ROI) on the images are respected and found nuclei are filtered accordingly.
      * @param myStain String of the staining protocol (e.g. "H&E" or "H DAB").
      * @param substractChannels If true, channel 2 will be substracted from channel 1. 
-     * @return A list of all found TMApoints on the given TMAspot. Points are already filtered by the including or excluding areas. Also, points to not overlap to each other (in the given radius).
+     * @param brown_spots_total The resulting list of found TMApoints. These are added to this list.
+     * @param offset The offset of the processed sub-patch.
+     * @param size The size of the processed sub-patch, expressed as a point.
+     * @param maxsize The maximum size of the sub-patch (edge length, only needed for NDPI, might be equal to the maximum patch-edge-size).
+     * 
      */
-    public static List<TMApoint> tma_stain(StainingEstimation se, TMAspot ts, int radius, double blur, int tolerance, int TMblur_hema, int TMblur_dab, int t_hema, int t_dab, boolean hide_legend, String myStain, boolean substractChannels, boolean useThresholdMap, boolean respectAreas, boolean asParallelThread) {
-        tmarker tm = ts.getCenter();
-        
-        // RANDOM STREAM RESETTEN
-        tm.resetRandomSeed();
-        
-        List<TMApoint> brown_spots = new ArrayList<>();
-                    
-        try {
-            String text = tm.getStatusMessageLabel().getText();
-            
-            if (!asParallelThread) {
-                tm.setStatusMessageLabel(ts.getName() + ": Performing Staining Estimation ...");
-                tm.setProgressbar(15);
-            } 
-            BufferedImage img = ts.getBufferedImage();
-            
-            // Retrieve the Channel images HE
-            List<ImagePlus> HE;
-            List<ImagePlus> HE_old = ts.isNDPI() ? null : getChannelImages(se, ts);
-            List<ImagePlus> ThresholdMaps = null; // = ts.getThresholdMaps();
-            if (!myStain.equalsIgnoreCase("User values") && myStain.equalsIgnoreCase(se.getParam_lastStain()) && substractChannels == se.getParam_lastSubstractChannels() && HE_old != null && !HE_old.isEmpty()) { // if the staining did not change, use the old channel images
-                HE = new ArrayList<>();
-                HE.add(HE_old.get(0));
-                HE.add(HE_old.get(1));
-                HE.add(HE_old.get(2));
-            } else { // otherwise create new channel images
-                HE = deconvolveImage(img, tm, se, ts, hide_legend, myStain, substractChannels, asParallelThread);
-            }
-            
-            // What to do if we use dynamic thresholds instead of fixed thresholds
-            if (useThresholdMap) {
-                // ThresholdMaps are created
-                if (!asParallelThread) {
-                    tm.setStatusMessageLabel(ts.getName() + ": Creating dynamic threshold maps ...");
-                    tm.setProgressbar(67);
-                }
-                ThresholdMaps = new ArrayList<>(2);
-                ThresholdMaps.add(channelImage2ThresholdMap(HE.get(0), TMblur_hema));
-                ThresholdMaps.add(channelImage2ThresholdMap(HE.get(1), TMblur_dab));
-                for (ImagePlus ip: ThresholdMaps) {
-                    //normalize_image_gray(ip);
-                }
-                if (tmarker.DEBUG>0) {
-                    List<ImagePlus> TM_ = new ArrayList<>();
-                    for (ImagePlus ip: ThresholdMaps) {
-                        TM_.add(ip.duplicate());
-                    }
-                    ts.saveThresholdMaps(TM_, asParallelThread);
-                }
-            }
-            
-            // Find the channel 1 nuclei
-            List<TMApoint> blue_spots = new ArrayList<>();
-            if (HE.size() > 0) {
-                if (!asParallelThread) {
-                    tm.setStatusMessageLabel(ts.getName() + ": Performing Staining Estimation: Local Maximum Channel 1 ...");
-                    tm.setProgressbar(70);
-                }
-                if (useThresholdMap) {
-                    blue_spots = find_nucleus_lm(ts, HE.get(0), blur, tolerance, ThresholdMaps.get(0), TMALabel.STAINING_0, false);
-                } else {
-                    blue_spots = find_nucleus_lm(ts, HE.get(0), blur, tolerance, t_hema, TMALabel.STAINING_0, false);
-                }
-            } 
-            
-            // Find the channel 2 nuclei
-            if (HE.size() > 1) {
-                if (!asParallelThread) {
-                    tm.setStatusMessageLabel(ts.getName() + ": Performing Staining Estimation: Local Maximum Channel 2 ...");
-                    tm.setProgressbar(80);
-                }
-                if (useThresholdMap) {
-                    brown_spots = find_nucleus_lm(ts, HE.get(1), blur, tolerance, ThresholdMaps.get(1), TMALabel.STAINING_3, false);
-                } else {
-                    brown_spots = find_nucleus_lm(ts, HE.get(1), blur, tolerance, t_dab, TMALabel.STAINING_3, false);
-                }
+    static void tma_stainCore(StainingEstimation se, TMAspot ts, int radius, double blur, int tolerance, int TMblur_hema, int TMblur_dab, int t_hema, int t_dab, boolean hide_legend, String myStain, boolean substractChannels, boolean useThresholdMap, boolean respectAreas, boolean asParallelThread, List<TMApoint> brown_spots_total, Point offset, Point size, int maxsize) {
+                tmarker tm = ts.getCenter();
                 
-            }
-            
-            //Filter nuclei according to Areas
-            if (respectAreas) {
-                if (!asParallelThread) {
-                    tm.setStatusMessageLabel(ts.getName() + ": Performing Staining Estimation: Filter Nuclei in Regions of Interest ...");
-                    tm.setProgressbar(85);
-                }
-                TMAspot.filter_centroids_on_Areas(blue_spots, ts);
-                TMAspot.filter_centroids_on_Areas(brown_spots, ts);
-            }
+                String text = tm.getStatusMessageLabel().getText();
+                
+                List<TMApoint> brown_spots = new ArrayList<>();
+                
+                BufferedImage img = ts.getSubimage(offset.x, offset.y, size.x, size.y, maxsize);
+                
+                int offset_x = offset.x;
+                int offset_y = offset.y;
 
-            // Filter overlapping nuclei
-            if (!asParallelThread) {
-                tm.setStatusMessageLabel(ts.getName() + ": Performing Staining Estimation: Filter Overlapping Nuclei ...");
-                tm.setProgressbar(90);
-            }
-            TMAspot.filter_centroids_on_distance(brown_spots, brown_spots, radius);
-            TMAspot.filter_centroids_on_distance(blue_spots, blue_spots, radius);
-            TMAspot.filter_centroids_on_distance(blue_spots, brown_spots, radius);
-            
-            // Finish staining estimation
-            if (!asParallelThread) {
-                tm.setStatusMessageLabel(ts.getName() + ": Performing Staining Estimation: Done.");
-                tm.setProgressbar(100);
-            }
-            brown_spots.addAll(blue_spots);
-            for (ImagePlus HE1 : HE) {
-                HE1.flush();
-            }
-            if (!asParallelThread) {
-                tm.setStatusMessageLabel(text);
-                tm.setProgressbar(0);
-            }
-        } catch(Exception e) { // error also happens if user clicks "cancel"
-            tm.setProgressbar(0); 
-            //JOptionPane.showMessageDialog(tm, "An error occurred during the staining estimation.\n" + e.getMessage(), "Error in Staining Estimation", JOptionPane.ERROR_MESSAGE);
-            //System.err.println(e.getMessage());
-            if (tmarker.DEBUG>0) {
-                Logger.getLogger(StainingEstimation.class.getName()).log(Level.SEVERE, null, e);
-            }
-        }
-        return brown_spots;
+                // Retrieve the Channel images HE
+                List<ImagePlus> HE;
+                List<ImagePlus> HE_old = ts.isNDPI() ? null : getChannelImages(se, ts);
+                List<ImagePlus> ThresholdMaps = null; // = ts.getThresholdMaps();
+                if (!myStain.equalsIgnoreCase("User values") && myStain.equalsIgnoreCase(se.getParam_lastStain()) && substractChannels == se.getParam_lastSubstractChannels() && HE_old != null && !HE_old.isEmpty()) { // if the staining did not change, use the old channel images
+                    HE = new ArrayList<>();
+                    HE.add(HE_old.get(0));
+                    HE.add(HE_old.get(1));
+                    HE.add(HE_old.get(2));
+                } else { // otherwise create new channel images
+                    HE = deconvolveImage(img, tm, se, ts, hide_legend, myStain, substractChannels, asParallelThread);
+                }
+
+                // What to do if we use dynamic thresholds instead of fixed thresholds
+                if (useThresholdMap) {
+                    // ThresholdMaps are created
+                    if (!asParallelThread) {
+                        tm.setStatusMessageLabel(ts.getName() + ": Creating dynamic threshold maps ...");
+                        tm.setProgressbar(67);
+                    }
+                    ThresholdMaps = new ArrayList<>(2);
+                    ThresholdMaps.add(channelImage2ThresholdMap(HE.get(0), TMblur_hema));
+                    ThresholdMaps.add(channelImage2ThresholdMap(HE.get(1), TMblur_dab));
+                    for (ImagePlus ip: ThresholdMaps) {
+                        //normalize_image_gray(ip);
+                    }
+                    if (tmarker.DEBUG>0) {
+                        List<ImagePlus> TM_ = new ArrayList<>();
+                        for (ImagePlus ip: ThresholdMaps) {
+                            TM_.add(ip.duplicate());
+                        }
+                        ts.saveThresholdMaps(TM_, asParallelThread);
+                    }
+                }
+
+                // Find the channel 1 nuclei
+                List<TMApoint> blue_spots = new ArrayList<>();
+                if (HE.size() > 0) {
+                    if (!asParallelThread) {
+                        tm.setStatusMessageLabel(ts.getName() + ": Performing Staining Estimation: Local Maximum Channel 1 ...");
+                        tm.setProgressbar(70);
+                    }
+                    if (useThresholdMap) {
+                        blue_spots = find_nucleus_lm(ts, HE.get(0), offset_x, offset_y, blur, tolerance, ThresholdMaps.get(0), TMALabel.STAINING_0, false);
+                    } else {
+                        blue_spots = find_nucleus_lm(ts, HE.get(0), offset_x, offset_y, blur, tolerance, t_hema, TMALabel.STAINING_0, false);
+                    }
+                } 
+
+                // Find the channel 2 nuclei
+                if (HE.size() > 1) {
+                    if (!asParallelThread) {
+                        tm.setStatusMessageLabel(ts.getName() + ": Performing Staining Estimation: Local Maximum Channel 2 ...");
+                        tm.setProgressbar(80);
+                    }
+                    if (useThresholdMap) {
+                        brown_spots = find_nucleus_lm(ts, HE.get(1), offset_x, offset_y, blur, tolerance, ThresholdMaps.get(1), TMALabel.STAINING_3, false);
+                    } else {
+                        brown_spots = find_nucleus_lm(ts, HE.get(1), offset_x, offset_y, blur, tolerance, t_dab, TMALabel.STAINING_3, false);
+                    }
+
+                }
+
+                //Filter nuclei according to Areas
+                if (respectAreas) {
+                    if (!asParallelThread) {
+                        tm.setStatusMessageLabel(ts.getName() + ": Performing Staining Estimation: Filter Nuclei in Regions of Interest ...");
+                        tm.setProgressbar(85);
+                    }
+                    TMAspot.filter_centroids_on_Areas(blue_spots, ts);
+                    TMAspot.filter_centroids_on_Areas(brown_spots, ts);
+                }
+
+                // Filter overlapping nuclei
+                if (!asParallelThread) {
+                    tm.setStatusMessageLabel(ts.getName() + ": Performing Staining Estimation: Filter Overlapping Nuclei ...");
+                    tm.setProgressbar(90);
+                }
+                TMAspot.filter_centroids_on_distance(brown_spots, brown_spots, radius);
+                TMAspot.filter_centroids_on_distance(blue_spots, blue_spots, radius);
+                TMAspot.filter_centroids_on_distance(blue_spots, brown_spots, radius);
+
+                // Finish staining estimation
+                if (!asParallelThread) {
+                    tm.setStatusMessageLabel(ts.getName() + ": Performing Staining Estimation: Done.");
+                    tm.setProgressbar(100);
+                }
+                brown_spots.addAll(blue_spots);
+                for (ImagePlus HE1 : HE) {
+                    HE1.flush();
+                }
+                if (!asParallelThread) {
+                    tm.setStatusMessageLabel(text);
+                    tm.setProgressbar(0);
+                }
+                brown_spots_total.addAll(brown_spots);
     }
     
+    
+    /**
+     * Returns the three channel images of a given RGB image.
+     * @param img The image to be processed.
+     * @param tm The main program, used for status message.
+     * @param se The StainingEstimation instance.
+     * @param ts The TMAspot which is to be processed.
+     * @param hide_legend If false, a legend of the color deconvolution algorithm will appear.
+     * @param myStain String of the staining protocol (e.g. "H&E" or "H DAB").
+     * @param substractChannels If true, channel 2 will be substracted from channel 1.
+     * @param asParallelThread If true, processing done in a parallel thread.
+     * @return A list with the deconvolution images.
+     * 
+     */
     public static List<ImagePlus> deconvolveImage(Image img, tmarker tm, StainingEstimation se, TMAspot ts, boolean hide_legend, String myStain, boolean substractChannels, boolean asParallelThread) {
+        
         ImagePlus imp = new ImagePlus("", img);
         List<ImagePlus> HE;
         
@@ -2841,15 +2956,17 @@ public class StainingEstimation extends javax.swing.JFrame implements TMARKERPlu
         }
 
         // Save in TMARKER
-        if (!asParallelThread) {
-            tm.setStatusMessageLabel(ts.getName() + ": Saving Channel Images ...");
-            tm.setProgressbar(65);
+        if (!ts.isNDPI()) {
+            if (!asParallelThread) {
+                tm.setStatusMessageLabel(ts.getName() + ": Saving Channel Images ...");
+                tm.setProgressbar(65);
+            }
+            List<ImagePlus> HE_ = new ArrayList<>();
+            for (ImagePlus ip: HE) {
+                HE_.add(ip.duplicate());
+            }
+            setChannelImages(se, ts, HE_, asParallelThread);
         }
-        List<ImagePlus> HE_ = new ArrayList<>();
-        for (ImagePlus ip: HE) {
-            HE_.add(ip.duplicate());
-        }
-        setChannelImages(se, ts, HE_, asParallelThread);
         return HE;
     }
     
@@ -2968,6 +3085,8 @@ public class StainingEstimation extends javax.swing.JFrame implements TMARKERPlu
      * Finds nuclei on a gray scaled heatmap image (channel image) with the local maximum finding method.
      * @param ts The TMAspot which is processed (found TMApoints are assigned to it).
      * @param imp The grayscaled heatmap image.
+     * @param offset_x The offset of the image(patch) in horizontal direction.
+     * @param offset_y The offset of the image(patch) in vertical direction.
      * @param blur A blur radius which is applied before local maxima finding. 0 for no blurring.
      * @param tolerance The tolerance (between 0 and 255) according to which to local maxima are accepted which lie on the same ridge.
      * @param threshold A threshold (0-255) below which all maxima are rejected.
@@ -2976,7 +3095,7 @@ public class StainingEstimation extends javax.swing.JFrame implements TMARKERPlu
      * @param forPreview Set this TRUE, if this function is used for the small preview images. Upscaling of coordinates is for whole slide images is then skipped.
      * @return A list with all found local maxima on this image.
      */
-    public static List<TMApoint> find_nucleus_lm(TMAspot ts, ImagePlus imp, double blur, double tolerance, double threshold, byte staining, boolean forPreview) {
+    public static List<TMApoint> find_nucleus_lm(TMAspot ts, ImagePlus imp, int offset_x, int offset_y, double blur, double tolerance, double threshold, byte staining, boolean forPreview) {
         List<TMApoint> tps = new ArrayList<>();
         
         //if (imp!=null && imp.getProcessor()!=null) {
@@ -2985,14 +3104,14 @@ public class StainingEstimation extends javax.swing.JFrame implements TMARKERPlu
             // For whole slide images: if the image at hand is downscaled, the loci have to be upscaled again.
             double factor_x = 1.0;
             double factor_y = 1.0;
-            if (!forPreview && ts.isNDPI()) {
+            /*if (!forPreview && ts.isNDPI()) {
                 if (imp.getWidth()<ts.getWidth()) {
                     factor_x = ts.getWidth()/imp.getWidth();
                 }
                 if (imp.getHeight()<ts.getHeight()) {
                     factor_y = ts.getHeight()/imp.getHeight();
                 }
-            }
+            }*/
             
             if (blur>0) {
                 GaussianBlur gb = new GaussianBlur();
@@ -3002,7 +3121,7 @@ public class StainingEstimation extends javax.swing.JFrame implements TMARKERPlu
             MaximumFinder mf = new MaximumFinder();
             Polygon pol = mf.getMaxima(imp.getProcessor(), tolerance, threshold, true);
             for (int i=0; i<pol.npoints; i++) {
-                tps.add(new TMApoint(ts, (int)(factor_x*pol.xpoints[i]), (int)(factor_y*pol.ypoints[i]), TMALabel.LABEL_UNK, staining));
+                tps.add(new TMApoint(ts, (int)(factor_x*(pol.xpoints[i]+offset_x)), (int)(factor_y*(pol.ypoints[i]+offset_y)), TMALabel.LABEL_UNK, staining));
             }
         //}
         return tps;
@@ -3012,6 +3131,8 @@ public class StainingEstimation extends javax.swing.JFrame implements TMARKERPlu
      * Finds nuclei on a gray scaled heatmap image (channel image) with the local maximum finding method and a dynamic threshold map
      * @param ts The TMAspot which is processed (found TMApoints are assigned to it).
      * @param imp The grayscaled heatmap image.
+     * @param offset_x The offset of the image(patch) in horizontal direction.
+     * @param offset_y The offset of the image(patch) in vertical direction.
      * @param blur A blur radius which is applied before local maxima finding. 0 for no blurring.
      * @param tolerance The tolerance (between 0 and 255) according to which to local maxima are accepted which lie on the same ridge.
      * @param threshold A threshold image (0-255). A local maximum on a point (x,y) must be larger than the threshold on the threshold map on the same position.
@@ -3021,7 +3142,7 @@ public class StainingEstimation extends javax.swing.JFrame implements TMARKERPlu
      * @param forPreview Set this TRUE, if this function is used for the small preview images. Upscaling of coordinates is for whole slide images is then skipped.
      * @return A list with all found local maxima on this image.
      */
-    public static List<TMApoint> find_nucleus_lm(TMAspot ts, ImagePlus imp, double blur, double tolerance, ImagePlus threshold, byte staining, boolean forPreview) {
+    public static List<TMApoint> find_nucleus_lm(TMAspot ts, ImagePlus imp, int offset_x, int offset_y, double blur, double tolerance, ImagePlus threshold, byte staining, boolean forPreview) {
         List<TMApoint> tps = new ArrayList<>();
         
         //if (imp!=null && imp.getProcessor()!=null) {
@@ -3030,14 +3151,14 @@ public class StainingEstimation extends javax.swing.JFrame implements TMARKERPlu
             // For whole slide images: if the image at hand is downscaled, the loci have to be upscaled again.
             double factor_x = 1.0;
             double factor_y = 1.0;
-            if (!forPreview && ts.isNDPI()) {
+            /*if (!forPreview && ts.isNDPI()) {
                 if (imp.getWidth()<ts.getWidth()) {
                     factor_x = ts.getWidth()/imp.getWidth();
                 }
                 if (imp.getHeight()<ts.getHeight()) {
                     factor_y = ts.getHeight()/imp.getHeight();
                 }
-            }
+            }*/
             
             if (blur>0) {
                 GaussianBlur gb = new GaussianBlur();
@@ -3046,7 +3167,7 @@ public class StainingEstimation extends javax.swing.JFrame implements TMARKERPlu
             MaximumFinder mf = new MaximumFinder();
             Polygon pol = mf.getMaxima(imp.getProcessor(), tolerance, threshold, true);
             for (int i=0; i<pol.npoints; i++) {
-                tps.add(new TMApoint(ts, (int)(factor_x*pol.xpoints[i]), (int)(factor_y*pol.ypoints[i]), TMALabel.LABEL_UNK, staining));
+                tps.add(new TMApoint(ts, (int)(factor_x*(pol.xpoints[i]+offset_x)), (int)(factor_y*(pol.ypoints[i]+offset_y)), TMALabel.LABEL_UNK, staining));
             }
             
         //}
@@ -3090,7 +3211,7 @@ public class StainingEstimation extends javax.swing.JFrame implements TMARKERPlu
     /**
      * Writes the progress numbers and estimated time according to total number 
      * of instances, already processed number of instances and process start time
-     * to a JLabel. If total is 0, " " is written (making the progress inforamtion
+     * to a JLabel. If total is 0, " " is written (making the progress information
      * invisible). If startTimeMillis > 0, the estimated time for the remaining
      * instances is added.
      * @param processed Processed number of instances.
@@ -3101,7 +3222,7 @@ public class StainingEstimation extends javax.swing.JFrame implements TMARKERPlu
         if (processed<=0 || total <=0) {
             jLabel30.setText(" ");
         } else {
-            String text = "Processed  " + processed + "/" + total + "  (" + 100*processed/total + " %)";
+            String text = "Processed  " + processed + "/" + total + "  images  (" + 100*processed/total + " %)";
             if (startTimeMillis>0) {
                 long time = (total-processed) * (System.currentTimeMillis() - startTimeMillis) / processed;
                 text += "    (est. " + String.format("%d min, %d sec", 
@@ -3110,6 +3231,32 @@ public class StainingEstimation extends javax.swing.JFrame implements TMARKERPlu
                     TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS.toMinutes(time))) + ")";
             }
             jLabel30.setText(text);
+        }
+    }
+    
+    /**
+     * Writes the second progress numbers and estimated time according to total number 
+     * of patches, already processed number of instances and process start time
+     * to a JLabel. If total is 0, " " is written (making the progress information
+     * invisible). If startTimeMillis > 0, the estimated time for the remaining
+     * instances is added.
+     * @param processed Processed number of instances.
+     * @param total Total number of instances (if 0, " " will be written).
+     * @param startTimeMillis The starting time of the process.
+     */
+    void setProgressNumber_2(int processed, int total, long startTimeMillis) {
+        if (processed<=0 || total <=0) {
+            jLabel34.setText(" ");
+        } else {
+            String text = "Processed  " + processed + "/" + total + "  patches  (" + 100*processed/total + " %)";
+            if (startTimeMillis>0) {
+                long time = (total-processed) * (System.currentTimeMillis() - startTimeMillis) / processed;
+                text += "    (est. " + String.format("%d min, %d sec", 
+                    TimeUnit.MILLISECONDS.toMinutes(time),
+                    TimeUnit.MILLISECONDS.toSeconds(time) - 
+                    TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS.toMinutes(time))) + ")";
+            }
+            jLabel34.setText(text);
         }
     }
     

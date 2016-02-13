@@ -131,7 +131,7 @@ public class HierarchicalClassifier {
             int rowHeight = (int) (scale * 20);
             int lineWidth = (int) (scale * 12);
             int maxDepth = clusterTrees.get(0).getDepth();
-            int imageWidth = maxDepth*(lineWidth+5) + 300;
+            int imageWidth = maxDepth*(lineWidth+5) + 500;
             int imageHeight = clusterTrees.get(0).getNumberLeaves() * rowHeight + 50 + 25;
             if (tmarker.DEBUG>0) System.out.println("Number leaves: " + clusterTrees.get(0).getNumberLeaves());
             

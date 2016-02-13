@@ -52,7 +52,7 @@ public class FeatureSelectionDialog extends javax.swing.JDialog {
         setTitle("Please select features for clustering...");
         getContentPane().setLayout(new java.awt.GridBagLayout());
 
-        jLabel1.setText("Please select the features used for clustering:");
+        jLabel1.setText("Please select one or more features used for clustering:");
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
         gridBagConstraints.gridy = 0;

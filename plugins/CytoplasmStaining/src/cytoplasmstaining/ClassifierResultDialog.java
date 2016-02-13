@@ -10,6 +10,8 @@ import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 import javax.imageio.ImageIO;
 import javax.swing.ImageIcon;
 import tmarker.FileChooser;
@@ -271,7 +273,12 @@ public class ClassifierResultDialog extends javax.swing.JDialog {
     }// </editor-fold>//GEN-END:initComponents
 
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
-        File file = FileChooser.chooseSavingFile(null, ".", "dendrogram.png");
+        List<String> extensions = new ArrayList();
+        extensions.add(".PNG");
+        List<String> descriptions = new ArrayList();
+        descriptions.add("PNG Image File");
+        
+        File file = FileChooser.chooseSavingFile(null, ".", "dendrogram.png", extensions, descriptions);
         if (file!=null) {
             saveAsPNG(file);
             //getClassifier().getCenter().getFrontendFrame().setCurrentDir(file.getAbsolutePath());

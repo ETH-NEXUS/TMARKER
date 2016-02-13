@@ -6,7 +6,11 @@
 package cytoplasmstaining;
 
 import java.awt.Color;
+import java.awt.Font;
 import java.awt.Graphics2D;
+import java.awt.Image;
+import java.awt.Rectangle;
+import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -109,13 +113,38 @@ public class ClusterTree {
                 offset = 5*lineLength;
             }
             gr.drawLine(lineLength*level, y, lineLength*(maxDepth), y);
-            /*String methGrade = Double.toString(Math.round(getSample().getIntensity()*100));
-            methGrade = methGrade.substring(0, methGrade.length()-2);
-            if (methGrade.length() == 1) methGrade = "    " + methGrade;
-            if (methGrade.length() == 2) methGrade =  "  " + methGrade;
-            gr.drawString(methGrade +" %     "+ getSample().ts.getName(), lineLength*(maxDepth) + lineLength, y+(lineLength/2));*/
-            gr.drawString(getSample().ts.getName(), lineLength*(maxDepth) + 11*lineLength, y+(lineLength/2));
-            gr.drawImage(getSample().ts.getThumbnailImage(4*lineLength, 3*lineLength, null), lineLength*(1+maxDepth) + offset, (int)(y-1.5*lineLength), null);
+            String roiDescription = "";
+            if (getSample().roi !=null) {
+                Rectangle rect = getSample().roi.getBounds();
+                roiDescription = " ROI (x=" + (rect.x + rect.width/2) + ", y=" + (rect.y + rect.height/2) + ")";
+            }
+            gr.drawString(getSample().ts.getName() + roiDescription, lineLength*(maxDepth) + 11*lineLength, y+(lineLength/2));
+            Image thumbnail = getSample().ts.getThumbnailImage(4*lineLength, 3*lineLength, null);
+            
+            if (colored) {
+                gr.drawImage(thumbnail, lineLength*(1+maxDepth) + offset, (int)(y-1.5*lineLength), null);
+            } else {
+                BufferedImage blackAndWhiteImg = new BufferedImage(thumbnail.getWidth(null), thumbnail.getHeight(null), BufferedImage.TYPE_BYTE_BINARY);
+                Graphics2D graphics = blackAndWhiteImg.createGraphics();
+                graphics.drawImage(thumbnail, 0, 0, null);
+            }
+            
+            // if ROIs are clustered, mark them in the thumbnail
+            if (getSample().roi !=null) {
+                //gr.setFont(new Font("Arial", Font.PLAIN, 10));
+                if (colored) {
+                    gr.setColor(Color.GREEN);
+                } else {
+                    gr.setColor(Color.DARK_GRAY);
+                }
+                Rectangle rect = getSample().roi.getBounds();
+                int midx = rect.x + rect.width/2;
+                int midy = rect.y + rect.height/2;
+                double factor = 1.0 * thumbnail.getWidth(null) / getSample().ts.getWidth();
+                gr.drawString("x", lineLength*(1+maxDepth) + offset + (int) (factor * midx), (int)(y-1.5*lineLength) + (int) (factor * midy));
+                //gr.setFont(new Font("Arial", Font.PLAIN, 12));
+            }
+            
             gr.setColor(Color.BLACK);
             return y;
         }

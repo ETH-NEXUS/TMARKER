@@ -3,20 +3,28 @@ package cytoplasmstaining;
 import TMARKERPluginInterface.Pluggable;
 import TMARKERPluginInterface.PluginManager;
 import static cytoplasmstaining.HierarchicalClassifier.AVERAGE_LINKAGE;
+import graphcut.ConnectComponent;
+import graphcut.GraphCut;
+import graphcut.Terminal;
 import ij.ImagePlus;
 import ij.plugin.filter.GaussianBlur;
+import ij.process.PolygonFiller;
 import java.awt.BasicStroke;
 import java.awt.Color;
-import java.awt.Container;
 import java.awt.Cursor;
+import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Image;
+import java.awt.Polygon;
+import java.awt.Rectangle;
+import java.awt.Shape;
 import java.awt.Stroke;
 import java.awt.event.ActionEvent;
 import java.awt.event.MouseEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.awt.geom.AffineTransform;
 import java.awt.image.BufferedImage;
 import java.io.BufferedWriter;
 import java.io.File;
@@ -26,12 +34,12 @@ import java.util.List;
 import java.util.Properties;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.media.jai.ROI;
 import javax.swing.Icon;
-import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
-import javax.swing.JTable;
 import javax.swing.table.DefaultTableModel;
+import plugins.TMARKERPluginManager;
 import stainingestimation.StainingEstimation;
 import tmarker.FileChooser;
 import tmarker.TMAspot.TMALabel;
@@ -59,6 +67,11 @@ public class CytoplasmStaining extends javax.swing.JFrame implements TMARKERPlug
     private static final String PLUGINVERSION = "1.0";
     
     private final StringToIntConverter stic = new StringToIntConverter();
+    
+    /**
+     * Segmentations of nuclei for every TMAspot.
+     */
+    private final List<TMAspotSegmentations> TMAspotsegmentations = new ArrayList<>();
     
     JFrame clusterVisualizer = null; // for visualization of the hierarchical clusterer.
     
@@ -109,6 +122,24 @@ public class CytoplasmStaining extends javax.swing.JFrame implements TMARKERPlug
         jScrollPane3 = new javax.swing.JScrollPane();
         jXTable1 = new org.jdesktop.swingx.JXTable();
         jButton3 = new javax.swing.JButton();
+        jLabel1 = new javax.swing.JLabel();
+        jTextField3 = new javax.swing.JTextField();
+        jSlider3 = new javax.swing.JSlider();
+        jCheckBox5 = new javax.swing.JCheckBox();
+        jCheckBox7 = new javax.swing.JCheckBox();
+        jXCollapsiblePane1 = new org.jdesktop.swingx.JXCollapsiblePane();
+        jXColorSelectionButton3 = new org.jdesktop.swingx.JXColorSelectionButton();
+        jLabel2 = new javax.swing.JLabel();
+        jPanel3 = new javax.swing.JPanel();
+        jCheckBox6 = new javax.swing.JCheckBox();
+        jLabel3 = new javax.swing.JLabel();
+        jSlider4 = new javax.swing.JSlider();
+        jLabel4 = new javax.swing.JLabel();
+        jLabel5 = new javax.swing.JLabel();
+        jPanel4 = new javax.swing.JPanel();
+        jButton5 = new javax.swing.JButton();
+        jButton6 = new javax.swing.JButton();
+        jCheckBox8 = new javax.swing.JCheckBox();
 
         setTitle("Cytoplasm Staining Options");
 
@@ -116,27 +147,30 @@ public class CytoplasmStaining extends javax.swing.JFrame implements TMARKERPlug
 
         jPanel2.setLayout(new java.awt.GridBagLayout());
 
-        java.util.ResourceBundle bundle = java.util.ResourceBundle.getBundle("cancernucleusclassification/Bundle"); // NOI18N
+        java.util.ResourceBundle bundle = java.util.ResourceBundle.getBundle("cytoplasmstaining/Bundle"); // NOI18N
         jLabel17.setText(bundle.getString("CancerNucleusClassification.jLabel17.text")); // NOI18N
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
         gridBagConstraints.gridy = 3;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_START;
-        gridBagConstraints.insets = new java.awt.Insets(15, 0, 0, 0);
+        gridBagConstraints.insets = new java.awt.Insets(15, 5, 0, 0);
         jPanel2.add(jLabel17, gridBagConstraints);
 
         jTextField1.setColumns(3);
         jTextField1.setHorizontalAlignment(javax.swing.JTextField.TRAILING);
         jTextField1.setText(bundle.getString("CancerNucleusClassification.jTextField1.text")); // NOI18N
+        jTextField1.setToolTipText("If no cell segmentation is possible, cells are approx. circles with this diameter.");
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 1;
         gridBagConstraints.gridy = 3;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_START;
         gridBagConstraints.insets = new java.awt.Insets(15, 0, 0, 0);
         jPanel2.add(jTextField1, gridBagConstraints);
 
         jSlider1.setMinimum(1);
         jSlider1.setSnapToTicks(true);
+        jSlider1.setToolTipText("If no cell segmentation is possible, cells are approx. circles with this diameter.");
 
         org.jdesktop.beansbinding.Binding binding = org.jdesktop.beansbinding.Bindings.createAutoBinding(org.jdesktop.beansbinding.AutoBinding.UpdateStrategy.READ_WRITE, jTextField1, org.jdesktop.beansbinding.ELProperty.create("${text}"), jSlider1, org.jdesktop.beansbinding.BeanProperty.create("value"), "jSlider1Binding");
         binding.setSourceNullValue(1);
@@ -178,16 +212,18 @@ public class CytoplasmStaining extends javax.swing.JFrame implements TMARKERPlug
         gridBagConstraints.gridx = 0;
         gridBagConstraints.gridy = 5;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_START;
-        gridBagConstraints.insets = new java.awt.Insets(15, 0, 0, 0);
+        gridBagConstraints.insets = new java.awt.Insets(15, 5, 0, 0);
         jPanel2.add(jLabel19, gridBagConstraints);
 
         jTextField2.setColumns(3);
         jTextField2.setHorizontalAlignment(javax.swing.JTextField.TRAILING);
-        jTextField2.setText(bundle.getString("CancerNucleusClassification.jTextField2.text")); // NOI18N
+        java.util.ResourceBundle bundle1 = java.util.ResourceBundle.getBundle("cancernucleusclassification/Bundle"); // NOI18N
+        jTextField2.setText(bundle1.getString("CancerNucleusClassification.jTextField2.text")); // NOI18N
         jTextField2.setEnabled(false);
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 1;
         gridBagConstraints.gridy = 5;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_START;
         gridBagConstraints.insets = new java.awt.Insets(15, 0, 0, 0);
         jPanel2.add(jTextField2, gridBagConstraints);
@@ -197,8 +233,6 @@ public class CytoplasmStaining extends javax.swing.JFrame implements TMARKERPlug
         jSlider2.setEnabled(false);
 
         binding = org.jdesktop.beansbinding.Bindings.createAutoBinding(org.jdesktop.beansbinding.AutoBinding.UpdateStrategy.READ_WRITE, jTextField2, org.jdesktop.beansbinding.ELProperty.create("${text}"), jSlider2, org.jdesktop.beansbinding.BeanProperty.create("value"), "jSlider2Binding");
-        binding.setSourceNullValue(0);
-        binding.setSourceUnreadableValue(0);
         binding.setConverter(stic);
         bindingGroup.addBinding(binding);
 
@@ -230,6 +264,7 @@ public class CytoplasmStaining extends javax.swing.JFrame implements TMARKERPlug
         jPanel2.add(jCheckBox2, gridBagConstraints);
 
         jCheckBox3.setText(bundle.getString("CancerNucleusClassification.jCheckBox3.text")); // NOI18N
+        jCheckBox3.setToolTipText("");
         jCheckBox3.setEnabled(false);
         jCheckBox3.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -246,14 +281,14 @@ public class CytoplasmStaining extends javax.swing.JFrame implements TMARKERPlug
         jSeparator5.setOrientation(javax.swing.SwingConstants.VERTICAL);
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 21;
-        gridBagConstraints.gridy = 1;
-        gridBagConstraints.gridheight = 6;
+        gridBagConstraints.gridy = 4;
+        gridBagConstraints.gridheight = 5;
         gridBagConstraints.fill = java.awt.GridBagConstraints.VERTICAL;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.PAGE_START;
         gridBagConstraints.insets = new java.awt.Insets(0, 10, 0, 10);
         jPanel2.add(jSeparator5, gridBagConstraints);
 
-        jLabel16.setText(bundle.getString("CancerNucleusClassification.jLabel16.text")); // NOI18N
+        jLabel16.setText("<html>Cytoplasm staining is averaged within the given cell radius.<br>\nThe considered cells an the cell radius can be varied here.<br>\nAlso a decent blurring is recommended to smooth the cells.<br>\nA threshold can be used to exclude white background.<br>\nNuclei can be segmented and excluded, if needed.<br>");
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
         gridBagConstraints.gridy = 0;
@@ -297,10 +332,10 @@ public class CytoplasmStaining extends javax.swing.JFrame implements TMARKERPlug
         });
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 7;
+        gridBagConstraints.gridy = 10;
         gridBagConstraints.gridwidth = java.awt.GridBagConstraints.REMAINDER;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.FIRST_LINE_START;
-        gridBagConstraints.insets = new java.awt.Insets(5, 5, 5, 5);
+        gridBagConstraints.insets = new java.awt.Insets(0, 5, 5, 5);
         jPanel2.add(jButton1, gridBagConstraints);
 
         jButton2.setText("Save as CSV...");
@@ -311,7 +346,7 @@ public class CytoplasmStaining extends javax.swing.JFrame implements TMARKERPlug
         });
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 9;
+        gridBagConstraints.gridy = 12;
         gridBagConstraints.gridwidth = 4;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.FIRST_LINE_START;
         gridBagConstraints.insets = new java.awt.Insets(5, 5, 5, 5);
@@ -322,14 +357,14 @@ public class CytoplasmStaining extends javax.swing.JFrame implements TMARKERPlug
 
             },
             new String [] {
-                "Name", "Avg R", "Avg G", "Avg B", "% 0+ cells", "% 1+ cells", "% 2+ cells", "% 3+ cells", "Avg Gray", "Avg Channel 2", "H-Score"
+                "Image", "ROI", "Avg R", "Avg G", "Avg B", "% 0+ cells", "% 1+ cells", "% 2+ cells", "% 3+ cells", "Avg Gray", "Avg Channel 2", "H-Score"
             }
         ) {
             Class[] types = new Class [] {
-                java.lang.String.class, java.lang.Double.class, java.lang.Double.class, java.lang.Double.class, java.lang.Double.class, java.lang.Double.class, java.lang.Double.class, java.lang.Double.class, java.lang.Double.class, java.lang.Double.class, java.lang.Double.class
+                java.lang.String.class, java.lang.String.class, java.lang.Double.class, java.lang.Double.class, java.lang.Double.class, java.lang.Double.class, java.lang.Double.class, java.lang.Double.class, java.lang.Double.class, java.lang.Double.class, java.lang.Double.class, java.lang.Double.class
             };
             boolean[] canEdit = new boolean [] {
-                false, false, false, false, false, false, false, false, false, false, false
+                false, false, false, false, false, false, false, false, false, false, false, false
             };
 
             public Class getColumnClass(int columnIndex) {
@@ -351,7 +386,7 @@ public class CytoplasmStaining extends javax.swing.JFrame implements TMARKERPlug
 
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 8;
+        gridBagConstraints.gridy = 11;
         gridBagConstraints.gridwidth = java.awt.GridBagConstraints.REMAINDER;
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.FIRST_LINE_START;
@@ -366,11 +401,203 @@ public class CytoplasmStaining extends javax.swing.JFrame implements TMARKERPlug
         });
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 21;
-        gridBagConstraints.gridy = 9;
+        gridBagConstraints.gridy = 12;
         gridBagConstraints.gridwidth = java.awt.GridBagConstraints.REMAINDER;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_END;
         gridBagConstraints.insets = new java.awt.Insets(5, 0, 5, 5);
         jPanel2.add(jButton3, gridBagConstraints);
+
+        jLabel1.setText("Background threshold t ");
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 6;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_START;
+        gridBagConstraints.insets = new java.awt.Insets(15, 5, 0, 0);
+        jPanel2.add(jLabel1, gridBagConstraints);
+
+        jTextField3.setText("230");
+        jTextField3.setToolTipText("Pixels above t are considered as background.");
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 1;
+        gridBagConstraints.gridy = 6;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_START;
+        gridBagConstraints.insets = new java.awt.Insets(15, 0, 0, 0);
+        jPanel2.add(jTextField3, gridBagConstraints);
+
+        jSlider3.setMaximum(255);
+        jSlider3.setToolTipText("Pixels above t are considered as background.");
+
+        binding = org.jdesktop.beansbinding.Bindings.createAutoBinding(org.jdesktop.beansbinding.AutoBinding.UpdateStrategy.READ_WRITE, jTextField3, org.jdesktop.beansbinding.ELProperty.create("${text}"), jSlider3, org.jdesktop.beansbinding.BeanProperty.create("value"), "jSlider3Binding");
+        bindingGroup.addBinding(binding);
+
+        jSlider3.addChangeListener(new javax.swing.event.ChangeListener() {
+            public void stateChanged(javax.swing.event.ChangeEvent evt) {
+                jSlider3StateChanged(evt);
+            }
+        });
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 2;
+        gridBagConstraints.gridy = 6;
+        gridBagConstraints.gridwidth = 14;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_START;
+        gridBagConstraints.insets = new java.awt.Insets(15, 0, 0, 0);
+        jPanel2.add(jSlider3, gridBagConstraints);
+
+        jCheckBox5.setSelected(true);
+        jCheckBox5.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jCheckBox5ActionPerformed(evt);
+            }
+        });
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 22;
+        gridBagConstraints.gridy = 6;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_START;
+        gridBagConstraints.insets = new java.awt.Insets(10, 5, 0, 0);
+        jPanel2.add(jCheckBox5, gridBagConstraints);
+
+        jCheckBox7.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jCheckBox7ActionPerformed(evt);
+            }
+        });
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 22;
+        gridBagConstraints.gridy = 7;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_START;
+        gridBagConstraints.insets = new java.awt.Insets(10, 5, 0, 0);
+        jPanel2.add(jCheckBox7, gridBagConstraints);
+
+        java.util.ResourceBundle bundle2 = java.util.ResourceBundle.getBundle("intensityclustering/Bundle"); // NOI18N
+        jXColorSelectionButton3.setText(bundle2.getString("IntensityClustering.jXColorSelectionButton3.text")); // NOI18N
+        jXColorSelectionButton3.setToolTipText("Background Color (area not considered as cytoplasm)");
+        jXColorSelectionButton3.addChangeListener(new javax.swing.event.ChangeListener() {
+            public void stateChanged(javax.swing.event.ChangeEvent evt) {
+                jXColorSelectionButton3StateChanged(evt);
+            }
+        });
+        jXCollapsiblePane1.getContentPane().add(jXColorSelectionButton3);
+
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 16;
+        gridBagConstraints.gridy = 6;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_START;
+        gridBagConstraints.insets = new java.awt.Insets(15, 0, 0, 0);
+        jPanel2.add(jXCollapsiblePane1, gridBagConstraints);
+
+        jLabel2.setText("Preview");
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 22;
+        gridBagConstraints.gridy = 2;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_START;
+        gridBagConstraints.insets = new java.awt.Insets(10, 5, 0, 0);
+        jPanel2.add(jLabel2, gridBagConstraints);
+
+        jPanel3.setBorder(javax.swing.BorderFactory.createTitledBorder("Nucleus Segmentation"));
+        jPanel3.setLayout(new java.awt.GridBagLayout());
+
+        jCheckBox6.setText("Exclude Cell Nuclei");
+        jCheckBox6.setToolTipText("Either circles with nuclei radius OR exact segmentation (if available) are excluded from cytosplasm.");
+        jCheckBox6.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jCheckBox6ActionPerformed(evt);
+            }
+        });
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 1;
+        gridBagConstraints.gridwidth = 5;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_START;
+        gridBagConstraints.insets = new java.awt.Insets(10, 5, 0, 0);
+        jPanel3.add(jCheckBox6, gridBagConstraints);
+
+        jLabel3.setText("Circular Shape");
+        jLabel3.setToolTipText("More weight on circular objects");
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 2;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_START;
+        gridBagConstraints.insets = new java.awt.Insets(10, 5, 0, 5);
+        jPanel3.add(jLabel3, gridBagConstraints);
+
+        jSlider4.setToolTipText(Integer.toString(jSlider4.getValue()));
+        jSlider4.addChangeListener(new javax.swing.event.ChangeListener() {
+            public void stateChanged(javax.swing.event.ChangeEvent evt) {
+                jSlider4StateChanged(evt);
+            }
+        });
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 1;
+        gridBagConstraints.gridy = 2;
+        gridBagConstraints.gridwidth = 3;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_START;
+        gridBagConstraints.insets = new java.awt.Insets(10, 0, 0, 0);
+        jPanel3.add(jSlider4, gridBagConstraints);
+
+        jLabel4.setText("Arbitrary Shape");
+        jLabel4.setToolTipText("More weight on intensity information");
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 4;
+        gridBagConstraints.gridy = 2;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_START;
+        gridBagConstraints.insets = new java.awt.Insets(10, 5, 0, 5);
+        jPanel3.add(jLabel4, gridBagConstraints);
+
+        jLabel5.setText("<html><p>Nucleus segmentation depends on the global <b>nucleus radius</b>,<br>\nand on the weight of circular or arbitrary objects.</p>\n<p>After segmenting the nuclei, they are excluded from the cytoplasm.</p>\n<p>Without segmentations, the nuclei are approximated by circles.</p></html>");
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 0;
+        gridBagConstraints.gridwidth = 5;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_START;
+        gridBagConstraints.insets = new java.awt.Insets(5, 5, 0, 0);
+        jPanel3.add(jLabel5, gridBagConstraints);
+
+        jPanel4.setLayout(new java.awt.BorderLayout());
+
+        jButton5.setText("Segment Nuclei");
+        jButton5.setToolTipText("Segment Nuclei");
+        jButton5.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton5ActionPerformed(evt);
+            }
+        });
+        jPanel4.add(jButton5, java.awt.BorderLayout.LINE_START);
+
+        jButton6.setText("Clear Segmentation");
+        jButton6.setToolTipText("Delete nuclei segmentations.");
+        jButton6.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton6ActionPerformed(evt);
+            }
+        });
+        jPanel4.add(jButton6, java.awt.BorderLayout.LINE_END);
+
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 3;
+        gridBagConstraints.gridwidth = 5;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        gridBagConstraints.insets = new java.awt.Insets(10, 5, 0, 5);
+        jPanel3.add(jPanel4, gridBagConstraints);
+
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 7;
+        gridBagConstraints.gridwidth = 21;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_START;
+        jPanel2.add(jPanel3, gridBagConstraints);
+
+        jCheckBox8.setText("Consider single ROIs instead of whole images");
+        jCheckBox8.setToolTipText("If selected, individual ROIs will be listed below. Otherwise, whole images will be listed.");
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 9;
+        gridBagConstraints.gridwidth = java.awt.GridBagConstraints.REMAINDER;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_START;
+        gridBagConstraints.insets = new java.awt.Insets(20, 5, 5, 5);
+        jPanel2.add(jCheckBox8, gridBagConstraints);
 
         jPanel1.add(jPanel2);
 
@@ -445,6 +672,55 @@ public class CytoplasmStaining extends javax.swing.JFrame implements TMARKERPlug
         }
     }//GEN-LAST:event_jXTable1MouseClicked
 
+    private void jButton5ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton5ActionPerformed
+        performSegmentation();
+        setParam_ShowSegmentations(true);
+        if (manager!=null && manager.getVisibleTMAspot()!=null) {
+            manager.repaintVisibleTMAspot();
+        }
+    }//GEN-LAST:event_jButton5ActionPerformed
+
+    private void jCheckBox5ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jCheckBox5ActionPerformed
+        if (manager!=null && manager.getVisibleTMAspot()!=null) {
+            manager.repaintVisibleTMAspot();
+        }
+    }//GEN-LAST:event_jCheckBox5ActionPerformed
+
+    private void jCheckBox7ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jCheckBox7ActionPerformed
+        if (manager!=null && manager.getVisibleTMAspot()!=null) {
+            manager.repaintVisibleTMAspot();
+        }
+    }//GEN-LAST:event_jCheckBox7ActionPerformed
+
+    private void jSlider3StateChanged(javax.swing.event.ChangeEvent evt) {//GEN-FIRST:event_jSlider3StateChanged
+        if (manager!=null && manager.getVisibleTMAspot()!=null) {
+            manager.repaintVisibleTMAspot();
+        }
+    }//GEN-LAST:event_jSlider3StateChanged
+
+    private void jXColorSelectionButton3StateChanged(javax.swing.event.ChangeEvent evt) {//GEN-FIRST:event_jXColorSelectionButton3StateChanged
+        if (manager!=null && manager.getVisibleTMAspot()!=null) {
+            manager.repaintVisibleTMAspot();
+        }
+    }//GEN-LAST:event_jXColorSelectionButton3StateChanged
+
+    private void jCheckBox6ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jCheckBox6ActionPerformed
+        if (manager!=null && manager.getVisibleTMAspot()!=null) {
+            manager.repaintVisibleTMAspot();
+        }
+    }//GEN-LAST:event_jCheckBox6ActionPerformed
+
+    private void jButton6ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton6ActionPerformed
+        TMAspotsegmentations.clear();
+        if (manager!=null && manager.getVisibleTMAspot()!=null) {
+            manager.repaintVisibleTMAspot();
+        }
+    }//GEN-LAST:event_jButton6ActionPerformed
+
+    private void jSlider4StateChanged(javax.swing.event.ChangeEvent evt) {//GEN-FIRST:event_jSlider4StateChanged
+        jSlider4.setToolTipText(Integer.toString(jSlider4.getValue()));
+    }//GEN-LAST:event_jSlider4StateChanged
+
     /**
      * @param args the command line arguments
      */
@@ -485,22 +761,40 @@ public class CytoplasmStaining extends javax.swing.JFrame implements TMARKERPlug
     private javax.swing.JButton jButton2;
     private javax.swing.JButton jButton3;
     private javax.swing.JButton jButton4;
+    private javax.swing.JButton jButton5;
+    private javax.swing.JButton jButton6;
     private javax.swing.JCheckBox jCheckBox1;
     private javax.swing.JCheckBox jCheckBox2;
     private javax.swing.JCheckBox jCheckBox3;
     private javax.swing.JCheckBox jCheckBox4;
+    private javax.swing.JCheckBox jCheckBox5;
+    private javax.swing.JCheckBox jCheckBox6;
+    private javax.swing.JCheckBox jCheckBox7;
+    private javax.swing.JCheckBox jCheckBox8;
+    private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel16;
     private javax.swing.JLabel jLabel17;
     private javax.swing.JLabel jLabel19;
+    private javax.swing.JLabel jLabel2;
+    private javax.swing.JLabel jLabel3;
+    private javax.swing.JLabel jLabel4;
+    private javax.swing.JLabel jLabel5;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel2;
+    private javax.swing.JPanel jPanel3;
+    private javax.swing.JPanel jPanel4;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane3;
     private javax.swing.JSeparator jSeparator5;
     private javax.swing.JSlider jSlider1;
     private javax.swing.JSlider jSlider2;
+    private javax.swing.JSlider jSlider3;
+    private javax.swing.JSlider jSlider4;
     private javax.swing.JTextField jTextField1;
     private javax.swing.JTextField jTextField2;
+    private javax.swing.JTextField jTextField3;
+    private org.jdesktop.swingx.JXCollapsiblePane jXCollapsiblePane1;
+    private org.jdesktop.swingx.JXColorSelectionButton jXColorSelectionButton3;
     private org.jdesktop.swingx.JXTable jXTable1;
     private org.jdesktop.beansbinding.BindingGroup bindingGroup;
     // End of variables declaration//GEN-END:variables
@@ -553,6 +847,12 @@ public class CytoplasmStaining extends javax.swing.JFrame implements TMARKERPlug
         setParam_blur(0);
         setParam_ShowPatches(true);
         setParam_ShowBlur(false);
+        setParam_BackgroundThreshold(250);
+        setParam_ShowBackgroundThreshold(true);
+        setParam_ShowBackgroundThresholdColor(0);
+        setParam_ShowSegmentations(false);
+        setParam_excludeNuclei(false);
+        setParam_SegmentationCircularWeight(50);
     }
 
     @Override
@@ -562,6 +862,13 @@ public class CytoplasmStaining extends javax.swing.JFrame implements TMARKERPlug
         value = parameters.getProperty("blur"); if (value!=null) { setParam_blur(Integer.parseInt(value)); }
         value = parameters.getProperty("ShowPatches"); if (value!=null) { setParam_ShowPatches(Boolean.parseBoolean(value)); }
         value = parameters.getProperty("ShowBlur"); if (value!=null) { setParam_ShowBlur(Boolean.parseBoolean(value)); }
+        value = parameters.getProperty("BackgroundThreshold"); if (value!=null) { setParam_BackgroundThreshold(Integer.parseInt(value)); }
+        value = parameters.getProperty("ShowBackgroundThreshold"); if (value!=null) { setParam_ShowBackgroundThreshold(Boolean.parseBoolean(value)); }
+        value = parameters.getProperty("ShowBackgroundThresholdColor"); if (value!=null) { setParam_ShowBackgroundThresholdColor(Integer.parseInt(value)); }
+        value = parameters.getProperty("ShowSegmentations"); if (value!=null) { setParam_ShowSegmentations(Boolean.parseBoolean(value)); }
+        value = parameters.getProperty("useSegmentation"); if (value!=null) { setParam_excludeNuclei(Boolean.parseBoolean(value)); }
+        value = parameters.getProperty("segmentationCircularWeight"); if (value!=null) { setParam_SegmentationCircularWeight(Integer.parseInt(value)); }
+        
     }
 
     @Override
@@ -569,7 +876,14 @@ public class CytoplasmStaining extends javax.swing.JFrame implements TMARKERPlug
         Properties parameters = new Properties();
         parameters.setProperty("patchsize", Integer.toString(getParam_patchsize()));
         parameters.setProperty("blur", Integer.toString(getParam_blur()));
+        parameters.setProperty("ShowPatches", Boolean.toString(getParam_ShowPatches()));
         parameters.setProperty("ShowBlur", Boolean.toString(getParam_ShowBlur()));
+        parameters.setProperty("BackgroundThreshold", Integer.toString(getParam_BackgroundThreshold()));
+        parameters.setProperty("ShowBackgroundThreshold", Boolean.toString(getParam_ShowBackgroundThreshold()));
+        parameters.setProperty("ShowBackgroundThresholdColor", Integer.toString(getParam_ShowBackgroundThresholdColor()));
+        parameters.setProperty("ShowSegmentations", Boolean.toString(getParam_ShowSegmentations()));
+        parameters.setProperty("useSegmentation", Boolean.toString(getParam_excludeNuclei()));
+        parameters.setProperty("segmentationCircularWeight", Integer.toString(getParam_SegmentationCircularWeight()));
         
         return parameters;
     }
@@ -674,6 +988,62 @@ public class CytoplasmStaining extends javax.swing.JFrame implements TMARKERPlug
                 }
             }
             
+            
+            
+            // draw the background threshold
+            if (getParam_ShowBackgroundThreshold()) {
+                g.setColor(new Color(getParam_ShowBackgroundThresholdColor()));
+                List<Object> points = new ArrayList<>();
+                TMAspotSegmentations tsseg = getTMAspotSegmentations(ts);
+                if (tsseg != null && !tsseg.segmentations.isEmpty()) {
+                    for (LocalizedROI loci : tsseg.segmentations) {
+                        if (loci.ts == ts) {
+                            points.add(loci);
+                        }
+                    }
+                } else {
+                    if (getParam_useGSTPoints()) {
+                        points.addAll(ts.getPoints_GoldStandard());
+                    }
+                    if (getParam_useESTPoints()) {
+                        points.addAll(ts.getPoints_Estimated());
+                    }
+                }
+                int t = getParam_BackgroundThreshold();
+                BufferedImage bi = ts.getBufferedImage();
+                
+                for (int k = 0; k<points.size(); k++) {
+                    TMALabel tp = tsseg != null && !tsseg.segmentations.isEmpty() ? ((LocalizedROI) points.get(k)).tp : (TMALabel) points.get(k);
+                    if (tp.x >= x_min && tp.y >= y_min && tp.x < x_max && tp.y < y_max) {
+                        try {
+                            BufferedImage patch = new BufferedImage(getParam_patchsize(), getParam_patchsize(), BufferedImage.TYPE_BYTE_GRAY);
+                            patch.getGraphics().drawImage(bi.getSubimage((int)(tp.getX()-r), (int)(tp.getY()-r), getParam_patchsize(), getParam_patchsize()), 0, 0, null);
+                            ImagePlus ip = new ImagePlus("Patch", patch);
+                            for (int i = 0; i < patch.getWidth(); i++) {
+                                for (int j = 0; j < patch.getHeight(); j++) {
+                                    double r_ = Math.sqrt(Math.pow(getParam_patchsize()/2-i, 2) + Math.pow(getParam_patchsize()/2-j, 2));
+                                    if (r_ < getParam_patchsize()/2) {
+                                        if (!getParam_excludeNuclei() || tsseg != null && tsseg.segmentations.isEmpty() && r_ >= ts.getCenter().getLabelRadius() ||
+                                           tsseg != null && !tsseg.segmentations.isEmpty() && !((LocalizedROI) points.get(k)).p.contains(i+tp.x-r, j+tp.y-r)) {
+                                            int[] p = ip.getPixel(i, j);
+                                            if (p[0]>t) {
+                                                g.fillRect((int)((i+tp.x-r)*z), (int)((j+tp.y-r)*z), Math.max(1, (int)Math.round(z)), Math.max(1, (int)Math.round(z)));
+                                            }
+                                        }else {
+                                            g.fillRect((int)((i+tp.x-r)*z), (int)((j+tp.y-r)*z), Math.max(1, (int)Math.round(z)), Math.max(1, (int)Math.round(z)));
+                                        }
+                                    } 
+                                }
+                            } 
+                        } catch (Exception e) {
+                            // happens e.g. if the patch is too close at the image border.
+                        }
+                    }
+                }
+            }
+            
+            
+            
             // Draw the patches around the gold standard nuclei
             if (getParam_ShowPatches()) {
                 g.setColor(Color.BLUE);
@@ -695,6 +1065,40 @@ public class CytoplasmStaining extends javax.swing.JFrame implements TMARKERPlug
                 ((Graphics2D)g).setStroke(old_stroke);
             }
             
+            
+            // draw the segmentations
+            if (getParam_ShowSegmentations()) {
+                Stroke old_stroke = ((Graphics2D)g).getStroke();
+                BasicStroke bs = new BasicStroke(2);
+                ((Graphics2D)g).setStroke(bs);
+                AffineTransform scaling = AffineTransform.getScaleInstance(z, z);
+                TMAspotSegmentations tsseg = getTMAspotSegmentations(ts);
+                if (tsseg != null && !tsseg.segmentations.isEmpty()) {
+                    for (LocalizedROI lroi: tsseg.segmentations) {
+                        if (lroi.tp.x >= x_min && lroi.tp.y >= y_min && lroi.tp.x < x_max && lroi.tp.y < y_max) {
+                            if (lroi.ts==ts) {
+                                // draw the actual segmentation
+                                /*g.setColor(Color.YELLOW);
+                                for (int i=lroi.tp.x-r; i<lroi.tp.x+r; i++) {
+                                    for (int j=lroi.tp.y-r; j<lroi.tp.y+r; j++) {
+                                        if (lroi.roi.contains(i-lroi.tp.x+r, j-lroi.tp.y+r)) {
+                                            ((Graphics2D)g).fillRect((int)(z*i), (int)(z*j), (int)Math.max(1,z), (int)Math.max(1, z));
+                                        }
+                                    }
+                                }*/
+                                // Draw the boundary
+                                g.setColor(Color.RED);
+                                Shape s = (Shape) scaling.createTransformedShape(lroi.p);
+                                ((Graphics2D)g).draw(s);
+                            }
+                        }
+                    }
+                }
+                ((Graphics2D)g).setStroke(old_stroke);
+            }
+            
+            
+            
         }
     }
     
@@ -709,7 +1113,18 @@ public class CytoplasmStaining extends javax.swing.JFrame implements TMARKERPlug
     
     @Override
     public void TMAspotMouseClicked(TMAspot ts, TMApoint tp, MouseEvent evt) {
-        
+        if (ts!=null && tp!=null) {
+            // add the segmentation if the point is not yet segmented
+            TMAspotSegmentations tsseg = getTMAspotSegmentations(ts);
+            if (tsseg != null) {
+                LocalizedROI lroi = tsseg.getLocalizedROI(tp);
+                if (lroi==null) {
+                    List<TMApoint> newPoints = new ArrayList();
+                    newPoints.add(tp);
+                    segmentMultipleNuclei(ts, newPoints, tsseg);
+                }
+            }
+        }
     }
     
     /**
@@ -824,12 +1239,111 @@ public class CytoplasmStaining extends javax.swing.JFrame implements TMARKERPlug
         jCheckBox4.setSelected(b);
     }
     
+    /**
+     * Whether or not nuclei should be excluded for cytoplasm staining calculation.
+     * @return True, if nuclei should be excluded for cytoplasm staining calculation.
+     */
+    public boolean getParam_excludeNuclei() {
+        return jCheckBox6.isSelected();
+    }
+    
+    /**
+     * Sets whether or not nuclei should be excluded for cytoplasm staining calculation.
+     * @param b True, if nuclei should be excluded for cytoplasm staining calculation.
+     */
+    public void setParam_excludeNuclei(boolean b) {
+        jCheckBox6.setSelected(b);
+    }
+    
+    /**
+     * Returns whether or not the segmentations should be drawn in TMARKER main window.
+     * @return True, if the segmentations should be drawn in TMARKER main window.
+     */
+    boolean getParam_ShowSegmentations() {
+        return jCheckBox7.isSelected();
+    }
+    
+    /**
+     * Sets the parameter whether or not the segmentations should be drawn in TMARKER main window.
+     * @param b True, if the segmentations should be drawn in TMARKER main window.
+     */
+    void setParam_ShowSegmentations(boolean b) {
+        jCheckBox7.setSelected(b);
+    }
+    
+    /**
+     * Returns whether or not the background threshold should be painted in the image.
+     * @return True, if the the background threshold should be painted in the image.
+     */
+    boolean getParam_ShowBackgroundThreshold() {
+        return jCheckBox5.isSelected();
+    }
+    
+    /**
+     * Sets the parameter whether or not the background threshold should be painted in the image.
+     * @param b True, if the background threshold should be painted in the image.
+     */
+    void setParam_ShowBackgroundThreshold(boolean b) {
+        jCheckBox5.setSelected(b);
+    }
+    
+    /**
+     * Returns the color of the background (as int).
+     * @return The color of the painted background.
+     */
+    int getParam_ShowBackgroundThresholdColor() {
+        return jXColorSelectionButton3.getBackground().getRGB();
+    }
+    
+    /**
+     * Sets the color of the background (as int).
+     * @param c The color of the painted background.
+     */
+    void setParam_ShowBackgroundThresholdColor(int c) {
+        jXColorSelectionButton3.setBackground(new Color(c));
+    }
+    
+    /**
+     * Returns the threshold above which the image information is considered as background.
+     * @return The background threshold (0-255, exclusive).
+     */
+    int getParam_BackgroundThreshold() {
+        return jSlider3.getValue();
+    }
+    
+    /**
+     * Sets the threshold above which the image information is considered as background.
+     * @param t The background threshold (0-255, exclusive).
+     */
+    void setParam_BackgroundThreshold(int t) {
+        jSlider3.setValue(t);
+    }
+    
+    /**
+     * Returns the weight for circular or arbitrary objects for nucleus segmentation.
+     * @return The weight for circular or arbitrary objects for nucleus segmentation (from 0-100).
+     */
+    int getParam_SegmentationCircularWeight() {
+        return jSlider4.getValue();
+    }
+    
+    /**
+     * Sets the weight for circular or arbitrary objects for nucleus segmentation.
+     * @param w The weight for circular or arbitrary objects for nucleus segmentation (from 0-100).
+     */
+    void setParam_SegmentationCircularWeight(int w) {
+        jSlider4.setValue(w);
+    }
+    
+    
+    
     void ComputeCytoplasmStaining() {
         setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
         
         int w = getParam_patchsize();
         int h = getParam_patchsize();
-        int[] col = new int[4];
+        int t = getParam_BackgroundThreshold();
+        boolean splitROIs = jCheckBox8.isSelected();
         int c, r, g, b;
         
         ((DefaultTableModel) jXTable1.getModel()).setRowCount(0);
@@ -842,93 +1356,173 @@ public class CytoplasmStaining extends javax.swing.JFrame implements TMARKERPlug
             double average_ch2 = 0;
             BufferedImage img = ts.getBufferedImage();
             BufferedImage ch2 = getChannel2Image(ts);
-            List<TMApoint> points = new ArrayList<>();
-            if (getParam_useGSTPoints()) {
-                points.addAll(ts.getPoints_GoldStandard());
+            
+            
+            List<List<Object>> pointsets = new ArrayList();
+            List<Polygon> rois = new ArrayList();
+            TMAspotSegmentations tsseg = getTMAspotSegmentations(ts);
+            
+            if (!splitROIs || ts.getIncludingAreas().isEmpty()) {
+                // One image is one point set, where all points are added.
+                List<Object> points = new ArrayList<>();
+                if (tsseg != null && !tsseg.segmentations.isEmpty()) {
+                    for (LocalizedROI loci : tsseg.segmentations) {
+                        if (loci.ts == ts) {
+                            points.add(loci);
+                        }
+                    }
+                } else {
+                    if (getParam_useGSTPoints()) {
+                        points.addAll(ts.getPoints_GoldStandard());
+                    }
+                    if (getParam_useESTPoints()) {
+                        points.addAll(ts.getPoints_Estimated());
+                    }
+                }
+                // Exclude points with excluding areas
+                if (!points.isEmpty()) {
+                    for (int k=points.size()-1; k>=0; k--) {
+                        TMALabel tp = tsseg != null && !tsseg.segmentations.isEmpty() ? ((LocalizedROI) points.get(k)).tp : (TMALabel) points.get(k);
+                        if (ts.getExcludingAreaOnPoint(tp.x, tp.y)!=null) {
+                            points.remove(k);
+                        }
+                    }
+                }
+                pointsets.add(points);
+            } else {
+                // every including ROI is a pointset where only the corresponding points are added.
+                // find the including ROIs
+                rois = ts.getIncludingAreas();
+                // for every ROI add a new pointset
+                for (Polygon roi: rois) {
+                    pointsets.add(new ArrayList<>());
+                }
+                // Consider all points in the image
+                List<Object> allpoints = new ArrayList<>();
+                if (tsseg != null && !tsseg.segmentations.isEmpty()) {
+                    allpoints.addAll(tsseg.segmentations);
+                } else {
+                    if (getParam_useGSTPoints()) {
+                        allpoints.addAll(ts.getPoints_GoldStandard());
+                    }
+                    if (getParam_useESTPoints()) {
+                        allpoints.addAll(ts.getPoints_Estimated());
+                    }
+                }
+                int ind;
+                // for every point, find the ROIs it belongs to (or null). 
+                // if there is one, add the point to the corresponding pointset.
+                for (Object point: allpoints) {
+                    TMALabel tp = tsseg != null && !tsseg.segmentations.isEmpty() ? ((LocalizedROI) point).tp : (TMALabel) point;
+                    Polygon roi = ts.getIncludingAreaOnPoint(tp.x, tp.y);
+                    if (roi!=null) {
+                        ind = rois.indexOf(roi);
+                        pointsets.get(ind).add(point);
+                    }
+                }
             }
-            if (getParam_useESTPoints()) {
-                points.addAll(ts.getPoints_Estimated());
-            }
-            int n = points.size();
-            for (TMApoint tp: points) {
-                double local_avg_r = 0;
-                double local_avg_g = 0;
-                double local_avg_b = 0;
-                double local_avg_gray = 0;
-                double local_avg_ch2 = 0;
-                int j = 0;
-                // go through the point environment
-                for (int x=tp.x-w/2; x<tp.x+w/2; x++) {
-                    for (int y=tp.y-h/2; y<tp.y+h/2; y++) {
-                        // if the coordinates are within the image...
-                        if (x>=0 && y>=0 && x<img.getWidth() && y<img.getHeight()) {
-                            //... and the coordinates are within a circle...
-                            double r_ = Math.sqrt(Math.pow(tp.x-x, 2) + Math.pow(tp.y-y, 2));
-                            if (r_ < w/2) { 
-                                // ... and the coordinates are outside the nucleus radius
-                                if (r_ >= ts.getCenter().getLabelRadius()) { 
-                                    c = img.getRGB(x, y);
-                                    r = (c & 0x00FF0000) >> 16;
-                                    g = (c & 0x0000FF00) >>  8;
-                                    b = (c & 0x000000FF);
-                                    local_avg_r += r;
-                                    local_avg_g += g;
-                                    local_avg_b += b;
-                                    local_avg_gray += 0.2989 * r + 0.5870 * g + 0.1140 * b; ;
-                                    local_avg_ch2 += (ch2 == null)? 0 : (ch2.getRGB(x, y) & 0x000000FF);
-                                    j++;
+            
+            for (int i=0; i<pointsets.size(); i++) {
+                List<Object> points = pointsets.get(i);
+                int n = points.size();
+                
+               String roiDescription = "-";
+                if (!rois.isEmpty()) {
+                    Rectangle rect = rois.get(i).getBounds();
+                    roiDescription = "ROI (x=" + (rect.x + rect.width/2) + ", y=" + (rect.y + rect.height/2) + ")";
+                }
+
+                for (int k = 0; k<points.size(); k++) {
+                    TMALabel tp = tsseg != null && !tsseg.segmentations.isEmpty() ? ((LocalizedROI) points.get(k)).tp : (TMALabel) points.get(k);
+
+                    double local_avg_r = 0;
+                    double local_avg_g = 0;
+                    double local_avg_b = 0;
+                    double local_avg_gray = 0;
+                    double local_avg_ch2 = 0;
+                    double local_gray;
+                    int j = 0;
+                    // go through the point environment
+                    for (int x=tp.x-w/2; x<tp.x+w/2; x++) {
+                        for (int y=tp.y-h/2; y<tp.y+h/2; y++) {
+                            // if the coordinates are within the image...
+                            if (x>=0 && y>=0 && x<img.getWidth() && y<img.getHeight()) {
+                                //... and the coordinates are within a circle...
+                                double r_ = Math.sqrt(Math.pow(tp.x-x, 2) + Math.pow(tp.y-y, 2));
+                                if (r_ < w/2) { 
+                                    // ... and either nuclei are not excluded OR the coordinates are outside the nucleus radius OR if there is segmentation used, then outside segmentation
+                                    if (!getParam_excludeNuclei() || tsseg != null && tsseg.segmentations.isEmpty() && r_ >= ts.getCenter().getLabelRadius() ||
+                                            tsseg != null && !tsseg.segmentations.isEmpty() && !((LocalizedROI) points.get(k)).p.contains(x,y)){ 
+                                        c = img.getRGB(x, y);
+                                        r = (c & 0x00FF0000) >> 16;
+                                        g = (c & 0x0000FF00) >>  8;
+                                        b = (c & 0x000000FF);
+
+                                        local_gray = 0.2989 * r + 0.5870 * g + 0.1140 * b;
+
+                                        // ... and if the gray value is below background threshold
+                                        if (local_gray <= t) {
+                                            local_avg_r += r;
+                                            local_avg_g += g;
+                                            local_avg_b += b;
+                                            local_avg_gray += local_gray;
+                                            local_avg_ch2 += (ch2 == null)? 0 : (ch2.getRGB(x, y) & 0x000000FF);
+                                            j++;
+                                        }
+                                    }
                                 }
                             }
                         }
                     }
+                    local_avg_r /= j;
+                    local_avg_g /= j;
+                    local_avg_b /= j;
+                    local_avg_gray /= j;
+                    local_avg_ch2 /= j;
+                    average_r += local_avg_r;
+                    average_g += local_avg_g;
+                    average_b += local_avg_b;
+                    average_gray += local_avg_gray;
+                    average_ch2 += local_avg_ch2;
                 }
-                local_avg_r /= j;
-                local_avg_g /= j;
-                local_avg_b /= j;
-                local_avg_gray /= j;
-                local_avg_ch2 /= j;
-                average_r += local_avg_r;
-                average_g += local_avg_g;
-                average_b += local_avg_b;
-                average_gray += local_avg_gray;
-                average_ch2 += local_avg_ch2;
-            }
-            if (n!=0) {
-                average_r /= 255*n;
-                average_g /= 255*n;
-                average_b /= 255*n;
-                average_gray /= 255*n;
-                average_ch2 /= 255*n;
-            } else {
-                average_r = Double.NaN;
-                average_g = Double.NaN;
-                average_b = Double.NaN;
-                average_gray = Double.NaN;
-                average_ch2 = Double.NaN;
-            }
-            
-            double perc_0cells = 0;
-            double perc_1cells = 0;
-            double perc_2cells = 0;
-            double perc_3cells = 0;
-            
-            if (n>0) {
-                for (TMApoint tp: points) {
-                    switch (tp.getStaining()) {
-                        case TMALabel.STAINING_0: perc_0cells++; break;
-                        case TMALabel.STAINING_1: perc_1cells++; break;
-                        case TMALabel.STAINING_2: perc_2cells++; break;
-                        default: perc_3cells++; break;
+                if (n!=0) {
+                    average_r /= 255*n;
+                    average_g /= 255*n;
+                    average_b /= 255*n;
+                    average_gray /= 255*n;
+                    average_ch2 /= 255*n;
+                } else {
+                    average_r = Double.NaN;
+                    average_g = Double.NaN;
+                    average_b = Double.NaN;
+                    average_gray = Double.NaN;
+                    average_ch2 = Double.NaN;
+                }
+
+                double perc_0cells = 0;
+                double perc_1cells = 0;
+                double perc_2cells = 0;
+                double perc_3cells = 0;
+
+                if (n>0) {
+                    for (int k = 0; k<points.size(); k++) {
+                        TMALabel tp = tsseg != null && !tsseg.segmentations.isEmpty() ? ((LocalizedROI) points.get(k)).tp : (TMALabel) points.get(k);
+                        switch (((TMApoint) tp).getStaining()) {
+                            case TMALabel.STAINING_0: perc_0cells++; break;
+                            case TMALabel.STAINING_1: perc_1cells++; break;
+                            case TMALabel.STAINING_2: perc_2cells++; break;
+                            default: perc_3cells++; break;
+                        }
                     }
+                    perc_0cells /= n;
+                    perc_1cells /= n;
+                    perc_2cells /= n;
+                    perc_3cells /= n;
                 }
-                perc_0cells /= n;
-                perc_1cells /= n;
-                perc_2cells /= n;
-                perc_3cells /= n;
+
+                // add the average of this TMAspot to the table
+                ((DefaultTableModel) jXTable1.getModel()).addRow(new Object[]{ts.getName(), roiDescription, Double.toString(average_r), Double.toString(average_g), Double.toString(average_b), perc_0cells, perc_1cells, perc_2cells, perc_3cells, Double.toString(average_gray), Double.toString(average_ch2), Double.toString(ts.getHScore(rois.isEmpty() ? null : rois.get(i)))});
             }
-            
-            // add the average of this TMAspot to the table
-            ((DefaultTableModel) jXTable1.getModel()).addRow(new Object[]{ts.getName(), average_r, average_g, average_b, perc_0cells, perc_1cells, perc_2cells, perc_3cells, average_gray, average_ch2, ts.getHScore()});
         }
         setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
     }
@@ -993,7 +1587,7 @@ public class CytoplasmStaining extends javax.swing.JFrame implements TMARKERPlug
             try {
                 // First, let the user select which features to use...
                 List<String> avail_features = new ArrayList<>();
-                for (int i=1; i<jXTable1.getColumnCount(); i++) {
+                for (int i=2; i<jXTable1.getColumnCount(); i++) {
                     avail_features.add(jXTable1.getModel().getColumnName(i));
                 }
                 List<String> selected_features = FeatureSelectionDialog.showDialog(this, true, avail_features);
@@ -1006,13 +1600,32 @@ public class CytoplasmStaining extends javax.swing.JFrame implements TMARKERPlug
                     for (int i=0; i<jXTable1.getRowCount(); i++) {
                         double[] features = new double[selected_features.size()];
                         int k=0;
-                        for (int j=1; j<jXTable1.getColumnCount(); j++) {
+                        for (int j=2; j<jXTable1.getColumnCount(); j++) {
                             if (selected_features.contains(jXTable1.getModel().getColumnName(j))) {
-                                features[k++] = (Double) (jXTable1.getValueAt(i, j));
+                                if (Double.class.isInstance(jXTable1.getValueAt(i, j))) {
+                                    features[k++] = (Double) (jXTable1.getValueAt(i, j));
+                                } else {
+                                    features[k++] = Double.parseDouble((String) jXTable1.getValueAt(i, j));
+                                }
                             }
                         }
+                        
+                        // get the TMAspot
+                        TMAspot tp = manager.getTMAspot(jXTable1.getStringAt(i, 0));
+                        
+                        // get the ROI
+                        String roistring = jXTable1.getStringAt(i, 1);
+                        Polygon roi = null;
+                        if (!roistring.equals("-")) {
+                            String[] split = roistring.split(", y=");
+                            int x = Integer.parseInt(split[0].replace("ROI (x=", ""));
+                            int y = Integer.parseInt(split[1].replace(")", ""));
+                            roi = tp.getIncludingAreaOnPoint(x, y);
+                        }
+                        
+                        
                         // add the instance
-                        samples.add(new Sample(manager.getTMAspot(jXTable1.getStringAt(i, 0)), features));
+                        samples.add(new Sample(tp, roi, features));
                     }
 
                     HierarchicalClassifier hc = new HierarchicalClassifier(samples);
@@ -1050,6 +1663,251 @@ public class CytoplasmStaining extends javax.swing.JFrame implements TMARKERPlug
                 return null;
             }
         }
+    }
+
+    private void performSegmentation() {
+        setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+        List<TMAspot> tss = manager.getSelectedTMAspots();
+        for (TMAspot ts: tss) {
+            TMAspotSegmentations tsseg = getTMAspotSegmentations(ts);
+            if (tsseg!=null) {
+                tsseg.segmentations.clear();
+            } else {
+                tsseg = new TMAspotSegmentations(ts);
+                TMAspotsegmentations.add(tsseg);
+            }
+            
+            //segmentMultipleNuclei(ts, ts.getPoints(), tsseg);
+            SegmentNucleiThread snt = new SegmentNucleiThread((TMARKERPluginManager) manager, this, ts, ts.getPoints(), tsseg, null, null);
+            snt.start();
+            try {
+                snt.join();
+            } catch (InterruptedException ex) {
+                manager.repaintVisibleTMAspot();
+            }
+            manager.repaintVisibleTMAspot();
+            
+        }
+        manager.setStatusMessageLabel("");
+        manager.setProgressbar(0);
+        setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+    }
+    
+    TMAspotSegmentations segmentMultipleNuclei(TMAspot ts, List<TMApoint> tps, TMAspotSegmentations tsseg) {
+        if (tsseg == null) {
+            tsseg = new TMAspotSegmentations(ts);
+        }
+        
+        // I_col
+        BufferedImage I = ts.getBufferedImage();
+        BufferedImage I_col = new BufferedImage(I.getWidth(), I.getHeight(), BufferedImage.TYPE_INT_ARGB);  
+        Graphics g = I_col.getGraphics();  
+        g.drawImage(I, 0, 0, null);  
+        g.dispose();
+
+        //Blur the image for smoother features
+        ImagePlus ip = new ImagePlus(" ", I_col);
+        GaussianBlur blur = new GaussianBlur();
+        blur.blurGaussian(ip.getProcessor(), getParam_blur(), getParam_blur(), 0.02);
+        I_col = ip.getBufferedImage();
+
+        // I_gray
+        BufferedImage I_gray = new BufferedImage(I_col.getWidth(), I_col.getHeight(), BufferedImage.TYPE_BYTE_GRAY);  
+        g = I_gray.getGraphics();  
+        g.drawImage(I_col, 0, 0, null);  
+        g.dispose();
+
+        for (int i = 0; i < tps.size(); i++) {
+            if (i%10==0) {
+                manager.setStatusMessageLabel(getPluginName() + ": Transform Labels (" + Integer.toString(i) + "/" + Integer.toString(tps.size()) + ") ...");
+                manager.setProgressbar(10 + (int)((1.0*i/tps.size())*70));
+            }
+            LocalizedROI lroi = segmentOneNucleus(ts, tps.get(i), I_col, I_gray);
+            if (lroi != null) {
+                tsseg.segmentations.add(lroi);
+            }
+        }
+        return tsseg;
+    }
+    
+    
+    private LocalizedROI segmentOneNucleus(TMAspot ts, TMApoint tp, BufferedImage I_col, BufferedImage I_gray) {
+        Rectangle rect = PatchRectangle(tp, getParam_patchsize());
+        if (rect.x>=0 && rect.y>=0 && rect.x + rect.width<I_col.getWidth() && rect.y + rect.height<I_col.getHeight()) {
+            BufferedImage bi_gray = I_gray.getSubimage(rect.x, rect.y, rect.width, rect.height);
+            ROI roi; 
+            roi = PatchToShape(bi_gray, ts, true, 0, ts.getParam_r(), (float) (getParam_SegmentationCircularWeight()/100.0));
+            return new LocalizedROI(ts, tp, roi, getParam_patchsize()/2);
+        }
+        return null;
+    }
+    
+    
+    
+    
+    /**
+     * Segments the object in the middle of the patch and returns its shape.
+     * @param bi The image patch. The object (i.e. nucleus) is expected to be in the middle.
+     * @param ts The TMAspot to which the patch belongs (only used for superpixel based segmentation and for accessing the temp directory if DEBUG>5).
+     * @param graphcut If true, a graphcut based segmentation is used, otherwise a superpixel based.
+     * @param blurring Blurring radius before processing for smoothing.
+     * @return A ROI with same shape as the segmented shape. The ROI has the same bounding box size as bi.
+     */
+    private static ROI PatchToShape(BufferedImage bi, TMAspot ts, boolean graphcut, int blurring, int nucleus_r, float circleweight) {
+        try {
+            //// CREATE BLACK WHITE IMAGE
+            BufferedImage BW = new BufferedImage(bi.getWidth(), bi.getHeight(), BufferedImage.TYPE_BYTE_GRAY);
+            
+            // SEGMENTATION WITH GRAPHCUT
+            if (true || graphcut) {
+                /*
+                Maxflow mf = new Maxflow();
+                mf.inputImageCapacity(bi, blurring);
+                int[] foreground = mf.runMF();
+                if (foreground!=null) {
+                    int[] sub = new int[2];
+                    for (int i=1; i<foreground.length-1; i++) {
+                        Misc.Ind2sub(sub, foreground[i]-1, bi.getWidth());
+                        if (tmarker.DEBUG > 5) { System.out.println(sub[0] + " " + Integer.toString(sub[1])); }
+                        BW.setRGB(sub[0], sub[1], 0xFFFFFFFF);
+                    }
+                /*/
+                // Grayscale the image
+                BufferedImage bi_bw = Misc.convertToGrayscale(bi);
+                ImagePlus ip = new ImagePlus(" ", bi_bw);
+                // blur the image
+                if (blurring>0) {
+                    GaussianBlur gb = new GaussianBlur();
+                    gb.blurGaussian(ip.getProcessor(), blurring, blurring, 0.02);
+                }
+                // normalize
+                ip.getProcessor().setMinAndMax(ip.getStatistics().min, ip.getStatistics().max);
+                int w = bi_bw.getWidth();
+                int h = bi_bw.getHeight();
+
+                GraphCut gc = new GraphCut(w*h, (w-1)*(h-1)*2+w+h-2);
+                // set the terminal weights
+                int i=0;
+                float factor; // The factor for roundish shape: the more in the middle of the patch, the higher the factor
+                for (int x=0; x<w; x++) {
+                    for (int y=0; y<h; y++) {
+                        
+                        //E = (w)*P + (1-w)*r*P = P(w+(1-f)*(1-w))
+                        
+                        factor = Math.min(1,(float) Math.pow(Math.sqrt(Math.pow(w / 2 - x, 2) + Math.pow(h / 2 - y, 2)) / nucleus_r, 2));
+                        //gc.setTerminalWeights(i++, (1-factor)*(255-ip.getPixel(x, y)[0]), factor*ip.getPixel(x, y)[0]);
+                        gc.setTerminalWeights(i++, (circleweight+(1-factor)*(1-circleweight))*(255-ip.getPixel(x, y)[0]), (circleweight+(factor)*(1-circleweight))*ip.getPixel(x, y)[0]);
+                        
+                        //int rgb = 0x000000FF & (int) (255*(1-factor));
+                        //rgb = rgb << 8;
+                        //rgb += (int) (255*(1-factor));
+                        //rgb = rgb << 8;
+                        //rgb += (int) (255*(1-factor));
+                        //rgb = rgb << 8;
+                        //rgb += (int) (255*(1-factor));
+                        //BW.setRGB(x, y, rgb);
+                    }
+                }
+                //Misc.writeImage(ip.getBufferedImage(), ts.getTmpDir() + File.separator + "PatchROItmp.PNG");
+                
+                // set the internal weights (=differences of neighour pixels). Nodes are incrementally counted column by column.
+                i=0;
+                for (int x=0; x<w; x++) {
+                    for (int y=0; y<h; y++) {
+                        if (x<w-1) {
+                            gc.setEdgeWeight(i, i+h, Math.abs(ip.getPixel(x, y)[0]-ip.getPixel(x+1, y)[0]));
+                        }
+                        if (y<h-1) {
+                            gc.setEdgeWeight(i, i+1, Math.abs(ip.getPixel(x, y)[0]-ip.getPixel(x, y+1)[0]));
+                        }
+                        i++;
+                    }
+                }
+                
+                gc.computeMaximumFlow(true, null);
+                
+                int[] sub = new int[2];
+                for (i=0; i<gc.getNumNodes(); i++) {
+                    if (gc.getTerminal(i) == Terminal.FOREGROUND) {
+                        Misc.Ind2sub(sub, i, bi.getHeight());
+                        BW.setRGB(sub[1], sub[0], 0xFFFFFFFF);
+                    }
+                }
+                //Misc.writeImage(BW, ts.getTmpDir() + File.separator + "PatchROI_graphcut.PNG");
+                //*/
+                
+                ConnectComponent cc = new ConnectComponent();
+                int[] img = new int[w*h];
+                for (int x=0; x<w; x++) {
+                    for (int y=0; y<h; y++) {
+                        img[Misc.Sub2ind(x, y, w)] = BW.getRGB(x, y);
+                    }
+                }
+                int[] labels = cc.labeling(img, new Dimension(w, h), true);
+                int label_center = labels[Misc.Sub2ind(w/2, h/2, w)];
+                for (int x=0; x<w; x++) {
+                    for (int y=0; y<h; y++) {
+                        if (labels[Misc.Sub2ind(x, y, w)]!=label_center) {
+                            BW.setRGB(x, y, 0x0);
+                        }
+                    }
+                }
+            } 
+            
+            // Black White Image to ROI
+            ROI roi = new ROI(BW, 1);
+            System.setProperty("com.sun.media.jai.disableMediaLib", "true");
+            // run this otherwise roi.contains() returns true always.
+            for (int i=0; i<BW.getWidth(); i++) {
+                for (int j=0; j<BW.getHeight(); j++) {
+                    if (roi.contains(i,j)) {
+                    }
+                }            
+            }
+            // END run this
+            
+            if (tmarker.DEBUG>5) {
+                for (int j=0; j<bi.getHeight(); j++) {
+                    System.out.println("");
+                    for (int i=0; i<bi.getWidth(); i++) {
+                        if (roi.contains(i,j)) {
+                                System.out.print("1");
+                            } else {
+                                System.out.print(".");
+                            }
+                    }
+                }
+                Misc.writeImage(BW, ts.getTmpDir() + File.separator + "PatchROI.PNG");
+                Misc.writeImage(bi, ts.getTmpDir() + File.separator + "Patch.PNG");
+            }
+            
+            return roi;
+        } catch (Exception ex) {
+            if (tmarker.DEBUG>0) {
+                Logger.getLogger(TMAspot.class.getName()).log(Level.SEVERE, null, ex);
+            }
+            return null;
+        }
+    }
+    
+    /**
+     * Returns a new Rectangle with center on the middle of tp and with and height of patchsize.
+     * @param tp The nucleus over which a patch should be created.
+     * @param patchsize The size of the patch.
+     * @return A new quadratic Rectangle.
+     */
+    private static Rectangle PatchRectangle(TMALabel tp, int patchsize) {
+        int p_half = patchsize/2;
+        return (new Rectangle(tp.x-p_half, tp.y-p_half, patchsize, patchsize));
+    }
+    
+    private TMAspotSegmentations getTMAspotSegmentations(TMAspot ts) {
+        for (TMAspotSegmentations tsseg : TMAspotsegmentations) {
+            if (tsseg.ts == ts) {
+                return tsseg;
+            }
+        }
+        return null;
     }
     
 }

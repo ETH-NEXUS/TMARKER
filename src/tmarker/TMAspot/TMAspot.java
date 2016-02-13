@@ -552,6 +552,25 @@ public class TMAspot {
     }
     
     /**
+     * Return all nuclei and background points within a ROI.
+     * @param ROI A specified ROI.
+     * @return A new list with all TMApoints on this TMAspot in this ROI.
+     */
+    public List<TMApoint> getPointsInROI(Polygon ROI) {
+        List<TMApoint> tps = new ArrayList();
+        tps.addAll(getPoints());
+        if (ROI != null) {
+            for (int i=tps.size()-1; i>=0; i--) {
+                Polygon roi = getAreaOnPoint(tps.get(i).x, tps.get(i).y);
+                if (roi == null || roi != ROI) {
+                    tps.remove(i);
+                }
+            }
+        }
+        return tps;
+    }
+    
+    /**
      * Returns all points with the proper label.
      * @param label One of TMAspot.LABEL_BG, TMAspot.LABEL_FG,
      * TMAspot.LABEL_UNK, TMAspot.LABEL_POS, TMAspot.LABEL_NEG.
@@ -915,7 +934,7 @@ public class TMAspot {
     }
     
     /**
-     * Performes the automatic white balancing. First, a good background color is searched: 
+     * Performs the automatic white balancing. First, a good background color is searched: 
      * A sliding window with the radius of the nuclei runs over the whole image.
      * In each window, the average color is calculated and the entropy of the intensities are calculated.
      * The average color which is larger than 180 in red channel in the window with the smallest entropy defines the background.
@@ -1416,24 +1435,41 @@ public class TMAspot {
         return gs;
     }
     
+    
+    /**
+     * Same as getHScore(null).
+     * @return getHScore(null).
+     */
+    public double getHScore() {
+        return getHScore(null);
+    }
+    
     /**
      * Calculates and returns the nucleus H-Score of this spot as 100*n_1 + 200*n_2 + 300*n_3, where
      * n_1 is the relative amount of 1+ nuclei, n_2 the relative amount of 2+ nuclei and n_3 the relative
-     * amount of 3+ nuclei.
+     * amount of 3+ nuclei. Nuclei in excluding ROIs are ignored.
+     * @param includingROI If null, the whole image is considered, otherwise, only points in this Polygon.
      * @return The nucleus H-Score of this spot.
      */
-    public double getHScore() {
-        List<TMApoint> ps = getPoints();
+    public double getHScore(Polygon includingROI) {
+        List<TMApoint> ps;
+        if (includingROI == null) {
+            ps = getPoints();
+        } else {
+            ps = getPointsInROI(includingROI);
+        }
         double n_0 = 0;
         double n_1 = 0;
         double n_2 = 0;
         double n_3 = 0;
         for (TMApoint tp: ps) {
-            switch (tp.getStaining()) {
-                case (TMALabel.STAINING_1): n_1++; break;
-                case (TMALabel.STAINING_2): n_2++; break;
-                case (TMALabel.STAINING_3): n_3++; break;
-                default: n_0++;        
+            if (getExcludingAreaOnPoint(tp.x, tp.y) == null) {
+                switch (tp.getStaining()) {
+                    case (TMALabel.STAINING_1): n_1++; break;
+                    case (TMALabel.STAINING_2): n_2++; break;
+                    case (TMALabel.STAINING_3): n_3++; break;
+                    default: n_0++;        
+                }
             }
         }
         double sum = n_0 + n_1 + n_2 + n_3;
@@ -1479,7 +1515,7 @@ public class TMAspot {
     /**
      * Removes TMApoints which would overlap according to the given radius.
      * @param blue_spots A set with nuclei. This set might be smaller after this filtering.
-     * @param brown_spots Anoter set with nuclei. If this is the same set as blue_spots, it also changes the size. If not, this set will remain as is.
+     * @param brown_spots Another set with nuclei. If this is the same set as blue_spots, it also changes the size. If not, this set will remain as is.
      * @param radius The radius of the nuclei.
      */
     public static void filter_centroids_on_distance(List<TMApoint> blue_spots, List<TMApoint> brown_spots, int radius) {
@@ -1874,6 +1910,32 @@ public class TMAspot {
         }
         return bi;
     }
+    
+    /**
+     * Returns a subimage of this TMAspot.
+     * @param x The top left x coordinate.
+     * @param y The top left y coordinate.
+     * @param w The width.
+     * @param h The height.
+     * @param maxsize The maximum edge length (any edge) of the image. Used for NDPI images (openSlide).
+     * @return A new BufferedImage, subimage of this TMAspot.
+     */
+    public BufferedImage getSubimage(int x, int y, int w, int h, int maxsize) {
+        BufferedImage img;
+        if (isNDPI()) {
+            try {
+                img = getNDPI().createThumbnailImage(x, y, w, h, maxsize);
+            } catch (IOException ex) {
+                img = null;
+                if (tmarker.DEBUG>0) {
+                    Logger.getLogger(TMAspot.class.getName()).log(Level.SEVERE, null, ex);
+                }
+            }
+        } else {
+            img = getBufferedImage().getSubimage(x, y, w, h);
+        }
+        return img;
+    }
 
     /**
      * Removes the including and excluding areas which contain the given point.
@@ -2172,10 +2234,10 @@ public class TMAspot {
             double[] greens = new double[I.getWidth()*I.getHeight()];
             double[] blues = new double[I.getWidth()*I.getHeight()];
             */
-            List<Double> grays = new ArrayList<Double>();
-            List<Double> reds = new ArrayList<Double>();
-            List<Double> greens = new ArrayList<Double>();
-            List<Double> blues = new ArrayList<Double>();
+            List<Double> grays = new ArrayList();
+            List<Double> reds = new ArrayList();
+            List<Double> greens = new ArrayList();
+            List<Double> blues = new ArrayList();
             double[] pixel = new double[4];
             String info = "";
             for (int i=0; i<I.getWidth(); i++) {
