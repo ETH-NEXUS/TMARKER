@@ -246,7 +246,7 @@ public class StainingEstimation extends javax.swing.JFrame implements TMARKERPlu
         jCheckBox1 = new javax.swing.JCheckBox();
         jLabel34 = new javax.swing.JLabel();
 
-        setTitle(PLUGINNAME);
+        setTitle(PLUGINNAME + " v1." + java.util.ResourceBundle.getBundle("stainingestimation/Bundle").getString("build")); // NOI18N
 
         jPanel1.setLayout(new java.awt.GridBagLayout());
 
@@ -289,7 +289,6 @@ public class StainingEstimation extends javax.swing.JFrame implements TMARKERPlu
         jTextField3.setHorizontalAlignment(javax.swing.JTextField.TRAILING);
         jTextField3.setText("8"); // NOI18N
         jTextField3.setToolTipText(bundle.getString("StainingEstimationDialog.jTextField3.toolTipText")); // NOI18N
-        jTextField3.setMargin(new java.awt.Insets(0, 0, 0, 0));
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 1;
         gridBagConstraints.gridy = 6;
@@ -326,7 +325,6 @@ public class StainingEstimation extends javax.swing.JFrame implements TMARKERPlu
         jTextField4.setHorizontalAlignment(javax.swing.JTextField.TRAILING);
         jTextField4.setText("60"); // NOI18N
         jTextField4.setToolTipText(bundle.getString("StainingEstimationDialog.jTextField4.toolTipText")); // NOI18N
-        jTextField4.setMargin(new java.awt.Insets(0, 0, 0, 0));
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 5;
         gridBagConstraints.gridy = 6;
@@ -379,7 +377,6 @@ public class StainingEstimation extends javax.swing.JFrame implements TMARKERPlu
         jTextField5.setHorizontalAlignment(javax.swing.JTextField.TRAILING);
         jTextField5.setText("60");
         jTextField5.setToolTipText(bundle.getString("StainingEstimationDialog.jTextField5.toolTipText")); // NOI18N
-        jTextField5.setMargin(new java.awt.Insets(0, 0, 0, 0));
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 3;
         gridBagConstraints.gridy = 6;
@@ -641,7 +638,6 @@ public class StainingEstimation extends javax.swing.JFrame implements TMARKERPlu
         jTextField6.setHorizontalAlignment(javax.swing.JTextField.TRAILING);
         jTextField6.setText("1"); // NOI18N
         jTextField6.setToolTipText(bundle.getString("StainingEstimationDialog.jTextField6.toolTipText")); // NOI18N
-        jTextField6.setMargin(new java.awt.Insets(0, 0, 0, 0));
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 1;
         gridBagConstraints.gridy = 8;
@@ -969,7 +965,6 @@ public class StainingEstimation extends javax.swing.JFrame implements TMARKERPlu
         jTextField14.setColumns(2);
         jTextField14.setHorizontalAlignment(javax.swing.JTextField.TRAILING);
         jTextField14.setText(bundle.getString("StainingEstimationDialog.jTextField14.text")); // NOI18N
-        jTextField14.setMargin(new java.awt.Insets(0, 0, 0, 0));
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 2;
         gridBagConstraints.gridy = 0;
@@ -988,7 +983,6 @@ public class StainingEstimation extends javax.swing.JFrame implements TMARKERPlu
         jTextField15.setColumns(2);
         jTextField15.setHorizontalAlignment(javax.swing.JTextField.TRAILING);
         jTextField15.setText(bundle.getString("StainingEstimationDialog.jTextField15.text")); // NOI18N
-        jTextField15.setMargin(new java.awt.Insets(0, 0, 0, 0));
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 4;
         gridBagConstraints.gridy = 0;
@@ -1008,7 +1002,6 @@ public class StainingEstimation extends javax.swing.JFrame implements TMARKERPlu
         jTextField2.setColumns(2);
         jTextField2.setHorizontalAlignment(javax.swing.JTextField.TRAILING);
         jTextField2.setText(bundle.getString("StainingEstimationDialog.jTextField2.text")); // NOI18N
-        jTextField2.setMargin(new java.awt.Insets(0, 0, 0, 0));
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 2;
         gridBagConstraints.gridy = 1;
@@ -1027,7 +1020,6 @@ public class StainingEstimation extends javax.swing.JFrame implements TMARKERPlu
         jTextField7.setColumns(2);
         jTextField7.setHorizontalAlignment(javax.swing.JTextField.TRAILING);
         jTextField7.setText(bundle.getString("StainingEstimationDialog.jTextField7.text")); // NOI18N
-        jTextField7.setMargin(new java.awt.Insets(0, 0, 0, 0));
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 4;
         gridBagConstraints.gridy = 1;
@@ -1046,7 +1038,6 @@ public class StainingEstimation extends javax.swing.JFrame implements TMARKERPlu
         jTextField8.setColumns(2);
         jTextField8.setHorizontalAlignment(javax.swing.JTextField.TRAILING);
         jTextField8.setText(bundle.getString("StainingEstimationDialog.jTextField8.text")); // NOI18N
-        jTextField8.setMargin(new java.awt.Insets(0, 0, 0, 0));
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 2;
         gridBagConstraints.gridy = 2;
@@ -1065,7 +1056,6 @@ public class StainingEstimation extends javax.swing.JFrame implements TMARKERPlu
         jTextField9.setColumns(2);
         jTextField9.setHorizontalAlignment(javax.swing.JTextField.TRAILING);
         jTextField9.setText(bundle.getString("StainingEstimationDialog.jTextField9.text")); // NOI18N
-        jTextField9.setMargin(new java.awt.Insets(0, 0, 0, 0));
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 4;
         gridBagConstraints.gridy = 2;
@@ -1089,7 +1079,6 @@ public class StainingEstimation extends javax.swing.JFrame implements TMARKERPlu
         jTextField10.setColumns(3);
         jTextField10.setHorizontalAlignment(javax.swing.JTextField.TRAILING);
         jTextField10.setText(bundle.getString("StainingEstimationDialog.jTextField10.text")); // NOI18N
-        jTextField10.setMargin(new java.awt.Insets(0, 0, 0, 0));
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 1;
         gridBagConstraints.gridy = 3;
@@ -1109,7 +1098,6 @@ public class StainingEstimation extends javax.swing.JFrame implements TMARKERPlu
         jTextField11.setColumns(3);
         jTextField11.setHorizontalAlignment(javax.swing.JTextField.TRAILING);
         jTextField11.setText(bundle.getString("StainingEstimationDialog.jTextField11.text")); // NOI18N
-        jTextField11.setMargin(new java.awt.Insets(0, 0, 0, 0));
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 4;
         gridBagConstraints.gridy = 3;
@@ -1133,7 +1121,6 @@ public class StainingEstimation extends javax.swing.JFrame implements TMARKERPlu
         jTextField12.setColumns(3);
         jTextField12.setHorizontalAlignment(javax.swing.JTextField.TRAILING);
         jTextField12.setText(bundle.getString("StainingEstimationDialog.jTextField12.text")); // NOI18N
-        jTextField12.setMargin(new java.awt.Insets(0, 0, 0, 0));
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 1;
         gridBagConstraints.gridy = 4;
@@ -1153,7 +1140,6 @@ public class StainingEstimation extends javax.swing.JFrame implements TMARKERPlu
         jTextField13.setColumns(3);
         jTextField13.setHorizontalAlignment(javax.swing.JTextField.TRAILING);
         jTextField13.setText(bundle.getString("StainingEstimationDialog.jTextField13.text")); // NOI18N
-        jTextField13.setMargin(new java.awt.Insets(0, 0, 0, 0));
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 4;
         gridBagConstraints.gridy = 4;
@@ -1201,7 +1187,6 @@ public class StainingEstimation extends javax.swing.JFrame implements TMARKERPlu
         jTextField18.setColumns(2);
         jTextField18.setHorizontalAlignment(javax.swing.JTextField.TRAILING);
         jTextField18.setText(bundle.getString("StainingEstimationDialog.jTextField18.text")); // NOI18N
-        jTextField18.setMargin(new java.awt.Insets(0, 0, 0, 0));
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_START;
@@ -1220,7 +1205,6 @@ public class StainingEstimation extends javax.swing.JFrame implements TMARKERPlu
         jTextField19.setColumns(2);
         jTextField19.setHorizontalAlignment(javax.swing.JTextField.TRAILING);
         jTextField19.setText(bundle.getString("StainingEstimationDialog.jTextField19.text")); // NOI18N
-        jTextField19.setMargin(new java.awt.Insets(0, 0, 0, 0));
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 6;
         gridBagConstraints.gridy = 1;
@@ -1241,7 +1225,6 @@ public class StainingEstimation extends javax.swing.JFrame implements TMARKERPlu
         jTextField21.setColumns(2);
         jTextField21.setHorizontalAlignment(javax.swing.JTextField.TRAILING);
         jTextField21.setText(bundle.getString("StainingEstimationDialog.jTextField21.text")); // NOI18N
-        jTextField21.setMargin(new java.awt.Insets(0, 0, 0, 0));
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 6;
         gridBagConstraints.gridy = 2;
@@ -1262,7 +1245,6 @@ public class StainingEstimation extends javax.swing.JFrame implements TMARKERPlu
         jTextField22.setColumns(2);
         jTextField22.setHorizontalAlignment(javax.swing.JTextField.TRAILING);
         jTextField22.setText(bundle.getString("StainingEstimationDialog.jTextField22.text")); // NOI18N
-        jTextField22.setMargin(new java.awt.Insets(0, 0, 0, 0));
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 6;
         gridBagConstraints.gridy = 3;
@@ -1283,7 +1265,6 @@ public class StainingEstimation extends javax.swing.JFrame implements TMARKERPlu
         jTextField23.setColumns(2);
         jTextField23.setHorizontalAlignment(javax.swing.JTextField.TRAILING);
         jTextField23.setText(bundle.getString("StainingEstimationDialog.jTextField23.text")); // NOI18N
-        jTextField23.setMargin(new java.awt.Insets(0, 0, 0, 0));
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 6;
         gridBagConstraints.gridy = 4;
@@ -2755,7 +2736,7 @@ public class StainingEstimation extends javax.swing.JFrame implements TMARKERPlu
                 int r_w = rect.width;
                 int r_h = rect.height;
 
-                // Patchize the large image
+                // Patchize the large ROI
                 for (int i=0; i<1.0*r_w/size; i++) {
                     for (int j=0; j<1.0*r_h/size; j++) {
                         int size_x = Math.min(size, r_w-i*size);

@@ -86,7 +86,7 @@ public class SurvivalAnalysisFrame extends javax.swing.JFrame implements TMARKER
         jScrollPane1 = new javax.swing.JScrollPane();
         jTabbedPane1 = new javax.swing.JTabbedPane();
 
-        setTitle("TMARKER Survival Analysis");
+        setTitle(PLUGINNAME + " v1." + java.util.ResourceBundle.getBundle("survivalanalysis/Bundle").getString("build")); // NOI18N
 
         jPanel3.setLayout(new java.awt.BorderLayout());
 

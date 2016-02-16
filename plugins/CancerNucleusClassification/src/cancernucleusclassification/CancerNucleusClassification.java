@@ -250,7 +250,7 @@ public class CancerNucleusClassification extends javax.swing.JFrame implements T
 
         jSeparator1.setName("jSeparator1"); // NOI18N
 
-        setTitle("Nucleus Classification Options"); // NOI18N
+        setTitle(PLUGINNAME + " v1." + java.util.ResourceBundle.getBundle("cancernucleusclassification/Bundle").getString("build")); // NOI18N
         setName("Form"); // NOI18N
 
         jScrollPane7.setName("jScrollPane7"); // NOI18N

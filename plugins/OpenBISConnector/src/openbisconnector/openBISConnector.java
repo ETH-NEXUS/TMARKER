@@ -64,6 +64,7 @@ public class openBISConnector extends javax.swing.JFrame implements TMARKERPlugi
 
     private PluginManager pluginmanager = null;
     private static final String PLUGINVERSION = "1.0";
+    private static final String PLUGINNAME = "openBIS Connector";
     private Config inConfig = null;
     private TmarkerFacade facade = null;
     private FileChooserTree treeChooser = null;
@@ -136,7 +137,7 @@ public class openBISConnector extends javax.swing.JFrame implements TMARKERPlugi
         jLabel7 = new javax.swing.JLabel();
         jLabel11 = new javax.swing.JLabel();
 
-        setTitle("openBIS Connector");
+        setTitle(PLUGINNAME + " v1." + java.util.ResourceBundle.getBundle("openbisconnector/Bundle").getString("build")); // NOI18N
 
         jPanel1.setLayout(new java.awt.GridBagLayout());
 
@@ -631,7 +632,7 @@ public class openBISConnector extends javax.swing.JFrame implements TMARKERPlugi
 
     @Override
     public String getPluginName() {
-        return "openBIS Connector";
+        return PLUGINNAME;
     }
 
     @Override

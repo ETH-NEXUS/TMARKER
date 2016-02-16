@@ -141,7 +141,7 @@ public class CytoplasmStaining extends javax.swing.JFrame implements TMARKERPlug
         jCheckBox8 = new javax.swing.JCheckBox();
         jCheckBox6 = new javax.swing.JCheckBox();
 
-        setTitle("Cytoplasm Staining Options");
+        setTitle(PLUGINNAME + " v1." + java.util.ResourceBundle.getBundle("cytoplasmstaining/Bundle").getString("build")); // NOI18N
 
         jPanel1.setLayout(new java.awt.FlowLayout(java.awt.FlowLayout.LEFT));
 

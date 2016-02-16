@@ -169,7 +169,7 @@ public class IntensityClustering extends javax.swing.JFrame implements TMARKERPl
         jScrollPane1 = new javax.swing.JScrollPane();
         jTextArea1 = new javax.swing.JTextArea();
 
-        setTitle(PLUGINNAME);
+        setTitle(PLUGINNAME + " v1." + java.util.ResourceBundle.getBundle("intensityclustering/Bundle").getString("build")); // NOI18N
 
         jPanel20.setLayout(new java.awt.BorderLayout());
 

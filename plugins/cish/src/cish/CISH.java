@@ -119,7 +119,7 @@ public class CISH extends javax.swing.JFrame implements TMARKERPluginInterface.P
         jLabel5 = new javax.swing.JLabel();
         jLabel6 = new javax.swing.JLabel();
 
-        setTitle("CISH Analysis");
+        setTitle(PLUGINNAME + " v1." + java.util.ResourceBundle.getBundle("cish/Bundle").getString("build")); // NOI18N
         getContentPane().setLayout(new java.awt.GridBagLayout());
 
         jButton1.setText("CISH Analysis");

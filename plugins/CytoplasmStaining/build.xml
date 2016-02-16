@@ -11,6 +11,12 @@
     <description>Builds, tests, and runs the project CytoplasmStaining.</description>
     <import file="nbproject/build-impl.xml"/>
     
+    <target name="-pre-compile" description="Sets the buildversion for the current build">
+    	<propertyfile file="${src.dir}/cytoplasmstaining/Bundle.properties">
+            <entry key="build" value="1" type="int" operation="+"/>
+    	</propertyfile>
+    </target>
+    
     <target name="-post-jar">
     	<copy file="${dist.jar}" todir="../"/>
     </target>

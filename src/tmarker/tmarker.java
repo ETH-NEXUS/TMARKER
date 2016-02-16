@@ -4157,7 +4157,8 @@ public final class tmarker extends javax.swing.JFrame {
         });
 
         int processors = Runtime.getRuntime().availableProcessors();
-        setStatusMessageLabel("Connected to " + Integer.toString(processors) + " local processor" + (processors != 1 ? "s." : "."));
+        setStatusMessageLabel("Access to " + Integer.toString(processors) + " local processor" + (processors != 1 ? "s," : ",") +
+                " " + Math.round(10.0*Runtime.getRuntime().maxMemory()/1024/1024/1024)/10.0 + " GB RAM.");
 
         // System Performance panel
         if (pop == null) {
