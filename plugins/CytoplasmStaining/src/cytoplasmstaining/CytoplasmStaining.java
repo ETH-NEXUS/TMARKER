@@ -131,7 +131,6 @@ public class CytoplasmStaining extends javax.swing.JFrame implements TMARKERPlug
         jXColorSelectionButton3 = new org.jdesktop.swingx.JXColorSelectionButton();
         jLabel2 = new javax.swing.JLabel();
         jPanel3 = new javax.swing.JPanel();
-        jCheckBox6 = new javax.swing.JCheckBox();
         jLabel3 = new javax.swing.JLabel();
         jSlider4 = new javax.swing.JSlider();
         jLabel4 = new javax.swing.JLabel();
@@ -140,6 +139,7 @@ public class CytoplasmStaining extends javax.swing.JFrame implements TMARKERPlug
         jButton5 = new javax.swing.JButton();
         jButton6 = new javax.swing.JButton();
         jCheckBox8 = new javax.swing.JCheckBox();
+        jCheckBox6 = new javax.swing.JCheckBox();
 
         setTitle("Cytoplasm Staining Options");
 
@@ -464,7 +464,7 @@ public class CytoplasmStaining extends javax.swing.JFrame implements TMARKERPlug
         });
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 22;
-        gridBagConstraints.gridy = 7;
+        gridBagConstraints.gridy = 8;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_START;
         gridBagConstraints.insets = new java.awt.Insets(10, 5, 0, 0);
         jPanel2.add(jCheckBox7, gridBagConstraints);
@@ -496,21 +496,6 @@ public class CytoplasmStaining extends javax.swing.JFrame implements TMARKERPlug
 
         jPanel3.setBorder(javax.swing.BorderFactory.createTitledBorder("Nucleus Segmentation"));
         jPanel3.setLayout(new java.awt.GridBagLayout());
-
-        jCheckBox6.setText("Exclude Cell Nuclei");
-        jCheckBox6.setToolTipText("Either circles with nuclei radius OR exact segmentation (if available) are excluded from cytosplasm.");
-        jCheckBox6.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jCheckBox6ActionPerformed(evt);
-            }
-        });
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 1;
-        gridBagConstraints.gridwidth = 5;
-        gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_START;
-        gridBagConstraints.insets = new java.awt.Insets(10, 5, 0, 0);
-        jPanel3.add(jCheckBox6, gridBagConstraints);
 
         jLabel3.setText("Circular Shape");
         jLabel3.setToolTipText("More weight on circular objects");
@@ -583,10 +568,11 @@ public class CytoplasmStaining extends javax.swing.JFrame implements TMARKERPlug
 
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 7;
+        gridBagConstraints.gridy = 8;
         gridBagConstraints.gridwidth = 21;
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_START;
+        gridBagConstraints.insets = new java.awt.Insets(15, 0, 0, 0);
         jPanel2.add(jPanel3, gridBagConstraints);
 
         jCheckBox8.setText("Consider single ROIs instead of whole images");
@@ -598,6 +584,21 @@ public class CytoplasmStaining extends javax.swing.JFrame implements TMARKERPlug
         gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_START;
         gridBagConstraints.insets = new java.awt.Insets(20, 5, 5, 5);
         jPanel2.add(jCheckBox8, gridBagConstraints);
+
+        jCheckBox6.setText("Exclude Cell Nuclei");
+        jCheckBox6.setToolTipText("Either circles with nuclei radius OR exact segmentation (if available) are excluded from cytosplasm.");
+        jCheckBox6.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jCheckBox6ActionPerformed(evt);
+            }
+        });
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 7;
+        gridBagConstraints.gridwidth = java.awt.GridBagConstraints.REMAINDER;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_START;
+        gridBagConstraints.insets = new java.awt.Insets(5, 5, 0, 0);
+        jPanel2.add(jCheckBox6, gridBagConstraints);
 
         jPanel1.add(jPanel2);
 
@@ -1023,14 +1024,11 @@ public class CytoplasmStaining extends javax.swing.JFrame implements TMARKERPlug
                                 for (int j = 0; j < patch.getHeight(); j++) {
                                     double r_ = Math.sqrt(Math.pow(getParam_patchsize()/2-i, 2) + Math.pow(getParam_patchsize()/2-j, 2));
                                     if (r_ < getParam_patchsize()/2) {
-                                        if (!getParam_excludeNuclei() || tsseg != null && tsseg.segmentations.isEmpty() && r_ >= ts.getCenter().getLabelRadius() ||
-                                           tsseg != null && !tsseg.segmentations.isEmpty() && !((LocalizedROI) points.get(k)).p.contains(i+tp.x-r, j+tp.y-r)) {
-                                            int[] p = ip.getPixel(i, j);
-                                            if (p[0]>t) {
+                                        int[] p = ip.getPixel(i, j);
+                                        if (p[0]>t || 
+                                            (getParam_excludeNuclei() && ((tsseg == null || tsseg.segmentations.isEmpty()) && r_ <= ts.getCenter().getLabelRadius())) ||
+                                            (getParam_excludeNuclei() && tsseg != null && !tsseg.segmentations.isEmpty() && ((LocalizedROI) points.get(k)).p.contains(i+tp.x-r, j+tp.y-r))) {
                                                 g.fillRect((int)((i+tp.x-r)*z), (int)((j+tp.y-r)*z), Math.max(1, (int)Math.round(z)), Math.max(1, (int)Math.round(z)));
-                                            }
-                                        }else {
-                                            g.fillRect((int)((i+tp.x-r)*z), (int)((j+tp.y-r)*z), Math.max(1, (int)Math.round(z)), Math.max(1, (int)Math.round(z)));
                                         }
                                     } 
                                 }
@@ -1450,9 +1448,9 @@ public class CytoplasmStaining extends javax.swing.JFrame implements TMARKERPlug
                                 //... and the coordinates are within a circle...
                                 double r_ = Math.sqrt(Math.pow(tp.x-x, 2) + Math.pow(tp.y-y, 2));
                                 if (r_ < w/2) { 
-                                    // ... and either nuclei are not excluded OR the coordinates are outside the nucleus radius OR if there is segmentation used, then outside segmentation
-                                    if (!getParam_excludeNuclei() || tsseg != null && tsseg.segmentations.isEmpty() && r_ >= ts.getCenter().getLabelRadius() ||
-                                            tsseg != null && !tsseg.segmentations.isEmpty() && !((LocalizedROI) points.get(k)).p.contains(x,y)){ 
+                                    if (!getParam_excludeNuclei() || ((tsseg == null || tsseg.segmentations.isEmpty()) && r_ > ts.getCenter().getLabelRadius())
+                                      || tsseg != null && !tsseg.segmentations.isEmpty() && !((LocalizedROI) points.get(k)).p.contains(x,y)) {
+                                        
                                         c = img.getRGB(x, y);
                                         r = (c & 0x00FF0000) >> 16;
                                         g = (c & 0x0000FF00) >>  8;

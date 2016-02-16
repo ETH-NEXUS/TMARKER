@@ -444,7 +444,7 @@
                   </Events>
                   <Constraints>
                     <Constraint layoutClass="org.netbeans.modules.form.compat2.layouts.DesignGridBagLayout" value="org.netbeans.modules.form.compat2.layouts.DesignGridBagLayout$GridBagConstraintsDescription">
-                      <GridBagConstraints gridX="22" gridY="7" gridWidth="1" gridHeight="1" fill="0" ipadX="0" ipadY="0" insetsTop="10" insetsLeft="5" insetsBottom="0" insetsRight="0" anchor="21" weightX="0.0" weightY="0.0"/>
+                      <GridBagConstraints gridX="22" gridY="8" gridWidth="1" gridHeight="1" fill="0" ipadX="0" ipadY="0" insetsTop="10" insetsLeft="5" insetsBottom="0" insetsRight="0" anchor="21" weightX="0.0" weightY="0.0"/>
                     </Constraint>
                   </Constraints>
                 </Component>
@@ -555,26 +555,12 @@
                   </Properties>
                   <Constraints>
                     <Constraint layoutClass="org.netbeans.modules.form.compat2.layouts.DesignGridBagLayout" value="org.netbeans.modules.form.compat2.layouts.DesignGridBagLayout$GridBagConstraintsDescription">
-                      <GridBagConstraints gridX="0" gridY="7" gridWidth="21" gridHeight="1" fill="2" ipadX="0" ipadY="0" insetsTop="0" insetsLeft="0" insetsBottom="0" insetsRight="0" anchor="21" weightX="0.0" weightY="0.0"/>
+                      <GridBagConstraints gridX="0" gridY="8" gridWidth="21" gridHeight="1" fill="2" ipadX="0" ipadY="0" insetsTop="15" insetsLeft="0" insetsBottom="0" insetsRight="0" anchor="21" weightX="0.0" weightY="0.0"/>
                     </Constraint>
                   </Constraints>
 
                   <Layout class="org.netbeans.modules.form.compat2.layouts.DesignGridBagLayout"/>
                   <SubComponents>
-                    <Component class="javax.swing.JCheckBox" name="jCheckBox6">
-                      <Properties>
-                        <Property name="text" type="java.lang.String" value="Exclude Cell Nuclei"/>
-                        <Property name="toolTipText" type="java.lang.String" value="Either circles with nuclei radius OR exact segmentation (if available) are excluded from cytosplasm."/>
-                      </Properties>
-                      <Events>
-                        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="jCheckBox6ActionPerformed"/>
-                      </Events>
-                      <Constraints>
-                        <Constraint layoutClass="org.netbeans.modules.form.compat2.layouts.DesignGridBagLayout" value="org.netbeans.modules.form.compat2.layouts.DesignGridBagLayout$GridBagConstraintsDescription">
-                          <GridBagConstraints gridX="0" gridY="1" gridWidth="5" gridHeight="1" fill="0" ipadX="0" ipadY="0" insetsTop="10" insetsLeft="5" insetsBottom="0" insetsRight="0" anchor="21" weightX="0.0" weightY="0.0"/>
-                        </Constraint>
-                      </Constraints>
-                    </Component>
                     <Component class="javax.swing.JLabel" name="jLabel3">
                       <Properties>
                         <Property name="text" type="java.lang.String" value="Circular Shape"/>
@@ -671,6 +657,20 @@
                   <Constraints>
                     <Constraint layoutClass="org.netbeans.modules.form.compat2.layouts.DesignGridBagLayout" value="org.netbeans.modules.form.compat2.layouts.DesignGridBagLayout$GridBagConstraintsDescription">
                       <GridBagConstraints gridX="0" gridY="9" gridWidth="0" gridHeight="1" fill="0" ipadX="0" ipadY="0" insetsTop="20" insetsLeft="5" insetsBottom="5" insetsRight="5" anchor="21" weightX="0.0" weightY="0.0"/>
+                    </Constraint>
+                  </Constraints>
+                </Component>
+                <Component class="javax.swing.JCheckBox" name="jCheckBox6">
+                  <Properties>
+                    <Property name="text" type="java.lang.String" value="Exclude Cell Nuclei"/>
+                    <Property name="toolTipText" type="java.lang.String" value="Either circles with nuclei radius OR exact segmentation (if available) are excluded from cytosplasm."/>
+                  </Properties>
+                  <Events>
+                    <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="jCheckBox6ActionPerformed"/>
+                  </Events>
+                  <Constraints>
+                    <Constraint layoutClass="org.netbeans.modules.form.compat2.layouts.DesignGridBagLayout" value="org.netbeans.modules.form.compat2.layouts.DesignGridBagLayout$GridBagConstraintsDescription">
+                      <GridBagConstraints gridX="0" gridY="7" gridWidth="0" gridHeight="1" fill="0" ipadX="0" ipadY="0" insetsTop="5" insetsLeft="5" insetsBottom="0" insetsRight="0" anchor="21" weightX="0.0" weightY="0.0"/>
                     </Constraint>
                   </Constraints>
                 </Component>
