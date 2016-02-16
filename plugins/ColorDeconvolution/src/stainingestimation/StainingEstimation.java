@@ -69,7 +69,7 @@ public class StainingEstimation extends javax.swing.JFrame implements TMARKERPlu
     // For Plugin handling
     PluginManager manager = null;
     private static final String PLUGINNAME = "Color Deconvolution";
-    private static final String PLUGINVERSION = "1.0";
+    private static final String PLUGINVERSION = "1." + java.util.ResourceBundle.getBundle("stainingestimation/Bundle").getString("build");
     
     StainingEstimationThread set = null;
     

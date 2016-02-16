@@ -63,7 +63,7 @@ import static tmarker.tmarker.logger;
 public class openBISConnector extends javax.swing.JFrame implements TMARKERPluginInterface.Pluggable {
 
     private PluginManager pluginmanager = null;
-    private static final String PLUGINVERSION = "1.0";
+    private static final String PLUGINVERSION = "1." + java.util.ResourceBundle.getBundle("openbisconnector/Bundle").getString("build");
     private static final String PLUGINNAME = "openBIS Connector";
     private Config inConfig = null;
     private TmarkerFacade facade = null;

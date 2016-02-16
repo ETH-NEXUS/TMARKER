@@ -57,8 +57,8 @@ public class CISH extends javax.swing.JFrame implements TMARKERPluginInterface.P
 
     // For Plugin handling
     TMARKERPluginManager manager = null;
-    private static final String PLUGINNAME = "CISH Analysis";
-    private static final String PLUGINVERSION = "1.0";
+    private static final String PLUGINNAME = "ISHProfiler";
+    private static final String PLUGINVERSION = "1." + java.util.ResourceBundle.getBundle("cish/Bundle").getString("build");
     private CISH_Thread thread = null;
     
     /**

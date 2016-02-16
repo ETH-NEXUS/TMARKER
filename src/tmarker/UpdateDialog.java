@@ -326,7 +326,7 @@ public class UpdateDialog extends javax.swing.JDialog {
             this.dispose();
         } else {
             try {
-            String cmd = "java -jar TMARKER.jar";
+                String cmd = "java -jar TMARKER.jar";
                 Runtime.getRuntime().exec(cmd);
                 System.exit(0);
             } catch (IOException ex) {

@@ -40,7 +40,7 @@ public class SurvivalAnalysisFrame extends javax.swing.JFrame implements TMARKER
 
     // for the Plugin
     private final static String PLUGINNAME = "Survival Analysis";
-    private static final String PLUGINVERSION = "1.0";
+    private static final String PLUGINVERSION = "1." + java.util.ResourceBundle.getBundle("survivalanalysis/Bundle").getString("build");
     private TMARKERPluginManager manager = null;
     
     /**

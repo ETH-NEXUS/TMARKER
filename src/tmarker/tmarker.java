@@ -46,10 +46,18 @@ import TMARKERPluginInterface.Pluggable;
 import TMARKERPluginInterface.PluginManager;
 import com.boxysystems.jgoogleanalytics.FocusPoint;
 import com.boxysystems.jgoogleanalytics.JGoogleAnalyticsTracker;
+import java.awt.AlphaComposite;
 import java.awt.BorderLayout;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.awt.Paint;
+import java.awt.PaintContext;
 import java.awt.RenderingHints;
+import java.awt.SplashScreen;
+import java.awt.Transparency;
+import java.awt.geom.AffineTransform;
+import java.awt.geom.Rectangle2D;
+import java.awt.image.ColorModel;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.lang.reflect.Field;
@@ -80,6 +88,7 @@ import tmarker.misc.ZoomableImagePanel;
  */
 public final class tmarker extends javax.swing.JFrame {
 
+    
     /**
      * Creates new form tmarker.
      *
@@ -87,15 +96,86 @@ public final class tmarker extends javax.swing.JFrame {
      * Temporary files can be written here.
      */
     public tmarker(String tmp_dir) {
+        
+        splashTextAndProgress("Starting...", 0);
+            
         initComponents();
         setTmpDir(tmp_dir);
         initComponents2();
-
+        
+        splashTextAndProgress("Done.", 100);
+        
         if (od.checkForUpdatesOnStart()) {
             checkForUpdates(false, od.installUpdatesAutomatically());
         }
     }
+    
+    private static Rectangle2D getSplashTextArea(int width, int height) {
+        return new Rectangle2D.Double(0.5*width+30, 0.5*height+46, 0.3*width, 12);
+    }
+    
+    private static Rectangle2D getSplashProgressArea(int width, int height) {
+        return new Rectangle2D.Double(0.5*width+36, 0.5*height+51, 0.3*width, 12);
+    }
+    
+    /**
+     * Display text in status area of Splash.  Note: no validation it will fit.
+     * @param str - text to be displayed
+     */
+    public static void splashTextAndProgress(String str, int pct)
+    {
+        SplashScreen mySplash = SplashScreen.getSplashScreen();
+        if (mySplash != null && mySplash.isVisible())
+        {   // important to check here so no other methods need to know if there
+            // really is a Splash being displayed
+            Dimension ssDim = mySplash.getSize();
+            int height = ssDim.height;
+            int width = ssDim.width;
+            
+            Graphics2D splashGraphics = mySplash.createGraphics();
+            Rectangle2D splashTextArea = getSplashTextArea(width, height);
+            Rectangle2D splashProgressArea = getSplashProgressArea(width, height);
+            
+            java.awt.Font font = new java.awt.Font("Dialog", java.awt.Font.PLAIN, 10);
+            splashGraphics.setFont(font);
+            
+            splashGraphics.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
+            
+            // erase the old one
+            splashGraphics.setPaint(Color.LIGHT_GRAY);
+            splashGraphics.fill(splashProgressArea);
+            
+            // draw an outline of the progress
+            splashGraphics.setPaint(Color.BLUE);
+            splashGraphics.draw(splashProgressArea);
+            
+            // Calculate the width corresponding to the correct percentage
+            int x = (int) splashProgressArea.getMinX();
+            int y = (int) splashProgressArea.getMinY();
+            int wid = (int) splashProgressArea.getWidth();
+            int hgt = (int) splashProgressArea.getHeight();
 
+            int doneWidth = Math.round(pct*wid/100.f);
+            doneWidth = Math.max(0, Math.min(doneWidth, wid));  // limit 0-width
+
+            // fill the done part one pixel smaller than the outline
+            splashGraphics.setPaint(Color.GREEN);
+            splashGraphics.fillRect(x+1, y+1, doneWidth, hgt-1);
+
+            // draw the text
+            splashGraphics.setPaint(Color.BLACK);
+            str = str.trim();
+            if (str.length()>25) {
+                str = str.substring(0, Math.min(22, str.length())) + "...";
+            }
+            splashGraphics.drawString(str, (int)(splashTextArea.getX() + 10),(int)(splashTextArea.getY() + 15));
+
+            // make sure it's displayed
+            mySplash.update();
+        }
+    }
+    
+    
     /**
      * Revision number.
      */
@@ -1639,6 +1719,7 @@ public final class tmarker extends javax.swing.JFrame {
         plugSel.setVisible(true);
     }//GEN-LAST:event_jMenuItem26ActionPerformed
 
+    
     /**
      * Starts the TMARKER session.
      *
@@ -4172,6 +4253,8 @@ public final class tmarker extends javax.swing.JFrame {
         } catch (Exception ex) {
         }
         
+        splashTextAndProgress("Creating GUI...", 6);
+            
         // Logo Panel on top left
         BufferedImage img;
         try {
@@ -4191,6 +4274,8 @@ public final class tmarker extends javax.swing.JFrame {
 
         tmaspot_view_panel.setParentScrollPane(jScrollPane1);
         wholeslide_view_panel.setParentScrollPane(jScrollPane1);
+        
+        splashTextAndProgress("Creating GUI...", 8);
 
         // jXStatusBar1
         jXStatusBar1.removeAll();
@@ -4207,6 +4292,8 @@ public final class tmarker extends javax.swing.JFrame {
         jScrollPane7.getVerticalScrollBar().setUnitIncrement(10);
         jScrollPane4.getVerticalScrollBar().setUnitIncrement(10);
         jScrollPane4.getHorizontalScrollBar().setUnitIncrement(10);
+        
+        splashTextAndProgress("Creating GUI...", 10);
 
         // TMA Table
         jPanel36.setComponentPopupMenu(jPopupMenu1);
@@ -4239,6 +4326,9 @@ public final class tmarker extends javax.swing.JFrame {
          toolbar3 = new Toolbar3(this);
          jPanel5.add(toolbar3, java.awt.BorderLayout.CENTER);
          */
+        
+        splashTextAndProgress("Creating GUI...", 12);
+        
         if (aboutBox == null) {
             aboutBox = new TMARKERAboutBox(this);
         }
@@ -4247,14 +4337,19 @@ public final class tmarker extends javax.swing.JFrame {
         }
 
         // Restore the programm parameters
+        splashTextAndProgress("Restoring Parameters...", 14);
         restoreParameterValues(false);
 
         // load plugins
+        splashTextAndProgress("Loading Plugins...", 18);
         loadPlugins();
 
+        splashTextAndProgress("Restoring Plugin Parameters...", 85);
         // Restore the plugin parameters
         restoreParameterValues(true);
 
+        splashTextAndProgress("Finalizing...", 90);
+        
         setState_init();
 
         SwingUtilities.invokeLater(new Runnable() {
@@ -5808,6 +5903,7 @@ public final class tmarker extends javax.swing.JFrame {
             restoreParameterValues(appProps, only_plugins);
         } catch (Exception ex) {
             logger.log(java.util.logging.Level.WARNING, "File tmarker.conf not found. TMARKER default parameters used.");
+            restoreParameterValuesDefaults();
         }
     }
 
@@ -5937,7 +6033,7 @@ public final class tmarker extends javax.swing.JFrame {
             if (value != null) {
                 plugSel.setParam_loadedPlugins(value.replace("[", "").replace("]", "").split(";"));
             } else {
-                plugSel.setParam_loadedPlugins(new String[]{"ColorDeconvolution|||1.0|||Peter J. Schüffler"});
+                plugSel.setParam_loadedPlugins(new String[]{"Color Deconvolution|||1.x|||Peter J. Schüffler"});
             }
 
             //update toolbar according to new colors
@@ -5995,7 +6091,7 @@ public final class tmarker extends javax.swing.JFrame {
 
         bcd.setUseColor(true);
         
-        plugSel.setParam_loadedPlugins(new String[] {"ColorDeconvolution|||1.0|||Peter J. Schüffler"});
+        plugSel.setParam_loadedPlugins(new String[] {"Color Deconvolution|||1.x|||Peter J. Schüffler"});
 
         // Reset the plugin parameters
         for (Pluggable p : plugins) {

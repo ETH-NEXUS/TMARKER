@@ -185,7 +185,7 @@ public class PluginSelector extends javax.swing.JFrame {
                 String author = compartments[2];
                 String description = compartments[3];
                 for (Pluggable lp : loadedPlugins) {
-                    if (name.equals(lp.getPluginName()) && version.equals(lp.getVersion())) {
+                    if (name.equals(lp.getPluginName())) { // && version.equals(lp.getVersion())) {
                         isAlreadyloaded = true;
                         break;
                     }

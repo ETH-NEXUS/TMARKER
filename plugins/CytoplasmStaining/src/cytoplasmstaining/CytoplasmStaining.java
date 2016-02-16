@@ -64,7 +64,7 @@ public class CytoplasmStaining extends javax.swing.JFrame implements TMARKERPlug
     // For Plugin handling
     PluginManager manager = null;
     private static final String PLUGINNAME = "Cytoplasm Staining Clustering";
-    private static final String PLUGINVERSION = "1.0";
+    private static final String PLUGINVERSION = "1." + java.util.ResourceBundle.getBundle("cytoplasmstaining/Bundle").getString("build");
     
     private final StringToIntConverter stic = new StringToIntConverter();
     

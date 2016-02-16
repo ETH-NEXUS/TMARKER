@@ -125,6 +125,8 @@ public class PluginLoader {
         Document doc = Jsoup.connect(url.toString()).userAgent("Mozilla/5.0 (Macintosh; Intel Mac OS X 10_9_2) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/33.0.1750.152 Safari/537.36").get();
         //Document doc = Jsoup.connect(url.toString()).get();
         List<File> files = new ArrayList<>();
+        Elements elems = doc.select("a[href*=.jar]");
+        int k=0;
         for (Element elem : doc.select("a[href*=.jar]")) {
             
             // Get the metainfos (name, author, version)
@@ -142,6 +144,9 @@ public class PluginLoader {
             String fname = tmp_dir + Misc.FilePathStringtoFilename(link);
             if (fname.toLowerCase().endsWith(".jar") && 
                     (selectedPlugins == null || Arrays.asList(selectedPlugins).contains(name+"|||"+version+"|||"+author))) {
+                
+                tmarker.splashTextAndProgress("dwnl " + name, (int) (20.0+0.2*100.0*k++/elems.size()));
+            
                 File destination = new File(fname);
                 destination.deleteOnExit();
                 
@@ -225,9 +230,12 @@ public class PluginLoader {
      */
     private static List<Class<Pluggable>> extractClassesFromJARs(File[] jars, ClassLoader cl) throws IOException {
         List<Class<Pluggable>> classes = new ArrayList<>();
+        int k=0;
         for (File jar : jars) {
             try {
                 if (tmarker.DEBUG>1) Logger.getLogger(PluginLoader.class.getName()).log(Level.INFO, "    Try to extract JARs from " + jar.getName() + "...");
+                
+                tmarker.splashTextAndProgress(jar.getName(), (int) (40.0+0.20*100.0*k++/jars.length));
                 
                 classes.addAll(PluginLoader.extractClassesFromJAR(jar, cl));
                 
@@ -248,7 +256,7 @@ public class PluginLoader {
      * @throws IOException If the jar cannot be read.
      */
     @SuppressWarnings("unchecked")
-    private static List<Class<Pluggable>> extractClassesFromJAR(File jar, ClassLoader cl) throws IOException {
+    private static List<Class<Pluggable>> extractClassesFromJAR(final File jar, ClassLoader cl) throws IOException {
         List<Class<Pluggable>> classes = new ArrayList<>();
         JarInputStream jaris = new JarInputStream(new FileInputStream(jar));
         JarEntry ent;
@@ -272,8 +280,16 @@ public class PluginLoader {
                 } catch (ClassNotFoundException | NoClassDefFoundError ex) {
                     if (tmarker.DEBUG>2) Logger.getLogger(PluginLoader.class.getName()).log(Level.INFO, "      Try to extract " + ent.getName() + "... FAILED."); 
                     if (tmarker.DEBUG>0) System.err.println("Issue loading plugin " + jar.getName() + ". Error: Can't load Class " + ent.getName());
-                    if (!warning_shown && tmarker.DEBUG>0) {
-                        JOptionPane.showMessageDialog(null, "Issue loading plugin " + jar.getName() + ".\n\nError:\nCan't load Class " + ent.getName(), "Error Loading Plugin.", JOptionPane.ERROR_MESSAGE);
+                    if (!warning_shown && tmarker.DEBUG>5) {
+                        final JarEntry ent_final = ent;
+                        Thread thread = new Thread(new Runnable() {
+                            @Override
+                            public void run() {
+                                JOptionPane.showMessageDialog(null, "Issue loading plugin " + jar.getName() + ".\n\nError:\nCan't load Class " + ent_final.getName(), "Error Loading Plugin.", JOptionPane.ERROR_MESSAGE);
+                            }
+                        });
+                        thread.start();
+                        
                     }
                     warning_shown = true;
                 } 
@@ -307,9 +323,12 @@ public class PluginLoader {
      */
     private static List<Pluggable> createPluggableObjects(List<Class<Pluggable>> pluggables) {
         List<Pluggable> plugs = new ArrayList<>(pluggables.size());
+        int k=0;
         for (Class<Pluggable> plug : pluggables) {
             try {
                 if (tmarker.DEBUG>1) Logger.getLogger(PluginLoader.class.getName()).log(Level.INFO, "    Try to create instance from " + plug.getName() + "...");
+                
+                tmarker.splashTextAndProgress("create " + plug.getName(), (int) (60.0+0.2*100.0*k++/pluggables.size()));
                 
                 plugs.add(plug.newInstance());
                 

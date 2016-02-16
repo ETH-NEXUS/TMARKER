@@ -69,7 +69,7 @@ import weka.gui.hierarchyvisualizer.HierarchyVisualizer;
 public class IntensityClustering extends javax.swing.JFrame implements TMARKERPluginInterface.Pluggable {
 
     public static String PLUGINNAME = "Intensity Clustering";
-    private static final String PLUGINVERSION = "1.0";
+    private static final String PLUGINVERSION = "1." + java.util.ResourceBundle.getBundle("intensityclustering/Bundle").getString("build");
     PluginManager manager;
     List<TMAspot> current_TMAspots_Intensity = null;
     JFrame clusterVisualizer = null; // for visualization of the hierarchical clusterer.
