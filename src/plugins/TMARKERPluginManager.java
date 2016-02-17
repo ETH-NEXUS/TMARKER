@@ -352,4 +352,22 @@ public class TMARKERPluginManager implements PluginManager {
         }
         return null;
     }
+    
+    /**
+     * Returns the number of processors that can be used for processing.
+     * @return The number of processors that can be used for programming.
+     */
+    @Override
+    public int getNumberProcessors() {
+        return t.getOptionDialog().getParam_NumberProcessors();
+    }
+    
+    /**
+     * Returns the maximum heap space memory available.
+     * @return The max heap space memory available for computation in byte.
+     */
+    @Override
+    public long getMaxMemory() {
+        return t.getOptionDialog().getParam_MaxMemory();
+    }
 }

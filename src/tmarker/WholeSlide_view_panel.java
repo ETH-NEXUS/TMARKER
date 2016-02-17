@@ -34,19 +34,19 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.JScrollPane;
-import static tmarker.TMA_view_panel.cursor_cross;
-import static tmarker.TMA_view_panel.cursor_hand;
-import static tmarker.TMA_view_panel.recentPolyline_x;
-import static tmarker.TMA_view_panel.recentPolyline_y;
 import tmarker.TMAspot.TMALabel;
 import tmarker.TMAspot.TMApoint;
 import tmarker.TMAspot.TMAspot;
-import static tmarker.TMAspot_view_panel.drawCellCounts;
 import static tmarker.TMAspot_view_panel.drawAreas;
 import static tmarker.TMAspot_view_panel.drawDensitySoft;
 import tmarker.misc.Misc;
 import tmarker.misc.SortedProperties;
 import tmarker.misc.ZoomableNDPIPanel;
+import static tmarker.TMA_view_panel.CURSOR_CROSS;
+import static tmarker.TMA_view_panel.CURSOR_HAND;
+import static tmarker.TMA_view_panel.RECENT_POLYLINE_X;
+import static tmarker.TMA_view_panel.RECENT_POLYLINE_Y;
+import static tmarker.TMAspot_view_panel.drawCellCounts;
 
 /**
  *
@@ -142,27 +142,44 @@ public class WholeSlide_view_panel extends ZoomableNDPIPanel implements TMA_view
         } 
         // if we are in polygon drawing modus, do this.
         else if (evt.getClickCount() == 1 && (t.isInDrawIncludingAreaModus() || t.isInDrawExcludingAreaModus())) {
-            recentPolyline_x.add((int)(evt.getX()/getZoom()));
-            recentPolyline_y.add((int)(evt.getY()/getZoom()));
+            RECENT_POLYLINE_X.add((int)(evt.getX()/getZoom()));
+            RECENT_POLYLINE_Y.add((int)(evt.getY()/getZoom()));
             repaint();
         } else if (evt.getClickCount() > 1 && (t.isInDrawIncludingAreaModus() || t.isInDrawExcludingAreaModus())) {
-            recentPolyline_x.add((int)(evt.getX()/getZoom()));
-            recentPolyline_y.add((int)(evt.getY()/getZoom()));
-            int[] xs = new int[recentPolyline_x.size()];
-            int[] ys = new int[recentPolyline_y.size()];
-            for (int i=0; i<recentPolyline_x.size(); i++) {
-                xs[i] = recentPolyline_x.get(i);
-                ys[i] = recentPolyline_y.get(i);
+            RECENT_POLYLINE_X.add((int)(evt.getX()/getZoom()));
+            RECENT_POLYLINE_Y.add((int)(evt.getY()/getZoom()));
+            int[] xs = new int[RECENT_POLYLINE_X.size()];
+            int[] ys = new int[RECENT_POLYLINE_Y.size()];
+            for (int i=0; i<RECENT_POLYLINE_X.size(); i++) {
+                xs[i] = RECENT_POLYLINE_X.get(i);
+                ys[i] = RECENT_POLYLINE_Y.get(i);
             }
             if (t.isInDrawIncludingAreaModus()) {
-                ts.getIncludingAreas().add(new Polygon(xs, ys, recentPolyline_x.size()));
+                ts.getIncludingAreas().add(new Polygon(xs, ys, RECENT_POLYLINE_X.size()));
             } else {
-                ts.getExcludingAreas().add(new Polygon(xs, ys, recentPolyline_x.size()));
+                ts.getExcludingAreas().add(new Polygon(xs, ys, RECENT_POLYLINE_X.size()));
             }
-            recentPolyline_x.clear();
-            recentPolyline_y.clear();
+            RECENT_POLYLINE_X.clear();
+            RECENT_POLYLINE_Y.clear();
             repaint();
         } 
+        // on normal double click, increase zoom
+        else if (evt.getClickCount() > 1 && (t.isInDrawIncludingAreaModus() || t.isInDrawExcludingAreaModus())) {
+            int amount = -3;
+            Rectangle rect = getVisibleRect();
+            double oldZoom = t.getZoom();
+            if (amount <= 0) {
+                t.setZoomSlider(Math.max((int) (100*getZoom()+1), (int) (100*getZoom() * getZoomFactor())));
+            } else {
+                t.setZoomSlider((int) (100*getZoom() / getZoomFactor()));
+            }
+            double newZoom = t.getZoom();
+            double zfactor = newZoom / oldZoom;
+            int dx = (int)((zfactor-1)*(evt.getX()));
+            int dy = (int)((zfactor-1)*(evt.getY()));
+            rect.translate(dx, dy);
+            this.scrollRectToVisible(rect);
+        }
         // if we are in polygon switching modus, do this.
         else if (t.isInSwitchAreaModus()) {
             ts.switchPolygonOnPoint((int)(evt.getPoint().x/getZoom()), (int)(evt.getPoint().y/getZoom()));
@@ -279,11 +296,11 @@ public class WholeSlide_view_panel extends ZoomableNDPIPanel implements TMA_view
     }//GEN-LAST:event_formMousePressed
 
     private void formMouseReleased(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_formMouseReleased
-        setCursor(cursor_cross);
+        setCursor(CURSOR_CROSS);
     }//GEN-LAST:event_formMouseReleased
 
     private void formMouseDragged(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_formMouseDragged
-       TMApoint p_old = ts.getPointAt((int)(MouseLocus.getX()/getZoom()), (int)(MouseLocus.getY()/getZoom()), ts.getParam_r(), true);
+        TMApoint p_old = ts.getPointAt((int)(MouseLocus.getX()/getZoom()), (int)(MouseLocus.getY()/getZoom()), ts.getParam_r(), true);
         if (p_old!=null) {
             p_old.x=(int)(evt.getX()/getZoom());
             p_old.y=(int)(evt.getY()/getZoom());
@@ -294,7 +311,7 @@ public class WholeSlide_view_panel extends ZoomableNDPIPanel implements TMA_view
             repaint();
             ts.dispStainingInfo();
         } else { 
-            setCursor(cursor_hand);
+            setCursor(CURSOR_HAND);
             JScrollPane jsp = t.getTMAViewContainer();
             Point P = evt.getPoint();
             int dx = MouseLocus.x-P.x;
@@ -311,14 +328,14 @@ public class WholeSlide_view_panel extends ZoomableNDPIPanel implements TMA_view
             t.showTMAspotLocalZoom((int)(evt.getX()/getZoom()), (int)(evt.getY()/getZoom()));
             t.showTMAspotLocalZoomOnPreview((int)(evt.getX()/getZoom()), (int)(evt.getY()/getZoom()));
             if (t.isInDrawIncludingAreaModus() || t.isInDrawExcludingAreaModus() || t.isInDeleteAreaModus()) {
-               setCursor(cursor_hand);
+               setCursor(CURSOR_HAND);
             } else{
-                setCursor(cursor_cross);
+                setCursor(CURSOR_CROSS);
             }
             if (ts.hasStainingEstimation()) {
                 TMApoint tp = ts.getPointAt((int)(evt.getX()/getZoom()), (int) (evt.getY()/getZoom()), ts.getParam_r(), true);
                 if (tp!=null) {
-                    setCursor(cursor_hand);
+                    setCursor(CURSOR_HAND);
                     String text = "<html><b>" + ts.getName() + "</b><br>"+
                             "TMA point (" + tp.x + ", " + tp.y + ")<br>";
                     text += "staining intensity: " + tp.getStaining() + "<br>";
@@ -327,11 +344,11 @@ public class WholeSlide_view_panel extends ZoomableNDPIPanel implements TMA_view
                     text += tp.isTrainingPoint(true) ? "was used for classification training <br>" : "";
                     setToolTipText(text);
                 } else {
-                    setCursor(cursor_cross);
+                    setCursor(CURSOR_CROSS);
                     setToolTipText(null);
                 }
             } else {
-                setCursor(cursor_cross);
+                setCursor(CURSOR_CROSS);
                 setToolTipText(null);
             }
         } catch (Exception ex) {
@@ -582,7 +599,7 @@ public class WholeSlide_view_panel extends ZoomableNDPIPanel implements TMA_view
      */
     @Override
     public List<Integer> getRecentPolyline_x() {
-        return recentPolyline_x;
+        return RECENT_POLYLINE_X;
     }
     
     /**
@@ -591,7 +608,7 @@ public class WholeSlide_view_panel extends ZoomableNDPIPanel implements TMA_view
      */
     @Override
     public List<Integer> getRecentPolyline_y() {
-        return recentPolyline_y;
+        return RECENT_POLYLINE_Y;
     }
 
     /**
@@ -599,8 +616,8 @@ public class WholeSlide_view_panel extends ZoomableNDPIPanel implements TMA_view
      */
     @Override
     public void reliefRecentPolyLine() {
-        recentPolyline_x.clear();
-        recentPolyline_y.clear();
+        RECENT_POLYLINE_X.clear();
+        RECENT_POLYLINE_Y.clear();
         repaint();
     }
     
@@ -625,6 +642,26 @@ public class WholeSlide_view_panel extends ZoomableNDPIPanel implements TMA_view
             Logger.getLogger(WholeSlide_view_panel.class.getName()).log(Level.SEVERE, null, ex);
         }
         return null;
+    }
+
+    /**
+     * Sets the coordinates x, y of the image into the center of the current view. After calling, the
+     * user sees point x, y of the original image in the middle of the TMA view screen, at the same zoom level as before.
+     * @param x The x coordinate as original image coordinate.
+     * @param y The y coordinate as original image coordinate.
+     */
+    @Override
+    public void jumpToVisibleLocus(int x, int y) {
+        JScrollPane jsp = t.getTMAViewContainer();
+        Rectangle r = jsp.getViewport().getViewRect();
+        Point Pold = new Point(r.x + r.width/2, r.y + r.height/2);
+        int dx = (int)(x)-(int)(Pold.x/getZoom());
+        int dy = (int)(y)-(int)(Pold.y/getZoom());
+        r.setLocation((int)(dx*getZoom()), (int)(dy*getZoom()));
+        jsp.getViewport().scrollRectToVisible(r);
+        
+        t.showTMAspotLocalZoom(x,y);
+        t.showTMAspotLocalZoomOnPreview(x,y);
     }
 
     

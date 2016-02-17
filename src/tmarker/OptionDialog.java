@@ -687,6 +687,38 @@ public class OptionDialog extends javax.swing.JDialog {
         jTextField2.setText(sep);
     }
     
+    /**
+     * Returns the number of processors that can be used for processing.
+     * @return The number of processors that can be used for programming.
+     */
+    public int getParam_NumberProcessors() {
+        return Runtime.getRuntime().availableProcessors();
+    }
+
+    /**
+     * Returns the maximum heap space memory available.
+     * @return The max heap space memory available for computation in byte.
+     */
+    public long getParam_MaxMemory() {
+        return Runtime.getRuntime().maxMemory();
+    }
+    
+    /**
+     * Sets the number of processors that can be used for processing.
+     * @param n The number of processors that can be used for programming.
+     */
+    public void setParam_NumberProcessors(int n) {
+        
+    }
+
+    /**
+     * Sets the maximum heap space memory available.
+     * @param n The max heap space memory available for computation in byte.
+     */
+    public void setParam_MaxMemory(long n) {
+        
+    }
+    
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.ButtonGroup buttonGroup1;
     private javax.swing.ButtonGroup buttonGroup2;
@@ -719,6 +751,8 @@ public class OptionDialog extends javax.swing.JDialog {
     private javax.swing.JTextField jTextField2;
     private org.jdesktop.beansbinding.BindingGroup bindingGroup;
     // End of variables declaration//GEN-END:variables
+
+    
 
     
 }

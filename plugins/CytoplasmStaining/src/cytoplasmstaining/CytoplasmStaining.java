@@ -2,6 +2,8 @@ package cytoplasmstaining;
 
 import TMARKERPluginInterface.Pluggable;
 import TMARKERPluginInterface.PluginManager;
+import com.boxysystems.jgoogleanalytics.FocusPoint;
+import com.boxysystems.jgoogleanalytics.JGoogleAnalyticsTracker;
 import static cytoplasmstaining.HierarchicalClassifier.AVERAGE_LINKAGE;
 import graphcut.ConnectComponent;
 import graphcut.GraphCut;
@@ -147,8 +149,7 @@ public class CytoplasmStaining extends javax.swing.JFrame implements TMARKERPlug
 
         jPanel2.setLayout(new java.awt.GridBagLayout());
 
-        java.util.ResourceBundle bundle = java.util.ResourceBundle.getBundle("cytoplasmstaining/Bundle"); // NOI18N
-        jLabel17.setText(bundle.getString("CancerNucleusClassification.jLabel17.text")); // NOI18N
+        jLabel17.setText("Cell size");
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
         gridBagConstraints.gridy = 3;
@@ -158,7 +159,6 @@ public class CytoplasmStaining extends javax.swing.JFrame implements TMARKERPlug
 
         jTextField1.setColumns(3);
         jTextField1.setHorizontalAlignment(javax.swing.JTextField.TRAILING);
-        jTextField1.setText(bundle.getString("CancerNucleusClassification.jTextField1.text")); // NOI18N
         jTextField1.setToolTipText("If no cell segmentation is possible, cells are approx. circles with this diameter.");
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 1;
@@ -191,8 +191,8 @@ public class CytoplasmStaining extends javax.swing.JFrame implements TMARKERPlug
         gridBagConstraints.insets = new java.awt.Insets(15, 0, 0, 0);
         jPanel2.add(jSlider1, gridBagConstraints);
 
-        jButton4.setText(bundle.getString("CancerNucleusClassification.jButton4.text")); // NOI18N
-        jButton4.setToolTipText(bundle.getString("CancerNucleusClassification.jButton4.toolTipText")); // NOI18N
+        jButton4.setText("Auto size");
+        jButton4.setToolTipText("Cell size is set to 4 * Nucleus Radius");
         jButton4.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 jButton4ActionPerformed(evt);
@@ -206,7 +206,7 @@ public class CytoplasmStaining extends javax.swing.JFrame implements TMARKERPlug
         gridBagConstraints.insets = new java.awt.Insets(15, 0, 0, 0);
         jPanel2.add(jButton4, gridBagConstraints);
 
-        jLabel19.setText(bundle.getString("CancerNucleusClassification.jLabel19.text")); // NOI18N
+        jLabel19.setText("blur");
         jLabel19.setEnabled(false);
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
@@ -217,8 +217,6 @@ public class CytoplasmStaining extends javax.swing.JFrame implements TMARKERPlug
 
         jTextField2.setColumns(3);
         jTextField2.setHorizontalAlignment(javax.swing.JTextField.TRAILING);
-        java.util.ResourceBundle bundle1 = java.util.ResourceBundle.getBundle("cancernucleusclassification/Bundle"); // NOI18N
-        jTextField2.setText(bundle1.getString("CancerNucleusClassification.jTextField2.text")); // NOI18N
         jTextField2.setEnabled(false);
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 1;
@@ -250,7 +248,6 @@ public class CytoplasmStaining extends javax.swing.JFrame implements TMARKERPlug
         jPanel2.add(jSlider2, gridBagConstraints);
 
         jCheckBox2.setSelected(true);
-        jCheckBox2.setText(bundle.getString("CancerNucleusClassification.jCheckBox2.text")); // NOI18N
         jCheckBox2.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 jCheckBox2ActionPerformed(evt);
@@ -263,7 +260,6 @@ public class CytoplasmStaining extends javax.swing.JFrame implements TMARKERPlug
         gridBagConstraints.insets = new java.awt.Insets(10, 5, 0, 0);
         jPanel2.add(jCheckBox2, gridBagConstraints);
 
-        jCheckBox3.setText(bundle.getString("CancerNucleusClassification.jCheckBox3.text")); // NOI18N
         jCheckBox3.setToolTipText("");
         jCheckBox3.setEnabled(false);
         jCheckBox3.addActionListener(new java.awt.event.ActionListener() {
@@ -469,8 +465,6 @@ public class CytoplasmStaining extends javax.swing.JFrame implements TMARKERPlug
         gridBagConstraints.insets = new java.awt.Insets(10, 5, 0, 0);
         jPanel2.add(jCheckBox7, gridBagConstraints);
 
-        java.util.ResourceBundle bundle2 = java.util.ResourceBundle.getBundle("intensityclustering/Bundle"); // NOI18N
-        jXColorSelectionButton3.setText(bundle2.getString("IntensityClustering.jXColorSelectionButton3.text")); // NOI18N
         jXColorSelectionButton3.setToolTipText("Background Color (area not considered as cytoplasm)");
         jXColorSelectionButton3.addChangeListener(new javax.swing.event.ChangeListener() {
             public void stateChanged(javax.swing.event.ChangeEvent evt) {
@@ -604,7 +598,7 @@ public class CytoplasmStaining extends javax.swing.JFrame implements TMARKERPlug
 
         jScrollPane1.setViewportView(jPanel1);
 
-        getContentPane().add(jScrollPane1, java.awt.BorderLayout.CENTER);
+        getContentPane().add(jScrollPane1, java.awt.BorderLayout.LINE_END);
 
         bindingGroup.bind();
 
@@ -657,6 +651,9 @@ public class CytoplasmStaining extends javax.swing.JFrame implements TMARKERPlug
 
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
         ComputeCytoplasmStaining();
+        JGoogleAnalyticsTracker tracker = new JGoogleAnalyticsTracker("TMARKER","UA-61194283-1");
+        FocusPoint focusPoint = new FocusPoint("CytoplasmStaining");
+        tracker.trackAsynchronously(focusPoint);
     }//GEN-LAST:event_jButton1ActionPerformed
 
     private void jButton3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton3ActionPerformed

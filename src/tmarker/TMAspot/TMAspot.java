@@ -1324,7 +1324,7 @@ public class TMAspot {
     
     /**
      * Returns all points which are computationally guessed (estimated).
-     * @return All points which are computationally guessed (estimated).
+     * @return All points which are computationally guessed (estimated) (new ArrayList).
      */
     public List<TMApoint> getPoints_Estimated() {
         List<TMApoint> ps = getPoints();
@@ -1868,9 +1868,10 @@ public class TMAspot {
     }
     
     /**
-     * Returns the image of this TMAspot.
-     * @param asNewInstance If true, a new BufferedImage instance is returned (important if you write on the image). Otherwise, the TMAView image is returned for the currently visible
-     * TMAspot (faster but only useful for read-access to the image).
+     * Returns the image of this TMAspot. Note: for large image format (SVS, NDPI or other pyramid images), this returns a kind of thumbnail whose size
+     * regards the currently available memory, and 
+     * @param asNewInstance IGNORED, is always treated as true. (formerly: If true, a new BufferedImage instance is returned (important if you write on the image). Otherwise, the TMAView image is returned for the currently visible
+     * TMAspot (faster but only useful for read-access to the image).)
      * @return The image of this TMAspot.
      */
     public BufferedImage getBufferedImage(boolean asNewInstance) {
@@ -1921,10 +1922,24 @@ public class TMAspot {
      * @return A new BufferedImage, subimage of this TMAspot.
      */
     public BufferedImage getSubimage(int x, int y, int w, int h, int maxsize) {
+        return getSubimage(x, y, w, h, maxsize, BufferedImage.TYPE_INT_ARGB);
+    }
+    
+    /**
+     * Returns a subimage of this TMAspot.
+     * @param x The top left x coordinate.
+     * @param y The top left y coordinate.
+     * @param w The width.
+     * @param h The height.
+     * @param maxsize The maximum edge length (any edge) of the image. Used for NDPI images (openSlide).
+     * @param bufferedImageType The bufferedImageType (e.g. BufferedImage.TYPE_INT_ARGB).
+     * @return A new BufferedImage, subimage of this TMAspot.
+     */
+    public BufferedImage getSubimage(int x, int y, int w, int h, int maxsize, int bufferedImageType) {
         BufferedImage img;
         if (isNDPI()) {
             try {
-                img = getNDPI().createThumbnailImage(x, y, w, h, maxsize);
+                img = getNDPI().createThumbnailImage(x, y, w, h, maxsize, bufferedImageType);
             } catch (IOException ex) {
                 img = null;
                 if (tmarker.DEBUG>0) {
@@ -1933,6 +1948,11 @@ public class TMAspot {
             }
         } else {
             img = getBufferedImage().getSubimage(x, y, w, h);
+            if (img.getType() != bufferedImageType) {
+                BufferedImage convertedImg = new BufferedImage(img.getWidth(), img.getHeight(), bufferedImageType);
+                convertedImg.getGraphics().drawImage(img, 0, 0, null);
+                img = convertedImg;
+            }
         }
         return img;
     }

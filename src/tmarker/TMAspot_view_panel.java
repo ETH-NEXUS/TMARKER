@@ -27,20 +27,24 @@ import java.awt.Polygon;
 import java.awt.RadialGradientPaint;
 import java.awt.Rectangle;
 import java.awt.RenderingHints;
+import java.awt.Toolkit;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.geom.Point2D;
 import java.awt.image.BufferedImage;
 import java.util.List;
 import java.util.logging.Logger;
 import javax.swing.JScrollPane;
-import static tmarker.TMA_view_panel.cursor_cross;
-import static tmarker.TMA_view_panel.cursor_hand;
-import static tmarker.TMA_view_panel.recentPolyline_x;
-import static tmarker.TMA_view_panel.recentPolyline_y;
+import javax.swing.Timer;
 import tmarker.TMAspot.TMALabel;
 import tmarker.TMAspot.TMApoint;
 import tmarker.TMAspot.TMAspot;
 import tmarker.misc.Misc;
 import tmarker.misc.ZoomableImagePanel;
+import static tmarker.TMA_view_panel.CURSOR_CROSS;
+import static tmarker.TMA_view_panel.CURSOR_HAND;
+import static tmarker.TMA_view_panel.RECENT_POLYLINE_X;
+import static tmarker.TMA_view_panel.RECENT_POLYLINE_Y;
 
 /**
  *
@@ -52,6 +56,10 @@ public class TMAspot_view_panel extends ZoomableImagePanel implements TMA_view_p
     Point MouseLocus = new Point(0,0);
     int Image_Width = 0;
     int Image_Height = 0;
+    
+    boolean wasDoubleClick;
+    Timer timer;
+        
     
     public TMAspot_view_panel(tmarker t) {
         initComponents();
@@ -142,152 +150,152 @@ public class TMAspot_view_panel extends ZoomableImagePanel implements TMA_view_p
         // if we are in background color correction modus, do this.
         if (t.isInBGCorrectionModus()) {
             t.performBGCorrection((int)(evt.getX()/getZoom()), (int)(evt.getY()/getZoom())); 
-        } 
+                }
         // if we are in polygon drawing modus, do this.
         else if (evt.getClickCount() == 1 && (t.isInDrawIncludingAreaModus() || t.isInDrawExcludingAreaModus())) {
-            recentPolyline_x.add((int)(evt.getX()/getZoom()));
-            recentPolyline_y.add((int)(evt.getY()/getZoom()));
+            RECENT_POLYLINE_X.add((int)(evt.getX()/getZoom()));
+            RECENT_POLYLINE_Y.add((int)(evt.getY()/getZoom()));
             repaint();
         } else if (evt.getClickCount() > 1 && (t.isInDrawIncludingAreaModus() || t.isInDrawExcludingAreaModus())) {
-            recentPolyline_x.add((int)(evt.getX()/getZoom()));
-            recentPolyline_y.add((int)(evt.getY()/getZoom()));
-            int[] xs = new int[recentPolyline_x.size()];
-            int[] ys = new int[recentPolyline_y.size()];
-            for (int i=0; i<recentPolyline_x.size(); i++) {
-                xs[i] = recentPolyline_x.get(i);
-                ys[i] = recentPolyline_y.get(i);
+            RECENT_POLYLINE_X.add((int)(evt.getX()/getZoom()));
+            RECENT_POLYLINE_Y.add((int)(evt.getY()/getZoom()));
+            int[] xs = new int[RECENT_POLYLINE_X.size()];
+            int[] ys = new int[RECENT_POLYLINE_Y.size()];
+            for (int i=0; i<RECENT_POLYLINE_X.size(); i++) {
+                xs[i] = RECENT_POLYLINE_X.get(i);
+                ys[i] = RECENT_POLYLINE_Y.get(i);
             }
             if (t.isInDrawIncludingAreaModus()) {
-                ts.getIncludingAreas().add(new Polygon(xs, ys, recentPolyline_x.size()));
-            } else {
-                ts.getExcludingAreas().add(new Polygon(xs, ys, recentPolyline_x.size()));
-            }
-            recentPolyline_x.clear();
-            recentPolyline_y.clear();
-            repaint();
-        } 
+                ts.getIncludingAreas().add(new Polygon(xs, ys, RECENT_POLYLINE_X.size()));
+                } else {
+                ts.getExcludingAreas().add(new Polygon(xs, ys, RECENT_POLYLINE_X.size()));
+                }
+            RECENT_POLYLINE_X.clear();
+            RECENT_POLYLINE_Y.clear();
+                repaint();
+                }
         // if we are in polygon switching modus, do this.
-        else if (t.isInSwitchAreaModus()) {
+                    else if (t.isInSwitchAreaModus()) {
             ts.switchPolygonOnPoint((int)(evt.getPoint().x/getZoom()), (int)(evt.getPoint().y/getZoom()));
-            repaint();
+                        repaint();
         } 
         // if we are in polygon deletion modus, do this.
-        else if (t.isInDeleteAreaModus()) {
+                    else if (t.isInDeleteAreaModus()) {
             ts.deletePolygonOnPoint((int)(evt.getPoint().x/getZoom()), (int)(evt.getPoint().y/getZoom()));
-            repaint();
+                        repaint();
         } 
         // else...
-        else {
+                    else {
             if(!evt.isControlDown()) {
                 if (evt.getButton() == java.awt.event.MouseEvent.BUTTON1) { // the normal left button
                     Point p = new Point(evt.getPoint());
-                    switch (t.getClickBehaviour()) {
-                        case tmarker.CLICK_BEHAVIOUR_DELETE: { 
+                                switch (t.getClickBehaviour()) {
+                                    case tmarker.CLICK_BEHAVIOUR_DELETE: {
                             TMApoint p_old = ts.getPointAt((int)(p.getX()/getZoom()), (int)(p.getY()/getZoom()), ts.getParam_r(), true);
                             if (p_old!=null) {
-                                ts.removePoint(p_old);
-                            } 
-                            break;
-                        }
-                        case tmarker.CLICK_BEHAVIOUR_FLIP: {
+                                            ts.removePoint(p_old);
+                                        }
+                                        break;
+                                    }
+                                    case tmarker.CLICK_BEHAVIOUR_FLIP: {
                             TMApoint p_old = ts.getPointAt((int)(p.getX()/getZoom()), (int)(p.getY()/getZoom()), ts.getParam_r(), true);
                             if (p_old!=null) {
-                                if (t.getOptionDialog().isAutomaticESGSConversion()) {
-                                    p_old.setGoldStandard(t.getGSNumberForLabeling());
-                                }
-                                p_old.flipLabel(false);
-                            }
-                            break;
-                        }
-                        case tmarker.CLICK_BEHAVIOUR_CORSTAIN_GRAD: {
+                                            if (t.getOptionDialog().isAutomaticESGSConversion()) {
+                                                p_old.setGoldStandard(t.getGSNumberForLabeling());
+                                            }
+                                            p_old.flipLabel(false);
+                                        }
+                                        break;
+                                    }
+                                    case tmarker.CLICK_BEHAVIOUR_CORSTAIN_GRAD: {
                             TMApoint p_old = ts.getPointAt((int)(p.getX()/getZoom()), (int)(p.getY()/getZoom()), ts.getParam_r(), true);
                             if (p_old!=null) {
-                                if (t.getOptionDialog().isAutomaticESGSConversion()) {
-                                    p_old.setGoldStandard(t.getGSNumberForLabeling());
-                                }
-                                p_old.flipStaining(false);
-                            }
-                            break;
-                        }
-                        case tmarker.CLICK_BEHAVIOUR_CORSTAIN_BIN: {
+                                            if (t.getOptionDialog().isAutomaticESGSConversion()) {
+                                                p_old.setGoldStandard(t.getGSNumberForLabeling());
+                                            }
+                                            p_old.flipStaining(false);
+                                        }
+                                        break;
+                                    }
+                                    case tmarker.CLICK_BEHAVIOUR_CORSTAIN_BIN: {
                             TMApoint p_old = ts.getPointAt((int)(p.getX()/getZoom()), (int)(p.getY()/getZoom()), ts.getParam_r(), true);
                             if (p_old!=null) {
-                                if (t.getOptionDialog().isAutomaticESGSConversion()) {
-                                    p_old.setGoldStandard(t.getGSNumberForLabeling());
-                                }
-                                p_old.flipStaining(true);
-                            }
-                            break;
-                        }
-                        case tmarker.CLICK_BEHAVIOUR_ADD_POS: {
+                                            if (t.getOptionDialog().isAutomaticESGSConversion()) {
+                                                p_old.setGoldStandard(t.getGSNumberForLabeling());
+                                            }
+                                            p_old.flipStaining(true);
+                                        }
+                                        break;
+                                    }
+                                    case tmarker.CLICK_BEHAVIOUR_ADD_POS: {
                             TMApoint tp = ts.getPointAt((int)(p.getX()/getZoom()), (int)(p.getY()/getZoom()), ts.getParam_r(), true);
                             if (tp==null) {
                                 tp = new TMApoint(ts, (int)(p.getX()/getZoom()), (int)(p.getY()/getZoom()), TMALabel.LABEL_POS, ts.getCenter().getCurrentStainingIntensity());
-                            }
-                            //tp.calculateStaining();
-                            tp.setLabel(TMALabel.LABEL_POS);
-                            tp.setStaining(ts.getCenter().getCurrentStainingIntensity());
-                            tp.setGoldStandard(t.getGSNumberForLabeling());
-                            ts.addPoint(tp);
-                            break;
-                        }
-                        case tmarker.CLICK_BEHAVIOUR_ADD_NEG: {
+                                        }
+                                        //tp.calculateStaining();
+                                        tp.setLabel(TMALabel.LABEL_POS);
+                                        tp.setStaining(ts.getCenter().getCurrentStainingIntensity());
+                                        tp.setGoldStandard(t.getGSNumberForLabeling());
+                                        ts.addPoint(tp);
+                                        break;
+                                    }
+                                    case tmarker.CLICK_BEHAVIOUR_ADD_NEG: {
                             TMApoint tp = ts.getPointAt((int)(p.getX()/getZoom()), (int)(p.getY()/getZoom()), ts.getParam_r(), true);
                             if (tp==null) {
                                 tp = new TMApoint(ts, (int)(p.getX()/getZoom()), (int)(p.getY()/getZoom()), TMALabel.LABEL_NEG, ts.getCenter().getCurrentStainingIntensity());
-                            }
-                            //tp.calculateStaining();
-                            tp.setLabel(TMALabel.LABEL_NEG);
-                            tp.setStaining(ts.getCenter().getCurrentStainingIntensity());
-                            tp.setGoldStandard(t.getGSNumberForLabeling());
-                            ts.addPoint(tp);
-                            break;
-                        }
-                        case tmarker.CLICK_BEHAVIOUR_ADD_UNK: {
+                                        }
+                                        //tp.calculateStaining();
+                                        tp.setLabel(TMALabel.LABEL_NEG);
+                                        tp.setStaining(ts.getCenter().getCurrentStainingIntensity());
+                                        tp.setGoldStandard(t.getGSNumberForLabeling());
+                                        ts.addPoint(tp);
+                                        break;
+                                    }
+                                    case tmarker.CLICK_BEHAVIOUR_ADD_UNK: {
                             TMApoint tp = ts.getPointAt((int)(p.getX()/getZoom()), (int)(p.getY()/getZoom()), ts.getParam_r(), true);
                             if (tp==null) {
                                 tp = new TMApoint(ts, (int)(p.getX()/getZoom()), (int)(p.getY()/getZoom()), TMALabel.LABEL_UNK, ts.getCenter().getCurrentStainingIntensity());
-                            }
-                            //tp.calculateStaining();
-                            tp.setLabel(TMALabel.LABEL_UNK);
-                            tp.setStaining(ts.getCenter().getCurrentStainingIntensity());
-                            tp.setGoldStandard(t.getGSNumberForLabeling());
-                            ts.addPoint(tp);
-                            break;
-                        }
-                        case tmarker.CLICK_BEHAVIOUR_ADD_BG: {
+                                        }
+                                        //tp.calculateStaining();
+                                        tp.setLabel(TMALabel.LABEL_UNK);
+                                        tp.setStaining(ts.getCenter().getCurrentStainingIntensity());
+                                        tp.setGoldStandard(t.getGSNumberForLabeling());
+                                        ts.addPoint(tp);
+                                        break;
+                                    }
+                                    case tmarker.CLICK_BEHAVIOUR_ADD_BG: {
                             TMApoint tp = ts.getPointAt((int)(p.getX()/getZoom()), (int)(p.getY()/getZoom()), ts.getParam_r(), true);
                             if (tp==null) {
                                 tp = new TMApoint(ts, (int)(p.getX()/getZoom()), (int)(p.getY()/getZoom()), TMALabel.LABEL_BG);
-                            }
-                            //tp.calculateStaining();
-                            tp.setLabel(TMALabel.LABEL_BG);
-                            tp.setGoldStandard(t.getGSNumberForLabeling());
-                            ts.addPoint(tp);
-                            break;
-                        }
-                        case tmarker.CLICK_BEHAVIOUR_NONE: {
-                            break;
-                        }
+                                        }
+                                        //tp.calculateStaining();
+                                        tp.setLabel(TMALabel.LABEL_BG);
+                                        tp.setGoldStandard(t.getGSNumberForLabeling());
+                                        ts.addPoint(tp);
+                                        break;
+                                    }
+                                    case tmarker.CLICK_BEHAVIOUR_NONE: {
+                                        break;
+                                    }
                         default: break;
-                    }
-                    repaint();
-                    
-                    ts.dispStainingInfo();
-                }
-            }
-            // Allow the plugins to do s.th. with the TMApoint
+                                }
+                                repaint();
+
+                                ts.dispStainingInfo();
+                            }
+                        }
+                        // Allow the plugins to do s.th. with the TMApoint
             Point p = new Point(evt.getPoint());
             for (Pluggable plugin: t.getPlugins()) {
                 plugin.TMAspotMouseClicked(ts, ts.getPointAt((int)(p.getX()/getZoom()), (int)(p.getY()/getZoom()), ts.getParam_r(), false), evt);
-            }
-        }
+                        }
+                    }
         if (!t.getSelectedTMAspots(false).contains(ts)) {
             for (TMAspot ts_: t.getTMAspots()) {
                     ts_.setSelected(ts_==ts);
-                }
+            }
         }
-        
+
     }//GEN-LAST:event_formMouseClicked
 
     private void formMousePressed(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_formMousePressed
@@ -295,7 +303,7 @@ public class TMAspot_view_panel extends ZoomableImagePanel implements TMA_view_p
     }//GEN-LAST:event_formMousePressed
 
     private void formMouseReleased(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_formMouseReleased
-        setCursor(cursor_cross);
+        setCursor(CURSOR_CROSS);
     }//GEN-LAST:event_formMouseReleased
 
     private void formMouseDragged(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_formMouseDragged
@@ -310,7 +318,7 @@ public class TMAspot_view_panel extends ZoomableImagePanel implements TMA_view_p
             repaint();
             ts.dispStainingInfo();
         } else { 
-            setCursor(cursor_hand);
+            setCursor(CURSOR_HAND);
             JScrollPane jsp = t.getTMAViewContainer();
             Point P = evt.getPoint();
             int dx = MouseLocus.x-P.x;
@@ -333,14 +341,14 @@ public class TMAspot_view_panel extends ZoomableImagePanel implements TMA_view_p
             t.showTMAspotLocalZoom((int)(evt.getX()/getZoom()), (int)(evt.getY()/getZoom()));
             t.showTMAspotLocalZoomOnPreview((int)(evt.getX()/getZoom()), (int)(evt.getY()/getZoom()));
             if (t.isInDrawIncludingAreaModus() || t.isInDrawExcludingAreaModus() || t.isInDeleteAreaModus()) {
-               setCursor(cursor_hand);
+               setCursor(CURSOR_HAND);
             } else{
-                setCursor(cursor_cross);
+                setCursor(CURSOR_CROSS);
             }
             if (ts.hasStainingEstimation()) {
                 TMApoint tp = ts.getPointAt((int)(evt.getX()/getZoom()), (int) (evt.getY()/getZoom()), ts.getParam_r(), true);
                 if (tp!=null) {
-                    setCursor(cursor_hand);
+                    setCursor(CURSOR_HAND);
                     String text = "<html><b>" + ts.getName() + "</b><br>"+
                             "TMA point (" + tp.x + ", " + tp.y + ")<br>";
                     text += "staining intensity: " + tp.getStaining() + "<br>";
@@ -350,11 +358,11 @@ public class TMAspot_view_panel extends ZoomableImagePanel implements TMA_view_p
                     text += "Average RGB around this point: "; Color col = TMAspot.getAverageColorAtPoint(bi, tp.x, tp.y, ts.getParam_r(), false); text += col.getRed() + "/" + col.getGreen() + "/" + col.getBlue();
                     setToolTipText(text);
                 } else {
-                    setCursor(cursor_cross);
+                    setCursor(CURSOR_CROSS);
                     setToolTipText(null);
                 }
             } else {
-                setCursor(cursor_cross);
+                setCursor(CURSOR_CROSS);
                 setToolTipText(null);
             }
         } catch (Exception ex) {
@@ -779,7 +787,7 @@ public class TMAspot_view_panel extends ZoomableImagePanel implements TMA_view_p
      */
     @Override
     public List<Integer> getRecentPolyline_x() {
-        return recentPolyline_x;
+        return RECENT_POLYLINE_X;
     }
     
     /**
@@ -788,7 +796,7 @@ public class TMAspot_view_panel extends ZoomableImagePanel implements TMA_view_p
      */
     @Override
     public List<Integer> getRecentPolyline_y() {
-        return recentPolyline_y;
+        return RECENT_POLYLINE_Y;
     }
 
     /**
@@ -796,8 +804,8 @@ public class TMAspot_view_panel extends ZoomableImagePanel implements TMA_view_p
      */
     @Override
     public void reliefRecentPolyLine() {
-        recentPolyline_x.clear();
-        recentPolyline_y.clear();
+        RECENT_POLYLINE_X.clear();
+        RECENT_POLYLINE_Y.clear();
         repaint();
     }
     
@@ -822,5 +830,25 @@ public class TMAspot_view_panel extends ZoomableImagePanel implements TMA_view_p
     public TMAspot getTMAspot() {
         return ts;
     }
-
+    
+    /**
+     * Sets the coordinates x, y of the image into the center of the current view. After calling, the
+     * user sees point x, y of the original image in the middle of the TMA view screen, at the same zoom level as before.
+     * @param x The x coordinate as original image coordinate.
+     * @param y The y coordinate as original image coordinate.
+     */
+    @Override
+    public void jumpToVisibleLocus(int x, int y) {
+        JScrollPane jsp = t.getTMAViewContainer();
+        Rectangle r = jsp.getViewport().getViewRect();
+        Point Pold = new Point(r.x + r.width/2, r.y + r.height/2);
+        int dx = (int)(x)-(int)(Pold.x/getZoom());
+        int dy = (int)(y)-(int)(Pold.y/getZoom());
+        r.setLocation((int)(dx*getZoom()), (int)(dy*getZoom()));
+        jsp.getViewport().scrollRectToVisible(r);
+        
+        t.showTMAspotLocalZoom(x,y);
+        t.showTMAspotLocalZoomOnPreview(x,y);
+    }
+    
 }

@@ -55,8 +55,9 @@ public class PerformanceOverviewPanel extends javax.swing.JPanel {
             //freeMem.add(0);
             totMem.add(0);
             usedMem.add(0);
-            maxMem = (int)(Runtime.getRuntime().maxMemory()/1024/1024);
         }
+        maxMem = (int)(Runtime.getRuntime().maxMemory()/1024/1024);
+        
         continueThread();
     }
     

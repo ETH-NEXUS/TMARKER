@@ -2706,7 +2706,7 @@ public class StainingEstimation extends javax.swing.JFrame implements TMARKERPlu
             List<Point> offsets = new ArrayList();
             List<Point> sizes = new ArrayList();
             
-            int maxbytes = (int) (0.3 * Runtime.getRuntime().maxMemory() / Runtime.getRuntime().availableProcessors());
+            int maxbytes = (int) (0.1 * se.manager.getMaxMemory() / se.manager.getNumberProcessors());
             int size = (int) Math.floor(Math.sqrt(maxbytes/4.0));
             int w = ts.getWidth();
             int h = ts.getHeight();
@@ -2749,8 +2749,8 @@ public class StainingEstimation extends javax.swing.JFrame implements TMARKERPlu
             
             StainingEstimationCoreThread sect = new StainingEstimationCoreThread((TMARKERPluginManager) se.getPluginManager(), se, ts, radius, blur, tolerance, TMblur_hema, TMblur_dab, t_hema, t_dab, hide_legend, myStain, substractChannels, useThresholdMap, respectAreas, brown_spots_total, offsets, sizes, size);
             sect.start();
-            
             sect.join();
+            
         } catch (InterruptedException ex) {
             Logger.getLogger(StainingEstimation.class.getName()).log(Level.SEVERE, null, ex);
         }

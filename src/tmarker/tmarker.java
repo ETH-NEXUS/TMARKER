@@ -55,6 +55,8 @@ import java.awt.PaintContext;
 import java.awt.RenderingHints;
 import java.awt.SplashScreen;
 import java.awt.Transparency;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.ColorModel;
@@ -110,17 +112,10 @@ public final class tmarker extends javax.swing.JFrame {
         }
     }
     
-    private static Rectangle2D getSplashTextArea(int width, int height) {
-        return new Rectangle2D.Double(0.5*width+30, 0.5*height+46, 0.3*width, 12);
-    }
-    
-    private static Rectangle2D getSplashProgressArea(int width, int height) {
-        return new Rectangle2D.Double(0.5*width+36, 0.5*height+51, 0.3*width, 12);
-    }
-    
     /**
-     * Display text in status area of Splash.  Note: no validation it will fit.
+     * Display text and progress bar in status area of Splash.  Note: no validation it will fit.
      * @param str - text to be displayed
+     * @param pct - percent of the progress bar (0-100).
      */
     public static void splashTextAndProgress(String str, int pct)
     {
@@ -133,8 +128,8 @@ public final class tmarker extends javax.swing.JFrame {
             int width = ssDim.width;
             
             Graphics2D splashGraphics = mySplash.createGraphics();
-            Rectangle2D splashTextArea = getSplashTextArea(width, height);
-            Rectangle2D splashProgressArea = getSplashProgressArea(width, height);
+            Rectangle2D splashTextArea = new Rectangle2D.Double(0.5*width+30, 0.5*height+46, 0.3*width, 12);
+            Rectangle2D splashProgressArea = new Rectangle2D.Double(0.5*width+36, 0.5*height+51, 0.3*width, 12);
             
             java.awt.Font font = new java.awt.Font("Dialog", java.awt.Font.PLAIN, 10);
             splashGraphics.setFont(font);
@@ -710,6 +705,11 @@ public final class tmarker extends javax.swing.JFrame {
         jSlider1.setPaintTicks(true);
         jSlider1.setToolTipText("Zoom Slider");
         jSlider1.setValue(100);
+        jSlider1.addChangeListener(new javax.swing.event.ChangeListener() {
+            public void stateChanged(javax.swing.event.ChangeEvent evt) {
+                jSlider1StateChanged(evt);
+            }
+        });
         jToolBar3.add(jSlider1);
 
         jTextField1.setColumns(4);
@@ -721,9 +721,9 @@ public final class tmarker extends javax.swing.JFrame {
         org.jdesktop.beansbinding.Binding binding = org.jdesktop.beansbinding.Bindings.createAutoBinding(org.jdesktop.beansbinding.AutoBinding.UpdateStrategy.READ_WRITE, jSlider1, org.jdesktop.beansbinding.ELProperty.create("${value}"), jTextField1, org.jdesktop.beansbinding.BeanProperty.create("text"), "jTextField1Binding");
         bindingGroup.addBinding(binding);
 
-        jTextField1.addCaretListener(new javax.swing.event.CaretListener() {
-            public void caretUpdate(javax.swing.event.CaretEvent evt) {
-                jTextField1CaretUpdate(evt);
+        jTextField1.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyReleased(java.awt.event.KeyEvent evt) {
+                jTextField1KeyReleased(evt);
             }
         });
         jToolBar3.add(jTextField1);
@@ -1673,31 +1673,6 @@ public final class tmarker extends javax.swing.JFrame {
         jToolBar3.setVisible(jCheckBoxMenuItem3.isSelected());
     }//GEN-LAST:event_jCheckBoxMenuItem3ActionPerformed
 
-		private void jTextField1CaretUpdate(javax.swing.event.CaretEvent evt) {//GEN-FIRST:event_jTextField1CaretUpdate
-                    if (evt.getDot() == evt.getMark()) {
-                        if (getVisibleTMAspot() != null && !jTextField1.getText().isEmpty()) {
-                            try {
-                                getTMAView().setZoom(Double.parseDouble(jTextField1.getText().trim()) / 100.0);
-
-                                // zoom to the middle of the window
-                                TMA_view_panel tvp = (getVisibleTMAspot() == null) ? tmaspot_view_panel : (getVisibleTMAspot().isNDPI() ? wholeslide_view_panel : tmaspot_view_panel);
-                                java.awt.Rectangle r = ((JPanel) tvp).getVisibleRect();
-                                double xfactor = ((JPanel) tvp).getPreferredSize().getWidth() / ((JPanel) tvp).getSize().getWidth();
-                                double yfactor = ((JPanel) tvp).getPreferredSize().getHeight() / ((JPanel) tvp).getSize().getHeight();
-                                int dx = (int) ((xfactor - 1) * (r.x + r.width / 2));
-                                int dy = (int) ((yfactor - 1) * (r.y + r.height / 2));
-                                r.translate(dx, dy);
-                                ((JPanel) tvp).scrollRectToVisible(r);
-
-                            } catch (Exception e) {
-                                if (DEBUG > 0) {
-                                    Logger.getLogger(tmarker.class.getName()).log(Level.SEVERE, null, e);
-                                }
-                            }
-                        }
-                    }
-    }//GEN-LAST:event_jTextField1CaretUpdate
-
     private void jCheckBoxMenuItem4ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jCheckBoxMenuItem4ActionPerformed
         jPanel6.setVisible(jCheckBoxMenuItem4.isSelected());
         if (jCheckBoxMenuItem4.isSelected()) {
@@ -1718,6 +1693,38 @@ public final class tmarker extends javax.swing.JFrame {
         plugSel.initializePluginList();
         plugSel.setVisible(true);
     }//GEN-LAST:event_jMenuItem26ActionPerformed
+
+    private void jTextField1KeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_jTextField1KeyReleased
+        //if (evt.getDot() == evt.getMark()) { // used if this should be a carretupdatelistener
+            if (getVisibleTMAspot() != null && !jTextField1.getText().isEmpty()) {
+                try {
+                    getTMAView().setZoom(Double.parseDouble(jTextField1.getText().trim()) / 100.0);
+
+                    // zoom to the middle of the window as it was before zoom change
+                    TMA_view_panel tvp = (getVisibleTMAspot() == null) ? tmaspot_view_panel : (getVisibleTMAspot().isNDPI() ? wholeslide_view_panel : tmaspot_view_panel);
+                    java.awt.Rectangle r = ((JPanel) tvp).getVisibleRect();
+                    double xfactor = ((JPanel) tvp).getPreferredSize().getWidth() / ((JPanel) tvp).getSize().getWidth();
+                    double yfactor = ((JPanel) tvp).getPreferredSize().getHeight() / ((JPanel) tvp).getSize().getHeight();
+                    int dx = (int) ((xfactor - 1) * (r.x + r.width / 2));
+                    int dy = (int) ((yfactor - 1) * (r.y + r.height / 2));
+                    r.translate(dx, dy);
+                    ((JPanel) tvp).scrollRectToVisible(r);
+                    ((JPanel) tvp).scrollRectToVisible(r);
+
+                    //showTMAspotLocalZoom(x,y);
+                    //showTMAspotLocalZoomOnPreview(x,y);
+
+                } catch (Exception e) {
+                    if (DEBUG > 0) {
+                        Logger.getLogger(tmarker.class.getName()).log(Level.SEVERE, null, e);
+                    }
+                }
+            }
+    }//GEN-LAST:event_jTextField1KeyReleased
+
+    private void jSlider1StateChanged(javax.swing.event.ChangeEvent evt) {//GEN-FIRST:event_jSlider1StateChanged
+        jTextField1KeyReleased(null);
+    }//GEN-LAST:event_jSlider1StateChanged
 
     
     /**
@@ -3464,6 +3471,52 @@ public final class tmarker extends javax.swing.JFrame {
     public void showTMAspotPreview() {
         if (jPanel11.getComponents().length < 1) {
             jPanel11.add(zip, java.awt.BorderLayout.WEST);
+            
+            // add a mouse listener to click on the zip to navigate to this position.
+            zip.addMouseListener(new MouseListener() {
+                @Override
+                public void mouseClicked(MouseEvent me) {
+                    TMAspot ts = getVisibleTMAspot();
+                    if (ts != null && (!ts.isNDPI() && tmaspot_view_panel != null || ts.isNDPI() && wholeslide_view_panel != null) && zip.getImage() != null) {
+                        
+                        // the size of the preview image
+                        int img_w = (int) (zip.getZoom() * zip.getImage().getWidth(null));
+                        int img_h = (int) (zip.getZoom() * zip.getImage().getHeight(null));
+
+                        // the offset of the preview image in its panel
+                        int offset_x = 0; //(jPanel11.getWidth() - img_w)/2; // offset is 0 in horizontal direction (alignment is left).
+                        int offset_y = (jPanel11.getHeight() - img_h) / 2;
+                        
+                        // the red rectangle must at least start in the offset
+                        int x_coord_zip = Math.max(0, (int) (me.getX() - offset_x));
+                        int y_coord_zip = Math.max(0, (int) (me.getY() - offset_y));
+            
+                        double f = Math.max(1.0*ts.getWidth()/zip.getImage().getWidth(null), 1.0*ts.getHeight()/zip.getImage().getHeight(null));
+                        if (ts.isNDPI()) {
+                            wholeslide_view_panel.jumpToVisibleLocus((int)(f*x_coord_zip), (int)(f*y_coord_zip));
+                        } else {
+                            tmaspot_view_panel.jumpToVisibleLocus((int)(f*x_coord_zip), (int)(f*y_coord_zip));
+                        }
+                    }
+                }
+
+                @Override
+                public void mousePressed(MouseEvent me) {
+                }
+
+                @Override
+                public void mouseReleased(MouseEvent me) {
+                }
+
+                @Override
+                public void mouseEntered(MouseEvent me) {
+                }
+
+                @Override
+                public void mouseExited(MouseEvent me) {
+                }
+            });
+            
         }
 
         TMA_view_panel tvp = (jPanel3.getComponentCount() == 0) ? null : ((TMA_view_panel) jPanel3.getComponent(0));

@@ -100,7 +100,7 @@ public class StainingEstimationFork extends RecursiveAction {
             return;
         }
         
-        int n_proc = Runtime.getRuntime().availableProcessors();
+        int n_proc = tpm.getNumberProcessors();
         int split = (int) Math.ceil((1.0*tss.size()) / n_proc);
         int split_adj;
         

@@ -26,6 +26,7 @@ public class CancerNucleusClassificationFork extends RecursiveAction {
     private final Classifier detector;
     private final Classifier classifier;
     private final boolean twoStepClassification;
+    private final boolean respectROI;
     private final int mStart;
     private final int mLength;
     private final boolean doFork;
@@ -40,18 +41,20 @@ public class CancerNucleusClassificationFork extends RecursiveAction {
      * @param detector The detector used (1. classifier in 2-step classification). Can be null (then, 1-step classification is done).
      * @param classifier The classifier used.
      * @param twoStepClassification If true and detector not null, a 2-step classification is tried (1: nucleus/background classification, 2: malignant/benign nucleus classification).
+     * @param respectROI If true, only nuclei in including or outside excluding ROI are classified (or all nuclei if there is no ROI). If false, all nuclei are classified.
      * @param mStart Starting point of this fork (default: 0).
      * @param mLength Length of this fork (default: tss.size()).
      * @param doFork If true, the fork is run in parallel. Otherwise, not parallel (no fork).
      * @param progress_value A container for the progress bar over the forks.
      */
-    public CancerNucleusClassificationFork(TMARKERPluginManager tpm, CancerNucleusClassification cnc, List<TMAspot> tss, Classifier detector, Classifier classifier, boolean twoStepClassification, int mStart, int mLength, boolean doFork, int[] progress_value) {
+    public CancerNucleusClassificationFork(TMARKERPluginManager tpm, CancerNucleusClassification cnc, List<TMAspot> tss, Classifier detector, Classifier classifier, boolean twoStepClassification, boolean respectROI, int mStart, int mLength, boolean doFork, int[] progress_value) {
         this.tpm = tpm;
         this.cnc = cnc;
         this.tss = tss;
         this.detector = detector;
         this.classifier = classifier;
         this.twoStepClassification = twoStepClassification;
+        this.respectROI = respectROI;
         this.mStart = mStart;
         this.mLength = mLength;
         this.doFork = doFork;
@@ -67,14 +70,14 @@ public class CancerNucleusClassificationFork extends RecursiveAction {
             return;
         }
         
-        int n_proc = Runtime.getRuntime().availableProcessors();
+        int n_proc = tpm.getNumberProcessors();
         int split = (int) Math.ceil((1.0*tss.size()) / n_proc);
         int split_adj;
         
         List<ForkJoinTask> fjt = new ArrayList<>();
         for (int i=0; i<n_proc; i++) {
             split_adj = Math.min(split, tss.size()-(mStart + i*split));
-            fjt.add(new CancerNucleusClassificationFork(tpm, cnc, tss, detector, classifier, twoStepClassification, mStart + i*split, split_adj, false, progress_container));
+            fjt.add(new CancerNucleusClassificationFork(tpm, cnc, tss, detector, classifier, twoStepClassification, respectROI, mStart + i*split, split_adj, false, progress_container));
         }
         invokeAll(fjt);
     }
@@ -88,33 +91,13 @@ public class CancerNucleusClassificationFork extends RecursiveAction {
             cnc.setProgressNumber(progress_container[0], tss.size(), startTime);
             
             if (detector != null && twoStepClassification) {
-                CancerNucleusClassification.classifyNuclei(cnc, ts, detector, true, cnc.manager, true);
+                CancerNucleusClassification.classifyNuclei(cnc, ts, detector, true, respectROI, cnc.manager, true);
             }
-            CancerNucleusClassification.classifyNuclei(cnc, ts, classifier, false, cnc.manager, true);
+            CancerNucleusClassification.classifyNuclei(cnc, ts, classifier, false, respectROI, cnc.manager, true);
             
             progress_container[0]++;
             
-            
         }
-    }
-    
-    
-    public static void CancerNucleusClassification_Fork(TMARKERPluginManager tpm, CancerNucleusClassification cnc, List<TMAspot> tss, Classifier detector, Classifier classifier, boolean twoStepClassification) {
-        int[] progress_container = new int[]{1};
-        CancerNucleusClassificationFork fb = new CancerNucleusClassificationFork(tpm, cnc, tss, detector, classifier, twoStepClassification, 0, tss.size(), tpm.useParallelProgramming(), progress_container);
-        
-        ForkJoinPool pool = new ForkJoinPool();
-
-        long startTime = System.currentTimeMillis();
-        pool.invoke(fb);
-        long endTime = System.currentTimeMillis();
-        pool.shutdown();
-        
-        cnc.setProgressNumber(0, 0, 0);
-
-        System.out.println("CancerNucleusClassification_Fork took " + (endTime - startTime) + 
-                " milliseconds.");
-        
     }
     
     

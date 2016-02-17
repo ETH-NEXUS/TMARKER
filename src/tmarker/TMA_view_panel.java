@@ -19,6 +19,8 @@ package tmarker;
 
 import java.awt.Cursor;
 import java.awt.Image;
+import java.awt.Point;
+import java.awt.Rectangle;
 import java.util.ArrayList;
 import java.util.List;
 import javax.swing.JScrollPane;
@@ -30,12 +32,12 @@ import tmarker.TMAspot.TMAspot;
  * @author Peter J. Schueffler
  */
 public interface TMA_view_panel {
-    static final Cursor cursor_cross = new java.awt.Cursor(java.awt.Cursor.CROSSHAIR_CURSOR);
-    static final Cursor cursor_default = new java.awt.Cursor(java.awt.Cursor.DEFAULT_CURSOR);
-    static final Cursor cursor_hand = new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR);
-    static final Cursor cursor_move = new java.awt.Cursor(java.awt.Cursor.MOVE_CURSOR);
-    final List<Integer> recentPolyline_x = new ArrayList<>(); // for the drawing of including or excluding areas.
-    final List<Integer> recentPolyline_y = new ArrayList<>(); // for the drawing of including or excluding areas.
+    static final Cursor CURSOR_CROSS = new java.awt.Cursor(java.awt.Cursor.CROSSHAIR_CURSOR);
+    static final Cursor CURSOR_DEFAULT = new java.awt.Cursor(java.awt.Cursor.DEFAULT_CURSOR);
+    static final Cursor CURSOR_HAND = new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR);
+    static final Cursor CURSOR_MOVE = new java.awt.Cursor(java.awt.Cursor.MOVE_CURSOR);
+    final List<Integer> RECENT_POLYLINE_X = new ArrayList<>(); // for the drawing of including or excluding areas.
+    final List<Integer> RECENT_POLYLINE_Y = new ArrayList<>(); // for the drawing of including or excluding areas.
    
 
     /**
@@ -129,5 +131,15 @@ public interface TMA_view_panel {
      * @param parent The parent JScrollPane. Can be null if there is none.
      */
     public void setParentScrollPane(JScrollPane parent);
+    
+    /**
+     * Sets the coordinates x, y of the image into the center of the current view. After calling, the
+     * user sees point x, y of the original image in the middle of the TMA view screen, at the same zoom level as before.
+     * @param x The x coordinate as original image coordinate.
+     * @param y The y coordinate as original image coordinate.
+     */
+    public void jumpToVisibleLocus(int x, int y);
+    
+    public Rectangle getVisibleRect();
 
 }

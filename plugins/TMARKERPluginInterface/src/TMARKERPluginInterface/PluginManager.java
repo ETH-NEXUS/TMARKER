@@ -257,5 +257,17 @@ public interface PluginManager {
      */
     public Pluggable getPlugin(String name);
     
+    /**
+     * Returns the number of processors that can be used for processing.
+     * @return The number of processors that can be used for programming.
+     */
+    public int getNumberProcessors();
+    
+    /**
+     * Returns the maximum heap space memory available.
+     * @return The max heap space memory available for computation in byte.
+     */
+    public long getMaxMemory();
+    
     
 }
