@@ -65,6 +65,7 @@ import tmarker.TMAspot.TMApoint;
 import tmarker.TMAspot.TMAspot;
 import tmarker.misc.Misc;
 import tmarker.misc.StringToIntConverter;
+import tmarker.misc.lROI;
 import tmarker.tmarker;
 import weka.classifiers.Classifier;
 import weka.core.Attribute;
@@ -136,6 +137,8 @@ public class CancerNucleusClassification extends javax.swing.JFrame implements T
         buttonGroup5 = new javax.swing.ButtonGroup();
         buttonGroup4 = new javax.swing.ButtonGroup();
         jSeparator1 = new javax.swing.JSeparator();
+        buttonGroup6 = new javax.swing.ButtonGroup();
+        buttonGroup7 = new javax.swing.ButtonGroup();
         jScrollPane7 = new javax.swing.JScrollPane();
         jPanel1 = new javax.swing.JPanel();
         jScrollPane3 = new javax.swing.JScrollPane();
@@ -190,6 +193,9 @@ public class CancerNucleusClassification extends javax.swing.JFrame implements T
         jButton1 = new javax.swing.JButton();
         jButton5 = new javax.swing.JButton();
         jCheckBox1 = new javax.swing.JCheckBox();
+        jCheckBox7 = new javax.swing.JCheckBox();
+        jRadioButton19 = new javax.swing.JRadioButton();
+        jRadioButton20 = new javax.swing.JRadioButton();
         jPanel8 = new javax.swing.JPanel();
         jPanel3 = new javax.swing.JPanel();
         jRadioButton1 = new javax.swing.JRadioButton();
@@ -249,6 +255,30 @@ public class CancerNucleusClassification extends javax.swing.JFrame implements T
         jToggleButton1 = new javax.swing.JToggleButton();
         jLabel32 = new javax.swing.JLabel();
         jCheckBox6 = new javax.swing.JCheckBox();
+        jLabel33 = new javax.swing.JLabel();
+        jRadioButton17 = new javax.swing.JRadioButton();
+        jRadioButton18 = new javax.swing.JRadioButton();
+        jLabel34 = new javax.swing.JLabel();
+        jPanel2 = new javax.swing.JPanel();
+        jLabel35 = new javax.swing.JLabel();
+        jCheckBox10 = new javax.swing.JCheckBox();
+        jCheckBox18 = new javax.swing.JCheckBox();
+        jCheckBox20 = new javax.swing.JCheckBox();
+        jCheckBox24 = new javax.swing.JCheckBox();
+        jCheckBox25 = new javax.swing.JCheckBox();
+        jCheckBox26 = new javax.swing.JCheckBox();
+        jCheckBox27 = new javax.swing.JCheckBox();
+        jCheckBox28 = new javax.swing.JCheckBox();
+        jCheckBox29 = new javax.swing.JCheckBox();
+        jCheckBox35 = new javax.swing.JCheckBox();
+        jCheckBox36 = new javax.swing.JCheckBox();
+        jCheckBox37 = new javax.swing.JCheckBox();
+        jCheckBox38 = new javax.swing.JCheckBox();
+        jCheckBox39 = new javax.swing.JCheckBox();
+        jCheckBox40 = new javax.swing.JCheckBox();
+        jCheckBox41 = new javax.swing.JCheckBox();
+        jButton6 = new javax.swing.JButton();
+        jLabel36 = new javax.swing.JLabel();
 
         jSeparator1.setName("jSeparator1"); // NOI18N
 
@@ -357,7 +387,7 @@ public class CancerNucleusClassification extends javax.swing.JFrame implements T
 
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 18;
+        gridBagConstraints.gridy = 20;
         gridBagConstraints.gridwidth = 21;
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_START;
@@ -371,7 +401,7 @@ public class CancerNucleusClassification extends javax.swing.JFrame implements T
 
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 20;
+        gridBagConstraints.gridy = 22;
         gridBagConstraints.gridwidth = 21;
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_START;
@@ -391,7 +421,7 @@ public class CancerNucleusClassification extends javax.swing.JFrame implements T
         jSeparator2.setName("jSeparator2"); // NOI18N
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 24;
+        gridBagConstraints.gridy = 27;
         gridBagConstraints.gridwidth = 21;
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
         gridBagConstraints.insets = new java.awt.Insets(10, 0, 10, 0);
@@ -407,11 +437,11 @@ public class CancerNucleusClassification extends javax.swing.JFrame implements T
 
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 16;
+        gridBagConstraints.gridy = 18;
         gridBagConstraints.gridwidth = 21;
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_START;
-        gridBagConstraints.insets = new java.awt.Insets(0, 15, 0, 0);
+        gridBagConstraints.insets = new java.awt.Insets(0, 30, 0, 0);
         jPanel12.add(jRadioButton13, gridBagConstraints);
 
         buttonGroup5.add(jRadioButton14);
@@ -423,11 +453,11 @@ public class CancerNucleusClassification extends javax.swing.JFrame implements T
 
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 15;
+        gridBagConstraints.gridy = 17;
         gridBagConstraints.gridwidth = 21;
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_START;
-        gridBagConstraints.insets = new java.awt.Insets(0, 15, 0, 0);
+        gridBagConstraints.insets = new java.awt.Insets(0, 30, 0, 0);
         jPanel12.add(jRadioButton14, gridBagConstraints);
 
         jCheckBox21.setSelected(true);
@@ -440,7 +470,7 @@ public class CancerNucleusClassification extends javax.swing.JFrame implements T
 
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 19;
+        gridBagConstraints.gridy = 21;
         gridBagConstraints.gridwidth = 4;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_START;
         gridBagConstraints.insets = new java.awt.Insets(0, 20, 0, 0);
@@ -456,7 +486,7 @@ public class CancerNucleusClassification extends javax.swing.JFrame implements T
 
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 4;
-        gridBagConstraints.gridy = 19;
+        gridBagConstraints.gridy = 21;
         gridBagConstraints.gridwidth = 6;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_START;
         jPanel12.add(jCheckBox22, gridBagConstraints);
@@ -470,7 +500,7 @@ public class CancerNucleusClassification extends javax.swing.JFrame implements T
 
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 11;
-        gridBagConstraints.gridy = 19;
+        gridBagConstraints.gridy = 21;
         gridBagConstraints.gridwidth = 6;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_START;
         jPanel12.add(jCheckBox23, gridBagConstraints);
@@ -484,7 +514,7 @@ public class CancerNucleusClassification extends javax.swing.JFrame implements T
 
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 21;
+        gridBagConstraints.gridy = 23;
         gridBagConstraints.gridwidth = 21;
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_START;
@@ -499,7 +529,7 @@ public class CancerNucleusClassification extends javax.swing.JFrame implements T
 
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 22;
+        gridBagConstraints.gridy = 24;
         gridBagConstraints.gridwidth = 21;
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_START;
@@ -519,7 +549,7 @@ public class CancerNucleusClassification extends javax.swing.JFrame implements T
         jCheckBox32.setName("jCheckBox32"); // NOI18N
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 25;
+        gridBagConstraints.gridy = 28;
         gridBagConstraints.gridwidth = 21;
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_START;
@@ -720,7 +750,6 @@ public class CancerNucleusClassification extends javax.swing.JFrame implements T
         gridBagConstraints.insets = new java.awt.Insets(15, 0, 0, 0);
         jPanel12.add(jTextField2, gridBagConstraints);
 
-        jSlider2.setMaximum(10);
         jSlider2.setSnapToTicks(true);
         jSlider2.setName("jSlider2"); // NOI18N
 
@@ -799,8 +828,8 @@ public class CancerNucleusClassification extends javax.swing.JFrame implements T
         jSeparator5.setName("jSeparator5"); // NOI18N
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 21;
-        gridBagConstraints.gridy = 1;
-        gridBagConstraints.gridheight = java.awt.GridBagConstraints.REMAINDER;
+        gridBagConstraints.gridy = 2;
+        gridBagConstraints.gridheight = 25;
         gridBagConstraints.fill = java.awt.GridBagConstraints.VERTICAL;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.PAGE_START;
         gridBagConstraints.insets = new java.awt.Insets(0, 10, 0, 10);
@@ -819,7 +848,7 @@ public class CancerNucleusClassification extends javax.swing.JFrame implements T
         });
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 23;
+        gridBagConstraints.gridy = 26;
         gridBagConstraints.gridwidth = 3;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_START;
         gridBagConstraints.insets = new java.awt.Insets(5, 3, 0, 5);
@@ -838,7 +867,7 @@ public class CancerNucleusClassification extends javax.swing.JFrame implements T
         });
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 4;
-        gridBagConstraints.gridy = 23;
+        gridBagConstraints.gridy = 26;
         gridBagConstraints.gridwidth = 17;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_START;
         gridBagConstraints.insets = new java.awt.Insets(5, 5, 0, 0);
@@ -853,10 +882,56 @@ public class CancerNucleusClassification extends javax.swing.JFrame implements T
 
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 17;
+        gridBagConstraints.gridy = 19;
         gridBagConstraints.gridwidth = 21;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_START;
         jPanel12.add(jCheckBox1, gridBagConstraints);
+
+        jCheckBox7.setText(bundle.getString("CancerNucleusClassification.jCheckBox7.text")); // NOI18N
+        jCheckBox7.setName("jCheckBox7"); // NOI18N
+
+        binding = org.jdesktop.beansbinding.Bindings.createAutoBinding(org.jdesktop.beansbinding.AutoBinding.UpdateStrategy.READ, jCheckBox19, org.jdesktop.beansbinding.ELProperty.create("${selected}"), jCheckBox7, org.jdesktop.beansbinding.BeanProperty.create("enabled"), "jCheckBox7Binding");
+        bindingGroup.addBinding(binding);
+
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 25;
+        gridBagConstraints.gridwidth = 21;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        jPanel12.add(jCheckBox7, gridBagConstraints);
+
+        buttonGroup7.add(jRadioButton19);
+        jRadioButton19.setSelected(true);
+        jRadioButton19.setText(bundle.getString("CancerNucleusClassification.jRadioButton19.text")); // NOI18N
+        jRadioButton19.setToolTipText(bundle.getString("CancerNucleusClassification.jRadioButton19.toolTipText")); // NOI18N
+        jRadioButton19.setName("jRadioButton19"); // NOI18N
+
+        binding = org.jdesktop.beansbinding.Bindings.createAutoBinding(org.jdesktop.beansbinding.AutoBinding.UpdateStrategy.READ, jCheckBox19, org.jdesktop.beansbinding.ELProperty.create("${selected}"), jRadioButton19, org.jdesktop.beansbinding.BeanProperty.create("enabled"), "jRadioButton19Binding");
+        bindingGroup.addBinding(binding);
+
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 15;
+        gridBagConstraints.gridwidth = 21;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.FIRST_LINE_START;
+        gridBagConstraints.insets = new java.awt.Insets(0, 15, 0, 0);
+        jPanel12.add(jRadioButton19, gridBagConstraints);
+
+        buttonGroup7.add(jRadioButton20);
+        jRadioButton20.setText(bundle.getString("CancerNucleusClassification.jRadioButton20.text")); // NOI18N
+        jRadioButton20.setToolTipText(bundle.getString("CancerNucleusClassification.jRadioButton20.toolTipText")); // NOI18N
+        jRadioButton20.setName("jRadioButton20"); // NOI18N
+
+        binding = org.jdesktop.beansbinding.Bindings.createAutoBinding(org.jdesktop.beansbinding.AutoBinding.UpdateStrategy.READ, jCheckBox19, org.jdesktop.beansbinding.ELProperty.create("${selected}"), jRadioButton20, org.jdesktop.beansbinding.BeanProperty.create("enabled"), "jRadioButton20Binding");
+        bindingGroup.addBinding(binding);
+
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 16;
+        gridBagConstraints.gridwidth = 21;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.FIRST_LINE_START;
+        gridBagConstraints.insets = new java.awt.Insets(0, 15, 0, 0);
+        jPanel12.add(jRadioButton20, gridBagConstraints);
 
         jPanel11.add(jPanel12);
 
@@ -1324,7 +1399,7 @@ public class CancerNucleusClassification extends javax.swing.JFrame implements T
         });
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 5;
+        gridBagConstraints.gridy = 9;
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.FIRST_LINE_START;
         gridBagConstraints.insets = new java.awt.Insets(5, 40, 0, 0);
@@ -1342,7 +1417,7 @@ public class CancerNucleusClassification extends javax.swing.JFrame implements T
         });
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 15;
+        gridBagConstraints.gridy = 19;
         gridBagConstraints.gridheight = 2;
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.FIRST_LINE_START;
@@ -1352,16 +1427,18 @@ public class CancerNucleusClassification extends javax.swing.JFrame implements T
         jLabel1.setText(bundle.getString("CancerNucleusClassification.jLabel1.text")); // NOI18N
         jLabel1.setName("jLabel1"); // NOI18N
         gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 1;
         gridBagConstraints.gridwidth = 2;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.FIRST_LINE_START;
-        gridBagConstraints.insets = new java.awt.Insets(5, 5, 0, 0);
+        gridBagConstraints.insets = new java.awt.Insets(10, 5, 0, 0);
         jPanel18.add(jLabel1, gridBagConstraints);
 
         jLabel2.setText(bundle.getString("CancerNucleusClassification.jLabel2.text")); // NOI18N
         jLabel2.setName("jLabel2"); // NOI18N
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 9;
+        gridBagConstraints.gridy = 13;
         gridBagConstraints.gridwidth = 2;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.FIRST_LINE_START;
         gridBagConstraints.insets = new java.awt.Insets(10, 5, 0, 0);
@@ -1371,7 +1448,7 @@ public class CancerNucleusClassification extends javax.swing.JFrame implements T
         jLabel3.setName("jLabel3"); // NOI18N
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 13;
+        gridBagConstraints.gridy = 17;
         gridBagConstraints.gridwidth = java.awt.GridBagConstraints.REMAINDER;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.FIRST_LINE_START;
         gridBagConstraints.insets = new java.awt.Insets(10, 5, 0, 0);
@@ -1381,8 +1458,8 @@ public class CancerNucleusClassification extends javax.swing.JFrame implements T
         jLabel4.setName("jLabel4"); // NOI18N
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 17;
-        gridBagConstraints.gridwidth = 2;
+        gridBagConstraints.gridy = 23;
+        gridBagConstraints.gridwidth = java.awt.GridBagConstraints.REMAINDER;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.FIRST_LINE_START;
         gridBagConstraints.insets = new java.awt.Insets(10, 5, 0, 0);
         jPanel18.add(jLabel4, gridBagConstraints);
@@ -1397,7 +1474,7 @@ public class CancerNucleusClassification extends javax.swing.JFrame implements T
         });
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 8;
+        gridBagConstraints.gridy = 12;
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.FIRST_LINE_START;
         gridBagConstraints.insets = new java.awt.Insets(5, 40, 0, 0);
@@ -1412,7 +1489,7 @@ public class CancerNucleusClassification extends javax.swing.JFrame implements T
         });
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 11;
+        gridBagConstraints.gridy = 15;
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.FIRST_LINE_START;
         gridBagConstraints.insets = new java.awt.Insets(5, 40, 0, 0);
@@ -1422,8 +1499,8 @@ public class CancerNucleusClassification extends javax.swing.JFrame implements T
         jLabel5.setName("jLabel5"); // NOI18N
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 2;
-        gridBagConstraints.gridwidth = 2;
+        gridBagConstraints.gridy = 3;
+        gridBagConstraints.gridwidth = java.awt.GridBagConstraints.REMAINDER;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.FIRST_LINE_START;
         gridBagConstraints.insets = new java.awt.Insets(5, 42, 0, 0);
         jPanel18.add(jLabel5, gridBagConstraints);
@@ -1435,8 +1512,8 @@ public class CancerNucleusClassification extends javax.swing.JFrame implements T
         jRadioButton11.setName("jRadioButton11"); // NOI18N
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 3;
-        gridBagConstraints.gridwidth = 2;
+        gridBagConstraints.gridy = 4;
+        gridBagConstraints.gridwidth = java.awt.GridBagConstraints.REMAINDER;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.FIRST_LINE_START;
         gridBagConstraints.insets = new java.awt.Insets(5, 40, 0, 0);
         jPanel18.add(jRadioButton11, gridBagConstraints);
@@ -1447,8 +1524,8 @@ public class CancerNucleusClassification extends javax.swing.JFrame implements T
         jRadioButton12.setName("jRadioButton12"); // NOI18N
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 4;
-        gridBagConstraints.gridwidth = 2;
+        gridBagConstraints.gridy = 5;
+        gridBagConstraints.gridwidth = java.awt.GridBagConstraints.REMAINDER;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.FIRST_LINE_START;
         gridBagConstraints.insets = new java.awt.Insets(0, 40, 0, 0);
         jPanel18.add(jRadioButton12, gridBagConstraints);
@@ -1460,8 +1537,8 @@ public class CancerNucleusClassification extends javax.swing.JFrame implements T
         jLabel20.setName("jLabel20"); // NOI18N
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 12;
-        gridBagConstraints.gridwidth = 2;
+        gridBagConstraints.gridy = 16;
+        gridBagConstraints.gridwidth = java.awt.GridBagConstraints.REMAINDER;
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
         gridBagConstraints.ipady = 15;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.FIRST_LINE_START;
@@ -1472,7 +1549,7 @@ public class CancerNucleusClassification extends javax.swing.JFrame implements T
         jLabel22.setName("jLabel22"); // NOI18N
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 10;
+        gridBagConstraints.gridy = 14;
         gridBagConstraints.gridwidth = java.awt.GridBagConstraints.REMAINDER;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.FIRST_LINE_START;
         gridBagConstraints.insets = new java.awt.Insets(5, 42, 0, 0);
@@ -1482,7 +1559,7 @@ public class CancerNucleusClassification extends javax.swing.JFrame implements T
         jLabel23.setName("jLabel23"); // NOI18N
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 6;
+        gridBagConstraints.gridy = 10;
         gridBagConstraints.gridwidth = java.awt.GridBagConstraints.REMAINDER;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.FIRST_LINE_START;
         gridBagConstraints.insets = new java.awt.Insets(5, 42, 0, 0);
@@ -1492,7 +1569,7 @@ public class CancerNucleusClassification extends javax.swing.JFrame implements T
         jLabel24.setName("jLabel24"); // NOI18N
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 7;
+        gridBagConstraints.gridy = 11;
         gridBagConstraints.gridwidth = java.awt.GridBagConstraints.REMAINDER;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.FIRST_LINE_START;
         gridBagConstraints.insets = new java.awt.Insets(5, 42, 0, 0);
@@ -1502,7 +1579,7 @@ public class CancerNucleusClassification extends javax.swing.JFrame implements T
         jLabel29.setName("jLabel29"); // NOI18N
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 1;
+        gridBagConstraints.gridy = 2;
         gridBagConstraints.gridwidth = java.awt.GridBagConstraints.REMAINDER;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.FIRST_LINE_START;
         gridBagConstraints.insets = new java.awt.Insets(5, 42, 0, 0);
@@ -1511,8 +1588,8 @@ public class CancerNucleusClassification extends javax.swing.JFrame implements T
         jLabel31.setText(bundle.getString("CancerNucleusClassification.jLabel31.text")); // NOI18N
         jLabel31.setName("jLabel31"); // NOI18N
         gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 1;
-        gridBagConstraints.gridy = 16;
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 22;
         gridBagConstraints.gridwidth = java.awt.GridBagConstraints.REMAINDER;
         gridBagConstraints.fill = java.awt.GridBagConstraints.VERTICAL;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_START;
@@ -1529,7 +1606,7 @@ public class CancerNucleusClassification extends javax.swing.JFrame implements T
         });
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 18;
+        gridBagConstraints.gridy = 25;
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
         gridBagConstraints.insets = new java.awt.Insets(25, 22, 0, 0);
         jPanel18.add(jToggleButton1, gridBagConstraints);
@@ -1537,8 +1614,8 @@ public class CancerNucleusClassification extends javax.swing.JFrame implements T
         jLabel32.setText(bundle.getString("CancerNucleusClassification.jLabel32.text")); // NOI18N
         jLabel32.setName("jLabel32"); // NOI18N
         gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 1;
-        gridBagConstraints.gridy = 15;
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 21;
         gridBagConstraints.gridwidth = java.awt.GridBagConstraints.REMAINDER;
         gridBagConstraints.fill = java.awt.GridBagConstraints.VERTICAL;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_START;
@@ -1550,11 +1627,294 @@ public class CancerNucleusClassification extends javax.swing.JFrame implements T
         jCheckBox6.setName("jCheckBox6"); // NOI18N
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 14;
+        gridBagConstraints.gridy = 18;
         gridBagConstraints.gridwidth = java.awt.GridBagConstraints.REMAINDER;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_START;
         gridBagConstraints.insets = new java.awt.Insets(5, 22, 0, 0);
         jPanel18.add(jCheckBox6, gridBagConstraints);
+
+        jLabel33.setText(bundle.getString("CancerNucleusClassification.jLabel33.text")); // NOI18N
+        jLabel33.setName("jLabel33"); // NOI18N
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 6;
+        gridBagConstraints.gridwidth = java.awt.GridBagConstraints.REMAINDER;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.FIRST_LINE_START;
+        gridBagConstraints.insets = new java.awt.Insets(5, 42, 0, 0);
+        jPanel18.add(jLabel33, gridBagConstraints);
+
+        buttonGroup6.add(jRadioButton17);
+        jRadioButton17.setSelected(true);
+        jRadioButton17.setText(bundle.getString("CancerNucleusClassification.jRadioButton17.text")); // NOI18N
+        jRadioButton17.setToolTipText( java.util.ResourceBundle.getBundle("cancernucleusclassification/Bundle").getString("CancerNucleusClassification.jRadioButton17.toolTipText")); // NOI18N
+        jRadioButton17.setName("jRadioButton17"); // NOI18N
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 7;
+        gridBagConstraints.gridwidth = java.awt.GridBagConstraints.REMAINDER;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.FIRST_LINE_START;
+        gridBagConstraints.insets = new java.awt.Insets(0, 40, 0, 0);
+        jPanel18.add(jRadioButton17, gridBagConstraints);
+
+        buttonGroup6.add(jRadioButton18);
+        jRadioButton18.setText( java.util.ResourceBundle.getBundle("cancernucleusclassification/Bundle").getString("CancerNucleusClassification.jRadioButton18.text")); // NOI18N
+        jRadioButton18.setToolTipText( java.util.ResourceBundle.getBundle("cancernucleusclassification/Bundle").getString("CancerNucleusClassification.jRadioButton18.toolTipText")); // NOI18N
+        jRadioButton18.setName("jRadioButton18"); // NOI18N
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 8;
+        gridBagConstraints.gridwidth = java.awt.GridBagConstraints.REMAINDER;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.FIRST_LINE_START;
+        gridBagConstraints.insets = new java.awt.Insets(0, 40, 0, 0);
+        jPanel18.add(jRadioButton18, gridBagConstraints);
+
+        jLabel34.setText(bundle.getString("CancerNucleusClassification.jLabel34.text")); // NOI18N
+        jLabel34.setName("jLabel34"); // NOI18N
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 0;
+        gridBagConstraints.gridwidth = 2;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.FIRST_LINE_START;
+        gridBagConstraints.insets = new java.awt.Insets(5, 5, 0, 0);
+        jPanel18.add(jLabel34, gridBagConstraints);
+
+        jPanel2.setName("jPanel2"); // NOI18N
+        jPanel2.setLayout(new java.awt.GridBagLayout());
+
+        jLabel35.setText(bundle.getString("CancerNucleusClassification.jLabel35.text")); // NOI18N
+        jLabel35.setName("jLabel35"); // NOI18N
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridwidth = java.awt.GridBagConstraints.REMAINDER;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.FIRST_LINE_START;
+        jPanel2.add(jLabel35, gridBagConstraints);
+
+        jCheckBox10.setText(bundle.getString("CancerNucleusClassification.jCheckBox10.text")); // NOI18N
+        jCheckBox10.setName("jCheckBox10"); // NOI18N
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 1;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.FIRST_LINE_START;
+        gridBagConstraints.insets = new java.awt.Insets(5, 25, 0, 0);
+        jPanel2.add(jCheckBox10, gridBagConstraints);
+
+        jCheckBox18.setText(bundle.getString("CancerNucleusClassification.jCheckBox18.text")); // NOI18N
+        jCheckBox18.setName("jCheckBox18"); // NOI18N
+
+        binding = org.jdesktop.beansbinding.Bindings.createAutoBinding(org.jdesktop.beansbinding.AutoBinding.UpdateStrategy.READ, jCheckBox10, org.jdesktop.beansbinding.ELProperty.create("${selected}"), jCheckBox18, org.jdesktop.beansbinding.BeanProperty.create("enabled"), "jCheckBox18Binding");
+        bindingGroup.addBinding(binding);
+
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 2;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.FIRST_LINE_START;
+        gridBagConstraints.insets = new java.awt.Insets(0, 45, 0, 0);
+        jPanel2.add(jCheckBox18, gridBagConstraints);
+
+        jCheckBox20.setText(bundle.getString("CancerNucleusClassification.jCheckBox20.text")); // NOI18N
+        jCheckBox20.setName("jCheckBox20"); // NOI18N
+
+        binding = org.jdesktop.beansbinding.Bindings.createAutoBinding(org.jdesktop.beansbinding.AutoBinding.UpdateStrategy.READ, jCheckBox10, org.jdesktop.beansbinding.ELProperty.create("${selected}"), jCheckBox20, org.jdesktop.beansbinding.BeanProperty.create("enabled"), "jCheckBox20Binding");
+        bindingGroup.addBinding(binding);
+
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 3;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.FIRST_LINE_START;
+        gridBagConstraints.insets = new java.awt.Insets(0, 45, 0, 0);
+        jPanel2.add(jCheckBox20, gridBagConstraints);
+
+        jCheckBox24.setText(bundle.getString("CancerNucleusClassification.jCheckBox24.text")); // NOI18N
+        jCheckBox24.setName("jCheckBox24"); // NOI18N
+
+        binding = org.jdesktop.beansbinding.Bindings.createAutoBinding(org.jdesktop.beansbinding.AutoBinding.UpdateStrategy.READ, jCheckBox10, org.jdesktop.beansbinding.ELProperty.create("${selected}"), jCheckBox24, org.jdesktop.beansbinding.BeanProperty.create("enabled"), "jCheckBox24Binding");
+        bindingGroup.addBinding(binding);
+
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 4;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.FIRST_LINE_START;
+        gridBagConstraints.insets = new java.awt.Insets(0, 45, 0, 0);
+        jPanel2.add(jCheckBox24, gridBagConstraints);
+
+        jCheckBox25.setText(bundle.getString("CancerNucleusClassification.jCheckBox25.text")); // NOI18N
+        jCheckBox25.setName("jCheckBox25"); // NOI18N
+
+        binding = org.jdesktop.beansbinding.Bindings.createAutoBinding(org.jdesktop.beansbinding.AutoBinding.UpdateStrategy.READ, jCheckBox10, org.jdesktop.beansbinding.ELProperty.create("${selected}"), jCheckBox25, org.jdesktop.beansbinding.BeanProperty.create("enabled"), "jCheckBox25Binding");
+        bindingGroup.addBinding(binding);
+
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 5;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.FIRST_LINE_START;
+        gridBagConstraints.insets = new java.awt.Insets(0, 45, 0, 0);
+        jPanel2.add(jCheckBox25, gridBagConstraints);
+
+        jCheckBox26.setText(bundle.getString("CancerNucleusClassification.jCheckBox26.text")); // NOI18N
+        jCheckBox26.setName("jCheckBox26"); // NOI18N
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 1;
+        gridBagConstraints.gridy = 1;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.FIRST_LINE_START;
+        gridBagConstraints.insets = new java.awt.Insets(5, 5, 0, 0);
+        jPanel2.add(jCheckBox26, gridBagConstraints);
+
+        jCheckBox27.setText(bundle.getString("CancerNucleusClassification.jCheckBox27.text")); // NOI18N
+        jCheckBox27.setName("jCheckBox27"); // NOI18N
+
+        binding = org.jdesktop.beansbinding.Bindings.createAutoBinding(org.jdesktop.beansbinding.AutoBinding.UpdateStrategy.READ, jCheckBox26, org.jdesktop.beansbinding.ELProperty.create("${selected}"), jCheckBox27, org.jdesktop.beansbinding.BeanProperty.create("enabled"), "jCheckBox27Binding");
+        bindingGroup.addBinding(binding);
+
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 1;
+        gridBagConstraints.gridy = 2;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.FIRST_LINE_START;
+        gridBagConstraints.insets = new java.awt.Insets(0, 25, 0, 0);
+        jPanel2.add(jCheckBox27, gridBagConstraints);
+
+        jCheckBox28.setText(bundle.getString("CancerNucleusClassification.jCheckBox28.text")); // NOI18N
+        jCheckBox28.setName("jCheckBox28"); // NOI18N
+
+        binding = org.jdesktop.beansbinding.Bindings.createAutoBinding(org.jdesktop.beansbinding.AutoBinding.UpdateStrategy.READ, jCheckBox26, org.jdesktop.beansbinding.ELProperty.create("${selected}"), jCheckBox28, org.jdesktop.beansbinding.BeanProperty.create("enabled"), "jCheckBox28Binding");
+        bindingGroup.addBinding(binding);
+
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 1;
+        gridBagConstraints.gridy = 3;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.FIRST_LINE_START;
+        gridBagConstraints.insets = new java.awt.Insets(0, 25, 0, 0);
+        jPanel2.add(jCheckBox28, gridBagConstraints);
+
+        jCheckBox29.setText(bundle.getString("CancerNucleusClassification.jCheckBox29.text")); // NOI18N
+        jCheckBox29.setName("jCheckBox29"); // NOI18N
+
+        binding = org.jdesktop.beansbinding.Bindings.createAutoBinding(org.jdesktop.beansbinding.AutoBinding.UpdateStrategy.READ, jCheckBox26, org.jdesktop.beansbinding.ELProperty.create("${selected}"), jCheckBox29, org.jdesktop.beansbinding.BeanProperty.create("enabled"), "jCheckBox29Binding");
+        bindingGroup.addBinding(binding);
+
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 1;
+        gridBagConstraints.gridy = 4;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.FIRST_LINE_START;
+        gridBagConstraints.insets = new java.awt.Insets(0, 25, 0, 0);
+        jPanel2.add(jCheckBox29, gridBagConstraints);
+
+        jCheckBox35.setText(bundle.getString("CancerNucleusClassification.jCheckBox35.text")); // NOI18N
+        jCheckBox35.setName("jCheckBox35"); // NOI18N
+
+        binding = org.jdesktop.beansbinding.Bindings.createAutoBinding(org.jdesktop.beansbinding.AutoBinding.UpdateStrategy.READ, jCheckBox26, org.jdesktop.beansbinding.ELProperty.create("${selected}"), jCheckBox35, org.jdesktop.beansbinding.BeanProperty.create("enabled"), "jCheckBox35Binding");
+        bindingGroup.addBinding(binding);
+
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 1;
+        gridBagConstraints.gridy = 5;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.FIRST_LINE_START;
+        gridBagConstraints.insets = new java.awt.Insets(0, 25, 0, 0);
+        jPanel2.add(jCheckBox35, gridBagConstraints);
+
+        jCheckBox36.setText(bundle.getString("CancerNucleusClassification.jCheckBox36.text")); // NOI18N
+        jCheckBox36.setName("jCheckBox36"); // NOI18N
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 2;
+        gridBagConstraints.gridy = 1;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.FIRST_LINE_START;
+        gridBagConstraints.insets = new java.awt.Insets(5, 5, 0, 0);
+        jPanel2.add(jCheckBox36, gridBagConstraints);
+
+        jCheckBox37.setText(bundle.getString("CancerNucleusClassification.jCheckBox37.text")); // NOI18N
+        jCheckBox37.setName("jCheckBox37"); // NOI18N
+
+        binding = org.jdesktop.beansbinding.Bindings.createAutoBinding(org.jdesktop.beansbinding.AutoBinding.UpdateStrategy.READ, jCheckBox36, org.jdesktop.beansbinding.ELProperty.create("${selected}"), jCheckBox37, org.jdesktop.beansbinding.BeanProperty.create("enabled"), "jCheckBox37Binding");
+        bindingGroup.addBinding(binding);
+
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 2;
+        gridBagConstraints.gridy = 2;
+        gridBagConstraints.gridwidth = java.awt.GridBagConstraints.REMAINDER;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.FIRST_LINE_START;
+        gridBagConstraints.insets = new java.awt.Insets(0, 25, 0, 0);
+        jPanel2.add(jCheckBox37, gridBagConstraints);
+
+        jCheckBox38.setText(bundle.getString("CancerNucleusClassification.jCheckBox38.text")); // NOI18N
+        jCheckBox38.setName("jCheckBox38"); // NOI18N
+
+        binding = org.jdesktop.beansbinding.Bindings.createAutoBinding(org.jdesktop.beansbinding.AutoBinding.UpdateStrategy.READ, jCheckBox36, org.jdesktop.beansbinding.ELProperty.create("${selected}"), jCheckBox38, org.jdesktop.beansbinding.BeanProperty.create("enabled"), "jCheckBox38Binding");
+        bindingGroup.addBinding(binding);
+
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 2;
+        gridBagConstraints.gridy = 3;
+        gridBagConstraints.gridwidth = java.awt.GridBagConstraints.REMAINDER;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.FIRST_LINE_START;
+        gridBagConstraints.insets = new java.awt.Insets(0, 25, 0, 0);
+        jPanel2.add(jCheckBox38, gridBagConstraints);
+
+        jCheckBox39.setText(bundle.getString("CancerNucleusClassification.jCheckBox39.text")); // NOI18N
+        jCheckBox39.setName("jCheckBox39"); // NOI18N
+
+        binding = org.jdesktop.beansbinding.Bindings.createAutoBinding(org.jdesktop.beansbinding.AutoBinding.UpdateStrategy.READ, jCheckBox36, org.jdesktop.beansbinding.ELProperty.create("${selected}"), jCheckBox39, org.jdesktop.beansbinding.BeanProperty.create("enabled"), "jCheckBox39Binding");
+        bindingGroup.addBinding(binding);
+
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 2;
+        gridBagConstraints.gridy = 4;
+        gridBagConstraints.gridwidth = java.awt.GridBagConstraints.REMAINDER;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.FIRST_LINE_START;
+        gridBagConstraints.insets = new java.awt.Insets(0, 25, 0, 0);
+        jPanel2.add(jCheckBox39, gridBagConstraints);
+
+        jCheckBox40.setText(bundle.getString("CancerNucleusClassification.jCheckBox40.text")); // NOI18N
+        jCheckBox40.setName("jCheckBox40"); // NOI18N
+
+        binding = org.jdesktop.beansbinding.Bindings.createAutoBinding(org.jdesktop.beansbinding.AutoBinding.UpdateStrategy.READ, jCheckBox36, org.jdesktop.beansbinding.ELProperty.create("${selected}"), jCheckBox40, org.jdesktop.beansbinding.BeanProperty.create("enabled"), "jCheckBox40Binding");
+        bindingGroup.addBinding(binding);
+
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 2;
+        gridBagConstraints.gridy = 5;
+        gridBagConstraints.gridwidth = java.awt.GridBagConstraints.REMAINDER;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.FIRST_LINE_START;
+        gridBagConstraints.insets = new java.awt.Insets(0, 25, 0, 0);
+        jPanel2.add(jCheckBox40, gridBagConstraints);
+
+        jCheckBox41.setText(bundle.getString("CancerNucleusClassification.jCheckBox41.text")); // NOI18N
+        jCheckBox41.setName("jCheckBox41"); // NOI18N
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 3;
+        gridBagConstraints.gridy = 1;
+        gridBagConstraints.gridwidth = java.awt.GridBagConstraints.REMAINDER;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.FIRST_LINE_START;
+        gridBagConstraints.insets = new java.awt.Insets(5, 5, 0, 0);
+        jPanel2.add(jCheckBox41, gridBagConstraints);
+
+        jButton6.setText(bundle.getString("CancerNucleusClassification.jButton6.text")); // NOI18N
+        jButton6.setName("jButton6"); // NOI18N
+        jButton6.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton6ActionPerformed(evt);
+            }
+        });
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 6;
+        gridBagConstraints.gridwidth = java.awt.GridBagConstraints.REMAINDER;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.FIRST_LINE_START;
+        gridBagConstraints.insets = new java.awt.Insets(0, 25, 0, 0);
+        jPanel2.add(jButton6, gridBagConstraints);
+
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 26;
+        gridBagConstraints.insets = new java.awt.Insets(25, 5, 0, 0);
+        jPanel18.add(jPanel2, gridBagConstraints);
+
+        jLabel36.setText("Nuclei close to the image border (closer than half patch size) might not be classified.");
+        jLabel36.setName("jLabel36"); // NOI18N
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 24;
+        gridBagConstraints.gridwidth = java.awt.GridBagConstraints.REMAINDER;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.FIRST_LINE_START;
+        gridBagConstraints.insets = new java.awt.Insets(5, 25, 0, 0);
+        jPanel18.add(jLabel36, gridBagConstraints);
 
         jPanel16.add(jPanel18);
 
@@ -1598,7 +1958,9 @@ public class CancerNucleusClassification extends javax.swing.JFrame implements T
             extensions.add("tma");
             descriptions.add("TMARKER Classifier File");
             File file = FileChooser.chooseSavingFile(this, "", "Classifier.tma", extensions, descriptions);
-            saveClassifier(file);
+            if (file != null) {
+                saveClassifier(file);
+            }
         } else {
             JOptionPane.showMessageDialog(this, "Please create a classifier, first.");
         }
@@ -1696,6 +2058,38 @@ public class CancerNucleusClassification extends javax.swing.JFrame implements T
         }
     }//GEN-LAST:event_jToggleButton1ActionPerformed
 
+    private void jButton6ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton6ActionPerformed
+        int confirmation = JOptionPane.showConfirmDialog(this, "Are you sure to permantly delete indicated estimated nuclei?", "Conform Nucleus Removal", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
+        if (confirmation == JOptionPane.YES_OPTION) {
+            List<TMAspot> tss = manager.getSelectedTMAspots();
+            for (TMAspot ts: tss) {
+                if (jCheckBox10.isSelected()) {
+                    if (jCheckBox18.isSelected()) ts.deleteAllPoints(TMALabel.LABEL_NEG, TMALabel.STAINING_0, false);
+                    if (jCheckBox20.isSelected()) ts.deleteAllPoints(TMALabel.LABEL_NEG, TMALabel.STAINING_1, false);
+                    if (jCheckBox24.isSelected()) ts.deleteAllPoints(TMALabel.LABEL_NEG, TMALabel.STAINING_2, false);
+                    if (jCheckBox25.isSelected()) ts.deleteAllPoints(TMALabel.LABEL_NEG, TMALabel.STAINING_3, false);
+                }
+                if (jCheckBox26.isSelected()) {
+                    if (jCheckBox27.isSelected()) ts.deleteAllPoints(TMALabel.LABEL_POS, TMALabel.STAINING_0, false);
+                    if (jCheckBox28.isSelected()) ts.deleteAllPoints(TMALabel.LABEL_POS, TMALabel.STAINING_1, false);
+                    if (jCheckBox29.isSelected()) ts.deleteAllPoints(TMALabel.LABEL_POS, TMALabel.STAINING_2, false);
+                    if (jCheckBox35.isSelected()) ts.deleteAllPoints(TMALabel.LABEL_POS, TMALabel.STAINING_3, false);
+                }
+                if (jCheckBox36.isSelected()) {
+                    if (jCheckBox37.isSelected()) ts.deleteAllPoints(TMALabel.LABEL_UNK, TMALabel.STAINING_0, false);
+                    if (jCheckBox38.isSelected()) ts.deleteAllPoints(TMALabel.LABEL_UNK, TMALabel.STAINING_1, false);
+                    if (jCheckBox39.isSelected()) ts.deleteAllPoints(TMALabel.LABEL_UNK, TMALabel.STAINING_2, false);
+                    if (jCheckBox40.isSelected()) ts.deleteAllPoints(TMALabel.LABEL_UNK, TMALabel.STAINING_3, false);
+                }
+                if (jCheckBox41.isSelected()) {
+                    ts.deleteAllPoints(TMALabel.LABEL_BG, false);
+                }
+                
+                manager.updateTMAspot(ts, ts == ts.getCenter().getVisibleTMAspot());
+            }
+        }
+    }//GEN-LAST:event_jButton6ActionPerformed
+
     /**
      * @param args the command line arguments
      */
@@ -1737,6 +2131,8 @@ public class CancerNucleusClassification extends javax.swing.JFrame implements T
     private javax.swing.ButtonGroup buttonGroup3;
     private javax.swing.ButtonGroup buttonGroup4;
     private javax.swing.ButtonGroup buttonGroup5;
+    private javax.swing.ButtonGroup buttonGroup6;
+    private javax.swing.ButtonGroup buttonGroup7;
     private javax.swing.JButton jButton1;
     private javax.swing.JButton jButton2;
     private javax.swing.JButton jButton26;
@@ -1744,7 +2140,9 @@ public class CancerNucleusClassification extends javax.swing.JFrame implements T
     private javax.swing.JButton jButton30;
     private javax.swing.JButton jButton4;
     private javax.swing.JButton jButton5;
+    private javax.swing.JButton jButton6;
     private javax.swing.JCheckBox jCheckBox1;
+    private javax.swing.JCheckBox jCheckBox10;
     private javax.swing.JCheckBox jCheckBox11;
     private javax.swing.JCheckBox jCheckBox12;
     private javax.swing.JCheckBox jCheckBox13;
@@ -1752,20 +2150,36 @@ public class CancerNucleusClassification extends javax.swing.JFrame implements T
     private javax.swing.JCheckBox jCheckBox15;
     private javax.swing.JCheckBox jCheckBox16;
     private javax.swing.JCheckBox jCheckBox17;
+    private javax.swing.JCheckBox jCheckBox18;
     private javax.swing.JCheckBox jCheckBox19;
     private javax.swing.JCheckBox jCheckBox2;
+    private javax.swing.JCheckBox jCheckBox20;
     private javax.swing.JCheckBox jCheckBox21;
     private javax.swing.JCheckBox jCheckBox22;
     private javax.swing.JCheckBox jCheckBox23;
+    private javax.swing.JCheckBox jCheckBox24;
+    private javax.swing.JCheckBox jCheckBox25;
+    private javax.swing.JCheckBox jCheckBox26;
+    private javax.swing.JCheckBox jCheckBox27;
+    private javax.swing.JCheckBox jCheckBox28;
+    private javax.swing.JCheckBox jCheckBox29;
     private javax.swing.JCheckBox jCheckBox3;
     private javax.swing.JCheckBox jCheckBox30;
     private javax.swing.JCheckBox jCheckBox31;
     private javax.swing.JCheckBox jCheckBox32;
     private javax.swing.JCheckBox jCheckBox33;
     private javax.swing.JCheckBox jCheckBox34;
+    private javax.swing.JCheckBox jCheckBox35;
+    private javax.swing.JCheckBox jCheckBox36;
+    private javax.swing.JCheckBox jCheckBox37;
+    private javax.swing.JCheckBox jCheckBox38;
+    private javax.swing.JCheckBox jCheckBox39;
     private javax.swing.JCheckBox jCheckBox4;
+    private javax.swing.JCheckBox jCheckBox40;
+    private javax.swing.JCheckBox jCheckBox41;
     private javax.swing.JCheckBox jCheckBox5;
     private javax.swing.JCheckBox jCheckBox6;
+    private javax.swing.JCheckBox jCheckBox7;
     private javax.swing.JCheckBox jCheckBox8;
     private javax.swing.JCheckBox jCheckBox9;
     private javax.swing.JLabel jLabel1;
@@ -1794,6 +2208,10 @@ public class CancerNucleusClassification extends javax.swing.JFrame implements T
     private javax.swing.JLabel jLabel30;
     private javax.swing.JLabel jLabel31;
     private javax.swing.JLabel jLabel32;
+    private javax.swing.JLabel jLabel33;
+    private javax.swing.JLabel jLabel34;
+    private javax.swing.JLabel jLabel35;
+    private javax.swing.JLabel jLabel36;
     private javax.swing.JLabel jLabel4;
     private javax.swing.JLabel jLabel5;
     private javax.swing.JLabel jLabel6;
@@ -1805,6 +2223,7 @@ public class CancerNucleusClassification extends javax.swing.JFrame implements T
     private javax.swing.JPanel jPanel12;
     private javax.swing.JPanel jPanel16;
     private javax.swing.JPanel jPanel18;
+    private javax.swing.JPanel jPanel2;
     private javax.swing.JPanel jPanel20;
     private javax.swing.JPanel jPanel3;
     private javax.swing.JPanel jPanel8;
@@ -1816,7 +2235,11 @@ public class CancerNucleusClassification extends javax.swing.JFrame implements T
     private javax.swing.JRadioButton jRadioButton14;
     private javax.swing.JRadioButton jRadioButton15;
     private javax.swing.JRadioButton jRadioButton16;
+    private javax.swing.JRadioButton jRadioButton17;
+    private javax.swing.JRadioButton jRadioButton18;
+    private javax.swing.JRadioButton jRadioButton19;
     private javax.swing.JRadioButton jRadioButton2;
+    private javax.swing.JRadioButton jRadioButton20;
     private javax.swing.JRadioButton jRadioButton3;
     private javax.swing.JRadioButton jRadioButton4;
     private javax.swing.JRadioButton jRadioButton5;
@@ -1899,7 +2322,7 @@ public class CancerNucleusClassification extends javax.swing.JFrame implements T
     @Override
     public void setParameterDefaults() {
         setParam_patchsize(10);
-        setParam_blur(2);
+        setParam_blur(0);
         setParam_useFeature_ColorHist(true);
         setParam_useFeature_IMGMoments(true);
         setParam_useFeature_LBP(true);
@@ -1918,13 +2341,16 @@ public class CancerNucleusClassification extends javax.swing.JFrame implements T
         setParam_useFeature_1DSignature_rotationInvariant(true);
         setParam_useFeature_1DSignature_derivative(false);
         setParam_useFeature_PathSegmentCode(false);
+        setParam_useFeature_SegmentationBuiltIn(true);
         setParam_useFeature_Segmentation(false);
         setParam_useFeature_Segmentation_Graphcut(false);
         setParam_useFeature_FGBGColor(false);
         setParam_useFeature_Circularity(false);
         setParam_useFeature_Roundness(false);
+        setParam_useFeature_AreaSize(false);
         setParam_useFeature_RotatedPatches(false);
         setParam_2StepClassification(false);
+        setParam_multiclassClassification(false);
         setParam_ShowPatches(true);
         setParam_ShowBlur(false);
         setParam_ShowSegmentations(true);
@@ -1935,7 +2361,7 @@ public class CancerNucleusClassification extends javax.swing.JFrame implements T
     public void setParameters(Properties parameters) {
         String value;
         value = parameters.getProperty("patchsize"); if (value!=null) { setParam_patchsize(Integer.parseInt(value)); }
-        value = parameters.getProperty("blur"); if (value!=null) { setParam_blur(Integer.parseInt(value)); }
+        value = parameters.getProperty("blur"); if (value!=null) { setParam_blur(Double.parseDouble(value)); }
         value = parameters.getProperty("useFeature_ColorHist"); if (value!=null) { setParam_useFeature_ColorHist(Boolean.parseBoolean(value)); }
         value = parameters.getProperty("useFeature_IMGMoments"); if (value!=null) { setParam_useFeature_IMGMoments(Boolean.parseBoolean(value)); }
         value = parameters.getProperty("useFeature_LBP"); if (value!=null) { setParam_useFeature_LBP(Boolean.parseBoolean(value)); }
@@ -1954,13 +2380,16 @@ public class CancerNucleusClassification extends javax.swing.JFrame implements T
         value = parameters.getProperty("useFeature_1DSignature_rotationInvariant"); if (value!=null) { setParam_useFeature_1DSignature_rotationInvariant(Boolean.parseBoolean(value)); }
         value = parameters.getProperty("useFeature_1DSignature_derivative"); if (value!=null) { setParam_useFeature_1DSignature_derivative(Boolean.parseBoolean(value)); }
         value = parameters.getProperty("useFeature_PathSegmentCode"); if (value!=null) { setParam_useFeature_PathSegmentCode(Boolean.parseBoolean(value)); }
+        value = parameters.getProperty("useFeature_SegmentationBuiltin"); if (value!=null) { setParam_useFeature_SegmentationBuiltIn(Boolean.parseBoolean(value)); }
         value = parameters.getProperty("useFeature_Segmentation"); if (value!=null) { setParam_useFeature_Segmentation(Boolean.parseBoolean(value)); }
         value = parameters.getProperty("useFeature_Segmentation_Graphcut"); if (value!=null) { setParam_useFeature_Segmentation_Graphcut(Boolean.parseBoolean(value)); }
         value = parameters.getProperty("useFeature_FGBGColor"); if (value!=null) { setParam_useFeature_FGBGColor(Boolean.parseBoolean(value)); }
         value = parameters.getProperty("useFeature_Circularity"); if (value!=null) { setParam_useFeature_Circularity(Boolean.parseBoolean(value)); }
         value = parameters.getProperty("useFeature_Roundness"); if (value!=null) { setParam_useFeature_Roundness(Boolean.parseBoolean(value)); }
+        value = parameters.getProperty("useFeature_AreaSize"); if (value!=null) { setParam_useFeature_AreaSize(Boolean.parseBoolean(value)); }
         value = parameters.getProperty("useFeature_RotatedPatches"); if (value!=null) { setParam_useFeature_RotatedPatches(Boolean.parseBoolean(value)); }
         value = parameters.getProperty("2StepClassification"); if (value!=null) { setParam_2StepClassification(Boolean.parseBoolean(value)); }
+        value = parameters.getProperty("multiclassClassification"); if (value!=null) { setParam_multiclassClassification(Boolean.parseBoolean(value)); }
         value = parameters.getProperty("ShowPatches"); if (value!=null) { setParam_ShowPatches(Boolean.parseBoolean(value)); }
         value = parameters.getProperty("ShowBlur"); if (value!=null) { setParam_ShowBlur(Boolean.parseBoolean(value)); }
         value = parameters.getProperty("ShowSegmentations"); if (value!=null) { setParam_ShowSegmentations(Boolean.parseBoolean(value)); }
@@ -1971,7 +2400,7 @@ public class CancerNucleusClassification extends javax.swing.JFrame implements T
     public Properties getParameters() {
         Properties parameters = new Properties();
         parameters.setProperty("patchsize", Integer.toString(getParam_patchsize()));
-        parameters.setProperty("blur", Integer.toString(getParam_blur()));
+        parameters.setProperty("blur", Double.toString(getParam_blur()));
         parameters.setProperty("useFeature_ColorHist", Boolean.toString(getParam_useFeature_ColorHist()));
         parameters.setProperty("useFeature_IMGMoments", Boolean.toString(getParam_useFeature_IMGStatistics()));
         parameters.setProperty("useFeature_LBP", Boolean.toString(getParam_useFeature_LBP()));
@@ -1990,13 +2419,16 @@ public class CancerNucleusClassification extends javax.swing.JFrame implements T
         parameters.setProperty("useFeature_1DSignature_rotationInvariant", Boolean.toString(getParam_useFeature_1DSignature_rotationInvariant()));
         parameters.setProperty("useFeature_1DSignature_derivative", Boolean.toString(getParam_useFeature_1DSignature_derivative()));
         parameters.setProperty("useFeature_PathSegmentCode", Boolean.toString(getParam_useFeature_PathSegmentCode())); 
+        parameters.setProperty("useFeature_SegmentationBuiltin", Boolean.toString(getParam_useFeature_SegmentationBuiltIn())); 
         parameters.setProperty("useFeature_Segmentation", Boolean.toString(getParam_useFeature_Segmentation())); 
         parameters.setProperty("useFeature_Segmentation_Graphcut", Boolean.toString(getParam_useFeature_Segmentation_Graphcut())); 
         parameters.setProperty("useFeature_FGBGColor", Boolean.toString(getParam_useFeature_FGBGColor())); 
         parameters.setProperty("useFeature_Circularity", Boolean.toString(getParam_useFeature_Circularity())); 
         parameters.setProperty("useFeature_Roundness", Boolean.toString(getParam_useFeature_Roundness()));
+        parameters.setProperty("useFeature_AreaSize", Boolean.toString(getParam_useFeature_AreaSize()));
         parameters.setProperty("useFeature_RotatedPatches", Boolean.toString(getParam_useFeature_RotatedPatches()));
         parameters.setProperty("2StepClassification", Boolean.toString(getParam_2StepClassification()));
+        parameters.setProperty("multiclassClassification", Boolean.toString(getParam_multiclassClassification()));
         parameters.setProperty("ShowPatches", Boolean.toString(getParam_ShowPatches()));
         parameters.setProperty("ShowBlur", Boolean.toString(getParam_ShowBlur()));
         parameters.setProperty("ShowSegmentations", Boolean.toString(getParam_ShowSegmentations()));
@@ -2029,22 +2461,45 @@ public class CancerNucleusClassification extends javax.swing.JFrame implements T
         if (isVisible()) {
             int r = getParam_patchsize()/2;
             
-            // blur the image
-            if (getParam_ShowBlur() && getParam_blur()>0) {
+            // blur
+            if (getParam_ShowBlur()) {
                 GaussianBlur gb = new GaussianBlur();
+                
+                BufferedImage I = null;
+                GaussianBlur blur = new GaussianBlur();
+
+                if (!ts.isNDPI()) {
+                    I  = ts.getBufferedImage();
+
+                    ImagePlus ip = new ImagePlus(" ", I);
+                    blur.blurGaussian(ip.getProcessor(), getParam_blur(), getParam_blur(), 0.02);
+                    I = ip.getBufferedImage();
+
+                }
+                
                 for (TMALabel tp: ts.getPoints_GoldStandard()) {
                     if (tp.x >= x_min && tp.y >= y_min && tp.x < x_max && tp.y < y_max) {
                         try {
-                            BufferedImage patch = new BufferedImage(getParam_patchsize(), getParam_patchsize(), BufferedImage.TYPE_INT_ARGB);
-                            patch.getGraphics().drawImage(ts.getSubimage((int)(tp.getX()-r), (int)(tp.getY()-r), getParam_patchsize(), getParam_patchsize(), getParam_patchsize()), 0, 0, null);
-                            ImagePlus ip = new ImagePlus("Patch", patch);
-                            gb.blurGaussian(ip.getProcessor(), getParam_blur(), getParam_blur(), 0.02);
-                            if ((int)(getParam_patchsize()*z)>0 && (int)(getParam_patchsize()*z)>0) {
-                                g.drawImage(ip.getImage().getScaledInstance((int)(getParam_patchsize()*z), (int)(getParam_patchsize()*z), Image.SCALE_SMOOTH) , (int)((tp.getX()-r)*z), (int)((tp.getY()-r)*z), null);
+                            
+                            BufferedImage patch;
+                            if (ts.isNDPI() || I==null) {
+
+                                patch = ts.getSubimage((int)(tp.getX()-r), (int)(tp.getY()-r), getParam_patchsize(), getParam_patchsize(), getParam_patchsize(), BufferedImage.TYPE_INT_ARGB);
+                                ImagePlus ip = new ImagePlus("Patch", patch);
+                                gb.blurGaussian(ip.getProcessor(), getParam_blur(), getParam_blur(), 0.02);
+
+                            } else {
+                                patch = I.getSubimage((int) (tp.getX() - r), (int) (tp.getY() - r), getParam_patchsize(), getParam_patchsize());
                             }
+                            
+                            if ((int)(getParam_patchsize()*z)>0) {
+                                g.drawImage(patch.getScaledInstance((int)(getParam_patchsize()*z), (int)(getParam_patchsize()*z), Image.SCALE_SMOOTH) , (int)((tp.getX()-r)*z), (int)((tp.getY()-r)*z), null);
+                            }
+                            
                         } catch (Exception e) {
 
                         }
+                        
                     }
                 }
             }
@@ -2397,6 +2852,14 @@ public class CancerNucleusClassification extends javax.swing.JFrame implements T
         jCheckBox19.setSelected(b);
     }
     
+    public boolean getParam_useFeature_SegmentationBuiltIn() {
+        return jRadioButton20.isSelected();
+    }
+    
+    public void setParam_useFeature_SegmentationBuiltIn(boolean b) {
+        jRadioButton20.setSelected(b);
+    }
+    
     public boolean getParam_useFeature_Segmentation_Graphcut() {
         return jRadioButton13.isSelected();
     }
@@ -2433,6 +2896,14 @@ public class CancerNucleusClassification extends javax.swing.JFrame implements T
         jCheckBox31.setSelected(b);
     }
     
+    public boolean getParam_useFeature_AreaSize() {
+        return jCheckBox7.isSelected();
+    }
+    
+    public void setParam_useFeature_AreaSize(boolean b) {
+        jCheckBox7.setSelected(b);
+    }
+    
     public boolean getParam_useFeature_RotatedPatches() {
         return jCheckBox32.isSelected();
     }
@@ -2461,16 +2932,16 @@ public class CancerNucleusClassification extends javax.swing.JFrame implements T
      * Returns the blurring radius for smoothing the images before feature creation.
      * @return The blurring radius for smoothing the images before feature creation.
      */
-    int getParam_blur() {
-        return jSlider2.getValue();
+    double getParam_blur() {
+        return jSlider2.getValue()/10.0;
     }
     
     /**
      * Sets the blurring radius for smoothing the images before feature creation.
      * @param blur The blurring radius for smoothing the images before feature creation.
      */
-    void setParam_blur(int blur) {
-        jSlider2.setValue(blur);
+    void setParam_blur(double blur) {
+        jSlider2.setValue((int) (10*blur));
     }
     
     /**
@@ -2541,6 +3012,24 @@ public class CancerNucleusClassification extends javax.swing.JFrame implements T
         jRadioButton12.setSelected(b);
     }
     
+     /**
+     * Returns whether a multiclass classification for the nuclei (BEN 0, 1+, 2+, 3+, MAL 0, 1+, 2+, 3+; 8 classes) is performed.
+     * Otherwise, a 2-class classification (all BEN vs. all MAL) is performed.
+     * @return True if a multiclass classification is performed.
+     */
+    boolean getParam_multiclassClassification() {
+        return jRadioButton18.isSelected();
+    }
+    
+    /**
+     * sets whether a multiclass classification for the nuclei (BEN 0, 1+, 2+, 3+, MAL 0, 1+, 2+, 3+; 8 classes) is performed.
+     * Otherwise, a 2-class classification (all BEN vs. all MAL) is performed.
+     * @param b True if a multiclass classification is performed.
+     */
+    void setParam_multiclassClassification(boolean b) {
+        jRadioButton18.setSelected(b);
+    }
+    
     /**
      * Returns whether or not including and excluding ROI should be considered for classification.
      * @return True, if including and excluding ROI should be considered for classification.
@@ -2565,6 +3054,24 @@ public class CancerNucleusClassification extends javax.swing.JFrame implements T
      * @param tss The TMAspots which provide training labels.
      */
     void performClassifierCreation(List<TMAspot> tss) {
+        
+        if (getParam_useFeature_Segmentation() && !getParam_useFeature_SegmentationBuiltIn()) {
+            boolean segmentationsFound = true;
+            for (TMAspot ts: tss) {
+                for (TMApoint tp: ts.getPoints_GoldStandard()) {
+                    Rectangle rect = PatchRectangle(tp, getParam_patchsize());
+                    if (rect.x >= 0 && rect.y >= 0 && rect.x + rect.width < ts.getWidth() && rect.y + rect.height < ts.getHeight()) {
+                        segmentationsFound &= tp.getROI() != null;
+                    }
+                }
+            }
+            if (!segmentationsFound) {
+                int answer = JOptionPane.showConfirmDialog(this, "Some goldstandard training nuclei on selected TMA images\ndo not have segmentations.\nAre you sure to proceed?", "Segmentations missing", JOptionPane.YES_NO_CANCEL_OPTION, JOptionPane.WARNING_MESSAGE);
+                if (answer != JOptionPane.YES_OPTION) return;
+            }
+        }
+        
+        
         setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
         
         boolean withDetector = getParam_2StepClassification();
@@ -2597,6 +3104,8 @@ public class CancerNucleusClassification extends javax.swing.JFrame implements T
         }
         try {
             manager.setProgressbar(85);
+            classifier_FG_BG = null;
+            classifier_BEN_MAL = null;
             if (withDetector) {
                 manager.setStatusMessageLabel("Train FG / BG Classifier (with " + inst_detect.numInstances() + " samples, " + inst_detect.numAttributes() + " attributes and " + inst_detect.numClasses() + " classes)...");
                 classifier_FG_BG = SLICsuperpixels.trainClassifier(inst_detect, getClassifierAcronym(), getClassifierOptions(), getParam_classifierRemoveUseless());
@@ -2629,9 +3138,34 @@ public class CancerNucleusClassification extends javax.swing.JFrame implements T
     private List<Instances> getTrainingInstances(TMAspot ts) {
         
         GaussianBlur blur = new GaussianBlur();
-        BufferedImage bi_col, bi_gray;
+        BufferedImage I_col, I_gray, bi_col, bi_gray;
         ImagePlus ip;
         Graphics g;
+        
+        // For normal images, get the whole image beforehand, and pick later the nuclei from the image.
+        if (!ts.isNDPI()) {
+            // I_col
+            BufferedImage I = ts.getBufferedImage();
+            I_col = new BufferedImage(I.getWidth(), I.getHeight(), BufferedImage.TYPE_INT_ARGB);  
+            g = I_col.getGraphics();  
+            g.drawImage(I, 0, 0, null);  
+            g.dispose();
+
+            //Blur the image for smoother features
+            ip = new ImagePlus(" ", I_col);
+            blur = new GaussianBlur();
+            blur.blurGaussian(ip.getProcessor(), getParam_blur(), getParam_blur(), 0.02);
+            I_col = ip.getBufferedImage();
+
+            // I_gray
+            I_gray = new BufferedImage(I_col.getWidth(), I_col.getHeight(), BufferedImage.TYPE_BYTE_GRAY);  
+            g = I_gray.getGraphics();  
+            g.drawImage(I_col, 0, 0, null);  
+            g.dispose();
+        } else {
+            I_col = null;
+            I_gray = null;
+        }
         
         // create arff data
         FastVector atts_detect = new FastVector();
@@ -2640,8 +3174,19 @@ public class CancerNucleusClassification extends javax.swing.JFrame implements T
         FastVector attVals_class = new FastVector();
         attVals_detect.addElement(TMALabel.LABEL_BG_STRING);
         attVals_detect.addElement(TMALabel.LABEL_FG_STRING);
-        attVals_class.addElement(TMALabel.LABEL_NEG_STRING);
-        attVals_class.addElement(TMALabel.LABEL_POS_STRING);
+        if (getParam_multiclassClassification()) {
+            attVals_class.addElement(TMALabel.LABEL_NEG_STRING + Byte.toString(TMALabel.STAINING_0));
+            attVals_class.addElement(TMALabel.LABEL_NEG_STRING + Byte.toString(TMALabel.STAINING_1));
+            attVals_class.addElement(TMALabel.LABEL_NEG_STRING + Byte.toString(TMALabel.STAINING_2));
+            attVals_class.addElement(TMALabel.LABEL_NEG_STRING + Byte.toString(TMALabel.STAINING_3));
+            attVals_class.addElement(TMALabel.LABEL_POS_STRING + Byte.toString(TMALabel.STAINING_0));
+            attVals_class.addElement(TMALabel.LABEL_POS_STRING + Byte.toString(TMALabel.STAINING_1));
+            attVals_class.addElement(TMALabel.LABEL_POS_STRING + Byte.toString(TMALabel.STAINING_2));
+            attVals_class.addElement(TMALabel.LABEL_POS_STRING + Byte.toString(TMALabel.STAINING_3));
+        } else {
+            attVals_class.addElement(TMALabel.LABEL_NEG_STRING);
+            attVals_class.addElement(TMALabel.LABEL_POS_STRING);
+        }
         atts_detect.addElement(new Attribute("class", attVals_detect));
         atts_class.addElement(new Attribute("class", attVals_class));
 
@@ -2665,6 +3210,7 @@ public class CancerNucleusClassification extends javax.swing.JFrame implements T
             n_flippedFeatures = 3;
         }
         segmentations.clear();
+        
         for (int i = 0; i < tps.size(); i++) {
             if (i%10==0) {
                 manager.setStatusMessageLabel(getPluginName() + ": Transform Labels (" + Integer.toString(i) + "/" + Integer.toString(tps.size()) + ") ...");
@@ -2672,28 +3218,40 @@ public class CancerNucleusClassification extends javax.swing.JFrame implements T
             }
             
             Rectangle rect = PatchRectangle(tps.get(i), getParam_patchsize());
+            
             if (rect.x>=0 && rect.y>=0 && rect.x + rect.width<ts.getWidth() && rect.y + rect.height<ts.getHeight()) {
                 
                 List<Object> patches = new ArrayList<>(3);
                 
-                // color patch
-                bi_col = ts.getSubimage(rect.x, rect.y, rect.width, rect.height, Math.max(rect.width, rect.height));
-                
-                //Blur the image for smoother features
-                ip = new ImagePlus(" ", bi_col);
-                blur.blurGaussian(ip.getProcessor(), getParam_blur(), getParam_blur(), 0.02);
-                bi_col = ip.getBufferedImage();
-                
-                // gray patch
-                bi_gray = new BufferedImage(bi_col.getWidth(), bi_col.getHeight(), BufferedImage.TYPE_BYTE_GRAY);  
-                g = bi_gray.getGraphics();  
-                g.drawImage(bi_col, 0, 0, null);  
-                g.dispose();
+                // For NDPI images, pick every nucleus by its subregregion patch separately.
+                if (ts.isNDPI()) {
+                    // color patch
+                    bi_col = ts.getSubimage(rect.x, rect.y, rect.width, rect.height, Math.max(rect.width, rect.height));
 
-                ROI roi; 
+                    //Blur the image for smoother features
+                    ip = new ImagePlus(" ", bi_col);
+                    blur.blurGaussian(ip.getProcessor(), getParam_blur(), getParam_blur(), 0.02);
+                    bi_col = ip.getBufferedImage();
+
+                    // gray patch
+                    bi_gray = new BufferedImage(bi_col.getWidth(), bi_col.getHeight(), BufferedImage.TYPE_BYTE_GRAY);  
+                    g = bi_gray.getGraphics();  
+                    g.drawImage(bi_col, 0, 0, null);  
+                    g.dispose();
+                } else {
+                    bi_col = I_col.getSubimage(rect.x, rect.y, rect.width, rect.height);
+                    bi_gray = I_gray.getSubimage(rect.x, rect.y, rect.width, rect.height);
+                }
+
+                ROI roi;
                 if (getParam_useFeature_Segmentation()) {
-                    roi = PatchToShape(bi_gray, ts, getParam_useFeature_Segmentation_Graphcut(), 0);
-                    segmentations.add(new LocalizedROI(ts, tps.get(i), roi, getParam_patchsize()/2));
+                    if (getParam_useFeature_SegmentationBuiltIn()) {
+                        roi = PatchToShape(bi_col, ts, getParam_useFeature_Segmentation_Graphcut(), 0);
+                        if (roi != null) segmentations.add(new LocalizedROI(ts, tps.get(i), roi, getParam_patchsize()/2));
+                    } else {
+                        roi = tps.get(i).getROI();
+                        if (roi != null) segmentations.add(new LocalizedROI(ts, tps.get(i), (lROI) roi, getParam_patchsize()/2));
+                    }
                 } else {
                     roi = null;
                 }
@@ -2737,8 +3295,8 @@ public class CancerNucleusClassification extends javax.swing.JFrame implements T
                             
                             if (tmarker.DEBUG > 5) {
                                 String classString = (tps.get(i).getLabel() == TMALabel.LABEL_BG ? TMALabel.LABEL_BG_STRING : (tps.get(i).getLabel() == TMALabel.LABEL_UNK ? TMALabel.LABEL_FG_STRING : (tps.get(i).getLabel() == TMALabel.LABEL_POS ? TMALabel.LABEL_POS_STRING : TMALabel.LABEL_NEG_STRING)));
-                                Misc.writeImage(bi_col_rot_flip, manager.getTmpDir() + File.separator + classString + "_" + i + "_" + k + "_" + m + "_img.PNG");
-                                if (roi_rot_flip!=null) Misc.writeROI(roi_rot_flip, manager.getTmpDir() + File.separator + classString + "_" + i + "_" + k + "_" + m + "_roi.PNG");
+                                Misc.writeImage(bi_col_rot_flip, ts.getTmpDir() + File.separator + classString + "_" + i + "_" + k + "_" + m + "_" + tps.get(i).getStaining() + "_img.PNG");
+                                if (roi_rot_flip!=null) Misc.writeROI(roi_rot_flip, manager.getTmpDir() + File.separator + classString + "_" + i + "_" + k + "_" + m + "_" + tps.get(i).getStaining() + "_roi.PNG");
                             }
                             Instance inst_detect = new Instance(1, vals);
                             inst_detect.setDataset(detection_data);
@@ -2747,7 +3305,11 @@ public class CancerNucleusClassification extends javax.swing.JFrame implements T
                             if (tps.get(i).getLabel() == TMALabel.LABEL_NEG || tps.get(i).getLabel() == TMALabel.LABEL_POS) {
                                 Instance inst_class = new Instance(1.0, vals);
                                 inst_class.setDataset(classifiction_data);
-                                inst_class.setClassValue((tps.get(i).getLabel() == TMALabel.LABEL_NEG ? classifiction_data.classAttribute().indexOfValue(TMALabel.LABEL_NEG_STRING) : classifiction_data.classAttribute().indexOfValue(TMALabel.LABEL_POS_STRING)));
+                                if (getParam_multiclassClassification()) {
+                                    inst_class.setClassValue((tps.get(i).getLabel() == TMALabel.LABEL_NEG ? classifiction_data.classAttribute().indexOfValue(TMALabel.LABEL_NEG_STRING + Byte.toString(tps.get(i).getStaining())) : classifiction_data.classAttribute().indexOfValue(TMALabel.LABEL_POS_STRING + Byte.toString(tps.get(i).getStaining()))));
+                                } else {
+                                    inst_class.setClassValue((tps.get(i).getLabel() == TMALabel.LABEL_NEG ? classifiction_data.classAttribute().indexOfValue(TMALabel.LABEL_NEG_STRING) : classifiction_data.classAttribute().indexOfValue(TMALabel.LABEL_POS_STRING)));
+                                }
                                 classifiction_data.add(inst_class);
                             }
                         }
@@ -3101,6 +3663,23 @@ public class CancerNucleusClassification extends javax.swing.JFrame implements T
      * @param tss The TMAspots to be processed.
      */
      private void performNucleusClassification(List<TMAspot> tss, boolean asParallelThread) {
+         
+         if (getParam_useFeature_Segmentation() && !getParam_useFeature_SegmentationBuiltIn()) {
+            boolean segmentationsFound = true;
+            for (TMAspot ts: tss) {
+                for (TMApoint tp: ts.getPoints()) {
+                    Rectangle rect = PatchRectangle(tp, getParam_patchsize());
+                    if (rect.x >= 0 && rect.y >= 0 && rect.x + rect.width < ts.getWidth() && rect.y + rect.height < ts.getHeight()) {
+                        segmentationsFound &= tp.getROI() != null;
+                    }
+                }
+            }
+            if (!segmentationsFound) {
+                int answer = JOptionPane.showConfirmDialog(this, "Some nuclei on selected TMA images\ndo not have segmentations.\nAre you sure to proceed?", "Segmentations missing", JOptionPane.YES_NO_CANCEL_OPTION, JOptionPane.WARNING_MESSAGE);
+                if (answer != JOptionPane.YES_OPTION) return;
+            }
+        }
+         
         if (asParallelThread) {
             if (thread!=null) {
                 if (thread.isAlive()) {
@@ -3162,8 +3741,19 @@ public class CancerNucleusClassification extends javax.swing.JFrame implements T
                     attVals.addElement(TMALabel.LABEL_BG_STRING);
                     attVals.addElement(TMALabel.LABEL_FG_STRING);
                 } else {
-                    attVals.addElement(TMALabel.LABEL_NEG_STRING);
-                    attVals.addElement(TMALabel.LABEL_POS_STRING);
+                    if (cnc.getParam_multiclassClassification()) {
+                        attVals.addElement(TMALabel.LABEL_NEG_STRING + Byte.toString(TMALabel.STAINING_0));
+                        attVals.addElement(TMALabel.LABEL_NEG_STRING + Byte.toString(TMALabel.STAINING_1));
+                        attVals.addElement(TMALabel.LABEL_NEG_STRING + Byte.toString(TMALabel.STAINING_2));
+                        attVals.addElement(TMALabel.LABEL_NEG_STRING + Byte.toString(TMALabel.STAINING_3));
+                        attVals.addElement(TMALabel.LABEL_POS_STRING + Byte.toString(TMALabel.STAINING_0));
+                        attVals.addElement(TMALabel.LABEL_POS_STRING + Byte.toString(TMALabel.STAINING_1));
+                        attVals.addElement(TMALabel.LABEL_POS_STRING + Byte.toString(TMALabel.STAINING_2));
+                        attVals.addElement(TMALabel.LABEL_POS_STRING + Byte.toString(TMALabel.STAINING_3));
+                    } else {
+                        attVals.addElement(TMALabel.LABEL_NEG_STRING);
+                        attVals.addElement(TMALabel.LABEL_POS_STRING);
+                    }
                 }
                 atts.addElement(new Attribute("class", attVals));
 
@@ -3174,10 +3764,33 @@ public class CancerNucleusClassification extends javax.swing.JFrame implements T
 
                 Instances dataset = new Instances("Nucleus", atts, tps.size());
                 dataset.setClassIndex(0);
+                
+                BufferedImage I_col = null;
+                BufferedImage I_gray = null;
+                if (!ts.isNDPI()) {
+                    // I_col
+                    BufferedImage I = ts.getBufferedImage();
+                    I_col = new BufferedImage(I.getWidth(), I.getHeight(), BufferedImage.TYPE_INT_ARGB);  
+                    Graphics g = I_col.getGraphics();  
+                    g.drawImage(I, 0, 0, null);  
+                    g.dispose();
+
+                    //Blur the image for smoother features
+                    ImagePlus ip = new ImagePlus(" ", I_col);
+                    GaussianBlur blur = new GaussianBlur();
+                    blur.blurGaussian(ip.getProcessor(), cnc.getParam_blur(), cnc.getParam_blur(), 0.02);
+                    I_col = ip.getBufferedImage();
+
+                    // I_gray
+                    I_gray = new BufferedImage(I_col.getWidth(), I_col.getHeight(), BufferedImage.TYPE_BYTE_GRAY);  
+                    g = I_gray.getGraphics();  
+                    g.drawImage(I_col, 0, 0, null);  
+                    g.dispose();
+                }
 
                 try {
                         
-                    CancerNucleusClassificationCoreThread cncc = new CancerNucleusClassificationCoreThread((TMARKERPluginManager) cnc.manager, cnc, ts, tps, classifier, dataset, foregroundDetection);
+                    CancerNucleusClassificationCoreThread cncc = new CancerNucleusClassificationCoreThread((TMARKERPluginManager) cnc.manager, cnc, ts, tps, I_col, I_gray, classifier, dataset, foregroundDetection);
                     cncc.start();
                     cncc.join();
                         
@@ -3211,6 +3824,8 @@ public class CancerNucleusClassification extends javax.swing.JFrame implements T
      * Classifies the given set of nuclei (TMApoint) on a given TMAspot with a given classifier. The TMAspot will not be NOT updated in TMARKER (e.g. new TMAspot statistics).
      * @param ts The TMAspot whose TMApoint (nucleus) is to be classified.
      * @param tps The TMApoints to be classified in this batch in a for loop.
+     * * @param I_col The color image of the spot (can be null if ts is a NDPI image, otherwise it might be ts.getBufferedImage()).
+     * @param I_gray A gray version of I_col (might be edited). Can be null if ts is a NDPI image.
      * @param classifier The classifier to be used.
      * @param dataset The dataset with which the classifier is created (could be created here if set to null, but for speed, it should be created beforehand).
      * @param foregroundDetection If true, the classifier is interpreted as foreground / background classifier. Nuclei are classified as TMALabel.LABEL_BG or LABEL_UNK.
@@ -3219,7 +3834,7 @@ public class CancerNucleusClassification extends javax.swing.JFrame implements T
      * @param totalNumberInstances For progress, total number of instances (if 0, " " will be written). Ignored if progress_container is null.
      * @param startTimeMillis The starting time of the process. Estimates the time needed to finish the task. Ignored if progress_container is null.
      */
-    static void classifyNucleiCore(CancerNucleusClassification cnc, TMAspot ts, List<TMApoint> tps, Classifier classifier, Instances dataset, boolean foregroundDetection, PluginManager manager, int[] progress_container, int totalNumberInstances, long startTimeMillis) {
+    static void classifyNucleiCore(CancerNucleusClassification cnc, TMAspot ts, List<TMApoint> tps, BufferedImage I_col, BufferedImage I_gray, Classifier classifier, Instances dataset, boolean foregroundDetection, PluginManager manager, int[] progress_container, int totalNumberInstances, long startTimeMillis) {
         if (classifier != null && ts != null) {
 
             GaussianBlur blur = new GaussianBlur();
@@ -3235,8 +3850,19 @@ public class CancerNucleusClassification extends javax.swing.JFrame implements T
                     attVals.addElement(TMALabel.LABEL_BG_STRING);
                     attVals.addElement(TMALabel.LABEL_FG_STRING);
                 } else {
-                    attVals.addElement(TMALabel.LABEL_NEG_STRING);
-                    attVals.addElement(TMALabel.LABEL_POS_STRING);
+                    if (cnc.getParam_multiclassClassification()) {
+                        attVals.addElement(TMALabel.LABEL_NEG_STRING + Byte.toString(TMALabel.STAINING_0));
+                        attVals.addElement(TMALabel.LABEL_NEG_STRING + Byte.toString(TMALabel.STAINING_1));
+                        attVals.addElement(TMALabel.LABEL_NEG_STRING + Byte.toString(TMALabel.STAINING_2));
+                        attVals.addElement(TMALabel.LABEL_NEG_STRING + Byte.toString(TMALabel.STAINING_3));
+                        attVals.addElement(TMALabel.LABEL_POS_STRING + Byte.toString(TMALabel.STAINING_0));
+                        attVals.addElement(TMALabel.LABEL_POS_STRING + Byte.toString(TMALabel.STAINING_1));
+                        attVals.addElement(TMALabel.LABEL_POS_STRING + Byte.toString(TMALabel.STAINING_2));
+                        attVals.addElement(TMALabel.LABEL_POS_STRING + Byte.toString(TMALabel.STAINING_3));
+                    } else {
+                        attVals.addElement(TMALabel.LABEL_NEG_STRING);
+                        attVals.addElement(TMALabel.LABEL_POS_STRING);
+                    }
                 }
                 atts.addElement(new Attribute("class", attVals));
 
@@ -3255,24 +3881,33 @@ public class CancerNucleusClassification extends javax.swing.JFrame implements T
                     Rectangle rect = PatchRectangle(tp, cnc.getParam_patchsize());
                     if (rect.x >= 0 && rect.y >= 0 && rect.x + rect.width < ts.getWidth() && rect.y + rect.height < ts.getHeight()) {
                         List<Object> patches = new ArrayList<>(3);
+                        
+                        if (ts.isNDPI()) {
+                            // color patch
+                            patch_col = ts.getSubimage(rect.x, rect.y, rect.width, rect.height, Math.max(rect.width, rect.height));
 
-                        // color patch
-                        patch_col = ts.getSubimage(rect.x, rect.y, rect.width, rect.height, Math.max(rect.width, rect.height));
+                            //Blur the image for smoother features
+                            ip = new ImagePlus(" ", patch_col);
+                            blur.blurGaussian(ip.getProcessor(), cnc.getParam_blur(), cnc.getParam_blur(), 0.02);
+                            patch_col = ip.getBufferedImage();
 
-                        //Blur the image for smoother features
-                        ip = new ImagePlus(" ", patch_col);
-                        blur.blurGaussian(ip.getProcessor(), cnc.getParam_blur(), cnc.getParam_blur(), 0.02);
-                        patch_col = ip.getBufferedImage();
-
-                        // gray patch
-                        patch_gray = new BufferedImage(patch_col.getWidth(), patch_col.getHeight(), BufferedImage.TYPE_BYTE_GRAY);
-                        g = patch_gray.getGraphics();
-                        g.drawImage(patch_col, 0, 0, null);
-                        g.dispose();
+                            // gray patch
+                            patch_gray = new BufferedImage(patch_col.getWidth(), patch_col.getHeight(), BufferedImage.TYPE_BYTE_GRAY);
+                            g = patch_gray.getGraphics();
+                            g.drawImage(patch_col, 0, 0, null);
+                            g.dispose();
+                        } else {
+                            patch_col = I_col.getSubimage(rect.x, rect.y, rect.width, rect.height);
+                            patch_gray = I_gray.getSubimage(rect.x, rect.y, rect.width, rect.height);
+                        }
 
                         ROI roi;
                         if (cnc.getParam_useFeature_Segmentation()) {
-                            roi = PatchToShape(patch_col, ts, cnc.getParam_useFeature_Segmentation_Graphcut(), 0);
+                            if (cnc.getParam_useFeature_SegmentationBuiltIn()) {
+                                roi = PatchToShape(patch_col, ts, cnc.getParam_useFeature_Segmentation_Graphcut(), 0);
+                            } else {
+                                roi = tps.get(i).getROI();
+                            }
                         } else {
                             roi = null;
                         }
@@ -3304,10 +3939,40 @@ public class CancerNucleusClassification extends javax.swing.JFrame implements T
                             } else if (inst.classValue() == dataset.classAttribute().indexOfValue(TMALabel.LABEL_FG_STRING)) {
                                 tp.setLabel(TMALabel.LABEL_UNK);
                             }
-                        } else if (inst.classValue() == dataset.classAttribute().indexOfValue(TMALabel.LABEL_NEG_STRING)) {
-                            tp.setLabel(TMALabel.LABEL_NEG);
-                        } else if (inst.classValue() == dataset.classAttribute().indexOfValue(TMALabel.LABEL_POS_STRING)) {
-                            tp.setLabel(TMALabel.LABEL_POS);
+                        } else {
+                            if (cnc.getParam_multiclassClassification()) {
+                                if (inst.classValue() == dataset.classAttribute().indexOfValue(TMALabel.LABEL_NEG_STRING + Byte.toString(TMALabel.STAINING_0))) {
+                                    tp.setLabel(TMALabel.LABEL_NEG);
+                                    tp.setStaining(TMALabel.STAINING_0);
+                                } else if (inst.classValue() == dataset.classAttribute().indexOfValue(TMALabel.LABEL_NEG_STRING + Byte.toString(TMALabel.STAINING_1))) {
+                                    tp.setLabel(TMALabel.LABEL_NEG);
+                                    tp.setStaining(TMALabel.STAINING_1);
+                                } else if (inst.classValue() == dataset.classAttribute().indexOfValue(TMALabel.LABEL_NEG_STRING + Byte.toString(TMALabel.STAINING_2))) {
+                                    tp.setLabel(TMALabel.LABEL_NEG);
+                                    tp.setStaining(TMALabel.STAINING_2);
+                                } else if (inst.classValue() == dataset.classAttribute().indexOfValue(TMALabel.LABEL_NEG_STRING + Byte.toString(TMALabel.STAINING_3))) {
+                                    tp.setLabel(TMALabel.LABEL_NEG);
+                                    tp.setStaining(TMALabel.STAINING_3);
+                                } else if (inst.classValue() == dataset.classAttribute().indexOfValue(TMALabel.LABEL_POS_STRING + Byte.toString(TMALabel.STAINING_0))) {
+                                    tp.setLabel(TMALabel.LABEL_POS);
+                                    tp.setStaining(TMALabel.STAINING_0);
+                                } else if (inst.classValue() == dataset.classAttribute().indexOfValue(TMALabel.LABEL_POS_STRING + Byte.toString(TMALabel.STAINING_1))) {
+                                    tp.setLabel(TMALabel.LABEL_POS);
+                                    tp.setStaining(TMALabel.STAINING_1);
+                                } else if (inst.classValue() == dataset.classAttribute().indexOfValue(TMALabel.LABEL_POS_STRING + Byte.toString(TMALabel.STAINING_2))) {
+                                    tp.setLabel(TMALabel.LABEL_POS);
+                                    tp.setStaining(TMALabel.STAINING_2);
+                                } else if (inst.classValue() == dataset.classAttribute().indexOfValue(TMALabel.LABEL_POS_STRING + Byte.toString(TMALabel.STAINING_3))) {
+                                    tp.setLabel(TMALabel.LABEL_POS);
+                                    tp.setStaining(TMALabel.STAINING_3);
+                                }
+                            } else {
+                                if (inst.classValue() == dataset.classAttribute().indexOfValue(TMALabel.LABEL_NEG_STRING)) {
+                                    tp.setLabel(TMALabel.LABEL_NEG);
+                                } else if (inst.classValue() == dataset.classAttribute().indexOfValue(TMALabel.LABEL_POS_STRING)) {
+                                    tp.setLabel(TMALabel.LABEL_POS);
+                                }
+                            }
                         }
                     }
                     if (progress_container != null && progress_container.length > 0) {
@@ -3342,6 +4007,11 @@ public class CancerNucleusClassification extends javax.swing.JFrame implements T
             } else {
                 text = " 2-Step";
             }
+            if (getParam_multiclassClassification()) {
+                text += ", multi class";
+            } else {
+                text += ", 2 class";
+            }
             text += ", " + cl.getClass().getSimpleName();
             for (String s: cl.getOptions()) {
                 text += ", " + s;
@@ -3364,12 +4034,24 @@ public class CancerNucleusClassification extends javax.swing.JFrame implements T
      */
     private void performSegmentation() {
         GaussianBlur blur = new GaussianBlur();
-        BufferedImage bi_gray;
+        BufferedImage bi_col;
         ImagePlus ip;
+        BufferedImage I_col = null;
         
         List<TMAspot> tss = manager.getSelectedTMAspots();
         segmentations.clear();
         for (TMAspot ts: tss) {
+            
+            if (!ts.isNDPI()) {
+                // I_col
+                I_col = ts.getBufferedImage();
+                
+                //Blur the image for smoother features
+                ip = new ImagePlus(" ", I_col);
+                blur = new GaussianBlur();
+                blur.blurGaussian(ip.getProcessor(), getParam_blur(), getParam_blur(), 0.02);
+                I_col = ip.getBufferedImage();
+            }
             
             List<TMApoint> tps = ts.getPoints();
             for (int i = 0; i < tps.size(); i++) {
@@ -3380,21 +4062,32 @@ public class CancerNucleusClassification extends javax.swing.JFrame implements T
                 Rectangle rect = PatchRectangle(tps.get(i), getParam_patchsize());
                 if (rect.x>=0 && rect.y>=0 && rect.x + rect.width<ts.getWidth() && rect.y + rect.height<ts.getHeight()) {
                     
-                    // gray patch
-                    bi_gray = ts.getSubimage(rect.x, rect.y, rect.width, rect.height, Math.max(rect.width, rect.height), BufferedImage.TYPE_BYTE_GRAY);
+                    if (ts.isNDPI()) {
+                        // color patch
+                        bi_col = ts.getSubimage(rect.x, rect.y, rect.width, rect.height, Math.max(rect.width, rect.height));
 
-                    //Blur the image for smoother features
-                    ip = new ImagePlus(" ", bi_gray);
-                    blur.blurGaussian(ip.getProcessor(), getParam_blur(), getParam_blur(), 0.02);
-                    bi_gray = ip.getBufferedImage();
+                        //Blur the image for smoother features
+                        ip = new ImagePlus(" ", bi_col);
+                        blur.blurGaussian(ip.getProcessor(), getParam_blur(), getParam_blur(), 0.02);
+                        bi_col = ip.getBufferedImage();
 
-                    ROI roi; 
+                    } else {
+                        bi_col = I_col.getSubimage(rect.x, rect.y, rect.width, rect.height);
+                    }
+                    
                     if (getParam_useFeature_Segmentation()) {
-                        roi = PatchToShape(bi_gray, ts, getParam_useFeature_Segmentation_Graphcut(), 0);
-                        segmentations.add(new LocalizedROI(ts, tps.get(i), roi, getParam_patchsize()/2));
+                        if (getParam_useFeature_SegmentationBuiltIn()) {
+                            ROI roi = PatchToShape(bi_col, ts, getParam_useFeature_Segmentation_Graphcut(), 0);
+                            if (roi!=null) segmentations.add(new LocalizedROI(ts, tps.get(i), roi, getParam_patchsize()/2));
+                        } else {
+                            lROI roi = tps.get(i).getROI();
+                            if (roi!=null) segmentations.add(new LocalizedROI(ts, tps.get(i), roi, getParam_patchsize()/2));
+                        }
                     }
                 }
             }
+            manager.setStatusMessageLabel("");
+            manager.setProgressbar(0);
         }
     }
 

@@ -4,6 +4,7 @@
  */
 package cancernucleusclassification;
 
+import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ForkJoinTask;
@@ -25,6 +26,8 @@ public class CancerNucleusClassificationCoreFork extends RecursiveAction {
     private final CancerNucleusClassification cnc;
     private final TMAspot ts;
     private final List<TMApoint> tps;
+    private final BufferedImage I_col;
+    private final BufferedImage I_gray;
     private final Classifier classifier;
     private final Instances dataset;
     private final boolean foregroundDetection;
@@ -40,6 +43,8 @@ public class CancerNucleusClassificationCoreFork extends RecursiveAction {
      * @param cnc The CancerNucleusClassification instance.
      * @param ts The TMAspot to be processed.
      * @param tps The TMApoints to be processed.
+     * @param I_col The color image of the spot (can be null if ts is a NDPI image, otherwise it might be ts.getBufferedImage()).
+     * @param I_gray A gray version of I_col (might be edited). Can be null if ts is a NDPI image.
      * @param classifier The classifier used.
      * @param dataset The prepared dataset for classification (defines the class labels etc). Can be null, but should be predefined for speed issues.
      * @param foregroundDetection If true, a 2-step classification is tried (nucleus/background classification) otherwise a malignant/benign nucleus classification.
@@ -48,11 +53,13 @@ public class CancerNucleusClassificationCoreFork extends RecursiveAction {
      * @param doFork If true, the fork is run in parallel. Otherwise, not parallel (no fork).
      * @param progress_container A container for the progress bar over the forks.
      */
-    public CancerNucleusClassificationCoreFork(TMARKERPluginManager tpm, CancerNucleusClassification cnc, TMAspot ts, List<TMApoint> tps, Classifier classifier, Instances dataset, boolean foregroundDetection, int mStart, int mLength, boolean doFork, int[] progress_container) {
+    public CancerNucleusClassificationCoreFork(TMARKERPluginManager tpm, CancerNucleusClassification cnc, TMAspot ts, List<TMApoint> tps, BufferedImage I_col, BufferedImage I_gray, Classifier classifier, Instances dataset, boolean foregroundDetection, int mStart, int mLength, boolean doFork, int[] progress_container) {
         this.tpm = tpm;
         this.cnc = cnc;
         this.ts = ts;
         this.tps = tps;
+        this.I_col = I_col;
+        this.I_gray = I_gray;
         this.classifier = classifier;
         this.dataset = dataset;
         this.foregroundDetection = foregroundDetection;
@@ -78,7 +85,7 @@ public class CancerNucleusClassificationCoreFork extends RecursiveAction {
         List<ForkJoinTask> fjt = new ArrayList<>();
         for (int i=0; i<n_proc; i++) {
             split_adj = Math.min(split, tps.size()-(mStart + i*split));
-            fjt.add(new CancerNucleusClassificationCoreFork(tpm, cnc, ts, tps, classifier, dataset, foregroundDetection, mStart + i*split, split_adj, false, progress_container));
+            fjt.add(new CancerNucleusClassificationCoreFork(tpm, cnc, ts, tps, I_col, I_gray, classifier, dataset, foregroundDetection, mStart + i*split, split_adj, false, progress_container));
         }
         invokeAll(fjt);
     }
@@ -92,7 +99,7 @@ public class CancerNucleusClassificationCoreFork extends RecursiveAction {
             tps_.add(tps.get(i));
         }
         
-        CancerNucleusClassification.classifyNucleiCore(cnc, ts, tps_, classifier, dataset, foregroundDetection, cnc.manager, progress_container, tps.size(), startTime);
+        CancerNucleusClassification.classifyNucleiCore(cnc, ts, tps_, I_col, I_gray, classifier, dataset, foregroundDetection, cnc.manager, progress_container, tps.size(), startTime);
             
         }
     }

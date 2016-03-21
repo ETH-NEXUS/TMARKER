@@ -355,7 +355,7 @@ public class Superpixel implements Comparable {
             fv_size += 1;
         }
         if (CNC.getParam_useFeature_Segmentation() && CNC.getParam_useFeature_FGBGColor()) {
-            fv_size += 6;
+            fv_size += 9;
         }
         if (CNC.getParam_useFeature_Segmentation() && CNC.getParam_useFeature_1DSignature()) {
             fv_size += 16;
@@ -367,6 +367,9 @@ public class Superpixel implements Comparable {
             fv_size += 1;
         }
         if (CNC.getParam_useFeature_Segmentation() && CNC.getParam_useFeature_Roundness()) {
+            fv_size += 1;
+        }
+        if (CNC.getParam_useFeature_Segmentation() && CNC.getParam_useFeature_AreaSize()) {
             fv_size += 1;
         }
         
@@ -459,7 +462,7 @@ public class Superpixel implements Comparable {
             if (CNC.getParam_useFeature_Segmentation() && CNC.getParam_useFeature_FGBGColor()) {
                 double[] fv_tmp = image2FGBGColor(bi_col, roi);
                 System.arraycopy(fv_tmp, 0, fvl, pos, fv_tmp.length);
-                pos += 6;
+                pos += 9;
             }
             // 1D-Signature as featurevector
             if (CNC.getParam_useFeature_Segmentation() && CNC.getParam_useFeature_1DSignature()) {
@@ -485,6 +488,12 @@ public class Superpixel implements Comparable {
                 //    signature = Signature1D(roi, bi_gray.getRoi(), CNC.getParam_useFeature_1DSignature_scaleInvariant(), CNC.getParam_useFeature_1DSignature_rotationInvariant(), CNC.getParam_useFeature_1DSignature_derivative());
                 //}
                 double[] fv_tmp = Roundness(roi2);
+                System.arraycopy(fv_tmp, 0, fvl, pos, fv_tmp.length);
+                pos += 1;
+            }
+            // Area/Size
+            if (CNC.getParam_useFeature_Segmentation() && CNC.getParam_useFeature_AreaSize()) {
+                double[] fv_tmp = AreaSize(roi);
                 System.arraycopy(fv_tmp, 0, fvl, pos, fv_tmp.length);
                 pos += 1;
             }
@@ -873,7 +882,14 @@ public class Superpixel implements Comparable {
         Arrays.sort(B_FG);
         Arrays.sort(B_BG);
         
-        return new double[]{median(R_FG), median(G_FG), median(B_FG), median(R_BG), median(G_BG), median(B_BG)};
+        double mRFG = median(R_FG);
+        double mGFG = median(G_FG);
+        double mBFG = median(B_FG);
+        double mRBG = median(R_BG);
+        double mGBG = median(G_BG);
+        double mBBG = median(B_BG);
+        
+        return new double[]{mRFG, mGFG, mBFG, mRBG, mGBG, mBBG, mRFG/mRBG, mGFG/mGBG, mBFG/mBBG};
     }
     
     /**
@@ -882,6 +898,8 @@ public class Superpixel implements Comparable {
      * @return The median of the array.
      */
     public static double median(int[] m) {
+        if (m.length == 0) return Double.NaN;
+        if (m.length == 1) return m[0];
         int middle = m.length/2;
         if (m.length%2 == 1) {
             return m[middle];
@@ -1083,6 +1101,9 @@ public class Superpixel implements Comparable {
      * @author Peter Schüffler
      */
     public static double getArea(Roi roi) {
+        if (roi == null) {
+            return Double.NaN;
+        }
         double A = 0.0;
         Rectangle rect = roi.getBounds();
         for (int i=rect.x; i<rect.x+rect.width; i++) {
@@ -1094,9 +1115,29 @@ public class Superpixel implements Comparable {
     }
     
     /**
-     * Returns the roundness of the signature. Roundness is the ratio of smallest
+     * Returns the area in pixels of a given Roi.
+     * @param roi The Roi to be measured.
+     * @return Area of this Roi (= number of points within or on border of ROI).
+     * @author Peter Schüffler
+     */
+    public static double getArea(ROI roi) {
+        if (roi == null) {
+            return Double.NaN;
+        }
+        double A = 0.0;
+        Rectangle rect = roi.getBounds();
+        for (int i=rect.x; i<rect.x+rect.width; i++) {
+            for (int j=rect.y; j<rect.y+rect.height; j++) {
+                if (roi.contains(i, j)) A++;
+            }
+        }
+        return A;
+    }
+    
+    /**
+     * Returns the roundness of the signature of a given ROI. Roundness is the ratio of smallest
      * diameter to largest diameter. If signature is null or the largest diameter is 0, [Double.NaN] is returned.
-     * @param signature The 1D-signature as calculated with Signature1D(). It contains the radii in all directions.
+     * @param roi The 1D-signature as calculated around this roi.
      * @return The roundness of the 1DSignature. One double in an array.
      */
     public static double[] Roundness(Roi roi) {
@@ -1115,6 +1156,21 @@ public class Superpixel implements Comparable {
         try {
             double[] feret = roi.getFeretValues();
             r[0] = feret[2]/feret[0];
+        } catch (Exception e) {
+            
+        }
+        return r;
+    }
+    
+    /**
+     * Returns the size of the Area of the ROI.
+     * @param roi The Roi to be processed.
+     * @return The size of this roi in pixels.
+     */
+    public static double[] AreaSize(ROI roi) {
+        double[] r = new double[]{Double.NaN};
+        try {
+            r[0] = getArea(roi);
         } catch (Exception e) {
             
         }

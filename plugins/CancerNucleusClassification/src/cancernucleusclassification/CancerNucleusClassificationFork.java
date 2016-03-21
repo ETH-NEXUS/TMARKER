@@ -6,7 +6,6 @@ package cancernucleusclassification;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.ForkJoinPool;
 import java.util.concurrent.ForkJoinTask;
 import static java.util.concurrent.ForkJoinTask.invokeAll;
 import java.util.concurrent.RecursiveAction;
@@ -86,7 +85,7 @@ public class CancerNucleusClassificationFork extends RecursiveAction {
     protected void computeDirectly() {
         for (int i=mStart; i<mStart+mLength; i++) {
             TMAspot ts = tss.get(i);
-            tpm.setStatusMessageLabel("Performing Staining Estimation ...");
+            tpm.setStatusMessageLabel("Performing Cancer Nucleus Classification ...");
             tpm.setProgressbar((int)(1.0*progress_container[0]/mLength));
             cnc.setProgressNumber(progress_container[0], tss.size(), startTime);
             
