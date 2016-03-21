@@ -170,6 +170,7 @@ public interface PluginManager {
      *
      * @return True, if all processors on the machine can be used. False, if
      * not.
+     * @deprecated Use getNumberProcessors()>1 instead.
      */
     public boolean useParallelProgramming();
 
