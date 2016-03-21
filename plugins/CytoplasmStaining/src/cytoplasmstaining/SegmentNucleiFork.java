@@ -119,7 +119,7 @@ public class SegmentNucleiFork extends RecursiveAction {
     static void SegmentNuclei_Fork(TMARKERPluginManager tpm, CytoplasmStaining cs, TMAspot aTMAspot, List<TMApoint> TMApoints, TMAspotSegmentations tsseg, BufferedImage I_col, BufferedImage I_gray) {
         int[] progress_container = new int[]{1};
         
-        SegmentNucleiFork fb = new SegmentNucleiFork(tpm, cs, aTMAspot, TMApoints, tsseg, I_col, I_gray, 0, TMApoints.size(), tpm.useParallelProgramming(), progress_container);
+        SegmentNucleiFork fb = new SegmentNucleiFork(tpm, cs, aTMAspot, TMApoints, tsseg, I_col, I_gray, 0, TMApoints.size(), tpm.getNumberProcessors()>1, progress_container);
         
         ForkJoinPool pool = new ForkJoinPool();
 
