@@ -28,15 +28,20 @@ public class StainingEstimationThread extends Thread {
     int tolerance;
     int t_hema;
     int t_dab;
+    int t_ch3;
     boolean delete_cur_gs_spots;
     boolean delete_cur_es_spots;
     boolean hide_legend;
     boolean markCancerous;
     String myStain;
     boolean substractChannels;
+    boolean invertCH1;
+    boolean invertCH2;
+    boolean invertCH3;
     public boolean continu = true;
     int TMblur_hema;
     int TMblur_dab;
+    int TMblur_ch3;
     boolean respectAreas;
     StainingEstimationFork fb = null;
     
@@ -50,16 +55,21 @@ public class StainingEstimationThread extends Thread {
      * @param tolerance The tolerance used for local maxima finding.
      * @param TMblur_hema The blurring for the dynamic threshold map for the channel 1 (if any).
      * @param TMblur_dab The blurring for the dynamic threshold map for the channel 2 (if any).
+     * @param TMblur_ch3 The blurring for the dynamic threshold map for the channel 3 (if any).
      * @param t_hema The fixed channel 1 threshold (between 0-255).
      * @param t_dab The fixed channel 2 threshold (between 0-255).
+     * @param t_ch3 The fixed channel 3 threshold (between 0-255).
      * @param delete_cur_gs_spots If true, current gold standard nuclei will be deleted.
      * @param delete_cur_es_spots If true, current estimated nuclei will be deleted.
      * @param hide_legend If false, a legend of the color deconvolution algorithm will appear.
      * @param markCancerous If true, all found nuclei will be labeled as "cancerous" nuclei
      * @param myStain String of the staining protocol (e.g. "H&E" or "H DAB").
      * @param substractChannels If true, channel 2 will be substracted from channel 1.
+     * @param invertCH1 If true, channel 1 is inverted.
+     * @param invertCH2 If true, channel 2 is inverted.
+     * @param invertCH3 If true, channel 3 is inverted.
      */
-    public StainingEstimationThread (TMARKERPluginManager tpm, StainingEstimation se, List<TMAspot> aTMAspots, int radius, double blur, int tolerance, int TMblur_hema, int TMblur_dab, int t_hema, int t_dab, boolean delete_cur_gs_spots, boolean delete_cur_es_spots, boolean hide_legend, boolean markCancerous, String myStain, boolean substractChannels, boolean respectAreas) {
+    public StainingEstimationThread (TMARKERPluginManager tpm, StainingEstimation se, List<TMAspot> aTMAspots, int radius, double blur, int tolerance, int TMblur_hema, int TMblur_dab, int TMblur_ch3, int t_hema, int t_dab, int t_ch3, boolean delete_cur_gs_spots, boolean delete_cur_es_spots, boolean hide_legend, boolean markCancerous, String myStain, boolean substractChannels, boolean invertCH1, boolean invertCH2, boolean invertCH3, boolean respectAreas) {
         this.tpm = tpm;
         this.se = se;
         this.aTMAspots = aTMAspots;
@@ -68,14 +78,19 @@ public class StainingEstimationThread extends Thread {
         this.tolerance = tolerance;
         this.t_hema = t_hema;
         this.t_dab = t_dab;
+        this.t_ch3 = t_ch3;
         this.delete_cur_gs_spots = delete_cur_gs_spots;
         this.delete_cur_es_spots = delete_cur_es_spots;
         this.hide_legend = hide_legend;
         this.markCancerous = markCancerous;
         this.myStain = myStain;
         this.substractChannels = substractChannels;
+        this.invertCH1 = invertCH1;
+        this.invertCH2 = invertCH2;
+        this.invertCH3 = invertCH3;
         this.TMblur_hema = TMblur_hema;
         this.TMblur_dab = TMblur_dab;
+        this.TMblur_ch3 = TMblur_ch3;
         this.respectAreas = respectAreas;
     }
     
@@ -84,10 +99,10 @@ public class StainingEstimationThread extends Thread {
         ForkJoinPool pool = null;
         try{ 
             se.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
-                //StainingEstimationFork.StainingEstimation_Fork(tpm, se, aTMAspots, radius, blur, tolerance, TMblur_hema, TMblur_dab, t_hema, t_dab, delete_cur_gs_spots, delete_cur_es_spots, hide_legend, markCancerous, myStain, substractChannels, respectAreas);
+                //StainingEstimationFork.StainingEstimation_Fork(tpm, se, aTMAspots, radius, blur, tolerance, TMblur_hema, TMblur_dab, TMblur_ch3, t_hema, t_dab, t_ch3, delete_cur_gs_spots, delete_cur_es_spots, hide_legend, markCancerous, myStain, substractChannels, invertCH1, invertCH2, invertCH3, respectAreas);
             
             int[] progress_container = new int[]{1};
-            fb = new StainingEstimationFork(tpm, se, aTMAspots, radius, blur, tolerance, TMblur_hema, TMblur_dab, t_hema, t_dab, delete_cur_gs_spots, delete_cur_es_spots, hide_legend, markCancerous, myStain, substractChannels, respectAreas, 0, aTMAspots.size(), tpm.useParallelProgramming(), progress_container);
+            fb = new StainingEstimationFork(tpm, se, aTMAspots, radius, blur, tolerance, TMblur_hema, TMblur_dab, TMblur_ch3, t_hema, t_dab, t_ch3, delete_cur_gs_spots, delete_cur_es_spots, hide_legend, markCancerous, myStain, substractChannels, invertCH1, invertCH2, invertCH3, respectAreas, 0, aTMAspots.size(), tpm.useParallelProgramming(), progress_container);
 
             pool = new ForkJoinPool();
             

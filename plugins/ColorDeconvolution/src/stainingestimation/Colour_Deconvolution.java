@@ -91,9 +91,12 @@ public class Colour_Deconvolution implements PlugIn {
          * @param hideLegend If true, the legend of the color deconvolution method is hidden.
          * @param myStain The staining protocol string (e.g. "H&E" or "H DAB").
          * @param substractChannels If true, channel 2 will be substracted from channel 1.
+         * @param invert_ch1 If true, channel 1 gets inverted.
+         * @param invert_ch2 If true, channel 2 gets inverted.
+         * @param invert_ch3 If true, channel 3 gets inverted.
          * @return The three calculated channel images of the deconvolution.
          */
-	public static java.util.List<ImagePlus> get_deconvolution_images(ImagePlus imp, StainingEstimation se, TMAspot ts, boolean hideLegend, String myStain, boolean substractChannels) {
+	public static java.util.List<ImagePlus> get_deconvolution_images(ImagePlus imp, StainingEstimation se, TMAspot ts, boolean hideLegend, String myStain, boolean substractChannels, boolean invert_ch1, boolean invert_ch2, boolean invert_ch3) {
 		if (imp==null){
 			IJ.error("No image!");
 			return null;
@@ -407,6 +410,11 @@ public class Colour_Deconvolution implements PlugIn {
                 d_imps.add(new ImagePlus(title+"-(Colour_1)",outputstack[0]));
                 d_imps.add(new ImagePlus(title+"-(Colour_2)",outputstack[1]));
                 d_imps.add(new ImagePlus(title+"-(Colour_3)",outputstack[2]));
+                
+                if (invert_ch1) d_imps.get(0).getProcessor().invert();
+                if (invert_ch2) d_imps.get(1).getProcessor().invert();
+                if (invert_ch3) d_imps.get(2).getProcessor().invert();
+                
                 return d_imps;
 	}
         

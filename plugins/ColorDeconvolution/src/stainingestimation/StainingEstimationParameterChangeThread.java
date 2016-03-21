@@ -65,6 +65,9 @@ public class StainingEstimationParameterChangeThread extends Thread {
     int t_dab_start;
     int t_dab_end;
     int t_dab_d;
+    int t_ch3_start;
+    int t_ch3_end;
+    int t_ch3_d;
     boolean lock_thresholds;
     boolean respectAreas;
     public boolean continu = true;
@@ -91,9 +94,12 @@ public class StainingEstimationParameterChangeThread extends Thread {
      * @param t_dab_start Threshold for channel 2 start value.
      * @param t_dab_end Threshold for channel 2 end value.
      * @param t_dab_d Threshold for channel 2 increment.
+     * @param t_ch3_start Threshold for channel 3 start value.
+     * @param t_ch3_end Threshold for channel 3 end value.
+     * @param t_ch3_d Threshold for channel 3 increment.
      * @param lock_thresholds If true, t_dab will be kept identical to t_hema, such that both parameters shift equally.
      */
-    StainingEstimationParameterChangeThread(TMARKERPluginManager tpm, StainingEstimation se, List<TMAspot> tss, int radius_start, int radius_end, int radius_d, int tol_start, int tol_end, int tol_d, int blur_start, int blur_end, int blur_d, int t_hema_start, int t_hema_end, int t_hema_d, int t_dab_start, int t_dab_end, int t_dab_d, boolean lock_thresholds, boolean respectAreas) {
+    StainingEstimationParameterChangeThread(TMARKERPluginManager tpm, StainingEstimation se, List<TMAspot> tss, int radius_start, int radius_end, int radius_d, int tol_start, int tol_end, int tol_d, int blur_start, int blur_end, int blur_d, int t_hema_start, int t_hema_end, int t_hema_d, int t_dab_start, int t_dab_end, int t_dab_d, int t_ch3_start, int t_ch3_end, int t_ch3_d, boolean lock_thresholds, boolean respectAreas) {
         this.tpm=tpm;
         this.se=se;
         this.tss=tss;
@@ -112,6 +118,9 @@ public class StainingEstimationParameterChangeThread extends Thread {
         this.t_dab_start=t_dab_start;
         this.t_dab_end=t_dab_end;
         this.t_dab_d = t_dab_d;
+        this.t_ch3_start = t_ch3_start;
+        this.t_ch3_end = t_ch3_end;
+        this.t_ch3_d = t_ch3_d;
         this.lock_thresholds = lock_thresholds;
         this.respectAreas = respectAreas;
     }
@@ -126,8 +135,10 @@ public class StainingEstimationParameterChangeThread extends Thread {
                     for (int blur = blur_start; blur <= blur_end; blur += blur_d) {
                         for (int t_hema = t_hema_start; t_hema <= t_hema_end; t_hema += t_hema_d) {
                             for (int t_dab = t_dab_start; t_dab <= t_dab_end; t_dab += t_dab_d) {
-                                if (!lock_thresholds || t_hema==t_dab) {
-                                    num_param++;
+                                for (int t_ch3 = t_ch3_start; t_ch3 <= t_ch3_end; t_ch3 += t_ch3_d) {
+                                    if (!lock_thresholds || (t_hema==t_dab && t_hema==t_ch3)) {
+                                        num_param++;
+                                    }
                                 }
                             }
                         }
@@ -137,7 +148,7 @@ public class StainingEstimationParameterChangeThread extends Thread {
             // END COUNT HERE  
 
             // to collect the f-scores:
-            double[][][] fscores = new double[tss.size()][num_param][12];
+            double[][][] fscores = new double[tss.size()][num_param][14];
 
             //initialize the double [][]
             double[] stats;
@@ -162,38 +173,43 @@ public class StainingEstimationParameterChangeThread extends Thread {
                         for (int t_hema = t_hema_start; t_hema <= t_hema_end; t_hema += t_hema_d) {
                             se.setParam_t_hema(t_hema);
                             for (int t_dab = t_dab_start; t_dab <= t_dab_end; t_dab += t_dab_d) {
-                                if (!lock_thresholds || t_hema==t_dab) {
-                                    se.setParam_t_dab(t_dab);
-                                    // do the Staining Estimation
-                                    if (continu) se.performStainingEstimation(tss, radius, blur, tolerance, TMblur, TMblur, t_hema, t_dab, false, true, true, false, colorChannel, false, respectAreas);
-                                    // collect the Scores
-                                    for (int i = 0; i < tss.size(); i++) {
-                                        if (continu) {
-                                            stats = tss.get(i).calculateMatchStatistics();
-                                            curves.get(i)[0][s] = Math.max(0.0, stats[1 + 7]);
-                                            curves.get(i)[1][s] = Math.max(0.0, stats[2 + 7]);
+                                for (int t_ch3 = t_ch3_start; t_ch3 <= t_ch3_end; t_ch3 += t_ch3_d) {
+                                    if (!lock_thresholds || (t_hema==t_dab && t_hema==t_ch3)) {
+                                        se.setParam_t_dab(t_dab);
+                                        se.setParam_t_dab(t_ch3);
+                                        // do the Staining Estimation
+                                        if (continu) se.performStainingEstimation(tss, radius, blur, tolerance, TMblur, TMblur, TMblur, t_hema, t_dab, t_ch3, false, true, true, false, colorChannel, respectAreas, false, false, false, false);
+                                        // collect the Scores
+                                        for (int i = 0; i < tss.size(); i++) {
+                                            if (continu) {
+                                                stats = tss.get(i).calculateMatchStatistics();
+                                                curves.get(i)[0][s] = Math.max(0.0, stats[1 + 7]);
+                                                curves.get(i)[1][s] = Math.max(0.0, stats[2 + 7]);
 
-                                            // collect f-scores
-                                            fscores[i][s][0] = tss.get(i).getID();
-                                            fscores[i][s][1] = staining_index;
-                                            fscores[i][s][2] = radius;
-                                            fscores[i][s][3] = tolerance;
-                                            fscores[i][s][4] = blur;
-                                            fscores[i][s][5] = t_hema;
-                                            fscores[i][s][6] = t_dab;
-                                            fscores[i][s][7] = TMblur;
-                                            fscores[i][s][8] = TMblur;
-                                            fscores[i][s][9] = Math.max(0.0, stats[1 + 7]);
-                                            fscores[i][s][10] = Math.max(0.0, stats[2 + 7]);
-                                            fscores[i][s][11] = Math.max(0.0, stats[0 + 7]);
-                                        } else {
-                                            break outerloop;
+                                                // collect f-scores
+                                                fscores[i][s][0] = tss.get(i).getID();
+                                                fscores[i][s][1] = staining_index;
+                                                fscores[i][s][2] = radius;
+                                                fscores[i][s][3] = tolerance;
+                                                fscores[i][s][4] = blur;
+                                                fscores[i][s][5] = t_hema;
+                                                fscores[i][s][6] = t_dab;
+                                                fscores[i][s][7] = t_ch3;
+                                                fscores[i][s][8] = TMblur;
+                                                fscores[i][s][9] = TMblur;
+                                                fscores[i][s][10] = TMblur;
+                                                fscores[i][s][11] = Math.max(0.0, stats[1 + 7]);
+                                                fscores[i][s][12] = Math.max(0.0, stats[2 + 7]);
+                                                fscores[i][s][13] = Math.max(0.0, stats[0 + 7]);
+                                            } else {
+                                                break outerloop;
+                                            }
                                         }
+                                        if (tmarker.DEBUG > 0 && continu) {
+                                            java.util.logging.Logger.getLogger(getClass().getName()).log(java.util.logging.Level.INFO, "Test " + s + " of " + num_param + " (" + Math.round((1000.0 * s) / num_param) / 10.0 + " %)");
+                                        }
+                                        s++;
                                     }
-                                    if (tmarker.DEBUG > 0 && continu) {
-                                        java.util.logging.Logger.getLogger(getClass().getName()).log(java.util.logging.Level.INFO, "Test " + s + " of " + num_param + " (" + Math.round((1000.0 * s) / num_param) / 10.0 + " %)");
-                                    }
-                                    s++;
                                 }
                             }
                         }
