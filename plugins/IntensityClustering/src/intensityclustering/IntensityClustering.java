@@ -1105,7 +1105,7 @@ public class IntensityClustering extends javax.swing.JFrame implements TMARKERPl
                 for (TMAspot ts : tss) {
                     //TODO: GET THE CHANNEL 2 Image
                     //BufferedImage img = ts.getBufferedImage(TMAspot.SHOW_CHANNEL2_IMAGE, false);
-                    BufferedImage img = ts.getBufferedImage(false);
+                    BufferedImage img = ts.getBufferedImage();
                     // img can be null if color deconvolution has not been performed, yet.
                     if (img != null) {
                         List<TMApoint> tps = ts.getPoints();
@@ -1258,7 +1258,7 @@ public class IntensityClustering extends javax.swing.JFrame implements TMARKERPl
                     for (TMAspot ts : tss) {
                         //TODO: GET THE CHANNEL 2 IMAGE
                         //BufferedImage img = ts.getBufferedImage(TMAspot.SHOW_CHANNEL2_IMAGE, false);
-                        BufferedImage img = ts.getBufferedImage(false);
+                        BufferedImage img = ts.getBufferedImage();
                         List<TMApoint> tps = ts.getPoints();
                         for (TMApoint tp : tps) {
                             intensity = TMAspot.getAverageColorAtPoint(img, tp.x, tp.y, ts.getParam_r(), false).getRed();

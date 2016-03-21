@@ -101,7 +101,7 @@ public class DrawNucleiIntensitySingletsFork extends RecursiveAction {
                 
         NucleusIntensity3DSinglet[] singlets = new NucleusIntensity3DSinglet[tps.size()];
         
-        DrawNucleiIntensitySingletsFork fb = new DrawNucleiIntensitySingletsFork(tpm, ic, ts, img, tps, colorSpace, plot, 0, tps.size(), tpm.useParallelProgramming(), progress_container, singlets);
+        DrawNucleiIntensitySingletsFork fb = new DrawNucleiIntensitySingletsFork(tpm, ic, ts, img, tps, colorSpace, plot, 0, tps.size(), tpm.getNumberProcessors()>1, progress_container, singlets);
 
         ForkJoinPool pool = new ForkJoinPool();
 
