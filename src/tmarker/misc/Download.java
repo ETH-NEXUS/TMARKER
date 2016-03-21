@@ -26,10 +26,12 @@ private int size; // size of download in bytes
 private int downloaded; // number of bytes downloaded
 private int status; // current status of download
 private Thread thread; // the download thread
+private String destFolder; // the destination folder
 
 // Constructor for Download.
-public Download(URL url) {
+public Download(URL url, String destFolder) {
     this.url = url;
+    this.destFolder = destFolder;
     size = -1;
     downloaded = 0;
     status = DOWNLOADING;
@@ -140,7 +142,7 @@ public void run() {
         }
 
         // Open file and seek to the end of it.
-        file = new RandomAccessFile(getFileName(url), "rw");
+        file = new RandomAccessFile(destFolder + File.separator + getFileName(url), "rw");
         file.seek(downloaded);
 
         stream = connection.getInputStream();

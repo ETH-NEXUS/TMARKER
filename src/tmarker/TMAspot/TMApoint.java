@@ -4,6 +4,7 @@
  */
 package tmarker.TMAspot;
 
+import ij.gui.Roi;
 import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.image.BufferedImage;
@@ -14,6 +15,7 @@ import java.util.ArrayList;
 import java.util.List;
 import javax.imageio.ImageIO;
 import javax.media.jai.ROI;
+import tmarker.misc.lROI;
 import tmarker.tmarker;
 
 /**
@@ -32,6 +34,18 @@ public class TMApoint extends TMALabel {
     private byte goldStandard = 0;
     private boolean isTrainingsPoint_classification = false;
     private boolean isTrainingsPoint_detection = false;
+    
+    /**
+     * The segmented nucleus. Null, if none.
+     */
+    private lROI lROI = null;
+    
+    /**
+     * The convex hull of the segmentation. Null, if none.
+     */
+    private Roi lroi = null;
+
+    
     
     private TMAspot ts = null;
    
@@ -130,6 +144,47 @@ public class TMApoint extends TMALabel {
     public TMAspot getTMAspot() {
         return ts;
     }
+    
+    /**
+     * Returns the segmentation of this TMApoint (localized ROI).
+     * ROIs support affine transforms, but they are not supported by ImagePlus.
+     * This ROI can be transformed to a convex hull roi by Misc.ROIToRoi(ROI).
+     * @return The pixelwise segmentation of this spot, null if not generated yet.
+     */
+    public lROI getROI() {
+        return lROI;
+    }
+
+    /**
+     * Sets the pixelwise segmentation of this TMApoint (ROI).
+     * ROIs are stored as rectangular ROI patches centered at the TMApoint. Usually,
+     * the ROI patch is of size 2*radius in x and y direction.
+     * See javax.​media.​jai.ROI documentation for more details.
+     * This function does not set the corresponding convex hull roi, but you can do that by calling setRoi(Misc.ROIToRoi(ROI)).
+     * @param lROI The segmentation of this TMApoint.
+     */
+    public void setROI(lROI lROI) {
+        this.lROI = lROI;
+    }
+    
+    /**
+     * Returns the convex hull roi of this TMApoint (Roi).
+     * @return The convex hull of the segmentation of this spot, null if not generated yet.
+     */
+    public Roi getRoi() {
+        return lroi;
+    }
+
+    /**
+     * Sets the convex hull segmentation of this TMApoint (Roi)
+     * Rois are stored as polygons like objects and can be used by ImagePlus. The coordinate space is the image coordinate space.
+     * This function does not set the pixelwise ROI.
+     * @param lroi The convex hull of the segmentation of this TMApoint.
+     */
+    public void setRoi(Roi lroi) {
+        this.lroi = lroi;
+    }
+    
     
     /**
      * Flips the label of this TMApoint.
@@ -349,19 +404,6 @@ public class TMApoint extends TMALabel {
         return out;
     }
 
-    /**
-     * Experimental: Determines this point's staining intensity only by the average color in its radius.
-     * If the red value is larger than the blue, it is considered as STAINING_3. Otherwise as STAINING_0.
-     * @param I The TMAspot image.
-     */
-    void calculateStaining(BufferedImage I) {
-        Color col_avg = TMAspot.getAverageColorAtPoint(I, x, y, getTMAspot().getCenter().getLabelRadius(), false);
-        if (col_avg.getRed()>col_avg.getBlue()) {
-            staining = TMALabel.STAINING_3;
-        } else {
-            staining = TMALabel.STAINING_0;
-        }
-    }
     
     
 }

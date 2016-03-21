@@ -212,15 +212,16 @@ public class TMARKERPluginManager implements PluginManager {
     public void setLabelRadius(int radius) {
         t.setLabelRadius(radius);
     }
-
+    
     /**
      * Returns whether or not parallel computing can be used (as selected by the user in the main
      * program).
      * @return True, if all processors on the machine can be used. False, if not.
+     * @deprecated Use getNumberProcessors()>1 instead.
      */
     @Override
     public boolean useParallelProgramming() {
-        return t.getOptionDialog().useParallelProgramming();
+        return t.getOptionDialog().getParam_useNProcessors()>1;
     }
     
     /**
@@ -309,7 +310,7 @@ public class TMARKERPluginManager implements PluginManager {
      */
     @Override
     public boolean SaveAsXML(File file) {
-        return tmarker.SaveAsXML(t, file);
+        return tmarker.SaveAsXML(t, file, true);
     }
     
     /**
@@ -359,7 +360,7 @@ public class TMARKERPluginManager implements PluginManager {
      */
     @Override
     public int getNumberProcessors() {
-        return t.getOptionDialog().getParam_NumberProcessors();
+        return t.getOptionDialog().getParam_useNProcessors();
     }
     
     /**

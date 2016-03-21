@@ -127,42 +127,45 @@ public class PerformanceOverviewPanel extends javax.swing.JPanel {
     @Override
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
-        Graphics2D g2 = (Graphics2D) g;
-        g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
-                            RenderingHints.VALUE_ANTIALIAS_ON);
-        g2.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING,
-                            RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
-        g.setFont(g.getFont().deriveFont(Font.BOLD));
-        
-        
-        double dx = 1.0*getWidth()/(length); // distance between two values on x axis.
-        double factor = getHeight()/(max+20); // scale factor for values on y axis (not to be higher than the panel height).
-        
-        // draw the free memory
-        //g.setColor(Color.GREEN);
-        //for (int i=1; i<length; i++) {
-        //    g.drawLine((int)((i-1)*dx), getHeight()-(int)(factor*(int)(freeMem.get(i-1))), (int)(i*dx), getHeight()-(int)(factor*(int)(freeMem.get(i))));
-        //}
-        //g.drawString("Free " + freeMem.get(freeMem.size()-1) + " MB", 95, getHeight() -5);
+        try {
+            Graphics2D g2 = (Graphics2D) g;
+            g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
+                                RenderingHints.VALUE_ANTIALIAS_ON);
+            g2.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING,
+                                RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
+            g.setFont(g.getFont().deriveFont(Font.BOLD));
 
-        // draw the total memory used so far
-        g.setColor(Color.GREEN);
-        for (int i=1; i<length; i++) {
-            g.drawLine((int)((i-1)*dx), getHeight()-(int)(factor*(int)(totMem.get(i-1))), (int)(i*dx), getHeight()-(int)(factor*(int)(totMem.get(i))));
+
+            double dx = 1.0*getWidth()/(length); // distance between two values on x axis.
+            double factor = getHeight()/(max+20); // scale factor for values on y axis (not to be higher than the panel height).
+
+            // draw the free memory
+            //g.setColor(Color.GREEN);
+            //for (int i=1; i<length; i++) {
+            //    g.drawLine((int)((i-1)*dx), getHeight()-(int)(factor*(int)(freeMem.get(i-1))), (int)(i*dx), getHeight()-(int)(factor*(int)(freeMem.get(i))));
+            //}
+            //g.drawString("Free " + freeMem.get(freeMem.size()-1) + " MB", 95, getHeight() -5);
+
+            // draw the total memory used so far
+            g.setColor(Color.GREEN);
+            for (int i=1; i<length; i++) {
+                g.drawLine((int)((i-1)*dx), getHeight()-(int)(factor*(int)(totMem.get(i-1))), (int)(i*dx), getHeight()-(int)(factor*(int)(totMem.get(i))));
+            }
+            g.drawString("Tot " + totMem.get(totMem.size()-1) + " MB", 185, getHeight() -5);
+
+            // draw the used memory
+            g.setColor(Color.YELLOW);
+            for (int i=1; i<length; i++) {
+                g.drawLine((int)((i-1)*dx), getHeight()-(int)(factor*(int)(usedMem.get(i-1))), (int)(i*dx), getHeight()-(int)(factor*(int)(usedMem.get(i))));
+            }
+            g.drawString("Used " + usedMem.get(usedMem.size()-1) + " MB", 95, getHeight() -5);
+
+            // draw the max memory (constant, given by -xmx flag on start of the program)
+            g.setColor(Color.RED);
+            g.drawString("Max " + maxMem + " MB", 5, getHeight() -5);
+        } catch (Exception e) {
+        
         }
-        g.drawString("Tot " + totMem.get(totMem.size()-1) + " MB", 185, getHeight() -5);
-        
-        // draw the used memory
-        g.setColor(Color.YELLOW);
-        for (int i=1; i<length; i++) {
-            g.drawLine((int)((i-1)*dx), getHeight()-(int)(factor*(int)(usedMem.get(i-1))), (int)(i*dx), getHeight()-(int)(factor*(int)(usedMem.get(i))));
-        }
-        g.drawString("Used " + usedMem.get(usedMem.size()-1) + " MB", 95, getHeight() -5);
-
-        // draw the max memory (constant, given by -xmx flag on start of the program)
-        g.setColor(Color.RED);
-        g.drawString("Max " + maxMem + " MB", 5, getHeight() -5);
-
     }
     
     // Variables declaration - do not modify//GEN-BEGIN:variables

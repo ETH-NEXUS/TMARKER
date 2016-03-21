@@ -46,20 +46,14 @@ import TMARKERPluginInterface.Pluggable;
 import TMARKERPluginInterface.PluginManager;
 import com.boxysystems.jgoogleanalytics.FocusPoint;
 import com.boxysystems.jgoogleanalytics.JGoogleAnalyticsTracker;
-import java.awt.AlphaComposite;
 import java.awt.BorderLayout;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
-import java.awt.Paint;
-import java.awt.PaintContext;
 import java.awt.RenderingHints;
 import java.awt.SplashScreen;
-import java.awt.Transparency;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
-import java.awt.geom.AffineTransform;
 import java.awt.geom.Rectangle2D;
-import java.awt.image.ColorModel;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.lang.reflect.Field;
@@ -267,6 +261,11 @@ public final class tmarker extends javax.swing.JFrame {
      * The shape of the nuclei as drawn as Rectangle.
      */
     public final static int LABELS_SHAPE_RECTANGLE = 3;
+    
+    /**
+     * The shape of the nuclei as drawn as thicker cross.
+     */
+    public final static int LABELS_SHAPE_CROSS_THICK = 4;
 
     /**
      * DEBUG: 0 for little output information, 5 for much output information.
@@ -1733,8 +1732,9 @@ public final class tmarker extends javax.swing.JFrame {
      * @param args the command line arguments
      */
     public static void main(String args[]) {
-        int debug = 5; // SET THIS TO 0 IF YOU COMPILE FOR PUBLIC DISTRIBUTION OTHERWISE 1-5 FOR LESS OR MORE DEBUG INFO
+        int debug = 0; // SET THIS TO 0 IF YOU COMPILE FOR PUBLIC DISTRIBUTION OTHERWISE 1-5 FOR LESS OR MORE DEBUG INFO
 
+        File file = null;
         if (args.length > 0) {
             try {
                 String helpOption = weka.core.Utils.getOption('h', args);
@@ -1753,7 +1753,16 @@ public final class tmarker extends javax.swing.JFrame {
                 printHelp();
                 System.exit(0);
             }
+            try {
+                file = new File(args[args.length-1]);
+                if (!file.exists()) {
+                    file = null;
+                }
+            } catch (Exception ex) {
+                file = null;
+            }
         }
+        final File FileToOpen = file;
 
         Properties prop = new Properties();
         InputStream is;
@@ -1792,12 +1801,12 @@ public final class tmarker extends javax.swing.JFrame {
         java.awt.EventQueue.invokeLater(new Runnable() {
             @Override
             public void run() {
-                tmarker frame = new tmarker(System.getProperty("user.home") + fs + "TMARKER_tmp");
+                final tmarker frame = new tmarker(System.getProperty("java.io.tmpdir") + fs + "TMARKER_tmp");
 
                 Runtime.getRuntime().addShutdownHook(new Thread() {
                     @Override
                     public void run() {
-                        new File(System.getProperty("user.home") + fs + "TMARKER_tmp" + fs + "cish.jar").delete();
+                        new File(System.getProperty("java.io.tmpdir") + fs + "TMARKER_tmp" + fs + "cish.jar").delete();
                     }
                 });
 
@@ -1813,7 +1822,7 @@ public final class tmarker extends javax.swing.JFrame {
 
                         @Override
                         public void run() {
-                            ExtractLibrariesFromJar("/tmarker/ndpi/", libs);
+                            ExtractLibrariesFromJar(frame, "/tmarker/ndpi/", libs);
                         }
                     });
                     thread.start();
@@ -1821,6 +1830,10 @@ public final class tmarker extends javax.swing.JFrame {
 
                 frame.setExtendedState(frame.getExtendedState() | JFrame.MAXIMIZED_BOTH);
                 frame.setVisible(true);
+                
+                if (FileToOpen != null) {
+                    LoadFiles(frame, new File[]{FileToOpen});
+                }
 
                 JGoogleAnalyticsTracker tracker = new JGoogleAnalyticsTracker("TMARKER", "UA-61194283-1");
                 FocusPoint focusPoint = new FocusPoint("MainProgramUsage");
@@ -2587,6 +2600,8 @@ public final class tmarker extends javax.swing.JFrame {
         xstream.alias("TMApoint", TMApoint.class);
         xstream.omitField(TMAspot.class, "tc");
         xstream.omitField(TMAspot.class, "tlp");
+        xstream.omitField(TMApoint.class, "lROI");
+        xstream.omitField(TMApoint.class, "lroi");
 
         List<TMAspot> newspots = new ArrayList<>();
         try {
@@ -2611,6 +2626,15 @@ public final class tmarker extends javax.swing.JFrame {
             // Read the properties.
             try {
                 Properties props = (Properties) o;
+                // remove OptionDialog Properties
+                Enumeration<Object> keys = props.keys();
+                while (keys.hasMoreElements()){
+                    Object key = keys.nextElement();
+                    if (((String)key).contains("OD.")) {
+                        props.remove(key);
+                    }
+                }
+                
                 t.restoreParameterValues(props, false);
                 t.restoreParameterValues(props, true);
                 o = in.readObject();
@@ -2622,8 +2646,13 @@ public final class tmarker extends javax.swing.JFrame {
                 try {
                     // The object is a new TMAspot
                     TMAspot ts = (TMAspot) o;
+                    //String filename = file.getName();
+                    //String spotname = ts.getName().replace(".bmp", ".xml");
                     t.setStatusMessageLabel("Reading " + ts.getName() + " ...");
-                    newspots.add(ts);
+                    //if (filename.equals(spotname)) {
+                        newspots.add(ts);
+                    //    break;
+                    //}
                     o = in.readObject();
                 } catch (java.io.EOFException eof) {
                     in.close();
@@ -2659,7 +2688,7 @@ public final class tmarker extends javax.swing.JFrame {
                         newspots.get(i).getPoints().get(j).setTMAspot(opened_spot);
                         opened_spot.addPoint(newspots.get(i).getPoints().get(j));
                     }
-                    opened_spot.adoptParams(newspots.get(i));
+                    opened_spot.adoptParams(newspots.get(i), t.convertPoints);
                     opened_spot.doBgCorrection();
                     t.updateTMATable(opened_spot);
                     newspots.remove(i);
@@ -2670,11 +2699,7 @@ public final class tmarker extends javax.swing.JFrame {
             for (int i = newspots.size() - 1; i >= 0; i--) {
                 if (new File(newspots.get(i).getOriginalImagename()).exists()) {
                     TMAspot ts = new TMAspot(t, newspots.get(i).getOriginalImagename());
-                    for (int j = 0; j < newspots.get(i).getPoints().size(); j++) {
-                        newspots.get(i).getPoints().get(j).setTMAspot(ts);
-                        ts.addPoint(newspots.get(i).getPoints().get(j));
-                    }
-                    ts.adoptParams(newspots.get(i));
+                    ts.adoptParams(newspots.get(i), false);
                     ts.doBgCorrection();
                     t.addTMAspot(ts);
                     t.updateTMATable(ts, true);
@@ -2688,11 +2713,7 @@ public final class tmarker extends javax.swing.JFrame {
                     logger.log(java.util.logging.Level.INFO, file.getParent() + File.separator + newspots.get(i).getOriginalImagename());
                     if (new File(file.getParent() + File.separator + newspots.get(i).getOriginalImagename()).exists()) {
                         TMAspot ts = new TMAspot(t, file.getParent() + File.separator + newspots.get(i).getOriginalImagename());
-                        for (int j = 0; j < newspots.get(i).getPoints().size(); j++) {
-                            newspots.get(i).getPoints().get(j).setTMAspot(ts);
-                            ts.addPoint(newspots.get(i).getPoints().get(j));
-                        }
-                        ts.adoptParams(newspots.get(i));
+                        ts.adoptParams(newspots.get(i), false);
                         ts.doBgCorrection();
                         t.addTMAspot(ts);
                         t.updateTMATable(ts, true);
@@ -2707,11 +2728,7 @@ public final class tmarker extends javax.swing.JFrame {
                     logger.log(java.util.logging.Level.INFO, file.getParent() + File.separator + newspots.get(i).getName());
                     if (new File(file.getParent() + File.separator + newspots.get(i).getName()).exists()) {
                         TMAspot ts = new TMAspot(t, file.getParent() + File.separator + newspots.get(i).getName());
-                        for (int j = 0; j < newspots.get(i).getPoints().size(); j++) {
-                            newspots.get(i).getPoints().get(j).setTMAspot(ts);
-                            ts.addPoint(newspots.get(i).getPoints().get(j));
-                        }
-                        ts.adoptParams(newspots.get(i));
+                        ts.adoptParams(newspots.get(i), false);
                         ts.doBgCorrection();
                         t.addTMAspot(ts);
                         t.updateTMATable(ts, true);
@@ -2726,11 +2743,7 @@ public final class tmarker extends javax.swing.JFrame {
                     for (int i = newspots.size() - 1; i >= 0; i--) {
                         if (new File(t.getPath().get(p) + File.separator + newspots.get(i).getName()).exists()) {
                             TMAspot ts = new TMAspot(t, t.getPath().get(p) + File.separator + newspots.get(i).getName());
-                            for (int j = 0; j < newspots.get(i).getPoints().size(); j++) {
-                                newspots.get(i).getPoints().get(j).setTMAspot(ts);
-                                ts.addPoint(newspots.get(i).getPoints().get(j));
-                            }
-                            ts.adoptParams(newspots.get(i));
+                            ts.adoptParams(newspots.get(i), false);
                             ts.doBgCorrection();
                             t.addTMAspot(ts);
                             t.updateTMATable(ts, true);
@@ -2752,11 +2765,7 @@ public final class tmarker extends javax.swing.JFrame {
                     for (int i = newspots.size() - 1; i >= 0; i--) {
                         if (new File(chooser.getSelectedFile().getAbsoluteFile() + File.separator + newspots.get(i).getName()).exists()) {
                             TMAspot ts = new TMAspot(t, chooser.getSelectedFile().getAbsoluteFile() + File.separator + newspots.get(i).getName());
-                            for (int j = 0; j < newspots.get(i).getPoints().size(); j++) {
-                                newspots.get(i).getPoints().get(j).setTMAspot(ts);
-                                ts.addPoint(newspots.get(i).getPoints().get(j));
-                            }
-                            ts.adoptParams(newspots.get(i));
+                            ts.adoptParams(newspots.get(i), false);
                             ts.doBgCorrection();
                             t.addTMAspot(ts);
                             t.updateTMATable(ts, true);
@@ -2912,9 +2921,9 @@ public final class tmarker extends javax.swing.JFrame {
 
                     // fourth: try to find the images in the same folder like csv
                     if (ts == null) {
-                        logger.log(java.util.logging.Level.INFO, "Try to find " + file.getParent() + File.separator + prop.getProperty(headers.get(imagename_ind)));
-                        if (new File(file.getParent() + File.separator + prop.getProperty(headers.get(imagename_ind))).exists()) {
-                            ts = new TMAspot(t, file.getParent() + File.separator + prop.getProperty(headers.get(imagename_ind)));
+                        logger.log(java.util.logging.Level.INFO, "Try to find " + file.getParent() + File.separator + Misc.FilePathStringtoFilename(prop.getProperty(headers.get(imagename_ind))));
+                        if (new File(file.getParent() + File.separator + Misc.FilePathStringtoFilename(prop.getProperty(headers.get(imagename_ind)))).exists()) {
+                            ts = new TMAspot(t, file.getParent() + File.separator + Misc.FilePathStringtoFilename(prop.getProperty(headers.get(imagename_ind))));
                             ts.setProperties(prop);
                             t.addTMAspot(ts);
                             t.updateTMATable(ts, true);
@@ -2924,8 +2933,8 @@ public final class tmarker extends javax.swing.JFrame {
                     // fifth: try to find the images in path
                     if (ts == null) {
                         for (int p = 0; p < t.getPath().size(); p++) {
-                            if (new File(t.getPath().get(p) + File.separator + prop.getProperty(headers.get(imagename_ind))).exists()) {
-                                ts = new TMAspot(t, t.getPath().get(p) + File.separator + prop.getProperty(headers.get(imagename_ind)));
+                            if (new File(t.getPath().get(p) + File.separator + Misc.FilePathStringtoFilename(prop.getProperty(headers.get(imagename_ind)))).exists()) {
+                                ts = new TMAspot(t, t.getPath().get(p) + File.separator + Misc.FilePathStringtoFilename(prop.getProperty(headers.get(imagename_ind))));
                                 ts.setProperties(prop);
                                 t.addTMAspot(ts);
                                 t.updateTMATable(ts, true);
@@ -2945,10 +2954,10 @@ public final class tmarker extends javax.swing.JFrame {
                         chooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
                         int approve = chooser.showOpenDialog(t);
                         if (approve == JFileChooser.APPROVE_OPTION) {
-                            String fname = chooser.getSelectedFile().getAbsoluteFile() + File.separator + prop.getProperty(headers.get(imagename_ind));
+                            String fname = chooser.getSelectedFile().getAbsoluteFile() + File.separator + Misc.FilePathStringtoFilename(prop.getProperty(headers.get(imagename_ind)));
                             t.addPath(chooser.getSelectedFile().getAbsoluteFile().toString());
                             if (new File(fname).exists()) {
-                                ts = new TMAspot(t, chooser.getSelectedFile().getAbsoluteFile() + File.separator + prop.getProperty(headers.get(imagename_ind)));
+                                ts = new TMAspot(t, chooser.getSelectedFile().getAbsoluteFile() + File.separator + Misc.FilePathStringtoFilename(prop.getProperty(headers.get(imagename_ind))));
                                 ts.setProperties(prop);
                                 t.addTMAspot(ts);
                                 t.updateTMATable(ts, true);
@@ -3466,7 +3475,7 @@ public final class tmarker extends javax.swing.JFrame {
     }
 
     /**
-     * Displays the TMAspot preview of the currently visible TMAspot.
+     * Displays the TMAspot preview of the currently visible TMAspot (the small thumbnail showing the whole image).
      */
     public void showTMAspotPreview() {
         if (jPanel11.getComponents().length < 1) {
@@ -3549,6 +3558,7 @@ public final class tmarker extends javax.swing.JFrame {
 
         TMA_view_panel tvp = (jPanel3.getComponentCount() == 0) ? null : ((TMA_view_panel) jPanel3.getComponent(0));
 
+        // FOR CONVENTIONAL IMAGES, SET THE IMAGE TO THE ZOOMED IMAGE PANEL AND SCROLL TO THE RIGHT POSITION.
         if (tvp != null && tvp.getClass().getName().equals(tmaspot_view_panel.getClass().getName())) {
             if (zipl.getImage() != tvp.getImage()) {
                 zipl.setImage(tvp.getImage());
@@ -3558,14 +3568,19 @@ public final class tmarker extends javax.swing.JFrame {
             zipl.scrollRectToVisible(new java.awt.Rectangle((int) (ZOOMFACTOR_LOCALZOOM * x - jScrollPane3.getWidth() / 2.0), (int) (ZOOMFACTOR_LOCALZOOM * y - jScrollPane3.getHeight() / 2.0), jScrollPane3.getWidth(), jScrollPane3.getHeight()));
 
         } else {
+            // FOR LARGE PYRAMID IMAGES, JUST SHOW THE CORRESPONDING SUBIMAGE AT ZOOM ONE.
             if (tvp != null && zipl.getImage() != tvp.getImage()) {
-                zipl.setImage(null);
+                //zipl.setImage(null);
+                
+                zipl.setImage(tvp.getTMAspot().getSubimage(x-jScrollPane3.getWidth()/2, y-jScrollPane3.getHeight()/2, jScrollPane3.getWidth(), jScrollPane3.getHeight(), Math.max(jScrollPane3.getWidth(), jScrollPane3.getHeight())));
+                zipl.setZoom(1); // re-adjusts some sizes to the zipl and the new image.
+                zipl.revalidate();
             }
         }
     }
 
     /**
-     * Displays the rectangle on the TMAspot preview.
+     * Displays the red rectangle on the TMAspot preview (thumbnail).
      *
      * @param x The x-coord of the middle of the preview, relative to the
      * original image.
@@ -3930,6 +3945,25 @@ public final class tmarker extends javax.swing.JFrame {
     public String getTmpDir() {
         return tmp_dir;
     }
+    
+    /**
+     * Returns the folder where the TMARKER.jar is located as absolute path.
+     * @return The folder where TMAREKR is located.
+     */
+    public String getProgramFolder() {
+        String folder = (String) System.getProperties().get("sun.java.command");
+        if (!"tmarker.tmarker".equals(folder)) {
+            folder = folder.split("TMARKER.jar")[0];
+            File file = new File(folder);
+            if (folder.trim().isEmpty() || !file.isAbsolute()) {
+                file = new File(System.getProperties().get("user.dir") + fs + folder);
+            }
+            folder = file.getAbsolutePath();
+        } else {
+            folder = (String) System.getProperties().get("user.dir");
+        }
+        return folder;
+    }
 
     /**
      * Saves the TMAspots as XML. XML can store all parameters of the program,
@@ -3937,8 +3971,10 @@ public final class tmarker extends javax.swing.JFrame {
      *
      * @param t The current TMARKER session.
      * @param file The file to be saved.
+     * @param asSingleFiles If true, every TMAspot is written in an own XML file, named as the TMAspot. Otherwise
+     * one XML containing all TMAspots is written (can be very large).
      */
-    public static boolean SaveAsXML(tmarker t, File file) {
+    public static boolean SaveAsXML(tmarker t, File file, boolean asSingleFiles) {
         if (file == null) {
             return false;
         }
@@ -3950,20 +3986,36 @@ public final class tmarker extends javax.swing.JFrame {
         xstream.omitField(TMAspot.class, "tlp");
         xstream.omitField(TMAspot.class, "os");
         xstream.omitField(TMApoint.class, "sp");
+        xstream.omitField(TMApoint.class, "lROI");
+        xstream.omitField(TMApoint.class, "lroi");
 
         try {
-            ObjectOutputStream out = xstream.createObjectOutputStream(new BufferedWriter(new FileWriter(file)));
-            out.writeObject(t.getUID()); // write Session ID
-            out.writeObject(t.getParameterValues()); // write properties
-            List<TMAspot> tss = t.getTMAspots();
-            for (int i = 0; i < tss.size(); i++) {
-                TMAspot ts = tss.get(i);
-                t.setStatusMessageLabel("Write " + ts.getName() + " to XML ...");
-                t.setProgressbar((int) ((100.0 * i) / tss.size()));
-                out.writeObject(ts);
-            }
+            List<TMAspot> tss = t.getSelectedTMAspots();
+            if (asSingleFiles) {
+                String folder = file.getParent();
+                for (int i = 0; i < tss.size(); i++) {
+                    TMAspot ts = tss.get(i);
+                    t.setStatusMessageLabel("Write " + ts.getName() + " to XML ...");
+                    t.setProgressbar((int) ((100.0 * i) / tss.size()));
+                    ObjectOutputStream out = xstream.createObjectOutputStream(new BufferedWriter(new FileWriter(new File(folder + File.separator + ts.getName() + ".xml"))));
+                    out.writeObject(t.getUID()); // write Session ID
+                    out.writeObject(t.getParameterValues()); // write properties
+                    out.writeObject(ts);
+                    out.close();
+                }
+            } else {
+                ObjectOutputStream out = xstream.createObjectOutputStream(new BufferedWriter(new FileWriter(file)));
+                out.writeObject(t.getUID()); // write Session ID
+                out.writeObject(t.getParameterValues()); // write properties
+                for (int i = 0; i < tss.size(); i++) {
+                    TMAspot ts = tss.get(i);
+                    t.setStatusMessageLabel("Write " + ts.getName() + " to XML ...");
+                    t.setProgressbar((int) ((100.0 * i) / tss.size()));
+                    out.writeObject(ts);
+                }
 
-            out.close();
+                out.close();
+            }
         } catch (Exception ex) {
             JOptionPane.showMessageDialog(t, "An error occurred while writing\n"
                     + file.getPath() + "\nMaybe it's still in use or Java does not have write permission.\n\nError Message:\n\n"+ex.getMessage(), "Could Not Save File", JOptionPane.ERROR_MESSAGE);
@@ -3989,7 +4041,7 @@ public final class tmarker extends javax.swing.JFrame {
         String text = t.getStatusMessageLabel().getText();
         try {
             FileWriter writer = new FileWriter(file);
-            List<TMAspot> tss = t.getTMAspots();
+            List<TMAspot> tss = t.getSelectedTMAspots();
             Set<String> headers = tmarker.getProperties(tss);
             String value;
 
@@ -4115,7 +4167,7 @@ public final class tmarker extends javax.swing.JFrame {
         }
         String text = t.getStatusMessageLabel().getText();
         try {
-            List<TMAspot> tss = t.getTMAspots();
+            List<TMAspot> tss = t.getSelectedTMAspots();
             Set<String> headers = tmarker.getProperties(tss);
             FileWriter writer = new FileWriter(file);
             String value;
@@ -4227,7 +4279,17 @@ public final class tmarker extends javax.swing.JFrame {
         t.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
         if (file != null) {
             if (Misc.FilePathStringtoExtension(file.getName()).equalsIgnoreCase("xml")) {
-                SaveAsXML(t, file);
+                String answer = "";
+                if (t.getSelectedTMAspots().size() > 1) {
+                    answer = (String) JOptionPane.showInputDialog(t, "All images will be saved as XML.\nPlease select the XML format:\n - one XML per image or\n - one XML for all images (file can be larger)", "XML format", JOptionPane.QUESTION_MESSAGE, null, new String[]{"one XML per image", "one XML file for all images"}, "one XML file for all images");
+                }
+                if (answer != null) {
+                    if (answer.contains("per")) {
+                        SaveAsXML(t, file, true);
+                    } else {
+                        SaveAsXML(t, file, false);
+                    }
+                }
             } else if (Misc.FilePathStringtoExtension(file.getName()).equalsIgnoreCase("pdf")) {
                 SaveAsPDF(t, file);
             } else if (Misc.FilePathStringtoExtension(file.getName()).equalsIgnoreCase("html")) {
@@ -4235,7 +4297,7 @@ public final class tmarker extends javax.swing.JFrame {
             } else if (Misc.FilePathStringtoExtension(file.getName()).equalsIgnoreCase("csv")) {
                 SaveAsCSV(t, file);
             }
-            t.setCurrentDir(file.getAbsolutePath());
+            t.setCurrentDir(file.getParent());
         }
         t.setCursor(Cursor.getDefaultCursor());
     }
@@ -4454,13 +4516,13 @@ public final class tmarker extends javax.swing.JFrame {
 
     /**
      * Puts libraries to program directory. The libraries are deleted after
-     * porgram exit.
-     *
+     * program exit.
+     * @param t The TMARKER instance used to locate its folder.
      * @param lib_path The path of the library within the JAR.
      * @param names The libraries names (e.g. for "something.dll": name is
      * "something").
      */
-    private static void ExtractLibrariesFromJar(String lib_path, String[] names) {
+    private static void ExtractLibrariesFromJar(tmarker t, String lib_path, String[] names) {
         OutputStream out = null;
         try {
             for (String name : names) {
@@ -4468,7 +4530,7 @@ public final class tmarker extends javax.swing.JFrame {
                 // have to use a stream
                 InputStream in = tmarker.class.getResourceAsStream(lib_path + name);
                 // always write to different location
-                File fileOut = new File(System.getProperty("user.dir") + File.separator + name);
+                File fileOut = new File(t.getProgramFolder() + File.separator + name);
                 //File fileOut = new File(localDLLPath + name);
                 logger.info("Writing dll to: " + fileOut.getAbsolutePath());
                 out = FileUtils.openOutputStream(fileOut);
@@ -4686,7 +4748,7 @@ public final class tmarker extends javax.swing.JFrame {
             par.getFont().setStyle(Font.BOLD);
             document.add(par);
 
-            List<TMAspot> tss = t.getTMAspots();
+            List<TMAspot> tss = t.getSelectedTMAspots();
             for (int i = 0; i < tss.size(); i++) {
                 TMAspot ts = tss.get(i);
                 t.setStatusMessageLabel("Write " + ts.getName() + " to PDF ...");
@@ -4719,7 +4781,7 @@ public final class tmarker extends javax.swing.JFrame {
                 cell.setBorder(Rectangle.NO_BORDER);
                 table.addCell(cell);
 
-                BufferedImage bi_orig = ts.getBufferedImage(false);
+                BufferedImage bi_orig = ts.getBufferedImage();
                 BufferedImage I = new BufferedImage(bi_orig.getWidth(), bi_orig.getHeight(), BufferedImage.TYPE_INT_RGB);
                 I.getGraphics().drawImage(bi_orig, 0, 0, null);
 
@@ -5023,7 +5085,7 @@ public final class tmarker extends javax.swing.JFrame {
                 Logger.getLogger(tmarker.class.getName()).log(Level.WARNING, e.getMessage(), e);
             }
 
-            List<TMAspot> tss = t.getTMAspots();
+            List<TMAspot> tss = t.getSelectedTMAspots();
             boolean anyHasHumanAnnotation = false; // To determine the size of the rows in the TMAspot table.
             for (TMAspot ts : tss) {
                 anyHasHumanAnnotation |= !ts.getPoints_GoldStandard().isEmpty();
@@ -5244,7 +5306,7 @@ public final class tmarker extends javax.swing.JFrame {
 
                 // Save the original image
                 file_tmp = new File(path + folderName + ts.getName() + ".jpg");
-                BufferedImage bi_orig = ts.getBufferedImage(true);
+                BufferedImage bi_orig = ts.getBufferedImage();
                 bi = new BufferedImage(bi_orig.getWidth(), bi_orig.getHeight(), BufferedImage.TYPE_INT_RGB);
                 bi.getGraphics().drawImage(bi_orig, 0, 0, null);
                 ImageIO.write(bi, "jpg", file_tmp);
@@ -5884,7 +5946,7 @@ public final class tmarker extends javax.swing.JFrame {
         appProps.setProperty("OD.labelsShapeGst", Integer.toString(od.getLabelsShape_Gst()));
         appProps.setProperty("OD.labelsShapeEst", Integer.toString(od.getLabelsShape_Est()));
         appProps.setProperty("OD.automaticESGSConversion", Boolean.toString(od.isAutomaticESGSConversion()));
-        appProps.setProperty("OD.useParallelProgramming", Boolean.toString(od.useParallelProgramming()));
+        appProps.setProperty("OD.useNProcessors", Integer.toString(od.getParam_useNProcessors()));
         appProps.setProperty("OD.useLocalPlugins", Boolean.toString(od.getUseLocalPlugins()));
         appProps.setProperty("OD.localPluginFolder", od.getLocalPluginFolder());
         appProps.setProperty("OD.checkForUpdatesOnStart", Boolean.toString(od.checkForUpdatesOnStart()));
@@ -5919,7 +5981,7 @@ public final class tmarker extends javax.swing.JFrame {
         try {
             Properties appProps = new Properties();
             try {
-                FileInputStream in = new FileInputStream("tmarker.conf");
+                FileInputStream in = new FileInputStream(getProgramFolder() + File.separator + "tmarker.conf");
                 appProps.load(in);
                 in.close();
             } catch (Exception e) {
@@ -5930,7 +5992,7 @@ public final class tmarker extends javax.swing.JFrame {
                 appProps.putAll(newProps);
             }
 
-            out = new FileOutputStream("tmarker.conf");
+            out = new FileOutputStream(getProgramFolder() + File.separator + "tmarker.conf");
             appProps.store(out, "TMARKER Program Parameters");
             out.close();
         } catch (Exception ex) {
@@ -5950,7 +6012,7 @@ public final class tmarker extends javax.swing.JFrame {
     private void restoreParameterValues(boolean only_plugins) {
         try {
             Properties appProps = new Properties();
-            FileInputStream in = new FileInputStream("tmarker.conf");
+            FileInputStream in = new FileInputStream(getProgramFolder() + File.separator + "tmarker.conf");
             appProps.load(in);
             in.close();
             restoreParameterValues(appProps, only_plugins);
@@ -6054,9 +6116,9 @@ public final class tmarker extends javax.swing.JFrame {
             if (value != null) {
                 od.setAutomaticESGSConversion(Boolean.parseBoolean(value));
             }
-            value = appProps.getProperty("OD.useParallelProgramming");
+            value = appProps.getProperty("OD.useNProcessors");
             if (value != null) {
-                od.setUseParallelProgramming(Boolean.parseBoolean(value));
+                od.setParam_useNProcessors(Integer.parseInt(value));
             }
             value = appProps.getProperty("OD.useLocalPlugins");
             if (value != null) {
@@ -6135,8 +6197,8 @@ public final class tmarker extends javax.swing.JFrame {
         od.setLabelsShape_Gst(LABELS_SHAPE_CIRCLE);
         od.setLabelsShape_Est(LABELS_SHAPE_CROSS);
         od.setAutomaticESGSConversion(true);
-        od.setUseParallelProgramming(true);
-        od.setLocalPluginFolder(System.getProperty("user.dir") + File.separator + "plugins");
+        od.setParam_useNProcessors(Runtime.getRuntime().availableProcessors() > 1 ? Runtime.getRuntime().availableProcessors() - 1 : 1);
+        od.setLocalPluginFolder(getProgramFolder() + File.separator + "plugins");
         od.setUseLocalPlugins(false);
         od.setCheckForUpdatesOnStart(true);
         od.setInstallUpdatesAutomatically(true);
@@ -6183,9 +6245,8 @@ public final class tmarker extends javax.swing.JFrame {
      */
     public void checkForUpdates(final boolean verbose, final boolean installAutomatically) {
 
+        final tmarker t = this;
         Thread updateCheck = new Thread(new Runnable() {
-            JFrame frame = (JFrame) getParent();
-
             @Override
             public void run() {
                 String thisRevision = tmarker.REVISION;
@@ -6215,7 +6276,7 @@ public final class tmarker extends javax.swing.JFrame {
                 } catch (Exception ex) {
                     //Logger.getLogger(tmarker.class.getName()).log(Level.SEVERE, null, ex);
                 } finally {
-                    UpdateDialog.main(frame, thisRevision, remoteRevision, verbose, installAutomatically);
+                    UpdateDialog.main(t, thisRevision, remoteRevision, verbose, installAutomatically);
                 }
             }
         });

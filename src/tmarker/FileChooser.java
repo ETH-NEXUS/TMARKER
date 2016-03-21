@@ -32,7 +32,7 @@ public class FileChooser {
         if (currentDir.equals("")) {
             File currentFile = new File(".");
             currentDir = currentFile.getAbsolutePath();
-            // currentDir = System.getProperty("user.dir");
+            // currentDir = t.getProgramFolder();
         }
                         
         // Choose headline
@@ -98,7 +98,7 @@ public class FileChooser {
         if (currentDir.equals("")) {
             File currentFile = new File(".");
             currentDir = currentFile.getAbsolutePath();
-            // currentDir = System.getProperty("user.dir");
+            // currentDir = t.getProgramFolder();
         }
                         
         // Choose headline
@@ -172,13 +172,14 @@ public class FileChooser {
                 ex.printStackTrace();
             }
             // OR
-            // System.getProperty("user.dir");
+            // t.getProgramFolder();
         }
                         
         // headline
         String headline = "Please determine an output file";
         
         JFileChooser chooser = new JFileChooser(currentDir);
+        
         for (int i=0; i<extensions.size(); i++) {
             ExampleFileFilter filter = new ExampleFileFilter();
             filter.addExtension(extensions.get(i));
@@ -196,7 +197,7 @@ public class FileChooser {
             // import HTML File
             savfile = chooser.getSelectedFile();
             if (savfile != null) {
-                currentDir = savfile.getAbsolutePath();
+                currentDir = savfile.getParent();
             }
             for (int i=0; i<extensions.size(); i++) {
                 if (chooser.getFileFilter() == chooser.getChoosableFileFilters()[i+1]) {
@@ -232,7 +233,7 @@ public class FileChooser {
                 ex.printStackTrace();
             }
             // OR
-            // System.getProperty("user.dir");
+            // t.getProgramFolder();
         }
                         
         // headline

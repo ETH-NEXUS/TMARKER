@@ -30,6 +30,7 @@ public class UpdateDialog extends javax.swing.JDialog {
     
     boolean isOutOfDate = false;
     String remoteRevision;
+    tmarker t;
     
     /**
      * Opens a new UpdateDialog and sets the text an buttons according to the current revision of the program.
@@ -40,6 +41,7 @@ public class UpdateDialog extends javax.swing.JDialog {
      */
     private UpdateDialog(JFrame parent, String thisRevision, String remoteRevision, boolean modal) {
         super(parent, modal);
+        t = ((tmarker)parent);
         initComponents();
         this.remoteRevision = remoteRevision;
         setButtons(thisRevision, remoteRevision);
@@ -88,10 +90,11 @@ public class UpdateDialog extends javax.swing.JDialog {
         
         try {
             
+            jButton1.setEnabled(false);
             jLabel6.setText("Downloading...");
             
             //// download the new zipfile
-            final Download download = new Download(new URL("http://www.nexus.ethz.ch/content/dam/ethz/special-interest/dual/nexus-dam/software/TMARKER/TMARKERv" + remoteRevision + ".zip"));
+            final Download download = new Download(new URL("http://www.nexus.ethz.ch/content/dam/ethz/special-interest/dual/nexus-dam/software/TMARKER/TMARKERv" + remoteRevision + ".zip"), t.getProgramFolder());
             
             Thread downloadThread = new Thread(new Runnable() {
                 @Override
@@ -110,10 +113,10 @@ public class UpdateDialog extends javax.swing.JDialog {
             
             jLabel6.setText("Extracting...");
             
-            File zipFile = new File(download.getFileName(new URL(download.getUrl())));
+            File zipFile = new File(t.getProgramFolder()+ File.separator + download.getFileName(new URL(download.getUrl())));
             
             //// extract the downloaded zip file into the main folder
-            String outputFolder = ".";
+            String outputFolder = t.getProgramFolder();
             byte[] buffer = new byte[1024];
                 
             //create output directory if not exists
@@ -173,10 +176,13 @@ public class UpdateDialog extends javax.swing.JDialog {
 
             Logger.getLogger(UpdateDialog.class.getName()).log(Level.INFO, "file unzip done.");
             
-            jLabel6.setText("Update Successful. Please Restart TMARKER.");
+            jButton1.setEnabled(true);
+            jLabel6.setText("Update successful. Please restart TMARKER.");
             jButton2.setText("Restart");
             
         } catch(IOException | InterruptedException ex){
+            jButton1.setEnabled(true);
+            jLabel6.setText("Update NOT successful. " + ex.getMessage());
             Logger.getLogger(UpdateDialog.class.getName()).log(Level.SEVERE, null, ex);
             JOptionPane.showMessageDialog(null, ex.getMessage());
         }

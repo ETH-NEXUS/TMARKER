@@ -733,6 +733,8 @@ public class Misc {
      * @return the convex hull of the roi as a new ij.​gui.Roi.
      */
     public static Roi ROIToRoi(ROI roi) {
+        if (roi == null) return null;
+        
         List<Integer> xpts_list = new ArrayList<>();
         List<Integer> ypts_list = new ArrayList<>();
         for (int i=0; i<roi.getAsImage().getWidth(); i++) {
@@ -749,9 +751,12 @@ public class Misc {
             xpts[i] = xpts_list.get(i);
             ypts[i] = ypts_list.get(i);
         }
-        Roi roi2 = new PolygonRoi(new Polygon(xpts, ypts, xpts.length), Roi.FREEROI);
+        
+        Polygon p = new Polygon(xpts, ypts, xpts.length);
+        Roi roi2 = new PolygonRoi(p, Roi.FREEROI);
         if (xpts_list.size()>1) {
             try {
+                // get the convexHull, otherwise it is a non meaningfull ziczac of polygon lines
                 roi2 = new PolygonRoi(roi2.getConvexHull(), Roi.POLYGON);
             } catch (Exception e) {
                 if (tmarker.DEBUG>0) {
@@ -762,6 +767,52 @@ public class Misc {
         }
         return roi2;
     }
+    
+    
+    /**
+     * Translates a javax.​media.​jai.ROI (which supports Affine Transformations)
+     * to a ij.​gui.Roi (which can be handled by ImagePlus). The Roi (output) is
+     * the convex hull of the ROI (input). The Roi is also translated to the right coordinates (roi.offset_x and roi.offset_y).
+     * @param roi the input javax.​media.​jai.ROI.
+     * @return the convex hull of the roi as a new ij.​gui.Roi.
+     */
+    public static Roi ROIToRoi(lROI roi) {
+        if (roi == null) return null;
+        
+        List<Integer> xpts_list = new ArrayList<>();
+        List<Integer> ypts_list = new ArrayList<>();
+        for (int i=0; i<roi.getAsImage().getWidth(); i++) {
+            for (int j=0; j<roi.getAsImage().getHeight(); j++) {
+                if (roi.contains(i,j)) {
+                    xpts_list.add(i);
+                    ypts_list.add(j);
+                }
+            }
+        }
+        int[] xpts = new int[xpts_list.size()];
+        int[] ypts = new int[ypts_list.size()];
+        for (int i=0; i<xpts_list.size(); i++) {
+            xpts[i] = xpts_list.get(i);
+            ypts[i] = ypts_list.get(i);
+        }
+        
+        Polygon p = new Polygon(xpts, ypts, xpts.length);
+        p.translate(roi.offset_x, roi.offset_y);
+        Roi roi2 = new PolygonRoi(p, Roi.FREEROI);
+        if (xpts_list.size()>1) {
+            try {
+                // get the convexHull, otherwise it is a non meaningfull ziczac of polygon lines
+                roi2 = new PolygonRoi(roi2.getConvexHull(), Roi.POLYGON);
+            } catch (Exception e) {
+                if (tmarker.DEBUG>0) {
+                    Logger.getLogger(Misc.class.getName()).log(Level.SEVERE, null, e);
+                }
+                roi2 = null;
+            }
+        }
+        return roi2;
+    }
+    
     
    /**
     * Concatenates two int arrays.

@@ -31,7 +31,7 @@ import java.awt.Point;
  * This class is a label on a TMAspot. A TMAspot can inherit multiple TMALabels.
  * TMARKER uses the TMALabel for cell nuclei. Other usages might be CISH points or
  * even text annotations.
- * TMALabels extend a 2D Point and have at least a x-coordinate and y-coodinate.
+ * TMALabels extend a 2D Point and have at least a x-coordinate and y-coordinate.
  * TMARKER tries to display all labels of a TMAspot in the image.
  * @author Peter J. Schüffler
  */
@@ -96,7 +96,6 @@ public abstract class TMALabel extends Point {
      * The String for background points.
      */
     public static final transient String LABEL_BG_STRING = "background";
-    
     
     
 }

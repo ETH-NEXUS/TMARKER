@@ -73,12 +73,8 @@ public final class LegendElementNucleus extends LegendElement {
      */
     void createNucIcon() {
         BufferedImage img;
-        if (getIcon()==null) {
-            img = new BufferedImage(2*rad+7, 2*rad+7, BufferedImage.TYPE_INT_ARGB);
-            setIcon(new ImageIcon(img));
-        } else {
-            img = (BufferedImage) ((ImageIcon)getIcon()).getImage();
-        }
+        img = new BufferedImage(2*rad+7, 2*rad+7, BufferedImage.TYPE_INT_ARGB);
+        setIcon(new ImageIcon(img));
         Graphics g = img.getGraphics();
         ((Graphics2D)g).setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
         ((Graphics2D)g).setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
@@ -87,7 +83,7 @@ public final class LegendElementNucleus extends LegendElement {
             g.fillOval(img.getWidth()/2-rad, img.getHeight()/2-rad, 2*rad, 2*rad);
             g.setColor(Color.YELLOW);
             g.drawOval(img.getWidth()/2-rad-1, img.getHeight()/2-rad-1, 2*rad+2, 2*rad+2);
-        } else if (t.getOptionDialog().getLabelsShape_Gst() == tmarker.LABELS_SHAPE_CROSS) {
+        } else if (t.getOptionDialog().getLabelsShape_Gst() == tmarker.LABELS_SHAPE_CROSS || t.getOptionDialog().getLabelsShape_Gst() == tmarker.LABELS_SHAPE_CROSS_THICK) {
             int oldFontSize = g.getFont().getSize();
             g.setFont(g.getFont().deriveFont((float)(3.5*rad)));
             g.drawString("+", 0, getPreferredSize().height);
@@ -110,8 +106,9 @@ public final class LegendElementNucleus extends LegendElement {
         if (nuc_label!=TMALabel.LABEL_BG) {
             g.setColor(Color.BLACK);
             g.drawString(Integer.toString(staining), (img.getWidth())/2-g.getFontMetrics().stringWidth(Integer.toString(staining))/2, 
-                    (img.getHeight())/2+g.getFontMetrics().getHeight()/4-((t.getOptionDialog().getLabelsShape_Gst() == tmarker.LABELS_SHAPE_CROSS)?4:-1));
+                    (img.getHeight())/2+g.getFontMetrics().getHeight()/4-((t.getOptionDialog().getLabelsShape_Gst() == tmarker.LABELS_SHAPE_CROSS || t.getOptionDialog().getLabelsShape_Gst() == tmarker.LABELS_SHAPE_CROSS_THICK)?4:-1));
         }
+        repaint();
     }
     
     /**

@@ -501,7 +501,6 @@ public class WholeSlide_view_panel extends ZoomableNDPIPanel implements TMA_view
             }
         } catch (Exception e) {
         }
-        
     }
     
     /**

@@ -27,9 +27,6 @@ import java.awt.Polygon;
 import java.awt.RadialGradientPaint;
 import java.awt.Rectangle;
 import java.awt.RenderingHints;
-import java.awt.Toolkit;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.awt.geom.Point2D;
 import java.awt.image.BufferedImage;
 import java.util.List;
@@ -478,7 +475,7 @@ public class TMAspot_view_panel extends ZoomableImagePanel implements TMA_view_p
                     }
                 }
                 if (I==null) {
-                    I = ts.getBufferedImage(false);
+                    I = ts.getBufferedImage();
                 }
                 if (getImage() != null) {
                     getImage().flush();
@@ -597,6 +594,13 @@ public class TMAspot_view_panel extends ZoomableImagePanel implements TMA_view_p
                     } else if (shape == tmarker.LABELS_SHAPE_CROSS) {
                         g.drawLine((int)((tp.getX()-r)*z), (int)(tp.getY()*z), (int)((tp.getX()+r)*z), (int)(tp.getY()*z));
                         g.drawLine((int)(tp.getX()*z), (int)((tp.getY()-r)*z), (int)(tp.getX()*z), (int)((tp.getY()+r)*z));
+                    } else if (shape == tmarker.LABELS_SHAPE_CROSS_THICK) {
+                        g.drawLine((int)((tp.getX()-r)*z), (int)(tp.getY()*z), (int)((tp.getX()+r)*z), (int)(tp.getY()*z));
+                        g.drawLine((int)((tp.getX()-r)*z), (int)(tp.getY()*z)-1, (int)((tp.getX()+r)*z), (int)(tp.getY()*z)-1);
+                        g.drawLine((int)((tp.getX()-r)*z), (int)(tp.getY()*z)+1, (int)((tp.getX()+r)*z), (int)(tp.getY()*z)+1);
+                        g.drawLine((int)(tp.getX()*z), (int)((tp.getY()-r)*z), (int)(tp.getX()*z), (int)((tp.getY()+r)*z));
+                        g.drawLine((int)(tp.getX()*z)-1, (int)((tp.getY()-r)*z), (int)(tp.getX()*z)-1, (int)((tp.getY()+r)*z));
+                        g.drawLine((int)(tp.getX()*z)+1, (int)((tp.getY()-r)*z), (int)(tp.getX()*z)+1, (int)((tp.getY()+r)*z));  
                     } else { // shape == tmarker.LABELS_SHAPE_RECT
                         double f=0.6;
                         g.drawLine((int)((tp.getX()-r)*z), (int)((tp.getY()-r)*z), (int)((tp.getX()-r+f*r)*z), (int)((tp.getY()-r)*z));
@@ -609,14 +613,18 @@ public class TMAspot_view_panel extends ZoomableImagePanel implements TMA_view_p
                         g.drawLine((int)((tp.getX()+r)*z), (int)((tp.getY()-r)*z), (int)((tp.getX()+r-f*r)*z), (int)((tp.getY()-r)*z));
                     }
                     if (tp.isGoldStandard()) {
+                        g.setColor(c_complement);
                         if (shape == tmarker.LABELS_SHAPE_CIRCLE) {
-                            g.setColor(c_complement);
                             g.drawOval((int)((tp.getX()-r)*z), (int)((tp.getY()-r)*z), (int)(2*r*z), (int)(2*r*z));
                         } else if (shape == tmarker.LABELS_SHAPE_CROSS) {
                             g.drawLine((int)((tp.getX()-r)*z), (int)(tp.getY()*z)-1, (int)((tp.getX()+r)*z), (int)(tp.getY()*z)-1);
                             g.drawLine((int)(tp.getX()*z)-1, (int)((tp.getY()-r)*z), (int)(tp.getX()*z)-1, (int)((tp.getY()+r)*z));
+                        } else if (shape == tmarker.LABELS_SHAPE_CROSS_THICK) {
+                            g.drawLine((int)((tp.getX()-r)*z), (int)(tp.getY()*z)-1, (int)((tp.getX()+r)*z), (int)(tp.getY()*z)-1);
+                            g.drawLine((int)((tp.getX()-r)*z), (int)(tp.getY()*z)+1, (int)((tp.getX()+r)*z), (int)(tp.getY()*z)+1);
+                            g.drawLine((int)(tp.getX()*z)-1, (int)((tp.getY()-r)*z), (int)(tp.getX()*z)-1, (int)((tp.getY()+r)*z));
+                            g.drawLine((int)(tp.getX()*z)+1, (int)((tp.getY()-r)*z), (int)(tp.getX()*z)+1, (int)((tp.getY()+r)*z)); 
                         } else {
-                            g.setColor(c_complement);
                             double f=0.6;
                             g.drawLine((int)((tp.getX()-r)*z)-1, (int)((tp.getY()-r)*z)-1, (int)((tp.getX()-r+f*r)*z), (int)((tp.getY()-r)*z)-1);
                             g.drawLine((int)((tp.getX()-r)*z)-1, (int)((tp.getY()-r)*z)-1, (int)((tp.getX()-r)*z)-1, (int)((tp.getY()-r+f*r)*z)-1);
@@ -834,6 +842,7 @@ public class TMAspot_view_panel extends ZoomableImagePanel implements TMA_view_p
     /**
      * Sets the coordinates x, y of the image into the center of the current view. After calling, the
      * user sees point x, y of the original image in the middle of the TMA view screen, at the same zoom level as before.
+     * If x, y is too close at the border, the image is scrolled to the nearest possible position.
      * @param x The x coordinate as original image coordinate.
      * @param y The y coordinate as original image coordinate.
      */
@@ -842,9 +851,9 @@ public class TMAspot_view_panel extends ZoomableImagePanel implements TMA_view_p
         JScrollPane jsp = t.getTMAViewContainer();
         Rectangle r = jsp.getViewport().getViewRect();
         Point Pold = new Point(r.x + r.width/2, r.y + r.height/2);
-        int dx = (int)(x)-(int)(Pold.x/getZoom());
-        int dy = (int)(y)-(int)(Pold.y/getZoom());
-        r.setLocation((int)(dx*getZoom()), (int)(dy*getZoom()));
+        int x_upperleft = (int)(x)-(int)(Pold.x/getZoom());
+        int y_upperleft = (int)(y)-(int)(Pold.y/getZoom());
+        r.setLocation((int)(x_upperleft*getZoom()), (int)(y_upperleft*getZoom()));
         jsp.getViewport().scrollRectToVisible(r);
         
         t.showTMAspotLocalZoom(x,y);

@@ -46,7 +46,6 @@ public class OptionDialog extends javax.swing.JDialog {
         jTabbedPane1 = new javax.swing.JTabbedPane();
         jPanel1 = new javax.swing.JPanel();
         jCheckBox1 = new javax.swing.JCheckBox();
-        jCheckBox3 = new javax.swing.JCheckBox();
         jLabel2 = new javax.swing.JLabel();
         jRadioButton7 = new javax.swing.JRadioButton();
         jRadioButton8 = new javax.swing.JRadioButton();
@@ -56,6 +55,9 @@ public class OptionDialog extends javax.swing.JDialog {
         jCheckBox5 = new javax.swing.JCheckBox();
         jLabel3 = new javax.swing.JLabel();
         jTextField2 = new javax.swing.JTextField();
+        jTextField3 = new javax.swing.JTextField();
+        jLabel4 = new javax.swing.JLabel();
+        jLabel5 = new javax.swing.JLabel();
         jPanel3 = new javax.swing.JPanel();
         jRadioButton1 = new javax.swing.JRadioButton();
         jRadioButton5 = new javax.swing.JRadioButton();
@@ -66,6 +68,8 @@ public class OptionDialog extends javax.swing.JDialog {
         jLabel1 = new javax.swing.JLabel();
         jCheckBox2 = new javax.swing.JCheckBox();
         jLabel10 = new javax.swing.JLabel();
+        jRadioButton9 = new javax.swing.JRadioButton();
+        jRadioButton10 = new javax.swing.JRadioButton();
         jPanel2 = new javax.swing.JPanel();
         jButton2 = new javax.swing.JButton();
         jButton1 = new javax.swing.JButton();
@@ -90,17 +94,6 @@ public class OptionDialog extends javax.swing.JDialog {
         gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
         gridBagConstraints.insets = new java.awt.Insets(0, 10, 10, 10);
         jPanel1.add(jCheckBox1, gridBagConstraints);
-
-        jCheckBox3.setSelected(true);
-        jCheckBox3.setText("Use Parallel Programming (" + Integer.toString(Runtime.getRuntime().availableProcessors()) + " processor" + (Runtime.getRuntime().availableProcessors() != 1 ? "s are " : " is ") + "available)");
-        jCheckBox3.setName("jCheckBox3"); // NOI18N
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 4;
-        gridBagConstraints.gridwidth = java.awt.GridBagConstraints.REMAINDER;
-        gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
-        gridBagConstraints.insets = new java.awt.Insets(10, 10, 0, 10);
-        jPanel1.add(jCheckBox3, gridBagConstraints);
 
         java.util.ResourceBundle bundle = java.util.ResourceBundle.getBundle("tmarker/Bundle"); // NOI18N
         jLabel2.setText(bundle.getString("OptionDialog.jLabel2.text")); // NOI18N
@@ -138,7 +131,7 @@ public class OptionDialog extends javax.swing.JDialog {
         gridBagConstraints.insets = new java.awt.Insets(0, 10, 0, 0);
         jPanel1.add(jRadioButton8, gridBagConstraints);
 
-        jTextField1.setText(System.getProperty("user.dir") + File.separator + "plugins");
+        jTextField1.setText(((tmarker) getParent()).getProgramFolder() + File.separator + "plugins");
         jTextField1.setToolTipText(bundle.getString("OptionDialog.jTextField1.toolTipText")); // NOI18N
         jTextField1.setName("jTextField1"); // NOI18N
 
@@ -148,7 +141,7 @@ public class OptionDialog extends javax.swing.JDialog {
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
         gridBagConstraints.gridy = 3;
-        gridBagConstraints.gridwidth = 2;
+        gridBagConstraints.gridwidth = 4;
         gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
         gridBagConstraints.weightx = 0.2;
@@ -167,7 +160,7 @@ public class OptionDialog extends javax.swing.JDialog {
             }
         });
         gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 2;
+        gridBagConstraints.gridx = 4;
         gridBagConstraints.gridy = 3;
         gridBagConstraints.fill = java.awt.GridBagConstraints.VERTICAL;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.EAST;
@@ -195,6 +188,8 @@ public class OptionDialog extends javax.swing.JDialog {
         bindingGroup.addBinding(binding);
 
         gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 6;
         gridBagConstraints.gridwidth = java.awt.GridBagConstraints.REMAINDER;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
         gridBagConstraints.insets = new java.awt.Insets(0, 30, 0, 0);
@@ -205,6 +200,7 @@ public class OptionDialog extends javax.swing.JDialog {
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
         gridBagConstraints.gridy = 7;
+        gridBagConstraints.gridwidth = 3;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
         gridBagConstraints.insets = new java.awt.Insets(0, 10, 0, 0);
         jPanel1.add(jLabel3, gridBagConstraints);
@@ -214,11 +210,42 @@ public class OptionDialog extends javax.swing.JDialog {
         jTextField2.setText(bundle.getString("OptionDialog.jTextField2.text")); // NOI18N
         jTextField2.setName("jTextField2"); // NOI18N
         gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 1;
+        gridBagConstraints.gridx = 3;
         gridBagConstraints.gridy = 7;
+        gridBagConstraints.gridwidth = java.awt.GridBagConstraints.REMAINDER;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
         gridBagConstraints.insets = new java.awt.Insets(0, 5, 0, 0);
         jPanel1.add(jTextField2, gridBagConstraints);
+
+        jTextField3.setColumns(3);
+        jTextField3.setHorizontalAlignment(javax.swing.JTextField.TRAILING);
+        jTextField3.setText(bundle.getString("OptionDialog.jTextField3.text")); // NOI18N
+        jTextField3.setName("jTextField3"); // NOI18N
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 1;
+        gridBagConstraints.gridy = 4;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
+        gridBagConstraints.insets = new java.awt.Insets(10, 10, 0, 10);
+        jPanel1.add(jTextField3, gridBagConstraints);
+
+        jLabel4.setText(bundle.getString("OptionDialog.jLabel4.text")); // NOI18N
+        jLabel4.setName("jLabel4"); // NOI18N
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 4;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
+        gridBagConstraints.insets = new java.awt.Insets(10, 10, 0, 10);
+        jPanel1.add(jLabel4, gridBagConstraints);
+
+        jLabel5.setText("processors (" + Integer.toString(Runtime.getRuntime().availableProcessors()) + " processor" + (Runtime.getRuntime().availableProcessors() != 1 ? "s are " : " is ") + "available)");
+        jLabel5.setName("jLabel5"); // NOI18N
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 2;
+        gridBagConstraints.gridy = 4;
+        gridBagConstraints.gridwidth = java.awt.GridBagConstraints.REMAINDER;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
+        gridBagConstraints.insets = new java.awt.Insets(10, 10, 0, 10);
+        jPanel1.add(jLabel5, gridBagConstraints);
 
         jTabbedPane1.addTab(bundle.getString("OptionDialog.jPanel1.TabConstraints.tabTitle"), jPanel1); // NOI18N
 
@@ -310,7 +337,7 @@ public class OptionDialog extends javax.swing.JDialog {
         });
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 2;
-        gridBagConstraints.gridy = 3;
+        gridBagConstraints.gridy = 4;
         gridBagConstraints.gridwidth = 2;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
         gridBagConstraints.weightx = 0.1;
@@ -328,7 +355,7 @@ public class OptionDialog extends javax.swing.JDialog {
         });
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 3;
+        gridBagConstraints.gridy = 4;
         gridBagConstraints.gridwidth = 2;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
         gridBagConstraints.weightx = 0.1;
@@ -354,7 +381,7 @@ public class OptionDialog extends javax.swing.JDialog {
         jCheckBox2.setName("jCheckBox2"); // NOI18N
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 4;
+        gridBagConstraints.gridy = 5;
         gridBagConstraints.gridwidth = java.awt.GridBagConstraints.REMAINDER;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
         gridBagConstraints.weightx = 0.1;
@@ -373,6 +400,42 @@ public class OptionDialog extends javax.swing.JDialog {
         gridBagConstraints.weighty = 0.1;
         gridBagConstraints.insets = new java.awt.Insets(10, 10, 0, 10);
         jPanel3.add(jLabel10, gridBagConstraints);
+
+        buttonGroup1.add(jRadioButton9);
+        jRadioButton9.setText(bundle.getString("OptionDialog.jRadioButton9.text")); // NOI18N
+        jRadioButton9.setName("jRadioButton9"); // NOI18N
+        jRadioButton9.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jRadioButton9ActionPerformed(evt);
+            }
+        });
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 3;
+        gridBagConstraints.gridwidth = 2;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
+        gridBagConstraints.weightx = 0.1;
+        gridBagConstraints.weighty = 0.1;
+        gridBagConstraints.insets = new java.awt.Insets(0, 10, 0, 0);
+        jPanel3.add(jRadioButton9, gridBagConstraints);
+
+        buttonGroup2.add(jRadioButton10);
+        jRadioButton10.setText(bundle.getString("OptionDialog.jRadioButton10.text")); // NOI18N
+        jRadioButton10.setName("jRadioButton10"); // NOI18N
+        jRadioButton10.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jRadioButton10ActionPerformed(evt);
+            }
+        });
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 2;
+        gridBagConstraints.gridy = 3;
+        gridBagConstraints.gridwidth = 2;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
+        gridBagConstraints.weightx = 0.1;
+        gridBagConstraints.weighty = 0.1;
+        gridBagConstraints.insets = new java.awt.Insets(0, 10, 0, 0);
+        jPanel3.add(jRadioButton10, gridBagConstraints);
 
         jTabbedPane1.addTab(bundle.getString("OptionDialog.jPanel3.TabConstraints.tabTitle"), jPanel3); // NOI18N
 
@@ -492,17 +555,41 @@ public class OptionDialog extends javax.swing.JDialog {
        }
     }//GEN-LAST:event_jButton3ActionPerformed
 
+    private void jRadioButton9ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jRadioButton9ActionPerformed
+        TMAspot ts = ((tmarker) getParent()).getVisibleTMAspot();
+        if (ts != null) {
+            ((tmarker) getParent()).getTMAView().repaint();
+        }
+        if (((tmarker) getParent()) != null) {
+            ((tmarker) getParent()).repaintNucleiOnToolBar();
+        }
+    }//GEN-LAST:event_jRadioButton9ActionPerformed
+
+    private void jRadioButton10ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jRadioButton10ActionPerformed
+        TMAspot ts = ((tmarker) getParent()).getVisibleTMAspot();
+        if (ts != null) {
+            ((tmarker) getParent()).getTMAView().repaint();
+        }
+    }//GEN-LAST:event_jRadioButton10ActionPerformed
+
     /**
      * Set the shape of the goldstandard (manual) nucleus labels.
      * @param labelsShape One of TMARKER.LABELS_SHAPE_CIRCLE, LABELS_SHAPE_CROSS or LABELS_SHAPE_RECTANGLE
      */
     public void setLabelsShape_Gst(int labelsShape) {
-        if (labelsShape == tmarker.LABELS_SHAPE_CIRCLE) {
-            jRadioButton1.setSelected(true);
-        } else if (labelsShape == tmarker.LABELS_SHAPE_CROSS) {
-            jRadioButton2.setSelected(true);
-        } else {
-            jRadioButton3.setSelected(true);
+        switch (labelsShape) {
+            case tmarker.LABELS_SHAPE_CIRCLE:
+                jRadioButton1.setSelected(true);
+                break;
+            case tmarker.LABELS_SHAPE_CROSS:
+                jRadioButton2.setSelected(true);
+                break;
+            case tmarker.LABELS_SHAPE_CROSS_THICK:
+                jRadioButton9.setSelected(true);
+                break;
+            default:
+                jRadioButton3.setSelected(true);
+                break;
         }
     }
     
@@ -511,12 +598,19 @@ public class OptionDialog extends javax.swing.JDialog {
      * @param labelsShape One of TMARKER.LABELS_SHAPE_CIRCLE, LABELS_SHAPE_CROSS or LABELS_SHAPE_RECTANGLE
      */
     public void setLabelsShape_Est(int labelsShape) {
-        if (labelsShape == tmarker.LABELS_SHAPE_CIRCLE) {
-            jRadioButton6.setSelected(true);
-        } else if (labelsShape == tmarker.LABELS_SHAPE_CROSS) {
-            jRadioButton5.setSelected(true);
-        } else {
-            jRadioButton4.setSelected(true);
+        switch (labelsShape) {
+            case tmarker.LABELS_SHAPE_CIRCLE:
+                jRadioButton6.setSelected(true);
+                break;
+            case tmarker.LABELS_SHAPE_CROSS:
+                jRadioButton5.setSelected(true);
+                break;
+            case tmarker.LABELS_SHAPE_CROSS_THICK:
+                jRadioButton10.setSelected(true);
+                break;
+            default:
+                jRadioButton4.setSelected(true);
+                break;
         }
     }
     
@@ -529,6 +623,8 @@ public class OptionDialog extends javax.swing.JDialog {
             return tmarker.LABELS_SHAPE_CIRCLE;
         } else if (jRadioButton2.isSelected()) {
             return tmarker.LABELS_SHAPE_CROSS;
+        } else if (jRadioButton9.isSelected()) {
+            return tmarker.LABELS_SHAPE_CROSS_THICK;
         } else {
             return tmarker.LABELS_SHAPE_RECTANGLE;
         }
@@ -543,6 +639,8 @@ public class OptionDialog extends javax.swing.JDialog {
             return tmarker.LABELS_SHAPE_CIRCLE;
         } else if (jRadioButton5.isSelected()) {
             return tmarker.LABELS_SHAPE_CROSS;
+        } else if (jRadioButton10.isSelected()) {
+            return tmarker.LABELS_SHAPE_CROSS_THICK;
         } else {
             return tmarker.LABELS_SHAPE_RECTANGLE;
         }
@@ -605,21 +703,19 @@ public class OptionDialog extends javax.swing.JDialog {
         
     
     /**
-     * Whether or not parallel computing can be used (for some expensive functions such as image processing methods).
-     * Parallel computing means to exploit more than one CPU, if available on the local computer.
-     * @return True if parallel computing can be used.
+     * Returns the number of processors that should be used (e.g. for some expensive functions and calculations).
+     * @return The number of processors that can be used.
      */
-    public boolean useParallelProgramming() {
-        return jCheckBox3.isSelected();
+    public int getParam_useNProcessors() {
+        return Integer.parseInt(jTextField3.getText());
     }
     
     /**
-     * Sets whether or not parallel computing can be used (for some expensive functions such as image processing methods).
-     * Parallel computing means to exploit more than one CPU, if available on the local computer.
-     * @param b True if parallel computing can be used.
+     * Sets the number of processors that should be used (e.g. for some expensive functions and calculations).
+     * @param n The number of processors that can be used.
      */
-    public void setUseParallelProgramming(boolean b) {
-        jCheckBox3.setSelected(b);
+    public void setParam_useNProcessors(int n) {
+        jTextField3.setText(Integer.toString(n));
     }
     
     /**
@@ -688,14 +784,6 @@ public class OptionDialog extends javax.swing.JDialog {
     }
     
     /**
-     * Returns the number of processors that can be used for processing.
-     * @return The number of processors that can be used for programming.
-     */
-    public int getParam_NumberProcessors() {
-        return Runtime.getRuntime().availableProcessors();
-    }
-
-    /**
      * Returns the maximum heap space memory available.
      * @return The max heap space memory available for computation in byte.
      */
@@ -728,17 +816,19 @@ public class OptionDialog extends javax.swing.JDialog {
     private javax.swing.JButton jButton3;
     private javax.swing.JCheckBox jCheckBox1;
     private javax.swing.JCheckBox jCheckBox2;
-    private javax.swing.JCheckBox jCheckBox3;
     private javax.swing.JCheckBox jCheckBox4;
     private javax.swing.JCheckBox jCheckBox5;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel10;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
+    private javax.swing.JLabel jLabel4;
+    private javax.swing.JLabel jLabel5;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel2;
     private javax.swing.JPanel jPanel3;
     private javax.swing.JRadioButton jRadioButton1;
+    private javax.swing.JRadioButton jRadioButton10;
     private javax.swing.JRadioButton jRadioButton2;
     private javax.swing.JRadioButton jRadioButton3;
     private javax.swing.JRadioButton jRadioButton4;
@@ -746,9 +836,11 @@ public class OptionDialog extends javax.swing.JDialog {
     private javax.swing.JRadioButton jRadioButton6;
     private javax.swing.JRadioButton jRadioButton7;
     private javax.swing.JRadioButton jRadioButton8;
+    private javax.swing.JRadioButton jRadioButton9;
     private javax.swing.JTabbedPane jTabbedPane1;
     private javax.swing.JTextField jTextField1;
     private javax.swing.JTextField jTextField2;
+    private javax.swing.JTextField jTextField3;
     private org.jdesktop.beansbinding.BindingGroup bindingGroup;
     // End of variables declaration//GEN-END:variables
 

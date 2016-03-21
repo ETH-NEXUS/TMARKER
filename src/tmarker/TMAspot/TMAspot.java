@@ -72,6 +72,7 @@ public class TMAspot {
     // params stored in the TMARKER.conf
     private int param_t2 = -1;
     private int param_t1 = -1;
+    private int param_t3 = -1;
     private int param_tolerance = -1;
     private double param_blur = -1;
     private int param_nsuperpx = 0;
@@ -262,6 +263,22 @@ public class TMAspot {
     }
     
     /**
+     * Returns the threshold t_ch3 for color deconvolution.
+     * @return The threshold t_ch3. -1 if not yet specified.
+     */
+    public int getParam_t_ch3() {
+        return param_t3;
+    }
+
+    /**
+     * Sets the threshold t_dab for color deconvolution.
+     * @param param_t_ch3 The threshold t_ch3.
+     */
+    public void setParam_t_ch3(int param_t_ch3) {
+        this.param_t3 = param_t_ch3;
+    }
+    
+    /**
      * Saves the dynamic threshold maps on hard disk.
      * @param TM The threshold maps.
      * @param asParallelThread If true, the saving is done in a parallel thread.
@@ -315,6 +332,7 @@ public class TMAspot {
     public List<Polygon> getExcludingAreas() {
         return excludingAreas;
     }
+    
     
     /**
      * Creates a new TMAspot which belongs to the TMARKER session. The filename is
@@ -777,7 +795,7 @@ public class TMAspot {
      * Adopts all parameters from another TMAspot.
      * @param other_spot The source TMAspot.
      */
-    public void adoptParams(TMAspot other_spot) {
+    public void adoptParams(TMAspot other_spot, boolean convertPoints) {
         param_blur = other_spot.param_blur;
         param_tolerance = other_spot.param_tolerance;
         param_t2 = other_spot.param_t2;
@@ -790,13 +808,76 @@ public class TMAspot {
         
         prop = other_spot.prop;
         
-        if (other_spot.includingAreas != null && !other_spot.includingAreas.isEmpty()) {
-            includingAreas.addAll(other_spot.includingAreas);
-        }
-        if (other_spot.excludingAreas != null && !other_spot.excludingAreas.isEmpty()) {
-            excludingAreas.addAll(other_spot.excludingAreas);
+        // add other spots TMApoints which are not already in here.
+        List<TMApoint> old_points = getPoints();
+        for (TMApoint tp_new: other_spot.getPoints()) {
+            boolean found = false;
+            TMApoint tp_old = null;
+            for (int i=0; i<old_points.size(); i++) {
+                tp_old = old_points.get(i);
+                if (tp_old.x == tp_new.x && tp_old.y == tp_new.y) {
+                    found = true;
+                    break;
+                }
+            }
+            if (!found) {
+                if (convertPoints) {
+                    tp_new.setGoldStandard((byte) (getMaxGSNumber() + 1));
+                }
+                tp_new.setTMAspot(this);
+                this.addPoint(tp_new);
+            } else {
+                if (convertPoints) {
+                    tp_old.setGoldStandard((byte) (getMaxGSNumber() + 1));
+                }
+            }
         }
         
+        // add other spots including areas which are not already in here.
+        if (other_spot.includingAreas != null && !other_spot.includingAreas.isEmpty()) {
+            List<Polygon> old_areas = getIncludingAreas();
+            for (Polygon p_new: other_spot.includingAreas) {
+                boolean found = false;
+                for (Polygon p_old: old_areas) {
+                    if (p_old.npoints == p_new.npoints) { 
+                        boolean allPointsEqual = true;
+                        for (int i=0; i<p_old.npoints; i++) {
+                            allPointsEqual &= p_old.xpoints[i] == p_new.xpoints[i] && p_old.ypoints[i] == p_new.ypoints[i];
+                        }
+                        if (allPointsEqual) {
+                            found = true;
+                            break;
+                        }
+                    }
+                }
+                if (!found) {
+                    includingAreas.add(p_new);
+                }
+            }
+        }
+        
+        // add other spots including areas which are not already in here.
+        if (other_spot.excludingAreas != null && !other_spot.excludingAreas.isEmpty()) {
+            List<Polygon> old_areas = getExcludingAreas();
+            for (Polygon p_new: other_spot.excludingAreas) {
+                boolean found = false;
+                for (Polygon p_old: old_areas) {
+                    if (p_old.npoints == p_new.npoints) { 
+                        boolean allPointsEqual = true;
+                        for (int i=0; i<p_old.npoints; i++) {
+                            allPointsEqual &= p_old.xpoints[i] == p_new.xpoints[i] && p_old.ypoints[i] == p_new.ypoints[i];
+                        }
+                        if (allPointsEqual) {
+                            found = true;
+                            break;
+                        }
+                    }
+                }
+                if (!found) {
+                    excludingAreas.add(p_new);
+                }
+            }
+        }
     }
     
     /**
@@ -819,6 +900,20 @@ public class TMAspot {
     public void deleteAllPoints(byte whichPoints, boolean goldStandard) {
         for (int i=nuclei.size()-1; i>=0; i--) {
             if (nuclei.get(i).getLabel()==whichPoints && nuclei.get(i).isGoldStandard()==goldStandard) {
+                nuclei.remove(i);
+            }
+        }
+    }
+    
+    /**
+     * Specifically deletes TMALabels from this spot.
+     * @param PointLabel The label of the points to be deleted (e.g. TMALabel.LABEL_POS).
+     * @param PointStaining The staining of the points to be deleted (e.g. TMALabel.STAINING_0).
+     * @param goldStandard True, if only gold standard points should be considered. Otherwise, only estimated points are considered.
+     */
+    public void deleteAllPoints(byte PointLabel, byte PointStaining, boolean goldStandard) {
+        for (int i=nuclei.size()-1; i>=0; i--) {
+            if (nuclei.get(i).getLabel()==PointLabel && nuclei.get(i).getStaining()==PointStaining && nuclei.get(i).isGoldStandard()==goldStandard) {
                 nuclei.remove(i);
             }
         }
@@ -1220,7 +1315,7 @@ public class TMAspot {
             gray[i]=0;
         }
 
-        BufferedImage I = getBufferedImage(false);
+        BufferedImage I = getBufferedImage();
         
         if (I != null) {
             int n = I.getWidth()*I.getHeight();
@@ -1859,22 +1954,11 @@ public class TMAspot {
     }
 
     /**
-     * Returns the original image of this TMAspot. The TMAView image is returned for the currently visible
-     * TMAspot (faster but only useful for read-access to the image).
-     * @return The original image of this TMAspot.
-     */
-    public BufferedImage getBufferedImage() {
-        return getBufferedImage(false);
-    }
-    
-    /**
      * Returns the image of this TMAspot. Note: for large image format (SVS, NDPI or other pyramid images), this returns a kind of thumbnail whose size
      * regards the currently available memory, and 
-     * @param asNewInstance IGNORED, is always treated as true. (formerly: If true, a new BufferedImage instance is returned (important if you write on the image). Otherwise, the TMAView image is returned for the currently visible
-     * TMAspot (faster but only useful for read-access to the image).)
-     * @return The image of this TMAspot.
+     * @return The image of this TMAspot as a new BufferedImage.
      */
-    public BufferedImage getBufferedImage(boolean asNewInstance) {
+    public BufferedImage getBufferedImage() {
         BufferedImage bi = null;
         
         if (isNDPI()) {
