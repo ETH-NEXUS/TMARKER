@@ -1,0 +1,37 @@
+Version 2.146
+=============
+
+* Updated openslide libraries to 3.4.1 (2016-07-17).
+* openslide 32-bit and 64-bit support.
+* minor changes for faster image processing.
+
+
+Version 2.142
+=============
+
+* Plugins can be loaded again online (there was a CMS change at the ETH server in April 2016).
+
+
+Version 2.140
+=============
+
+* Polygons can be edited now (add points, drag points).
+
+
+Version 2.139
+=============
+
+* fixed problem in which exluding areas werent respected during nucleus filtering (color deconvolution).
+
+
+
+Version 2.138
+=============
+
+* removed bug in which program settings were overwritten when loading a XML.
+
+* Slightly changed TMARKERPluginInterface (backwards compatible)
+
+* Added option to set up the number of processors used
+
+* Minor improvements

@@ -6,6 +6,7 @@ package stainingestimation;
 
 import java.awt.Cursor;
 import java.awt.Point;
+import java.awt.image.BufferedImage;
 import java.util.List;
 import java.util.concurrent.ForkJoinPool;
 import java.util.logging.Level;
@@ -24,6 +25,7 @@ public class StainingEstimationCoreThread extends Thread {
     TMARKERPluginManager tpm;
     StainingEstimation se;
     TMAspot aTMAspot;
+    BufferedImage ts_img;
     int radius;
     double blur;
     int tolerance;
@@ -54,6 +56,7 @@ public class StainingEstimationCoreThread extends Thread {
      * @param tpm The TMARKERPluginManager with access to the main program.
      * @param se The StainingEstimation instance, used for User chosen colors which are stored in the StainingEstimation instance.
      * @param aTMAspot The TMAspots to be processed.
+     * @param ts_img The BufferedImage of the TMAspot (if not NDPI). Can be null.
      * @param radius The radius of the nuclei.
      * @param blur The blurring applied to the channels prior to local maxima finding.
      * @param tolerance The tolerance used for local maxima finding.
@@ -76,10 +79,11 @@ public class StainingEstimationCoreThread extends Thread {
      * @param sizes The sizes of the processed sub-patches, expressed as points. Must be same size as offsets.
      * @param maxsize The maximum size of the sub-patches (edge length, only needed for NDPI, might be equal to the maximum patch-edge-size).
      */
-    public StainingEstimationCoreThread (TMARKERPluginManager tpm, StainingEstimation se, TMAspot aTMAspot, int radius, double blur, int tolerance, int TMblur_hema, int TMblur_dab, int TMblur_ch3, int t_hema, int t_dab, int t_ch3, boolean hide_legend, String myStain, boolean substractChannels, boolean invertCH1, boolean invertCH2, boolean invertCH3, boolean useThresholdMap, boolean respectAreas, List<TMApoint> brown_spots_total, List<Point> offsets, List<Point> sizes, int maxsize) {
+    public StainingEstimationCoreThread (TMARKERPluginManager tpm, StainingEstimation se, TMAspot aTMAspot, BufferedImage ts_img, int radius, double blur, int tolerance, int TMblur_hema, int TMblur_dab, int TMblur_ch3, int t_hema, int t_dab, int t_ch3, boolean hide_legend, String myStain, boolean substractChannels, boolean invertCH1, boolean invertCH2, boolean invertCH3, boolean useThresholdMap, boolean respectAreas, List<TMApoint> brown_spots_total, List<Point> offsets, List<Point> sizes, int maxsize) {
         this.tpm = tpm;
         this.se = se;
         this.aTMAspot = aTMAspot;
+        this.ts_img = ts_img;
         this.radius = radius;
         this.blur = blur;
         this.tolerance = tolerance;
@@ -110,7 +114,7 @@ public class StainingEstimationCoreThread extends Thread {
             se.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
             
             int[] progress_container = new int[]{1};
-            fb = new StainingEstimationCoreFork(tpm, se, aTMAspot, radius, blur, tolerance, TMblur_hema, TMblur_dab, TMblur_ch3, t_hema, t_dab, t_ch3, hide_legend, myStain, substractChannels, invertCH1, invertCH2, invertCH3, useThresholdMap, respectAreas, brown_spots_total, offsets, sizes, maxsize, 0, offsets.size(), tpm.useParallelProgramming(), progress_container);
+            fb = new StainingEstimationCoreFork(tpm, se, aTMAspot, ts_img, radius, blur, tolerance, TMblur_hema, TMblur_dab, TMblur_ch3, t_hema, t_dab, t_ch3, hide_legend, myStain, substractChannels, invertCH1, invertCH2, invertCH3, useThresholdMap, respectAreas, brown_spots_total, offsets, sizes, maxsize, 0, offsets.size(), tpm.useParallelProgramming(), progress_container);
 
             pool = new ForkJoinPool();
 

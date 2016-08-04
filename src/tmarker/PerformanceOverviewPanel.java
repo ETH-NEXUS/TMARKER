@@ -19,11 +19,14 @@ package tmarker;
 
 import com.itextpdf.text.Font;
 import java.awt.Color;
+import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.awt.Image;
 import java.awt.RenderingHints;
 import java.util.ArrayList;
+import javax.swing.ImageIcon;
 
 /**
  * The performanceOverviewPanel shows the current used memory, free memory and
@@ -43,6 +46,8 @@ public class PerformanceOverviewPanel extends javax.swing.JPanel {
     int maxMem; // the max memory available (constant, given by the -xmx flag during program start)
     Thread performanceThread = null; // the thread for updating and painting the values
     boolean continueThread = true; // for correct interruption of the thread.
+    
+    Image trash_image = new javax.swing.ImageIcon(getClass().getResource("/tmarker/img/menu/delete_16x16.png")).getImage();
     
     /**
      * Creates new form PerformanceOverviewPanel and starts the monitoring process.
@@ -121,8 +126,36 @@ public class PerformanceOverviewPanel extends javax.swing.JPanel {
     private void initComponents() {
 
         setBackground(new java.awt.Color(0, 0, 0));
+        addMouseMotionListener(new java.awt.event.MouseMotionAdapter() {
+            public void mouseMoved(java.awt.event.MouseEvent evt) {
+                formMouseMoved(evt);
+            }
+        });
+        addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                formMouseClicked(evt);
+            }
+        });
         setLayout(new java.awt.BorderLayout());
     }// </editor-fold>//GEN-END:initComponents
+
+    private void formMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_formMouseClicked
+        // if it is on the GC Button, do garbageCollection()
+        if (evt.getX() > 274 && evt.getX() < 292 && evt.getY() > getHeight() - 17 && evt.getY() < getHeight() - 5) {
+            System.gc();
+        }
+    }//GEN-LAST:event_formMouseClicked
+
+    private void formMouseMoved(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_formMouseMoved
+        if (evt.getX() > 274 && evt.getX() < 292 && evt.getY() > getHeight() - 17 && evt.getY() < getHeight() - 5) {
+            setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+            setToolTipText("Start Garbage Collection");
+        } else 
+        {
+            setCursor(Cursor.getDefaultCursor());
+            setToolTipText(null);
+        }
+    }//GEN-LAST:event_formMouseMoved
 
     @Override
     protected void paintComponent(Graphics g) {
@@ -139,6 +172,10 @@ public class PerformanceOverviewPanel extends javax.swing.JPanel {
             double dx = 1.0*getWidth()/(length); // distance between two values on x axis.
             double factor = getHeight()/(max+20); // scale factor for values on y axis (not to be higher than the panel height).
 
+            g.setColor(Color.GRAY);
+            //g.drawString("GC", 275, getHeight() -5);
+            g.drawImage(trash_image, 275, getHeight() -17, this);
+            
             // draw the free memory
             //g.setColor(Color.GREEN);
             //for (int i=1; i<length; i++) {

@@ -2999,11 +2999,11 @@ public class StainingEstimation extends javax.swing.JFrame implements TMARKERPlu
             List<Point> offsets = new ArrayList();
             List<Point> sizes = new ArrayList();
             
-            int maxbytes = (int) (0.8 * se.manager.getMaxMemory() / se.manager.getNumberProcessors());
+            int maxbytes = (int) (0.1 * se.manager.getMaxMemory() / se.manager.getNumberProcessors());
             int size = (int) Math.floor(Math.sqrt(maxbytes/4.0));
             int w = ts.getWidth();
             int h = ts.getHeight();
-                   
+            
             // collect the ROIS
             List<Polygon> rois_incl = new ArrayList();
             if (respectAreas && ts.isNDPI()) {
@@ -3011,16 +3011,22 @@ public class StainingEstimation extends javax.swing.JFrame implements TMARKERPlu
             }
             if (rois_incl.isEmpty()) rois_incl.add(new Polygon(new int[]{0, 0, w, w}, new int[]{0, h, h, 0}, 4)); // for tif, jpeg and other normal images, compute the whole image (not ROIS), since we can store the deconvolved channels on harddisk, making post-processing faster.
             
-            // union overlaping ROIS to a larger ROI
+            // add the rect bounds from the ROIs to the processed set
             List<Rectangle> rects = new ArrayList();
             rects.add(rois_incl.get(0).getBounds());
             for (int z=1; z<rois_incl.size(); z++) {
-                for (int k=0; k<rects.size(); k++) {
-                    if (rects.get(k).intersects(rois_incl.get(z).getBounds())) {
+                boolean alreadyAdded = false;
+                // union overlaping ROIS to a larger ROI
+                /*int rect_size = rects.size();
+                for (int k=0; k<rect_size; k++) {
+                    if (!alreadyAdded && rects.get(k).intersects(rois_incl.get(z).getBounds())) {
                         rects.get(k).add(rois_incl.get(z).getBounds());
-                    } else {
-                        rects.add(rois_incl.get(z).getBounds());
+                        alreadyAdded=true;
+                        break;
                     }
+                }*/
+                if (!alreadyAdded) {
+                    rects.add(rois_incl.get(z).getBounds());
                 }
             }
 
@@ -3041,11 +3047,13 @@ public class StainingEstimation extends javax.swing.JFrame implements TMARKERPlu
             }
             
             // For normal images, make the color deconvolution beforehand for the whole image. (for NPDI images, deconvolove only the ROI).
+            BufferedImage ts_img = null;
             if (!ts.isNDPI()) {
                 List<ImagePlus> HE_old = ts.isNDPI() ? null : getChannelImages(se, ts);
                 // if the staining did change, compute new channel images
+                ts_img = ts.getBufferedImage();
                 if (myStain.equalsIgnoreCase("User values") || !myStain.equalsIgnoreCase(se.getParam_lastStain()) || substractChannels != se.getParam_lastSubstractChannels() || HE_old == null || HE_old.isEmpty()) {
-                    List<ImagePlus> HE = deconvolveImage(ts.getBufferedImage(), tm, se, ts, hide_legend, myStain, substractChannels, invertCH1, invertCH2, invertCH3, true);
+                    List<ImagePlus> HE = deconvolveImage(ts_img, tm, se, ts, hide_legend, myStain, substractChannels, invertCH1, invertCH2, invertCH3, true);
                     // Save for that TMAspot
                     if (!ts.isNDPI()) {
                         if (!asParallelThread) {
@@ -3061,9 +3069,7 @@ public class StainingEstimation extends javax.swing.JFrame implements TMARKERPlu
                 }
             }
             
-            
-            
-            StainingEstimationCoreThread sect = new StainingEstimationCoreThread((TMARKERPluginManager) se.getPluginManager(), se, ts, radius, blur, tolerance, TMblur_hema, TMblur_dab, TMblur_ch3, t_hema, t_dab, t_ch3, hide_legend, myStain, substractChannels, invertCH1, invertCH2, invertCH3, useThresholdMap, respectAreas, brown_spots_total, offsets, sizes, size);
+            StainingEstimationCoreThread sect = new StainingEstimationCoreThread((TMARKERPluginManager) se.getPluginManager(), se, ts, ts_img, radius, blur, tolerance, TMblur_hema, TMblur_dab, TMblur_ch3, t_hema, t_dab, t_ch3, hide_legend, myStain, substractChannels, invertCH1, invertCH2, invertCH3, useThresholdMap, respectAreas, brown_spots_total, offsets, sizes, size);
             sect.start();
             sect.join();
             
@@ -3078,6 +3084,7 @@ public class StainingEstimation extends javax.swing.JFrame implements TMARKERPlu
      * Performs the staining estimation of a given TMAspot and a given sub-patch (workhorse function).
      * @param se The StainingEstimation instance.
      * @param ts The TMAspot of the image.
+     * @param ts_img The BufferedImage of the TMAspot (if not NDPI). Can be null.
      * @param radius The radius of the nuclei.
      * @param blur The blurring applied to the channels prior to local maxima finding.
      * @param tolerance The tolerance used for local maxima finding.
@@ -3102,14 +3109,14 @@ public class StainingEstimation extends javax.swing.JFrame implements TMARKERPlu
      * @param maxsize The maximum size of the sub-patch (edge length, only needed for NDPI, might be equal to the maximum patch-edge-size).
      * 
      */
-    static void tma_stainCore(StainingEstimation se, TMAspot ts, int radius, double blur, int tolerance, int TMblur_hema, int TMblur_dab, int TMblur_ch3, int t_hema, int t_dab, int t_ch3, boolean hide_legend, String myStain, boolean substractChannels, boolean invertCH1, boolean invertCH2, boolean invertCH3, boolean useThresholdMap, boolean respectAreas, boolean asParallelThread, List<TMApoint> brown_spots_total, Point offset, Point size, int maxsize) {
+    static void tma_stainCore(StainingEstimation se, TMAspot ts, BufferedImage ts_img, int radius, double blur, int tolerance, int TMblur_hema, int TMblur_dab, int TMblur_ch3, int t_hema, int t_dab, int t_ch3, boolean hide_legend, String myStain, boolean substractChannels, boolean invertCH1, boolean invertCH2, boolean invertCH3, boolean useThresholdMap, boolean respectAreas, boolean asParallelThread, List<TMApoint> brown_spots_total, Point offset, Point size, int maxsize) {
                 tmarker tm = ts.getCenter();
                 
                 String text = tm.getStatusMessageLabel().getText();
                 
                 List<TMApoint> brown_spots = new ArrayList<>();
                 
-                BufferedImage img = ts.getSubimage(offset.x, offset.y, size.x, size.y, maxsize);
+                BufferedImage img = ts.getSubimage(offset.x, offset.y, size.x, size.y, maxsize, ts_img);
                 
                 int offset_x = offset.x;
                 int offset_y = offset.y;
@@ -3363,17 +3370,19 @@ public class StainingEstimation extends javax.swing.JFrame implements TMARKERPlu
      */
     public BufferedImage getBufferedImage(TMAspot ts, int whichImage) {
         BufferedImage bi = null;
-        if (processedTMAspots.contains(ts)) {
-            try {
-                //bi = ImageIO.read(new File(getOriginalImagename(whichImage)));
-                bi = Misc.loadImageFast(getImagename(ts,whichImage));
-            } catch (Exception ex) {
-                if (tmarker.DEBUG>0) {
-                    Logger.getLogger(StainingEstimation.class.getName()).log(Level.SEVERE, null, ex);
+        if (!ts.isNDPI()) {
+            if (processedTMAspots.contains(ts)) {
+                try {
+                    //bi = ImageIO.read(new File(getOriginalImagename(whichImage)));
+                    bi = Misc.loadImageFast(getImagename(ts,whichImage));
+                } catch (Exception ex) {
+                    if (tmarker.DEBUG>0) {
+                        Logger.getLogger(StainingEstimation.class.getName()).log(Level.SEVERE, null, ex);
+                    }
+                    JOptionPane.showMessageDialog(this, "An error occurred while opening " + getImagename(ts, whichImage) + "\n\n"
+                        + "Maybe the thread that generates this image has not finished, yet\n"
+                        + "(e.g. after color deconvolution).", "Error opening image", JOptionPane.ERROR_MESSAGE);
                 }
-                JOptionPane.showMessageDialog(this, "An error occurred while opening " + getImagename(ts, whichImage) + "\n\n"
-                    + "Maybe the thread that generates this image has not finished, yet\n"
-                    + "(e.g. after color deconvolution).", "Error opening image", JOptionPane.ERROR_MESSAGE);
             }
         }
         return bi;

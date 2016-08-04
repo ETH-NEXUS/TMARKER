@@ -26,11 +26,9 @@ import java.util.Enumeration;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javax.swing.BoxLayout;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
-import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import org.imgscalr.Scalr;
@@ -1398,8 +1396,12 @@ public class TMAspot_list_panel extends javax.swing.JPanel {
             T = Scalr.resize(I, Method.SPEED, HEIGHT_UNEXPANDED-2);
             jLabel6.setIcon(new ImageIcon(T));
             thumbnailSet = true;
-            I.flush();
+            if (I!=null) {
+                I.flush();
+                I = null;
+            }
             T.flush();
+            T = null;
         }
     }
 

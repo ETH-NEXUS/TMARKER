@@ -124,6 +124,7 @@ public class PluginLoader {
     public static File[] downloadSelectedJarFilesFromURL(URL url, String tmp_dir, String[] selectedPlugins) throws IOException {
         Document doc = Jsoup.connect(url.toString()).userAgent("Mozilla/5.0 (Macintosh; Intel Mac OS X 10_9_2) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/33.0.1750.152 Safari/537.36").get();
         //Document doc = Jsoup.connect(url.toString()).get();
+        //System.out.println(doc.body());
         List<File> files = new ArrayList<>();
         Elements elems = doc.select("a[href*=.jar]");
         int k=0;
@@ -154,7 +155,9 @@ public class PluginLoader {
                 //FileUtils.copyURLToFile(new URL(url.getProtocol() + "://" + url.getHost() + "/" + link), destination);
                 
                 // Possibility 2: mimic webbrowser connection, with webbrowser user agent
-                URL source = new URL(url.getProtocol() + "://" + url.getHost() + link);
+                try {
+                //URL source = new URL(url.getProtocol() + "://" + url.getHost() + link); // former days... (before April 2016, ETH cms 6 change)
+                URL source = new URL(link);
                 URLConnection sourceConnection = source.openConnection();
                 sourceConnection.setRequestProperty("User-Agent", "Mozilla/5.0 (Macintosh; U; Intel Mac OS X 10.4; en-US; rv:1.9.2.2) Gecko/20100316 Firefox/3.6.2");
                 InputStream input = sourceConnection.getInputStream();
@@ -162,6 +165,10 @@ public class PluginLoader {
                 input.close();
                 
                 files.add(destination);
+                } catch (Exception e) {
+                    if (tmarker.DEBUG>0) Logger.getLogger(PluginLoader.class.getName()).log(Level.INFO, e.getMessage());
+       
+                }
             }
         }
         File[] filearray = new File[files.size()];

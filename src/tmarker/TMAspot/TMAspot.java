@@ -55,6 +55,7 @@ public class TMAspot {
     private final List<TMApoint> nuclei = new ArrayList<>();
     private final List<Polygon> includingAreas = new ArrayList<>();
     private final List<Polygon> excludingAreas = new ArrayList<>();
+    public static final int POLYGON_NODE_WIDTH = 5;
     
     // for nucleus density
     List<Integer> cellDensity = null;
@@ -372,7 +373,7 @@ public class TMAspot {
                 try { 
                     BufferedImage thumbnail;
                     if (isNDPI()) {
-                        thumbnail = os.createThumbnailImage(83);
+                        thumbnail = os.createThumbnailImage(TMAspot_list_panel.HEIGHT_UNEXPANDED - 2);
                     } else {
                         thumbnail = null;
                     }
@@ -665,9 +666,17 @@ public class TMAspot {
         List<TMApoint> all_tps = getPoints();
         if (all_tps!=null) {
             for (TMApoint tp: all_tps) {
-                if ((isGoldStandard && tp.getGoldStandard() > 0 || !isGoldStandard && tp.getGoldStandard() == 0) && (isStained && tp.getStaining() > 0 || !isStained && tp.getStaining() == TMALabel.STAINING_0) && tp.getLabel() == malignancy) {
-                    tps.add(tp);
-                }
+                //if (tp!=null) {
+                    if ((isGoldStandard && tp.getGoldStandard() > 0 || 
+                            !isGoldStandard && tp.getGoldStandard() == 0) && 
+                            (isStained && tp.getStaining() > 0 || 
+                            !isStained && tp.getStaining() == TMALabel.STAINING_0) && 
+                            tp.getLabel() == malignancy) {
+                        tps.add(tp);
+                    }
+                //} else {
+                //
+                //}
             }
         } 
         return tps;
@@ -1671,7 +1680,7 @@ public class TMAspot {
                     points.remove(i);
                 }
             }
-            return;
+            //return;
         }
         // Second: Remove points in excluding areas.
         if (!ts.getExcludingAreas().isEmpty()) {
@@ -2003,10 +2012,11 @@ public class TMAspot {
      * @param w The width.
      * @param h The height.
      * @param maxsize The maximum edge length (any edge) of the image. Used for NDPI images (openSlide).
+     * @param fullImage The full buffered image of the TMAspot, if this a normal image (not NDPI). If this is null, getBufferedImage() will be called, otherwise fullImage will be used (faster).
      * @return A new BufferedImage, subimage of this TMAspot.
      */
-    public BufferedImage getSubimage(int x, int y, int w, int h, int maxsize) {
-        return getSubimage(x, y, w, h, maxsize, BufferedImage.TYPE_INT_ARGB);
+    public BufferedImage getSubimage(int x, int y, int w, int h, int maxsize, BufferedImage fullImage) {
+        return getSubimage(x, y, w, h, maxsize, BufferedImage.TYPE_INT_ARGB, fullImage);
     }
     
     /**
@@ -2017,9 +2027,10 @@ public class TMAspot {
      * @param h The height.
      * @param maxsize The maximum edge length (any edge) of the image. Used for NDPI images (openSlide).
      * @param bufferedImageType The bufferedImageType (e.g. BufferedImage.TYPE_INT_ARGB).
+     * @param fullImage The full buffered image of the TMAspot, if this a normal image (not NDPI). If this is null, getBufferedImage() will be called, otherwise fullImage will be used (faster).
      * @return A new BufferedImage, subimage of this TMAspot.
      */
-    public BufferedImage getSubimage(int x, int y, int w, int h, int maxsize, int bufferedImageType) {
+    public BufferedImage getSubimage(int x, int y, int w, int h, int maxsize, int bufferedImageType, BufferedImage fullImage) {
         BufferedImage img;
         if (isNDPI()) {
             try {
@@ -2031,7 +2042,11 @@ public class TMAspot {
                 }
             }
         } else {
-            img = getBufferedImage().getSubimage(x, y, w, h);
+            if (fullImage != null) {
+                img = fullImage.getSubimage(x, y, w, h);
+            } else {
+                img = getBufferedImage().getSubimage(x, y, w, h);
+            }
             if (img.getType() != bufferedImageType) {
                 BufferedImage convertedImg = new BufferedImage(img.getWidth(), img.getHeight(), bufferedImageType);
                 convertedImg.getGraphics().drawImage(img, 0, 0, null);
@@ -2402,9 +2417,21 @@ public class TMAspot {
      * @return The area which contains (x,y) or null if there is none.
      */
     public Polygon getAreaOnPoint(int x, int y) {
-        Polygon pol = getIncludingAreaOnPoint(x, y);
+        return getAreaOnPoint(x, y, 0);
+    }
+    
+    /**
+     * Returns the area which contains the point (x, y). An including area is preferred
+     * over an excluding area.
+     * @param x The x-coord.
+     * @param y The y-coord.
+     * @param tolerance If > 0, finds also polygons which lie beside the coordinates with offset tolerance.
+     * @return The area which contains (x,y) or null if there is none.
+     */
+    public Polygon getAreaOnPoint(int x, int y, int tolerance) {
+        Polygon pol = getIncludingAreaOnPoint(x, y, tolerance);
         if (pol==null) {
-            return getExcludingAreaOnPoint(x, y);
+            return getExcludingAreaOnPoint(x, y, tolerance);
         } else {
             return pol;
         }
@@ -2417,9 +2444,22 @@ public class TMAspot {
      * @return The area which contains (x,y) or null if there is none.
      */
     public Polygon getIncludingAreaOnPoint(int x, int y) {
+        return getIncludingAreaOnPoint(x, y, 0);
+    }
+    
+    /**
+     * Returns the including area which contains the point (x, y).
+     * @param x The x-coord.
+     * @param y The y-coord.
+     * @param tolerance If > 0, finds also polygons which lie beside the coordinates with offset tolerance.
+     * @return The area which contains (x,y) or null if there is none.
+     */
+    public Polygon getIncludingAreaOnPoint(int x, int y, int tolerance) {
         List<Polygon> pols = getIncludingAreas();
         for (Polygon pol : pols) {
-            if (pol.contains(x, y)) {
+            if (pol.contains(x, y) || pol.contains(x+tolerance, y) || pol.contains(x, y+tolerance) || pol.contains(x+tolerance, y+tolerance)
+                    || pol.contains(x-tolerance, y) || pol.contains(x, y-tolerance) || pol.contains(x-tolerance, y-tolerance)
+                    || pol.contains(x-tolerance, y+tolerance) || pol.contains(x+tolerance, y-tolerance)) {
                 return pol;
             }
         }
@@ -2433,9 +2473,22 @@ public class TMAspot {
      * @return The area which contains (x,y) or null if there is none.
      */
     public Polygon getExcludingAreaOnPoint(int x, int y) {
+        return getExcludingAreaOnPoint(x, y, 0);
+    }
+    
+    /**
+     * Returns the excluding area which contains the point (x, y).
+     * @param x The x-coord.
+     * @param y The y-coord.
+     * @param tolerance If > 0, finds also polygons which lie beside the coordinates with offset tolerance.
+     * @return The area which contains (x,y) or null if there is none.
+     */
+    public Polygon getExcludingAreaOnPoint(int x, int y, int tolerance) {
         List<Polygon> pols = getExcludingAreas();
         for (Polygon pol : pols) {
-            if (pol.contains(x, y)) {
+            if (pol.contains(x, y) || pol.contains(x+tolerance, y) || pol.contains(x, y+tolerance) || pol.contains(x+tolerance, y+tolerance)
+                    || pol.contains(x-tolerance, y) || pol.contains(x, y-tolerance) || pol.contains(x-tolerance, y-tolerance)
+                    || pol.contains(x-tolerance, y+tolerance) || pol.contains(x+tolerance, y-tolerance)) {
                 return pol;
             }
         }

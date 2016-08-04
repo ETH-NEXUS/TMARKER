@@ -596,7 +596,7 @@
                     <Component class="org.jdesktop.swingx.JXTable" name="jXTable1">
                       <Properties>
                         <Property name="model" type="javax.swing.table.TableModel" editor="org.netbeans.modules.form.editors2.TableModelEditor">
-                          <Table columnCount="21" rowCount="0">
+                          <Table columnCount="25" rowCount="0">
                             <Column editable="false" title="Image" type="java.lang.String"/>
                             <Column editable="false" title="ROI" type="java.lang.String"/>
                             <Column editable="false" title="Avg R (cyt.pl.)" type="java.lang.String"/>
@@ -606,9 +606,13 @@
                             <Column editable="false" title="Avg Channel 1 (cyt.pl.)" type="java.lang.String"/>
                             <Column editable="false" title="Avg Channel 2 (cyt.pl.)" type="java.lang.String"/>
                             <Column editable="false" title="Avg Channel 3 (cyt.pl.)" type="java.lang.String"/>
+                            <Column editable="false" title="# 0+ cells" type="java.lang.String"/>
                             <Column editable="false" title="% 0+ cells" type="java.lang.String"/>
+                            <Column editable="false" title="# 1+ cells" type="java.lang.String"/>
                             <Column editable="false" title="% 1+ cells" type="java.lang.String"/>
+                            <Column editable="false" title="# 2+ cells" type="java.lang.String"/>
                             <Column editable="false" title="% 2+ cells" type="java.lang.String"/>
+                            <Column editable="false" title="# 3+ cells" type="java.lang.String"/>
                             <Column editable="false" title="% 3+ cells" type="java.lang.String"/>
                             <Column editable="false" title="H-Score" type="java.lang.String"/>
                             <Column editable="false" title="Avg R (tot.)" type="java.lang.String"/>
@@ -623,6 +627,26 @@
                         <Property name="autoResizeMode" type="int" value="0"/>
                         <Property name="columnModel" type="javax.swing.table.TableColumnModel" editor="org.netbeans.modules.form.editors2.TableColumnModelEditor">
                           <TableColumnModel selectionModel="3">
+                            <Column maxWidth="-1" minWidth="-1" prefWidth="-1" resizable="true">
+                              <Title/>
+                              <Editor/>
+                              <Renderer/>
+                            </Column>
+                            <Column maxWidth="-1" minWidth="-1" prefWidth="-1" resizable="true">
+                              <Title/>
+                              <Editor/>
+                              <Renderer/>
+                            </Column>
+                            <Column maxWidth="-1" minWidth="-1" prefWidth="-1" resizable="true">
+                              <Title/>
+                              <Editor/>
+                              <Renderer/>
+                            </Column>
+                            <Column maxWidth="-1" minWidth="-1" prefWidth="-1" resizable="true">
+                              <Title/>
+                              <Editor/>
+                              <Renderer/>
+                            </Column>
                             <Column maxWidth="-1" minWidth="-1" prefWidth="-1" resizable="true">
                               <Title/>
                               <Editor/>

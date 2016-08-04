@@ -11,6 +11,8 @@ import graphcut.ConnectComponent;
 import graphcut.GraphCut;
 import graphcut.Terminal;
 import ij.ImagePlus;
+import ij.gui.PolygonRoi;
+import ij.gui.Roi;
 import ij.plugin.filter.GaussianBlur;
 import java.awt.BasicStroke;
 import java.awt.Color;
@@ -961,9 +963,9 @@ public class CancerNucleusSegmentation extends javax.swing.JFrame implements Plu
             if (getParam_ShowBlur()) {
                 if (!ts.isNDPI()) {
                     if (getParam_imageChannel() == 1) {
-                        I = getChannel1Image(ts);
+                        I = getChannelImage(ts, StainingEstimation.SHOW_CHANNEL1_IMAGE);
                     } else if (getParam_imageChannel() == 2) {
-                        I = getChannel2Image(ts);
+                        I = getChannelImage(ts, StainingEstimation.SHOW_CHANNEL2_IMAGE);
                     }
                     if (I == null) {
                         I  = ts.getBufferedImage();
@@ -1020,7 +1022,7 @@ public class CancerNucleusSegmentation extends javax.swing.JFrame implements Plu
                         if (ts.isNDPI() || I==null) {
                             
                             GaussianBlur blur = new GaussianBlur();
-                            patch = ts.getSubimage((int) (tp.getX() - r), (int) (tp.getY() - r), d, d, d, BufferedImage.TYPE_INT_ARGB);
+                            patch = ts.getSubimage((int) (tp.getX() - r), (int) (tp.getY() - r), d, d, d, BufferedImage.TYPE_INT_ARGB, I);
 
                             // get here the channel images of the Patch of an NDPI
                             if (cns.getParam_imageChannel() > 0) {
@@ -1086,7 +1088,7 @@ public class CancerNucleusSegmentation extends javax.swing.JFrame implements Plu
                     }*/
                     // Draw the boundary
                     Polygon p = tp.getRoi().getPolygon();
-                    //p.translate(tp.x-r, tp.y-r);
+                    p.translate(tp.x, tp.y);
                     Shape s = (Shape) scaling.createTransformedShape(p);
                     //due to parallel drawing on g, the stroke has to be set immediatly before and after writing.
                     Stroke old_stroke = ((Graphics2D) g).getStroke();
@@ -1232,9 +1234,9 @@ public class CancerNucleusSegmentation extends javax.swing.JFrame implements Plu
 
             if (!ts.isNDPI()) {
                 if (getParam_imageChannel() == 1) {
-                    I_gray = getChannel1Image(ts);
+                    I_gray = getChannelImage(ts, StainingEstimation.SHOW_CHANNEL1_IMAGE);
                 } else if (getParam_imageChannel() == 2) {
-                    I_gray = getChannel2Image(ts);
+                    I_gray = getChannelImage(ts, StainingEstimation.SHOW_CHANNEL2_IMAGE);
                 }
                 if (I_gray == null) {
                     
@@ -1306,7 +1308,7 @@ public class CancerNucleusSegmentation extends javax.swing.JFrame implements Plu
                     Pluggable p = manager.getPlugin("Color Deconvolution");
                     if (p != null) {
                          {
-                            BufferedImage bi_col = ts.getSubimage(rect.x, rect.y, rect.width, rect.height, Math.max(rect.width, rect.height), BufferedImage.TYPE_INT_ARGB);
+                            BufferedImage bi_col = ts.getSubimage(rect.x, rect.y, rect.width, rect.height, Math.max(rect.width, rect.height), BufferedImage.TYPE_INT_ARGB, I_col);
                             List<ImagePlus> HE = StainingEstimation.deconvolveImage(bi_col, ts.getCenter(), (StainingEstimation) p, ts, true, ((StainingEstimation) p).getParam_ColorChannel(), ((StainingEstimation) p).getParam_substractChannels(), ((StainingEstimation) p).getParam_invertCH1(), ((StainingEstimation) p).getParam_invertCH2(), ((StainingEstimation) p).getParam_invertCH3(), false);
                             if (getParam_imageChannel() == 1) {
                                 bi_gray = HE.get(0).getBufferedImage();
@@ -1320,7 +1322,7 @@ public class CancerNucleusSegmentation extends javax.swing.JFrame implements Plu
                 // if the patch is still null, then the original gray scaled image is used
                 if (bi_gray == null) {
                     // gray patch
-                    bi_gray = ts.getSubimage(rect.x, rect.y, rect.width, rect.height, Math.max(rect.width, rect.height), BufferedImage.TYPE_BYTE_GRAY);
+                    bi_gray = ts.getSubimage(rect.x, rect.y, rect.width, rect.height, Math.max(rect.width, rect.height), BufferedImage.TYPE_BYTE_GRAY, I_gray);
                 }
                 
                 //Blur the image for smoother features
@@ -1342,47 +1344,31 @@ public class CancerNucleusSegmentation extends javax.swing.JFrame implements Plu
             
             lROI roi = PatchToShape(bi_gray, ts, getParam_useGraphcut(), 0, ts.getParam_r(), (float) (getParam_GCShapeBalance() / 100.0));
             roi.setOffset(-rect.width/2, -rect.height/2);
-            tp.setROI(roi);
-            tp.setRoi(Misc.ROIToRoi(roi));
-        }
-    }
-
-    /**
-     * Returns the channel 2 image of a given TMAspot. The channel 2 images has
-     * to be created by the Color Deconvolution plugin.
-     *
-     * @param ts The TMAspot to be searched for.
-     * @return The channel 2 image of ts. null if the plugin "Color
-     * Deconvolution" is not found or the channel 2 image has not been created.
-     */
-    BufferedImage getChannel2Image(TMAspot ts) {
-        Pluggable p = manager.getPlugin("Color Deconvolution");
-        if (p == null) {
-            return null;
-        } else {
-            try {
-                return ((StainingEstimation) p).getBufferedImage(ts, StainingEstimation.SHOW_CHANNEL2_IMAGE);
-            } catch (Exception e) {
-                return null;
+            
+            Roi roi2 = Misc.ROIToRoi(roi);
+            if (roi2 != null && ((PolygonRoi)roi2).getNCoordinates()>0) {
+                tp.setROI(roi);
+                tp.setRoi(roi2);
             }
         }
     }
 
     /**
-     * Returns the channel 1 image of a given TMAspot. The channel 1 images has
-     * to be created by the Color Deconvolution plugin.
+     * Returns one of the channel images of a given TMAspot after color deconvolution. The channel image has already 
+     * to be created by the Color Deconvolution plugin. Otherwise, null is returned.
      *
      * @param ts The TMAspot to be searched for.
-     * @return The channel 1 image of ts. null if the plugin "Color
-     * Deconvolution" is not found or the channel 1 image has not been created.
+     * @param whichImage One of StainingEstimation.SHOW_CHANNEL1_IMAGE, SHOW_CHANNEL2_IMAGE or SHOW_CHANNEL3_IMAGE.
+     * @return The channel image of ts. Null if the plugin "Color
+     * Deconvolution" is not found or the channel image has not been created.
      */
-    BufferedImage getChannel1Image(TMAspot ts) {
+    BufferedImage getChannelImage(TMAspot ts, int whichImage) {
         Pluggable p = manager.getPlugin("Color Deconvolution");
         if (p == null) {
             return null;
         } else {
             try {
-                return ((StainingEstimation) p).getBufferedImage(ts, StainingEstimation.SHOW_CHANNEL1_IMAGE);
+                return ((StainingEstimation) p).getBufferedImage(ts, whichImage);
             } catch (Exception e) {
                 return null;
             }

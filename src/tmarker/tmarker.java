@@ -12,8 +12,6 @@ package tmarker;
 
 import com.itextpdf.text.*;
 import com.itextpdf.text.pdf.*;
-import com.meterware.httpunit.WebConversation;
-import com.meterware.httpunit.WebResponse;
 import com.thoughtworks.xstream.XStream;
 import com.thoughtworks.xstream.io.xml.DomDriver;
 import java.awt.Color;
@@ -29,7 +27,6 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.awt.image.BufferedImage;
 import java.io.*;
-import java.net.MalformedURLException;
 import java.net.URI;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -41,7 +38,6 @@ import javax.imageio.ImageIO;
 import javax.swing.*;
 import javax.swing.border.TitledBorder;
 import org.jdesktop.swingx.JXStatusBar;
-import org.xml.sax.SAXException;
 import TMARKERPluginInterface.Pluggable;
 import TMARKERPluginInterface.PluginManager;
 import com.boxysystems.jgoogleanalytics.FocusPoint;
@@ -102,7 +98,8 @@ public final class tmarker extends javax.swing.JFrame {
         splashTextAndProgress("Done.", 100);
         
         if (od.checkForUpdatesOnStart()) {
-            checkForUpdates(false, od.installUpdatesAutomatically());
+            ud = new UpdateDialog(this, true);
+            ud.checkForUpdates(false, od.installUpdatesAutomatically());
         }
     }
     
@@ -280,7 +277,12 @@ public final class tmarker extends javax.swing.JFrame {
     private final ZoomableImagePanel zip = new ZoomableImagePanel();
     private final TMA_view_panel tmaspot_view_panel = new TMAspot_view_panel(this);
     private String targetProperty = null;
-
+    
+    /**
+     * For the update check
+     */
+    UpdateDialog ud = null;
+    
     //for whole slide NDPI Support
     private final TMA_view_panel wholeslide_view_panel = new WholeSlide_view_panel(this);
 
@@ -1473,7 +1475,11 @@ public final class tmarker extends javax.swing.JFrame {
     }//GEN-LAST:event_jButton6ActionPerformed
 
     private void jMenuItem17ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem17ActionPerformed
-        checkForUpdates(true, false);
+        if (ud == null) {
+            ud = new UpdateDialog(this, true);
+            ud.checkForUpdates(true, false);
+        }
+        ud.setVisible(true);
     }//GEN-LAST:event_jMenuItem17ActionPerformed
 
     private void jPanel36MouseDragged(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jPanel36MouseDragged
@@ -1746,10 +1752,30 @@ public final class tmarker extends javax.swing.JFrame {
             } catch (Exception ex) {
             }
             try {
-                debug = Integer.valueOf(weka.core.Utils.getOption('d', args));
-                debug = Math.min(6, debug);
-                debug = Math.max(0, debug);
+                String debugOption = weka.core.Utils.getOption('d', args);
+                if (debugOption.length() > 0) {
+                    debug = Integer.valueOf(debugOption);
+                    debug = Math.min(6, debug);
+                    debug = Math.max(0, debug);
+                }
             } catch (Exception ex) {
+                //ex.printStackTrace();
+                printHelp();
+                System.exit(0);
+            }
+            try {
+                String sleepOption = weka.core.Utils.getOption('w', args);
+                if (sleepOption.length() > 0) {
+                    int sleepBeforeStart = Integer.valueOf(sleepOption);
+                    sleepBeforeStart = Math.min(10000, sleepBeforeStart);
+                    sleepBeforeStart = Math.max(0, sleepBeforeStart);
+                    if (sleepBeforeStart > 0) {
+                        System.out.println("Waiting " + sleepBeforeStart + "ms...");
+                        Thread.sleep(sleepBeforeStart);
+                    }
+                }
+            } catch (Exception ex) {
+                //ex.printStackTrace();
                 printHelp();
                 System.exit(0);
             }
@@ -1814,7 +1840,7 @@ public final class tmarker extends javax.swing.JFrame {
                 if (System.getProperty("os.name").startsWith("Windows")) {
                     logger.info("Loading DLL");
                     final String[] libs = new String[]{"iconv", "libffi-6",
-                        "libintl-8", "libjpeg-62", "libopenjpeg", "libpixman-1-0", "libsqlite3-0",
+                        "libintl-8", "libjpeg-62", "libopenjp2", "libpixman-1-0", "libsqlite3-0",
                         "openslide-jni", "zlib1", "libcairo-2", "libgdk_pixbuf-2.0-0", "libglib-2.0-0",
                         "libxml2-2", "libtiff-5", "libpng16-16", "libopenslide-0", "libgthread-2.0-0",
                         "libgobject-2.0-0", "libgmodule-2.0-0", "libgio-2.0-0"};
@@ -1822,7 +1848,11 @@ public final class tmarker extends javax.swing.JFrame {
 
                         @Override
                         public void run() {
-                            ExtractLibrariesFromJar(frame, "/tmarker/ndpi/", libs);
+                            if (System.getProperty("os.arch").contains("64")) {
+                                ExtractLibrariesFromJar(frame, "/tmarker/ndpi/x64/", libs);
+                            } else {
+                                ExtractLibrariesFromJar(frame, "/tmarker/ndpi/x86/", libs);
+                            }
                         }
                     });
                     thread.start();
@@ -1888,6 +1918,7 @@ public final class tmarker extends javax.swing.JFrame {
                 + "options:\n"
                 + "-h      this help\n"
                 + "-d <n>  Debug modus n (0-5)"
+                + "-w <ms> Wait before start for ms milliseconds (0-10000)"
                 + "\n");
     }
 
@@ -2646,13 +2677,13 @@ public final class tmarker extends javax.swing.JFrame {
                 try {
                     // The object is a new TMAspot
                     TMAspot ts = (TMAspot) o;
-                    //String filename = file.getName();
-                    //String spotname = ts.getName().replace(".bmp", ".xml");
+                //String filename = file.getName();
+                //String spotname = ts.getName().replace(".bmp", ".xml");
                     t.setStatusMessageLabel("Reading " + ts.getName() + " ...");
-                    //if (filename.equals(spotname)) {
-                        newspots.add(ts);
-                    //    break;
-                    //}
+                //if (filename.equals(spotname)) {
+                    newspots.add(ts);
+                //break;
+                //}
                     o = in.readObject();
                 } catch (java.io.EOFException eof) {
                     in.close();
@@ -3572,7 +3603,7 @@ public final class tmarker extends javax.swing.JFrame {
             if (tvp != null && zipl.getImage() != tvp.getImage()) {
                 //zipl.setImage(null);
                 
-                zipl.setImage(tvp.getTMAspot().getSubimage(x-jScrollPane3.getWidth()/2, y-jScrollPane3.getHeight()/2, jScrollPane3.getWidth(), jScrollPane3.getHeight(), Math.max(jScrollPane3.getWidth(), jScrollPane3.getHeight())));
+                zipl.setImage(tvp.getTMAspot().getSubimage(x-jScrollPane3.getWidth()/2, y-jScrollPane3.getHeight()/2, jScrollPane3.getWidth(), jScrollPane3.getHeight(), Math.max(jScrollPane3.getWidth(), jScrollPane3.getHeight()), null));
                 zipl.setZoom(1); // re-adjusts some sizes to the zipl and the new image.
                 zipl.revalidate();
             }
@@ -3953,7 +3984,16 @@ public final class tmarker extends javax.swing.JFrame {
     public String getProgramFolder() {
         String folder = (String) System.getProperties().get("sun.java.command");
         if (!"tmarker.tmarker".equals(folder)) {
-            folder = folder.split("TMARKER.jar")[0];
+            int i = folder.lastIndexOf("TMARKER.jar");
+            if (i>=0) {
+                folder = folder.substring(0, i+11).trim();
+            }
+            String[] folderarr = folder.split("TMARKER.jar");
+            if (folderarr.length==0) {
+                folder = "";
+            } else {
+                folder = folderarr[0];
+            }
             File file = new File(folder);
             if (folder.trim().isEmpty() || !file.isAbsolute()) {
                 file = new File(System.getProperties().get("user.dir") + fs + folder);
@@ -6231,57 +6271,6 @@ public final class tmarker extends javax.swing.JFrame {
         } catch (Exception e) {
             logger.log(java.util.logging.Level.WARNING, e.getMessage());
         }
-    }
-
-    /**
-     * Checks online for updates and reportes to the user if there is one. DOES
-     * NOT UPDATE TMARKER AUTOMATICALLY
-     *
-     * @param verbose If true, the result will be displayed in any case. If
-     * false the result will be displayed only if this TMARKER version is out of
-     * date.
-     * @param installAutomatically If true, an update will be installed
-     * automatically. Else, the user would be asked.
-     */
-    public void checkForUpdates(final boolean verbose, final boolean installAutomatically) {
-
-        final tmarker t = this;
-        Thread updateCheck = new Thread(new Runnable() {
-            @Override
-            public void run() {
-                String thisRevision = tmarker.REVISION;
-                String remoteRevision = "-1";
-                try {
-                    WebConversation wc = new WebConversation();
-                    WebResponse resp = wc.getResponse("http://www.nexus.ethz.ch/content/dam/ethz/special-interest/dual/nexus-dam/software/TMARKER/vnuc.txt");
-
-                    // output is website with version number
-                    String output = resp.getText();
-                    if (tmarker.DEBUG > 3) {
-                        logger.log(java.util.logging.Level.INFO, output);
-                    }
-
-                    BufferedReader br = new BufferedReader(new StringReader(output));
-                    String line = br.readLine().trim();
-                    while (br.ready() && line.equals("")) {
-                        line = br.readLine().trim();
-                    }
-                    remoteRevision = line;
-                } catch (MalformedURLException ex) {
-                    //Logger.getLogger(tmarker.class.getName()).log(Level.SEVERE, null, ex);
-                } catch (IOException ex) {
-                    //Logger.getLogger(tmarker.class.getName()).log(Level.SEVERE, null, ex);
-                } catch (SAXException ex) {
-                    //Logger.getLogger(tmarker.class.getName()).log(Level.SEVERE, null, ex);
-                } catch (Exception ex) {
-                    //Logger.getLogger(tmarker.class.getName()).log(Level.SEVERE, null, ex);
-                } finally {
-                    UpdateDialog.main(t, thisRevision, remoteRevision, verbose, installAutomatically);
-                }
-            }
-        });
-
-        updateCheck.run();
     }
 
     /**

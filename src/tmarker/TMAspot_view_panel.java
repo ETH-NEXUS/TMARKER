@@ -29,6 +29,7 @@ import java.awt.Rectangle;
 import java.awt.RenderingHints;
 import java.awt.geom.Point2D;
 import java.awt.image.BufferedImage;
+import java.util.Arrays;
 import java.util.List;
 import java.util.logging.Logger;
 import javax.swing.JScrollPane;
@@ -48,16 +49,17 @@ import static tmarker.TMA_view_panel.RECENT_POLYLINE_Y;
  * @author Peter J. Schueffler
  */
 public class TMAspot_view_panel extends ZoomableImagePanel implements TMA_view_panel {
+
     tmarker t = null;
     TMAspot ts = null;
-    Point MouseLocus = new Point(0,0);
+    Point MouseLocus = new Point(0, 0);
+    Polygon polygon_to_be_changed = null;
     int Image_Width = 0;
     int Image_Height = 0;
-    
+
     boolean wasDoubleClick;
     Timer timer;
-        
-    
+
     public TMAspot_view_panel(tmarker t) {
         initComponents();
         this.t = t;
@@ -65,7 +67,7 @@ public class TMAspot_view_panel extends ZoomableImagePanel implements TMA_view_p
         setZoomMax(4.0);
         setMouseWheelEnabled(false);
     }
-    
+
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -144,152 +146,200 @@ public class TMAspot_view_panel extends ZoomableImagePanel implements TMA_view_p
     }// </editor-fold>//GEN-END:initComponents
 
     private void formMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_formMouseClicked
+        int image_x = (int) (evt.getX() / getZoom());
+        int image_y = (int) (evt.getY() / getZoom());
+                    
         // if we are in background color correction modus, do this.
         if (t.isInBGCorrectionModus()) {
-            t.performBGCorrection((int)(evt.getX()/getZoom()), (int)(evt.getY()/getZoom())); 
-                }
-        // if we are in polygon drawing modus, do this.
+            t.performBGCorrection((int) (evt.getX() / getZoom()), (int) (evt.getY() / getZoom()));
+        } // if we are in polygon drawing modus, do this.
         else if (evt.getClickCount() == 1 && (t.isInDrawIncludingAreaModus() || t.isInDrawExcludingAreaModus())) {
-            RECENT_POLYLINE_X.add((int)(evt.getX()/getZoom()));
-            RECENT_POLYLINE_Y.add((int)(evt.getY()/getZoom()));
-            repaint();
-        } else if (evt.getClickCount() > 1 && (t.isInDrawIncludingAreaModus() || t.isInDrawExcludingAreaModus())) {
-            RECENT_POLYLINE_X.add((int)(evt.getX()/getZoom()));
-            RECENT_POLYLINE_Y.add((int)(evt.getY()/getZoom()));
-            int[] xs = new int[RECENT_POLYLINE_X.size()];
-            int[] ys = new int[RECENT_POLYLINE_Y.size()];
-            for (int i=0; i<RECENT_POLYLINE_X.size(); i++) {
-                xs[i] = RECENT_POLYLINE_X.get(i);
-                ys[i] = RECENT_POLYLINE_Y.get(i);
-            }
-            if (t.isInDrawIncludingAreaModus()) {
-                ts.getIncludingAreas().add(new Polygon(xs, ys, RECENT_POLYLINE_X.size()));
-                } else {
-                ts.getExcludingAreas().add(new Polygon(xs, ys, RECENT_POLYLINE_X.size()));
-                }
-            RECENT_POLYLINE_X.clear();
-            RECENT_POLYLINE_Y.clear();
-                repaint();
-                }
-        // if we are in polygon switching modus, do this.
-                    else if (t.isInSwitchAreaModus()) {
-            ts.switchPolygonOnPoint((int)(evt.getPoint().x/getZoom()), (int)(evt.getPoint().y/getZoom()));
-                        repaint();
-        } 
-        // if we are in polygon deletion modus, do this.
-                    else if (t.isInDeleteAreaModus()) {
-            ts.deletePolygonOnPoint((int)(evt.getPoint().x/getZoom()), (int)(evt.getPoint().y/getZoom()));
-                        repaint();
-        } 
-        // else...
-                    else {
-            if(!evt.isControlDown()) {
-                if (evt.getButton() == java.awt.event.MouseEvent.BUTTON1) { // the normal left button
-                    Point p = new Point(evt.getPoint());
-                                switch (t.getClickBehaviour()) {
-                                    case tmarker.CLICK_BEHAVIOUR_DELETE: {
-                            TMApoint p_old = ts.getPointAt((int)(p.getX()/getZoom()), (int)(p.getY()/getZoom()), ts.getParam_r(), true);
-                            if (p_old!=null) {
-                                            ts.removePoint(p_old);
-                                        }
-                                        break;
-                                    }
-                                    case tmarker.CLICK_BEHAVIOUR_FLIP: {
-                            TMApoint p_old = ts.getPointAt((int)(p.getX()/getZoom()), (int)(p.getY()/getZoom()), ts.getParam_r(), true);
-                            if (p_old!=null) {
-                                            if (t.getOptionDialog().isAutomaticESGSConversion()) {
-                                                p_old.setGoldStandard(t.getGSNumberForLabeling());
-                                            }
-                                            p_old.flipLabel(false);
-                                        }
-                                        break;
-                                    }
-                                    case tmarker.CLICK_BEHAVIOUR_CORSTAIN_GRAD: {
-                            TMApoint p_old = ts.getPointAt((int)(p.getX()/getZoom()), (int)(p.getY()/getZoom()), ts.getParam_r(), true);
-                            if (p_old!=null) {
-                                            if (t.getOptionDialog().isAutomaticESGSConversion()) {
-                                                p_old.setGoldStandard(t.getGSNumberForLabeling());
-                                            }
-                                            p_old.flipStaining(false);
-                                        }
-                                        break;
-                                    }
-                                    case tmarker.CLICK_BEHAVIOUR_CORSTAIN_BIN: {
-                            TMApoint p_old = ts.getPointAt((int)(p.getX()/getZoom()), (int)(p.getY()/getZoom()), ts.getParam_r(), true);
-                            if (p_old!=null) {
-                                            if (t.getOptionDialog().isAutomaticESGSConversion()) {
-                                                p_old.setGoldStandard(t.getGSNumberForLabeling());
-                                            }
-                                            p_old.flipStaining(true);
-                                        }
-                                        break;
-                                    }
-                                    case tmarker.CLICK_BEHAVIOUR_ADD_POS: {
-                            TMApoint tp = ts.getPointAt((int)(p.getX()/getZoom()), (int)(p.getY()/getZoom()), ts.getParam_r(), true);
-                            if (tp==null) {
-                                tp = new TMApoint(ts, (int)(p.getX()/getZoom()), (int)(p.getY()/getZoom()), TMALabel.LABEL_POS, ts.getCenter().getCurrentStainingIntensity());
-                                        }
-                                        //tp.calculateStaining();
-                                        tp.setLabel(TMALabel.LABEL_POS);
-                                        tp.setStaining(ts.getCenter().getCurrentStainingIntensity());
-                                        tp.setGoldStandard(t.getGSNumberForLabeling());
-                                        ts.addPoint(tp);
-                                        break;
-                                    }
-                                    case tmarker.CLICK_BEHAVIOUR_ADD_NEG: {
-                            TMApoint tp = ts.getPointAt((int)(p.getX()/getZoom()), (int)(p.getY()/getZoom()), ts.getParam_r(), true);
-                            if (tp==null) {
-                                tp = new TMApoint(ts, (int)(p.getX()/getZoom()), (int)(p.getY()/getZoom()), TMALabel.LABEL_NEG, ts.getCenter().getCurrentStainingIntensity());
-                                        }
-                                        //tp.calculateStaining();
-                                        tp.setLabel(TMALabel.LABEL_NEG);
-                                        tp.setStaining(ts.getCenter().getCurrentStainingIntensity());
-                                        tp.setGoldStandard(t.getGSNumberForLabeling());
-                                        ts.addPoint(tp);
-                                        break;
-                                    }
-                                    case tmarker.CLICK_BEHAVIOUR_ADD_UNK: {
-                            TMApoint tp = ts.getPointAt((int)(p.getX()/getZoom()), (int)(p.getY()/getZoom()), ts.getParam_r(), true);
-                            if (tp==null) {
-                                tp = new TMApoint(ts, (int)(p.getX()/getZoom()), (int)(p.getY()/getZoom()), TMALabel.LABEL_UNK, ts.getCenter().getCurrentStainingIntensity());
-                                        }
-                                        //tp.calculateStaining();
-                                        tp.setLabel(TMALabel.LABEL_UNK);
-                                        tp.setStaining(ts.getCenter().getCurrentStainingIntensity());
-                                        tp.setGoldStandard(t.getGSNumberForLabeling());
-                                        ts.addPoint(tp);
-                                        break;
-                                    }
-                                    case tmarker.CLICK_BEHAVIOUR_ADD_BG: {
-                            TMApoint tp = ts.getPointAt((int)(p.getX()/getZoom()), (int)(p.getY()/getZoom()), ts.getParam_r(), true);
-                            if (tp==null) {
-                                tp = new TMApoint(ts, (int)(p.getX()/getZoom()), (int)(p.getY()/getZoom()), TMALabel.LABEL_BG);
-                                        }
-                                        //tp.calculateStaining();
-                                        tp.setLabel(TMALabel.LABEL_BG);
-                                        tp.setGoldStandard(t.getGSNumberForLabeling());
-                                        ts.addPoint(tp);
-                                        break;
-                                    }
-                                    case tmarker.CLICK_BEHAVIOUR_NONE: {
-                                        break;
-                                    }
-                        default: break;
-                                }
-                                repaint();
-
-                                ts.dispStainingInfo();
-                            }
-                        }
-                        // Allow the plugins to do s.th. with the TMApoint
-            Point p = new Point(evt.getPoint());
-            for (Pluggable plugin: t.getPlugins()) {
-                plugin.TMAspotMouseClicked(ts, ts.getPointAt((int)(p.getX()/getZoom()), (int)(p.getY()/getZoom()), ts.getParam_r(), false), evt);
+            
+            // If there is a point to add at the outline, add it
+            int w = TMAspot.POLYGON_NODE_WIDTH;
+            Polygon pol = ts.getAreaOnPoint(image_x, image_y, w);
+            if (pol!=null) {
+                if (!pol.contains(image_x-w, image_y) || !pol.contains(image_x, image_y-w) 
+                        || !pol.contains(image_x-w, image_y-w) || !pol.contains(image_x+w, image_y)
+                        || !pol.contains(image_x, image_y+w) || !pol.contains(image_x+w, image_y+w)
+                        || !pol.contains(image_x-w, image_y+w) || !pol.contains(image_x+w, image_y-w)) {
+                    // decide where to add the new point (it can't simply be added as a new point, the order plays a role).
+                    // That location is right, where the new point fits well into the first derivative of its neighbors (less than 10% deviance).
+                    int i=0;
+                    boolean locationFound = false;
+                    for (i=0; i<pol.npoints; i++) {
+                        double d_old = (1.0 * pol.xpoints[(i+1) % pol.npoints] - pol.xpoints[i]) / (1.0 * pol.ypoints[(i+1) % pol.npoints] - pol.ypoints[i]);
+                        double d_new1 = (1.0 * image_x - pol.xpoints[i]) / (1.0 * image_y - pol.ypoints[i]);
+                        double d_new2 = (1.0 * pol.xpoints[(i+1) % pol.npoints] - image_x) / (1.0 * pol.ypoints[(i+1) % pol.npoints] - image_y);
+                        
+                        if (d_old == 0) d_old = 0.000000001;
+                        if (Double.isInfinite(d_old)) d_old = Double.MAX_VALUE;
+                        if (Double.isInfinite(d_new1)) d_new1 = Double.MAX_VALUE;
+                        if (Double.isInfinite(d_new2)) d_new2 = Double.MAX_VALUE;
+                        
+                        
+                        if (Math.abs(Math.abs(d_old-d_new1)/d_old) <= 0.1 && Math.abs(Math.abs(d_old-d_new2)/d_old) <= 0.1) {
+                            locationFound = true;
+                            break;
                         }
                     }
+                    if (locationFound) {
+                        int[] xs = Arrays.copyOf(pol.xpoints, pol.npoints);
+                        int[] ys = Arrays.copyOf(pol.ypoints, pol.npoints);
+                        pol.reset();
+                        int offset = 0;
+                        for (int j=0; j<=xs.length; j++) {
+                            if (j==i+1) {
+                                pol.addPoint(image_x, image_y);
+                                offset = 1;
+                            } else {
+                                pol.addPoint(xs[j-offset], ys[j-offset]);
+                            }
+                        }
+                    }
+                }
+            } else {
+                // else add a new point for a new drawn polygon
+                RECENT_POLYLINE_X.add((int) (evt.getX() / getZoom()));
+                RECENT_POLYLINE_Y.add((int) (evt.getY() / getZoom()));
+            }
+            repaint();
+        } else if (evt.getClickCount() > 1 && (t.isInDrawIncludingAreaModus() || t.isInDrawExcludingAreaModus())) {
+            // finalize and add the newly drawn polygon at double click.
+            if (RECENT_POLYLINE_X.size()>2) {
+                int[] xs = new int[RECENT_POLYLINE_X.size()];
+                int[] ys = new int[RECENT_POLYLINE_Y.size()];
+                for (int i = 0; i < RECENT_POLYLINE_X.size(); i++) {
+                    xs[i] = RECENT_POLYLINE_X.get(i);
+                    ys[i] = RECENT_POLYLINE_Y.get(i);
+                }
+                if (t.isInDrawIncludingAreaModus()) {
+                    ts.getIncludingAreas().add(new Polygon(xs, ys, RECENT_POLYLINE_X.size()));
+                } else {
+                    ts.getExcludingAreas().add(new Polygon(xs, ys, RECENT_POLYLINE_X.size()));
+                }
+            }
+            RECENT_POLYLINE_X.clear();
+            RECENT_POLYLINE_Y.clear();
+            repaint();
+        } // if we are in polygon switching modus, do this.
+        else if (t.isInSwitchAreaModus()) {
+            ts.switchPolygonOnPoint((int) (evt.getPoint().x / getZoom()), (int) (evt.getPoint().y / getZoom()));
+            repaint();
+        } // if we are in polygon deletion modus, do this.
+        else if (t.isInDeleteAreaModus()) {
+            ts.deletePolygonOnPoint((int) (evt.getPoint().x / getZoom()), (int) (evt.getPoint().y / getZoom()));
+            repaint();
+        } // else...
+        else {
+            if (!evt.isControlDown()) {
+                if (evt.getButton() == java.awt.event.MouseEvent.BUTTON1) { // the normal left button
+                    Point p = new Point(evt.getPoint());
+                    switch (t.getClickBehaviour()) {
+                        case tmarker.CLICK_BEHAVIOUR_DELETE: {
+                            TMApoint p_old = ts.getPointAt((int) (p.getX() / getZoom()), (int) (p.getY() / getZoom()), ts.getParam_r(), true);
+                            if (p_old != null) {
+                                ts.removePoint(p_old);
+                            }
+                            break;
+                        }
+                        case tmarker.CLICK_BEHAVIOUR_FLIP: {
+                            TMApoint p_old = ts.getPointAt((int) (p.getX() / getZoom()), (int) (p.getY() / getZoom()), ts.getParam_r(), true);
+                            if (p_old != null) {
+                                if (t.getOptionDialog().isAutomaticESGSConversion()) {
+                                    p_old.setGoldStandard(t.getGSNumberForLabeling());
+                                }
+                                p_old.flipLabel(false);
+                            }
+                            break;
+                        }
+                        case tmarker.CLICK_BEHAVIOUR_CORSTAIN_GRAD: {
+                            TMApoint p_old = ts.getPointAt((int) (p.getX() / getZoom()), (int) (p.getY() / getZoom()), ts.getParam_r(), true);
+                            if (p_old != null) {
+                                if (t.getOptionDialog().isAutomaticESGSConversion()) {
+                                    p_old.setGoldStandard(t.getGSNumberForLabeling());
+                                }
+                                p_old.flipStaining(false);
+                            }
+                            break;
+                        }
+                        case tmarker.CLICK_BEHAVIOUR_CORSTAIN_BIN: {
+                            TMApoint p_old = ts.getPointAt((int) (p.getX() / getZoom()), (int) (p.getY() / getZoom()), ts.getParam_r(), true);
+                            if (p_old != null) {
+                                if (t.getOptionDialog().isAutomaticESGSConversion()) {
+                                    p_old.setGoldStandard(t.getGSNumberForLabeling());
+                                }
+                                p_old.flipStaining(true);
+                            }
+                            break;
+                        }
+                        case tmarker.CLICK_BEHAVIOUR_ADD_POS: {
+                            TMApoint tp = ts.getPointAt((int) (p.getX() / getZoom()), (int) (p.getY() / getZoom()), ts.getParam_r(), true);
+                            if (tp == null) {
+                                tp = new TMApoint(ts, (int) (p.getX() / getZoom()), (int) (p.getY() / getZoom()), TMALabel.LABEL_POS, ts.getCenter().getCurrentStainingIntensity());
+                            }
+                            //tp.calculateStaining();
+                            tp.setLabel(TMALabel.LABEL_POS);
+                            tp.setStaining(ts.getCenter().getCurrentStainingIntensity());
+                            tp.setGoldStandard(t.getGSNumberForLabeling());
+                            ts.addPoint(tp);
+                            break;
+                        }
+                        case tmarker.CLICK_BEHAVIOUR_ADD_NEG: {
+                            TMApoint tp = ts.getPointAt((int) (p.getX() / getZoom()), (int) (p.getY() / getZoom()), ts.getParam_r(), true);
+                            if (tp == null) {
+                                tp = new TMApoint(ts, (int) (p.getX() / getZoom()), (int) (p.getY() / getZoom()), TMALabel.LABEL_NEG, ts.getCenter().getCurrentStainingIntensity());
+                            }
+                            //tp.calculateStaining();
+                            tp.setLabel(TMALabel.LABEL_NEG);
+                            tp.setStaining(ts.getCenter().getCurrentStainingIntensity());
+                            tp.setGoldStandard(t.getGSNumberForLabeling());
+                            ts.addPoint(tp);
+                            break;
+                        }
+                        case tmarker.CLICK_BEHAVIOUR_ADD_UNK: {
+                            TMApoint tp = ts.getPointAt((int) (p.getX() / getZoom()), (int) (p.getY() / getZoom()), ts.getParam_r(), true);
+                            if (tp == null) {
+                                tp = new TMApoint(ts, (int) (p.getX() / getZoom()), (int) (p.getY() / getZoom()), TMALabel.LABEL_UNK, ts.getCenter().getCurrentStainingIntensity());
+                            }
+                            //tp.calculateStaining();
+                            tp.setLabel(TMALabel.LABEL_UNK);
+                            tp.setStaining(ts.getCenter().getCurrentStainingIntensity());
+                            tp.setGoldStandard(t.getGSNumberForLabeling());
+                            ts.addPoint(tp);
+                            break;
+                        }
+                        case tmarker.CLICK_BEHAVIOUR_ADD_BG: {
+                            TMApoint tp = ts.getPointAt((int) (p.getX() / getZoom()), (int) (p.getY() / getZoom()), ts.getParam_r(), true);
+                            if (tp == null) {
+                                tp = new TMApoint(ts, (int) (p.getX() / getZoom()), (int) (p.getY() / getZoom()), TMALabel.LABEL_BG);
+                            }
+                            //tp.calculateStaining();
+                            tp.setLabel(TMALabel.LABEL_BG);
+                            tp.setGoldStandard(t.getGSNumberForLabeling());
+                            ts.addPoint(tp);
+                            break;
+                        }
+                        case tmarker.CLICK_BEHAVIOUR_NONE: {
+                            break;
+                        }
+                        default:
+                            break;
+                    }
+                    repaint();
+
+                    ts.dispStainingInfo();
+                }
+            }
+            // Allow the plugins to do s.th. with the TMApoint
+            Point p = new Point(evt.getPoint());
+            for (Pluggable plugin : t.getPlugins()) {
+                plugin.TMAspotMouseClicked(ts, ts.getPointAt((int) (p.getX() / getZoom()), (int) (p.getY() / getZoom()), ts.getParam_r(), false), evt);
+            }
+        }
         if (!t.getSelectedTMAspots(false).contains(ts)) {
-            for (TMAspot ts_: t.getTMAspots()) {
-                    ts_.setSelected(ts_==ts);
+            for (TMAspot ts_ : t.getTMAspots()) {
+                ts_.setSelected(ts_ == ts);
             }
         }
 
@@ -297,62 +347,144 @@ public class TMAspot_view_panel extends ZoomableImagePanel implements TMA_view_p
 
     private void formMousePressed(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_formMousePressed
         MouseLocus = evt.getPoint();
+        
+        int image_x = (int) (evt.getX() / getZoom());
+        int image_y = (int) (evt.getY() / getZoom());
+        int w = TMAspot.POLYGON_NODE_WIDTH;
+        
+        polygon_to_be_changed = ts.getAreaOnPoint(image_x, image_y, w);        
     }//GEN-LAST:event_formMousePressed
 
     private void formMouseReleased(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_formMouseReleased
         setCursor(CURSOR_CROSS);
+        polygon_to_be_changed = null;
     }//GEN-LAST:event_formMouseReleased
 
     private void formMouseDragged(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_formMouseDragged
-        TMApoint p_old = ts.getPointAt((int)(MouseLocus.getX()/getZoom()), (int)(MouseLocus.getY()/getZoom()), ts.getParam_r(), true);
-        if (p_old!=null) {
-            p_old.x=(int)(evt.getX()/getZoom());
-            p_old.y=(int)(evt.getY()/getZoom());
+        int image_x = (int) (evt.getX() / getZoom());
+        int image_y = (int) (evt.getY() / getZoom());
+        
+        // if we are at a TMA point, drag it.
+        TMApoint p_old = ts.getPointAt((int) (MouseLocus.getX() / getZoom()), (int) (MouseLocus.getY() / getZoom()), ts.getParam_r(), true);
+        if (p_old != null) {
+            p_old.x = image_x;
+            p_old.y = image_y;
             if (t.getOptionDialog().isAutomaticESGSConversion()) {
                 p_old.setGoldStandard(t.getGSNumberForLabeling());
             }
             MouseLocus = evt.getPoint();
             repaint();
             ts.dispStainingInfo();
-        } else { 
-            setCursor(CURSOR_HAND);
-            JScrollPane jsp = t.getTMAViewContainer();
-            Point P = evt.getPoint();
-            int dx = MouseLocus.x-P.x;
-            int dy = MouseLocus.y-P.y;
-            Rectangle r = jsp.getViewport().getVisibleRect();
-            r.setLocation(r.x+dx, r.y+dy);
-            jsp.getViewport().scrollRectToVisible(r);
+            
+            return;
+        } 
+        // if we are at a node of a newly drawn polygon, drag the node point.
+        int w = TMAspot.POLYGON_NODE_WIDTH;
+        if (!RECENT_POLYLINE_X.isEmpty()) {
+            for (int i=0; i<RECENT_POLYLINE_X.size(); i++) {
+                if (Math.abs(RECENT_POLYLINE_X.get(i)-(int) (MouseLocus.getX() / getZoom()))<=w/2 && Math.abs(RECENT_POLYLINE_Y.get(i)-(int) (MouseLocus.getY() / getZoom()))<=w/2) {
+                    RECENT_POLYLINE_X.remove(i);
+                    RECENT_POLYLINE_Y.remove(i);
+                    RECENT_POLYLINE_X.add(i,image_x);
+                    RECENT_POLYLINE_Y.add(i, image_y);
+                    MouseLocus = evt.getPoint();
+                    repaint();
+                    return;
+                }
+            }
         }
+
+        // if we are at a node of a polygon, drag the node.
+        Polygon pol = polygon_to_be_changed; // it is assigned at mouseclick and relseased at mousereleased.
+        if (pol != null) {
+            for (int i=0; i<pol.npoints; i++) {
+                if (Math.abs(pol.xpoints[i]-(int) (MouseLocus.getX() / getZoom()))<=w/2 && Math.abs(pol.ypoints[i]-(int) (MouseLocus.getY() / getZoom()))<=w/2) {
+                    pol.xpoints[i] = image_x;
+                    pol.ypoints[i] = image_y;
+                    pol.invalidate();
+                    MouseLocus = evt.getPoint();
+                    repaint();
+                    return;
+                }
+            }
+        }
+        
+        // else, drag the view.
+        setCursor(CURSOR_HAND);
+        JScrollPane jsp = t.getTMAViewContainer();
+        Point P = evt.getPoint();
+        int dx = MouseLocus.x - P.x;
+        int dy = MouseLocus.y - P.y;
+        Rectangle r = jsp.getViewport().getVisibleRect();
+        r.setLocation(r.x + dx, r.y + dy);
+        jsp.getViewport().scrollRectToVisible(r);
     }//GEN-LAST:event_formMouseDragged
 
     private void formMouseMoved(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_formMouseMoved
         try {
-            BufferedImage bi = (BufferedImage)getImage();
-            Color c = TMAspot.ColorAtPoint(bi, (int)(evt.getX()/getZoom()), (int)(evt.getY()/getZoom()));
+            
+            // show some image statistics and coordinates in TMARKER status bar.
+            BufferedImage bi = (BufferedImage) getImage();
+            int image_x = (int) (evt.getX() / getZoom());
+            int image_y = (int) (evt.getY() / getZoom());
+            Color c = TMAspot.ColorAtPoint(bi, image_x, image_y);
             int r = c.getRed();
             int g = c.getGreen();
             int b = c.getBlue();
 
-            t.setStatusMessageLabel("x = " + Integer.toString((int)(evt.getX()/getZoom())) + ", y = " + Integer.toString((int)(evt.getY()/getZoom())) + "     (R/G/B) = " + r + "/" + g + "/" + b);
-            t.showTMAspotLocalZoom((int)(evt.getX()/getZoom()), (int)(evt.getY()/getZoom()));
-            t.showTMAspotLocalZoomOnPreview((int)(evt.getX()/getZoom()), (int)(evt.getY()/getZoom()));
+            t.setStatusMessageLabel("x = " + Integer.toString(image_x) + ", y = " + Integer.toString(image_y) + "     (R/G/B) = " + r + "/" + g + "/" + b);
+            t.showTMAspotLocalZoom(image_x, image_y);
+            t.showTMAspotLocalZoomOnPreview(image_x, image_y);
+            
             if (t.isInDrawIncludingAreaModus() || t.isInDrawExcludingAreaModus() || t.isInDeleteAreaModus()) {
-               setCursor(CURSOR_HAND);
-            } else{
                 setCursor(CURSOR_CROSS);
-            }
-            if (ts.hasStainingEstimation()) {
-                TMApoint tp = ts.getPointAt((int)(evt.getX()/getZoom()), (int) (evt.getY()/getZoom()), ts.getParam_r(), true);
-                if (tp!=null) {
+                int w = TMAspot.POLYGON_NODE_WIDTH;
+                
+                // if we are at a node of a newly drawn polygon, show the curser to move it.
+                if (!RECENT_POLYLINE_X.isEmpty()) {
+                    for (int i=0; i<RECENT_POLYLINE_X.size(); i++) {
+                        if (Math.abs(RECENT_POLYLINE_X.get(i)-image_x)<=w/2 && Math.abs(RECENT_POLYLINE_Y.get(i)-image_y)<=w/2) {
+                            setCursor(CURSOR_MOVE);
+                            break;
+                        }
+                    }
+                }
+                
+                // if we are on a polygon node, show the cursor to move it.
+                Polygon pol = ts.getAreaOnPoint(image_x, image_y, w);
+                if (pol!=null) {
+                    boolean nodeFound = false;
+                    for (int i=0; i<pol.npoints; i++) {
+                        if (Math.abs(pol.xpoints[i]-image_x)<=w/2 && Math.abs(pol.ypoints[i]-image_y)<=w/2) {
+                            nodeFound = true;
+                            setCursor(CURSOR_MOVE);
+                            break;
+                        }
+                    }
+                    // if we are at the border line of a polygon, show the "add a new polygon node" cursor.
+                    if (!nodeFound && (!pol.contains(image_x-w, image_y) || !pol.contains(image_x, image_y-w) 
+                            || !pol.contains(image_x-w, image_y-w) || !pol.contains(image_x+w, image_y)
+                            || !pol.contains(image_x, image_y+w) || !pol.contains(image_x+w, image_y+w)
+                            || !pol.contains(image_x-w, image_y+w) || !pol.contains(image_x+w, image_y-w))) {
+                        setCursor(CURSOR_DEFAULT);
+                    }
+                }
+                
+                
+            // if we are on a TMA point, show its summary in a tooltext.
+            } else if (ts.hasStainingEstimation()) {
+                TMApoint tp = ts.getPointAt(image_x, image_y, ts.getParam_r(), true);
+                if (tp != null) {
                     setCursor(CURSOR_HAND);
-                    String text = "<html><b>" + ts.getName() + "</b><br>"+
-                            "TMA point (" + tp.x + ", " + tp.y + ")<br>";
+                    String text = "<html><b>" + ts.getName() + "</b><br>"
+                            + "TMA point (" + tp.x + ", " + tp.y + ")<br>";
                     text += "staining intensity: " + tp.getStaining() + "<br>";
-                    text += tp.isGoldStandard() ? "is Gold Standard from labeler " + (tp.getGoldStandard()==TMApoint.CONSENSUS?"(consens)" : tp.getGoldStandard()) + "<br>" : "is computationally estimated<br>";
+                    text += tp.isGoldStandard() ? "is Gold Standard from labeler " + (tp.getGoldStandard() == TMApoint.CONSENSUS ? "(consens)" : tp.getGoldStandard()) + "<br>" : "is computationally estimated<br>";
                     text += tp.isTrainingPoint(false) ? "was used for detection training <br>" : "";
                     text += tp.isTrainingPoint(true) ? "was used for classification training <br>" : "";
-                    text += "Average RGB around this point: "; Color col = TMAspot.getAverageColorAtPoint(bi, tp.x, tp.y, ts.getParam_r(), false); text += col.getRed() + "/" + col.getGreen() + "/" + col.getBlue();
+                    text += "Average RGB around this point: ";
+                    Color col = TMAspot.getAverageColorAtPoint(bi, tp.x, tp.y, ts.getParam_r(), false);
+                    text += col.getRed() + "/" + col.getGreen() + "/" + col.getBlue();
                     setToolTipText(text);
                 } else {
                     setCursor(CURSOR_CROSS);
@@ -363,7 +495,7 @@ public class TMAspot_view_panel extends ZoomableImagePanel implements TMA_view_p
                 setToolTipText(null);
             }
         } catch (Exception ex) {
-            
+
         }
     }//GEN-LAST:event_formMouseMoved
 
@@ -372,21 +504,21 @@ public class TMAspot_view_panel extends ZoomableImagePanel implements TMA_view_p
         Rectangle rect = getVisibleRect();
         double oldZoom = t.getZoom();
         if (amount <= 0) {
-            t.setZoomSlider(Math.max((int) (100*getZoom()+1), (int) (100*getZoom() * getZoomFactor())));
+            t.setZoomSlider(Math.max((int) (100 * getZoom() + 1), (int) (100 * getZoom() * getZoomFactor())));
         } else {
-            t.setZoomSlider((int) (100*getZoom() / getZoomFactor()));
+            t.setZoomSlider((int) (100 * getZoom() / getZoomFactor()));
         }
         double newZoom = t.getZoom();
         double zfactor = newZoom / oldZoom;
-        int dx = (int)((zfactor-1)*(evt.getX()));
-        int dy = (int)((zfactor-1)*(evt.getY()));
+        int dx = (int) ((zfactor - 1) * (evt.getX()));
+        int dy = (int) ((zfactor - 1) * (evt.getY()));
         rect.translate(dx, dy);
         this.scrollRectToVisible(rect);
     }//GEN-LAST:event_formMouseWheelMoved
 
     private void jMenuItem1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem1ActionPerformed
-        Polygon pol = ts.getAreaOnPoint((int)(MouseLocus.x/getZoom()), (int)(MouseLocus.y/getZoom()));
-        if (pol!=null) {
+        Polygon pol = ts.getAreaOnPoint((int) (MouseLocus.x / getZoom()), (int) (MouseLocus.y / getZoom()));
+        if (pol != null) {
             ts.deletePointsInArea(pol);
             repaint();
         }
@@ -394,35 +526,38 @@ public class TMAspot_view_panel extends ZoomableImagePanel implements TMA_view_p
 
     private void jMenuItem2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem2ActionPerformed
         boolean including = true;
-        Polygon pol = ts.getIncludingAreaOnPoint((int)(MouseLocus.x/getZoom()), (int)(MouseLocus.y/getZoom()));
-        if (pol==null) {
-            pol = ts.getExcludingAreaOnPoint((int)(MouseLocus.x/getZoom()), (int)(MouseLocus.y/getZoom()));
+        Polygon pol = ts.getIncludingAreaOnPoint((int) (MouseLocus.x / getZoom()), (int) (MouseLocus.y / getZoom()));
+        if (pol == null) {
+            pol = ts.getExcludingAreaOnPoint((int) (MouseLocus.x / getZoom()), (int) (MouseLocus.y / getZoom()));
             including = false;
         }
-        if (pol!=null) {
+        if (pol != null) {
             List<TMAspot> tss = t.getSelectedTMAspots();
-            for (TMAspot ts_: tss) {
+            for (TMAspot ts_ : tss) {
                 boolean addthispol = true;
                 List<Polygon> areas_tmp = ts_.getExcludingAreas();
                 areas_tmp.addAll(ts_.getIncludingAreas());
-                for (Polygon p_tmp: areas_tmp) {
+                for (Polygon p_tmp : areas_tmp) {
                     if (Misc.SamePolygons(p_tmp, pol)) {
                         addthispol = false;
                         break;
                     }
                 }
                 if (addthispol) {
-                    if (including) ts_.getIncludingAreas().add(new Polygon(pol.xpoints, pol.ypoints, pol.npoints));
-                    else ts_.getExcludingAreas().add(new Polygon(pol.xpoints, pol.ypoints, pol.npoints));
+                    if (including) {
+                        ts_.getIncludingAreas().add(new Polygon(pol.xpoints, pol.ypoints, pol.npoints));
+                    } else {
+                        ts_.getExcludingAreas().add(new Polygon(pol.xpoints, pol.ypoints, pol.npoints));
+                    }
                 }
             }
         }
     }//GEN-LAST:event_jMenuItem2ActionPerformed
 
     private void jPopupMenu1PopupMenuWillBecomeVisible(javax.swing.event.PopupMenuEvent evt) {//GEN-FIRST:event_jPopupMenu1PopupMenuWillBecomeVisible
-        Polygon pol = ts.getAreaOnPoint((int)(MouseLocus.x/getZoom()), (int)(MouseLocus.y/getZoom()));
-        jMenuItem1.setEnabled(pol!=null);
-        jMenuItem2.setEnabled(pol!=null);
+        Polygon pol = ts.getAreaOnPoint((int) (MouseLocus.x / getZoom()), (int) (MouseLocus.y / getZoom()));
+        jMenuItem1.setEnabled(pol != null);
+        jMenuItem2.setEnabled(pol != null);
     }//GEN-LAST:event_jPopupMenu1PopupMenuWillBecomeVisible
 
 
@@ -433,48 +568,56 @@ public class TMAspot_view_panel extends ZoomableImagePanel implements TMA_view_p
     // End of variables declaration//GEN-END:variables
 
     /**
-     * Returns whether or not this TMAViewPanel currently displays a point with a given coordinate
-     * x and y. X and y come from the original image dimension (i.e. independent from the current zoom).
+     * Returns whether or not this TMAViewPanel currently displays a point with
+     * a given coordinate x and y. X and y come from the original image
+     * dimension (i.e. independent from the current zoom).
+     *
      * @param x The x-coord of the queried locus.
      * @param y The y-coord of the queried locus.
-     * @return True if the locus is currently displayed in the container JScrollPane. False if the locus falls outside of the JScrollPane.
+     * @return True if the locus is currently displayed in the container
+     * JScrollPane. False if the locus falls outside of the JScrollPane.
      */
     @Override
     public boolean isShowing(int x, int y) {
-        if (t==null || getImage()==null) return false;
+        if (t == null || getImage() == null) {
+            return false;
+        }
         JScrollPane jsp = t.getTMAViewContainer();
         Rectangle r = jsp.getViewport().getVisibleRect();
-        return r.contains(x*getZoom(), y*getZoom());
+        return r.contains(x * getZoom(), y * getZoom());
     }
-    
+
     /**
      * Displays a TMAspot.
+     *
      * @param ts The TMAspot to be displayed.
      */
     @Override
     public void showTMAspot(TMAspot ts) {
         showTMAspot(ts, false);
     }
-    
+
     /**
      * Displays a TMAspot.
+     *
      * @param ts The TMAspot to be displayed.
-     * @param forceRepaint If true, the given TMAspot is repainted in any case. If false, 
-     * the given TMAspot is only repainted, if it is not equal to the currently visible TMAspot.
+     * @param forceRepaint If true, the given TMAspot is repainted in any case.
+     * If false, the given TMAspot is only repainted, if it is not equal to the
+     * currently visible TMAspot.
      */
     @Override
     public void showTMAspot(TMAspot ts, boolean forceRepaint) {
-        if (forceRepaint || this.ts!=ts) {
+        if (forceRepaint || this.ts != ts) {
             String text = t.getStatusMessageLabel().getText();
-            if (ts!=null) {
+            if (ts != null) {
                 t.setStatusMessageLabel("Loading " + ts.getName() + " ...");
                 BufferedImage I = null;
-                for (Pluggable p: ts.getCenter().getPlugins()) {
-                    if (I==null) {
+                for (Pluggable p : ts.getCenter().getPlugins()) {
+                    if (I == null) {
                         I = p.showAlternativeImage(ts);
                     }
                 }
-                if (I==null) {
+                if (I == null) {
                     I = ts.getBufferedImage();
                 }
                 if (getImage() != null) {
@@ -503,32 +646,41 @@ public class TMAspot_view_panel extends ZoomableImagePanel implements TMA_view_p
 
     /**
      * Draws the cell nuclei.
+     *
      * @param ts The TMAspot with the cell nuclei.
      * @param g The graphics on which is drawn.
      * @param z The scaling (zoom) factor of the image.
-     * @param x_min The min x-coord which is visible in the zoomable image pane, relative to the original image coordinated (i.e. independent from the zoom).
-     * @param y_min The min y-coord which is visible in the zoomable image pane, relative to the original image coordinated (i.e. independent from the zoom).
-     * @param x_max The max x-coord which is visible in the zoomable image pane, relative to the original image coordinated (i.e. independent from the zoom).
-     * @param y_max The max y-coord which is visible in the zoomable image pane, relative to the original image coordinated (i.e. independent from the zoom).
+     * @param x_min The min x-coord which is visible in the zoomable image pane,
+     * relative to the original image coordinated (i.e. independent from the
+     * zoom).
+     * @param y_min The min y-coord which is visible in the zoomable image pane,
+     * relative to the original image coordinated (i.e. independent from the
+     * zoom).
+     * @param x_max The max x-coord which is visible in the zoomable image pane,
+     * relative to the original image coordinated (i.e. independent from the
+     * zoom).
+     * @param y_max The max y-coord which is visible in the zoomable image pane,
+     * relative to the original image coordinated (i.e. independent from the
+     * zoom).
      */
     public static void drawCellCounts(TMAspot ts, Graphics g, double z, int x_min, int y_min, int x_max, int y_max) {
-        if (g==null) {
+        if (g == null) {
             return;
         }
-        
+
         int r = ts.getParam_r();
         int shape_gst = ts.getCenter().getOptionDialog().getLabelsShape_Gst();
         int shape_est = ts.getCenter().getOptionDialog().getLabelsShape_Est();;
-        
-        boolean poss  = (ts.getCenter().isShowingLabels()&ts.getCenter().isShowingPosLabels());
-        boolean negs  = (ts.getCenter().isShowingLabels()&ts.getCenter().isShowingNegLabels());
-        boolean unks  = (ts.getCenter().isShowingLabels()&ts.getCenter().isShowingUnkLabels());
-        boolean bgs  = (ts.getCenter().isShowingLabels()&ts.getCenter().isShowingBGLabels());
-        boolean stai  = (ts.getCenter().isShowingLabels()&ts.getCenter().isShowingStainedLabels());
-        boolean ustai = (ts.getCenter().isShowingLabels()&ts.getCenter().isShowingUnstainedLabels());
-        boolean est   = (ts.getCenter().isShowingLabels()&ts.getCenter().isShowingEstimatedLabels());
-        boolean gsd   = (ts.getCenter().isShowingLabels()&ts.getCenter().isShowingGoldStandardLabels());
-        
+
+        boolean poss = (ts.getCenter().isShowingLabels() & ts.getCenter().isShowingPosLabels());
+        boolean negs = (ts.getCenter().isShowingLabels() & ts.getCenter().isShowingNegLabels());
+        boolean unks = (ts.getCenter().isShowingLabels() & ts.getCenter().isShowingUnkLabels());
+        boolean bgs = (ts.getCenter().isShowingLabels() & ts.getCenter().isShowingBGLabels());
+        boolean stai = (ts.getCenter().isShowingLabels() & ts.getCenter().isShowingStainedLabels());
+        boolean ustai = (ts.getCenter().isShowingLabels() & ts.getCenter().isShowingUnstainedLabels());
+        boolean est = (ts.getCenter().isShowingLabels() & ts.getCenter().isShowingEstimatedLabels());
+        boolean gsd = (ts.getCenter().isShowingLabels() & ts.getCenter().isShowingGoldStandardLabels());
+
         // First draw Goldstandard
         if (poss) {
             drawCellCounts(g, ts.getPoints_GoldStandard(TMALabel.LABEL_POS), gsd, est, stai, ustai, ts.getCenter().getGSNumberForViewing(), Color.YELLOW, Color.BLUE, r, z, x_min, y_min, x_max, y_max, shape_gst);
@@ -542,7 +694,7 @@ public class TMAspot_view_panel extends ZoomableImagePanel implements TMA_view_p
         if (bgs) {
             drawCellCounts(g, ts.getPoints_GoldStandard(TMALabel.LABEL_BG), gsd, est, stai, ustai, ts.getCenter().getGSNumberForViewing(), Color.YELLOW, Color.BLUE, r, z, x_min, y_min, x_max, y_max, shape_gst);
         }
-        
+
         // Draw Estimated afterwards
         if (poss) {
             drawCellCounts(g, ts.getPoints_Estimated(TMALabel.LABEL_POS), gsd, est, stai, ustai, ts.getCenter().getGSNumberForViewing(), Color.YELLOW, Color.BLUE, r, z, x_min, y_min, x_max, y_max, shape_est);
@@ -557,231 +709,283 @@ public class TMAspot_view_panel extends ZoomableImagePanel implements TMA_view_p
             drawCellCounts(g, ts.getPoints_Estimated(TMALabel.LABEL_BG), gsd, est, stai, ustai, ts.getCenter().getGSNumberForViewing(), Color.YELLOW, Color.BLUE, r, z, x_min, y_min, x_max, y_max, shape_est);
         }
     }
-    
+
     /**
      * Draws specific cell nuclei on a graphics.
+     *
      * @param g The graphics on which is drawn.
      * @param ps The TMApoint which can be drawn.
-     * @param gsd If true, gold-standard points are drawn. Otherwise they are not drawn.
-     * @param est If true, estimated points are drawn. Otherwise they are not drawn.
-     * @param stai If true, stained points are drawn. Otherwise they are not drawn.
-     * @param ustai If true, unstained points are drawn. Otherwise they are not drawn.
-     * @param labelernum If >= 0 only points from this labeler are drawn. Otherwise all points might be drawn.
-     * @param c_complement A color for the border of gold-standard points. The user can easily distinguish between gold-standard points and estimated ones by this border color.
+     * @param gsd If true, gold-standard points are drawn. Otherwise they are
+     * not drawn.
+     * @param est If true, estimated points are drawn. Otherwise they are not
+     * drawn.
+     * @param stai If true, stained points are drawn. Otherwise they are not
+     * drawn.
+     * @param ustai If true, unstained points are drawn. Otherwise they are not
+     * drawn.
+     * @param labelernum If >= 0 only points from this labeler are drawn.
+     * Otherwise all points might be drawn.
+     * @param c_complement A color for the border of gold-standard points. The
+     * user can easily distinguish between gold-standard points and estimated
+     * ones by this border color.
      * @param c_training Color to mark training points.
      * @param r The radius of the points.
      * @param z The scaling (zoom) factor of the image.
-     * @param x_min The min x-coord which is visible in the zoomable image pane, relative to the original image coordinates (i.e. independent from the zoom).
-     * @param y_min The min y-coord which is visible in the zoomable image pane, relative to the original image coordinates (i.e. independent from the zoom).
-     * @param x_max The max x-coord which is visible in the zoomable image pane, relative to the original image coordinates (i.e. independent from the zoom).
-     * @param y_max The max y-coord which is visible in the zoomable image pane, relative to the original image coordinates (i.e. independent from the zoom).
+     * @param x_min The min x-coord which is visible in the zoomable image pane,
+     * relative to the original image coordinates (i.e. independent from the
+     * zoom).
+     * @param y_min The min y-coord which is visible in the zoomable image pane,
+     * relative to the original image coordinates (i.e. independent from the
+     * zoom).
+     * @param x_max The max x-coord which is visible in the zoomable image pane,
+     * relative to the original image coordinates (i.e. independent from the
+     * zoom).
+     * @param y_max The max y-coord which is visible in the zoomable image pane,
+     * relative to the original image coordinates (i.e. independent from the
+     * zoom).
      * @param shape The shape type to draw (indicated in the TMARKER options).
      */
     private static void drawCellCounts(Graphics g, List<TMApoint> ps, boolean gsd, boolean est, boolean stai, boolean ustai, byte labelernum, Color c_complement, Color c_training, int r, double z, int x_min, int y_min, int x_max, int y_max, int shape) {
-        for (TMApoint tp: ps) {
-            
+        for (TMApoint tp : ps) {
+
             // if the point is in the viewport display it.
             if (tp.x >= x_min && tp.y >= y_min && tp.x < x_max && tp.y < y_max) {
-            
-                if ((tp.isGoldStandard() && gsd && (labelernum<0 || tp.getGoldStandard()==labelernum) || !tp.isGoldStandard() && est) && (tp.isStained() && stai || !tp.isStained() && ustai)) {
+
+                if ((tp.isGoldStandard() && gsd && (labelernum < 0 || tp.getGoldStandard() == labelernum) || !tp.isGoldStandard() && est) && (tp.isStained() && stai || !tp.isStained() && ustai)) {
                     g.setColor(tp.getTMAspot().getCenter().getLabelsColor(tp.getLabel(), tp.getStaining()));
 
-                    if (tp.getLabel()!=TMALabel.LABEL_BG && tp.getTMAspot().getCenter().isShowingTextLabels()) {
-                        g.drawString(Byte.toString(tp.getStaining()), (int)((tp.getX()+r)*z), (int)((tp.getY()-r)*z));
+                    if (tp.getLabel() != TMALabel.LABEL_BG && tp.getTMAspot().getCenter().isShowingTextLabels()) {
+                        g.drawString(Byte.toString(tp.getStaining()), (int) ((tp.getX() + r) * z), (int) ((tp.getY() - r) * z));
                     }
                     if (shape == tmarker.LABELS_SHAPE_CIRCLE) {
-                        g.fillOval((int)((tp.getX()-r)*z), (int)((tp.getY()-r)*z), (int)(2*r*z), (int)(2*r*z));
+                        g.fillOval((int) ((tp.getX() - r) * z), (int) ((tp.getY() - r) * z), (int) (2 * r * z), (int) (2 * r * z));
                     } else if (shape == tmarker.LABELS_SHAPE_CROSS) {
-                        g.drawLine((int)((tp.getX()-r)*z), (int)(tp.getY()*z), (int)((tp.getX()+r)*z), (int)(tp.getY()*z));
-                        g.drawLine((int)(tp.getX()*z), (int)((tp.getY()-r)*z), (int)(tp.getX()*z), (int)((tp.getY()+r)*z));
+                        g.drawLine((int) ((tp.getX() - r) * z), (int) (tp.getY() * z), (int) ((tp.getX() + r) * z), (int) (tp.getY() * z));
+                        g.drawLine((int) (tp.getX() * z), (int) ((tp.getY() - r) * z), (int) (tp.getX() * z), (int) ((tp.getY() + r) * z));
                     } else if (shape == tmarker.LABELS_SHAPE_CROSS_THICK) {
-                        g.drawLine((int)((tp.getX()-r)*z), (int)(tp.getY()*z), (int)((tp.getX()+r)*z), (int)(tp.getY()*z));
-                        g.drawLine((int)((tp.getX()-r)*z), (int)(tp.getY()*z)-1, (int)((tp.getX()+r)*z), (int)(tp.getY()*z)-1);
-                        g.drawLine((int)((tp.getX()-r)*z), (int)(tp.getY()*z)+1, (int)((tp.getX()+r)*z), (int)(tp.getY()*z)+1);
-                        g.drawLine((int)(tp.getX()*z), (int)((tp.getY()-r)*z), (int)(tp.getX()*z), (int)((tp.getY()+r)*z));
-                        g.drawLine((int)(tp.getX()*z)-1, (int)((tp.getY()-r)*z), (int)(tp.getX()*z)-1, (int)((tp.getY()+r)*z));
-                        g.drawLine((int)(tp.getX()*z)+1, (int)((tp.getY()-r)*z), (int)(tp.getX()*z)+1, (int)((tp.getY()+r)*z));  
+                        g.drawLine((int) ((tp.getX() - r) * z), (int) (tp.getY() * z), (int) ((tp.getX() + r) * z), (int) (tp.getY() * z));
+                        g.drawLine((int) ((tp.getX() - r) * z), (int) (tp.getY() * z) - 1, (int) ((tp.getX() + r) * z), (int) (tp.getY() * z) - 1);
+                        g.drawLine((int) ((tp.getX() - r) * z), (int) (tp.getY() * z) + 1, (int) ((tp.getX() + r) * z), (int) (tp.getY() * z) + 1);
+                        g.drawLine((int) (tp.getX() * z), (int) ((tp.getY() - r) * z), (int) (tp.getX() * z), (int) ((tp.getY() + r) * z));
+                        g.drawLine((int) (tp.getX() * z) - 1, (int) ((tp.getY() - r) * z), (int) (tp.getX() * z) - 1, (int) ((tp.getY() + r) * z));
+                        g.drawLine((int) (tp.getX() * z) + 1, (int) ((tp.getY() - r) * z), (int) (tp.getX() * z) + 1, (int) ((tp.getY() + r) * z));
                     } else { // shape == tmarker.LABELS_SHAPE_RECT
-                        double f=0.6;
-                        g.drawLine((int)((tp.getX()-r)*z), (int)((tp.getY()-r)*z), (int)((tp.getX()-r+f*r)*z), (int)((tp.getY()-r)*z));
-                        g.drawLine((int)((tp.getX()-r)*z), (int)((tp.getY()-r)*z), (int)((tp.getX()-r)*z), (int)((tp.getY()-r+f*r)*z));
-                        g.drawLine((int)((tp.getX()-r)*z), (int)((tp.getY()+r)*z), (int)((tp.getX()-r)*z), (int)((tp.getY()+r-f*r)*z));
-                        g.drawLine((int)((tp.getX()-r)*z), (int)((tp.getY()+r)*z), (int)((tp.getX()-r+f*r)*z), (int)((tp.getY()+r)*z));
-                        g.drawLine((int)((tp.getX()+r)*z), (int)((tp.getY()+r)*z), (int)((tp.getX()+r-f*r)*z), (int)((tp.getY()+r)*z));
-                        g.drawLine((int)((tp.getX()+r)*z), (int)((tp.getY()+r)*z), (int)((tp.getX()+r)*z), (int)((tp.getY()+r-f*r)*z));
-                        g.drawLine((int)((tp.getX()+r)*z), (int)((tp.getY()-r)*z), (int)((tp.getX()+r)*z), (int)((tp.getY()-r+f*r)*z));
-                        g.drawLine((int)((tp.getX()+r)*z), (int)((tp.getY()-r)*z), (int)((tp.getX()+r-f*r)*z), (int)((tp.getY()-r)*z));
+                        double f = 0.6;
+                        g.drawLine((int) ((tp.getX() - r) * z), (int) ((tp.getY() - r) * z), (int) ((tp.getX() - r + f * r) * z), (int) ((tp.getY() - r) * z));
+                        g.drawLine((int) ((tp.getX() - r) * z), (int) ((tp.getY() - r) * z), (int) ((tp.getX() - r) * z), (int) ((tp.getY() - r + f * r) * z));
+                        g.drawLine((int) ((tp.getX() - r) * z), (int) ((tp.getY() + r) * z), (int) ((tp.getX() - r) * z), (int) ((tp.getY() + r - f * r) * z));
+                        g.drawLine((int) ((tp.getX() - r) * z), (int) ((tp.getY() + r) * z), (int) ((tp.getX() - r + f * r) * z), (int) ((tp.getY() + r) * z));
+                        g.drawLine((int) ((tp.getX() + r) * z), (int) ((tp.getY() + r) * z), (int) ((tp.getX() + r - f * r) * z), (int) ((tp.getY() + r) * z));
+                        g.drawLine((int) ((tp.getX() + r) * z), (int) ((tp.getY() + r) * z), (int) ((tp.getX() + r) * z), (int) ((tp.getY() + r - f * r) * z));
+                        g.drawLine((int) ((tp.getX() + r) * z), (int) ((tp.getY() - r) * z), (int) ((tp.getX() + r) * z), (int) ((tp.getY() - r + f * r) * z));
+                        g.drawLine((int) ((tp.getX() + r) * z), (int) ((tp.getY() - r) * z), (int) ((tp.getX() + r - f * r) * z), (int) ((tp.getY() - r) * z));
                     }
                     if (tp.isGoldStandard()) {
                         g.setColor(c_complement);
                         if (shape == tmarker.LABELS_SHAPE_CIRCLE) {
-                            g.drawOval((int)((tp.getX()-r)*z), (int)((tp.getY()-r)*z), (int)(2*r*z), (int)(2*r*z));
+                            g.drawOval((int) ((tp.getX() - r) * z), (int) ((tp.getY() - r) * z), (int) (2 * r * z), (int) (2 * r * z));
                         } else if (shape == tmarker.LABELS_SHAPE_CROSS) {
-                            g.drawLine((int)((tp.getX()-r)*z), (int)(tp.getY()*z)-1, (int)((tp.getX()+r)*z), (int)(tp.getY()*z)-1);
-                            g.drawLine((int)(tp.getX()*z)-1, (int)((tp.getY()-r)*z), (int)(tp.getX()*z)-1, (int)((tp.getY()+r)*z));
+                            g.drawLine((int) ((tp.getX() - r) * z), (int) (tp.getY() * z) - 1, (int) ((tp.getX() + r) * z), (int) (tp.getY() * z) - 1);
+                            g.drawLine((int) (tp.getX() * z) - 1, (int) ((tp.getY() - r) * z), (int) (tp.getX() * z) - 1, (int) ((tp.getY() + r) * z));
                         } else if (shape == tmarker.LABELS_SHAPE_CROSS_THICK) {
-                            g.drawLine((int)((tp.getX()-r)*z), (int)(tp.getY()*z)-1, (int)((tp.getX()+r)*z), (int)(tp.getY()*z)-1);
-                            g.drawLine((int)((tp.getX()-r)*z), (int)(tp.getY()*z)+1, (int)((tp.getX()+r)*z), (int)(tp.getY()*z)+1);
-                            g.drawLine((int)(tp.getX()*z)-1, (int)((tp.getY()-r)*z), (int)(tp.getX()*z)-1, (int)((tp.getY()+r)*z));
-                            g.drawLine((int)(tp.getX()*z)+1, (int)((tp.getY()-r)*z), (int)(tp.getX()*z)+1, (int)((tp.getY()+r)*z)); 
+                            g.drawLine((int) ((tp.getX() - r) * z), (int) (tp.getY() * z) - 1, (int) ((tp.getX() + r) * z), (int) (tp.getY() * z) - 1);
+                            g.drawLine((int) ((tp.getX() - r) * z), (int) (tp.getY() * z) + 1, (int) ((tp.getX() + r) * z), (int) (tp.getY() * z) + 1);
+                            g.drawLine((int) (tp.getX() * z) - 1, (int) ((tp.getY() - r) * z), (int) (tp.getX() * z) - 1, (int) ((tp.getY() + r) * z));
+                            g.drawLine((int) (tp.getX() * z) + 1, (int) ((tp.getY() - r) * z), (int) (tp.getX() * z) + 1, (int) ((tp.getY() + r) * z));
                         } else {
-                            double f=0.6;
-                            g.drawLine((int)((tp.getX()-r)*z)-1, (int)((tp.getY()-r)*z)-1, (int)((tp.getX()-r+f*r)*z), (int)((tp.getY()-r)*z)-1);
-                            g.drawLine((int)((tp.getX()-r)*z)-1, (int)((tp.getY()-r)*z)-1, (int)((tp.getX()-r)*z)-1, (int)((tp.getY()-r+f*r)*z)-1);
-                            g.drawLine((int)((tp.getX()-r)*z)-1, (int)((tp.getY()+r)*z)-1, (int)((tp.getX()-r)*z)-1, (int)((tp.getY()+r-f*r)*z)-1);
-                            g.drawLine((int)((tp.getX()-r)*z)-1, (int)((tp.getY()+r)*z)-1, (int)((tp.getX()-r+f*r)*z)-1, (int)((tp.getY()+r)*z)-1);
-                            g.drawLine((int)((tp.getX()+r)*z)-1, (int)((tp.getY()+r)*z)-1, (int)((tp.getX()+r-f*r)*z)-1, (int)((tp.getY()+r)*z)-1);
-                            g.drawLine((int)((tp.getX()+r)*z)-1, (int)((tp.getY()+r)*z)-1, (int)((tp.getX()+r)*z)-1, (int)((tp.getY()+r-f*r)*z)-1);
-                            g.drawLine((int)((tp.getX()+r)*z)-1, (int)((tp.getY()-r)*z)-1, (int)((tp.getX()+r)*z)-1, (int)((tp.getY()-r+f*r)*z)-1);
-                            g.drawLine((int)((tp.getX()+r)*z)-1, (int)((tp.getY()-r)*z)-1, (int)((tp.getX()+r-f*r)*z)-1, (int)((tp.getY()-r)*z)-1);
+                            double f = 0.6;
+                            g.drawLine((int) ((tp.getX() - r) * z) - 1, (int) ((tp.getY() - r) * z) - 1, (int) ((tp.getX() - r + f * r) * z), (int) ((tp.getY() - r) * z) - 1);
+                            g.drawLine((int) ((tp.getX() - r) * z) - 1, (int) ((tp.getY() - r) * z) - 1, (int) ((tp.getX() - r) * z) - 1, (int) ((tp.getY() - r + f * r) * z) - 1);
+                            g.drawLine((int) ((tp.getX() - r) * z) - 1, (int) ((tp.getY() + r) * z) - 1, (int) ((tp.getX() - r) * z) - 1, (int) ((tp.getY() + r - f * r) * z) - 1);
+                            g.drawLine((int) ((tp.getX() - r) * z) - 1, (int) ((tp.getY() + r) * z) - 1, (int) ((tp.getX() - r + f * r) * z) - 1, (int) ((tp.getY() + r) * z) - 1);
+                            g.drawLine((int) ((tp.getX() + r) * z) - 1, (int) ((tp.getY() + r) * z) - 1, (int) ((tp.getX() + r - f * r) * z) - 1, (int) ((tp.getY() + r) * z) - 1);
+                            g.drawLine((int) ((tp.getX() + r) * z) - 1, (int) ((tp.getY() + r) * z) - 1, (int) ((tp.getX() + r) * z) - 1, (int) ((tp.getY() + r - f * r) * z) - 1);
+                            g.drawLine((int) ((tp.getX() + r) * z) - 1, (int) ((tp.getY() - r) * z) - 1, (int) ((tp.getX() + r) * z) - 1, (int) ((tp.getY() - r + f * r) * z) - 1);
+                            g.drawLine((int) ((tp.getX() + r) * z) - 1, (int) ((tp.getY() - r) * z) - 1, (int) ((tp.getX() + r - f * r) * z) - 1, (int) ((tp.getY() - r) * z) - 1);
                         }
                         if (tp.getTMAspot().getCenter().isShowingTextLabels()) {
-                            g.drawString((tp.getGoldStandard()==TMApoint.CONSENSUS?"cons":Byte.toString(tp.getGoldStandard())), (int)((tp.getX()-r)*z), (int)((tp.getY()-r)*z));
+                            g.drawString((tp.getGoldStandard() == TMApoint.CONSENSUS ? "cons" : Byte.toString(tp.getGoldStandard())), (int) ((tp.getX() - r) * z), (int) ((tp.getY() - r) * z));
                         }
                     }
                     if (tp.isTrainingPoint(true) || tp.isTrainingPoint(false)) {
                         g.setColor(c_training);
-                        g.fillOval((int)((tp.getX()-r/2)*z), (int)((tp.getY()-r/2)*z), (int)((r)*z), (int)((r)*z));
+                        g.fillOval((int) ((tp.getX() - r / 2) * z), (int) ((tp.getY() - r / 2) * z), (int) ((r) * z), (int) ((r) * z));
                     }
                 }
             }
         }
     }
-    
+
     @Override
     public void paintComponent(Graphics g) {
         ((Graphics2D) g).setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
         ((Graphics2D) g).setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
         super.paintComponent(g);
-        
+
         double z = getZoom();
         try {
-            int x_min = (int)(ts.getCenter().getTMAViewContainer().getHorizontalScrollBar().getValue()/z);
-            int y_min = (int)(ts.getCenter().getTMAViewContainer().getVerticalScrollBar().getValue()/z);
-            int x_max = (int)(x_min+ts.getCenter().getTMAViewContainer().getViewport().getWidth()/z);
-            int y_max = (int)(y_min+ts.getCenter().getTMAViewContainer().getViewport().getHeight()/z);
-        
+            int x_min = (int) (ts.getCenter().getTMAViewContainer().getHorizontalScrollBar().getValue() / z);
+            int y_min = (int) (ts.getCenter().getTMAViewContainer().getVerticalScrollBar().getValue() / z);
+            int x_max = (int) (x_min + ts.getCenter().getTMAViewContainer().getViewport().getWidth() / z);
+            int y_max = (int) (y_min + ts.getCenter().getTMAViewContainer().getViewport().getHeight() / z);
+
             // Setting the global AffineTransform of g to the scale and translation produces non-smooth display.
             // Alternatively, use the zoomfactor explicitely to draw the content.
             //AffineTransform at = AffineTransform.getScaleInstance(z, z);
             //at.translate(-x_min, -y_min);
             //((Graphics2D)g).setTransform(at);
-
-            if (ts!=null) {
-                for (Pluggable p: ts.getCenter().getPlugins()) {
+            if (ts != null) {
+                for (Pluggable p : ts.getCenter().getPlugins()) {
                     try {
                         p.drawInformationPreNuclei(ts, g, z, x_min, y_min, x_max, y_max);
-                    } catch (Error | Exception er) { 
+                    } catch (Error | Exception er) {
                         Logger.getLogger(TMA_view_panel.class.getName()).log(java.util.logging.Level.WARNING, er.getMessage());
                     }
                 }
                 drawCellCounts(ts, g, z, x_min, y_min, x_max, y_max);
                 drawAreas(ts, g, z, x_min, y_min, x_max, y_max);
                 drawDensitySoft(ts, g, z, x_min, y_min, x_max, y_max);
-                
-                for (Pluggable p: ts.getCenter().getPlugins()) {
+
+                for (Pluggable p : ts.getCenter().getPlugins()) {
                     try {
                         p.drawInformationPostNuclei(ts, g, z, x_min, y_min, x_max, y_max);
-                    } catch (Error | Exception er) { 
+                    } catch (Error | Exception er) {
                         Logger.getLogger(TMA_view_panel.class.getName()).log(java.util.logging.Level.WARNING, er.getMessage());
                     }
                 }
             }
         } catch (Exception e) {
         }
-        
+
     }
-    
+
     /**
      * Draws the including and excluding areas.
+     *
      * @param ts The TMAspot where the areas come from.
      * @param g The graphics on which is drawn.
      * @param z The scaling (zoom) factor of the image.
-     * @param x_min The min x-coord which is visible in the zoomable image pane, relative to the original image coordinates (i.e. independent from the zoom).
-     * @param y_min The min y-coord which is visible in the zoomable image pane, relative to the original image coordinates (i.e. independent from the zoom).
-     * @param x_max The max x-coord which is visible in the zoomable image pane, relative to the original image coordinates (i.e. independent from the zoom).
-     * @param y_max The max y-coord which is visible in the zoomable image pane, relative to the original image coordinates (i.e. independent from the zoom).
+     * @param x_min The min x-coord which is visible in the zoomable image pane,
+     * relative to the original image coordinates (i.e. independent from the
+     * zoom).
+     * @param y_min The min y-coord which is visible in the zoomable image pane,
+     * relative to the original image coordinates (i.e. independent from the
+     * zoom).
+     * @param x_max The max x-coord which is visible in the zoomable image pane,
+     * relative to the original image coordinates (i.e. independent from the
+     * zoom).
+     * @param y_max The max y-coord which is visible in the zoomable image pane,
+     * relative to the original image coordinates (i.e. independent from the
+     * zoom).
      */
     public static void drawAreas(TMAspot ts, Graphics g, double z, int x_min, int y_min, int x_max, int y_max) {
         BasicStroke bs = new BasicStroke(3);
-        ((Graphics2D)g).setStroke(bs);
-        if (ts.getExcludingAreas()!=null && !ts.getExcludingAreas().isEmpty()) {
-            g.setColor(Color.RED);
-            for (Polygon p: ts.getExcludingAreas()) {
+        ((Graphics2D) g).setStroke(bs);
+        int pointwidth = TMAspot.POLYGON_NODE_WIDTH;
+        if (ts.getExcludingAreas() != null && !ts.getExcludingAreas().isEmpty()) {
+            for (Polygon p : ts.getExcludingAreas()) {
                 int[] xs = new int[p.npoints];
                 int[] ys = new int[p.npoints];
-                for (int j=0; j<xs.length; j++) {
-                    xs[j] = (int) (z*(double) (p.xpoints[j]));
-                    ys[j] = (int) (z*(double) (p.ypoints[j]));
+                for (int j = 0; j < xs.length; j++) {
+                    xs[j] = (int) (z * (double) (p.xpoints[j]));
+                    ys[j] = (int) (z * (double) (p.ypoints[j]));
                 }
+                g.setColor(Color.RED);
                 g.drawPolygon(xs, ys, xs.length);
+
+                g.setColor(Color.BLACK);
+                for (int j = 0; j < xs.length; j++) {
+                    g.fillRect(xs[j] - pointwidth / 2, ys[j] - pointwidth / 2, pointwidth, pointwidth);
+                }
             }
         }
-        
-        if (ts.getIncludingAreas()!=null && !ts.getIncludingAreas().isEmpty()) {
-            g.setColor(Color.GREEN);
-            for (Polygon p: ts.getIncludingAreas()) {
+
+        if (ts.getIncludingAreas() != null && !ts.getIncludingAreas().isEmpty()) {
+            for (Polygon p : ts.getIncludingAreas()) {
                 int[] xs = new int[p.npoints];
                 int[] ys = new int[p.npoints];
-                for (int j=0; j<xs.length; j++) {
-                    xs[j] = (int) (z*(double) (p.xpoints[j]));
-                    ys[j] = (int) (z*(double) (p.ypoints[j]));
+                for (int j = 0; j < xs.length; j++) {
+                    xs[j] = (int) (z * (double) (p.xpoints[j]));
+                    ys[j] = (int) (z * (double) (p.ypoints[j]));
                 }
+                g.setColor(Color.GREEN);
                 g.drawPolygon(xs, ys, xs.length);
+
+                g.setColor(Color.BLACK);
+                for (int j = 0; j < xs.length; j++) {
+                    g.fillRect(xs[j] - pointwidth / 2, ys[j] - pointwidth / 2, (int) (pointwidth), (int) (pointwidth));
+                }
             }
         }
-        
+
         if (!ts.getCenter().getTMAView().getRecentPolyline_x().isEmpty()) {
-            g.setColor(Color.YELLOW);
             int[] xs = new int[ts.getCenter().getTMAView().getRecentPolyline_x().size()];
             int[] ys = new int[ts.getCenter().getTMAView().getRecentPolyline_x().size()];
-                for (int i=0; i<ts.getCenter().getTMAView().getRecentPolyline_x().size(); i++) {
-                    xs[i] = (int) (z*(double) (ts.getCenter().getTMAView().getRecentPolyline_x().get(i)));
-                    ys[i] = (int) (z*(double) (ts.getCenter().getTMAView().getRecentPolyline_y().get(i)));
-                }
-                g.drawPolyline(xs, ys, xs.length);
+            for (int i = 0; i < ts.getCenter().getTMAView().getRecentPolyline_x().size(); i++) {
+                xs[i] = (int) (z * (double) (ts.getCenter().getTMAView().getRecentPolyline_x().get(i)));
+                ys[i] = (int) (z * (double) (ts.getCenter().getTMAView().getRecentPolyline_y().get(i)));
+            }
+            g.setColor(Color.YELLOW);
+            g.drawPolyline(xs, ys, xs.length);
+
+            g.setColor(Color.BLACK);
+            for (int i = 0; i < ts.getCenter().getTMAView().getRecentPolyline_x().size(); i++) {
+                g.fillRect(xs[i] - pointwidth / 2, ys[i] - pointwidth / 2, (int) (pointwidth), (int) (pointwidth));
+            }
+
         }
     }
-    
+
     /**
      * Draws the soft density heatmap as overlay.
+     *
      * @param ts The TMAspot where the TMApoints come from.
      * @param g The graphics on which is drawn.
      * @param z The scaling (zoom) factor of the image.
-     * @param x_min The min x-coord which is visible in the zoomable image pane, relative to the original image coordinates (i.e. independent from the zoom).
-     * @param y_min The min y-coord which is visible in the zoomable image pane, relative to the original image coordinates (i.e. independent from the zoom).
-     * @param x_max The max x-coord which is visible in the zoomable image pane, relative to the original image coordinates (i.e. independent from the zoom).
-     * @param y_max The max y-coord which is visible in the zoomable image pane, relative to the original image coordinates (i.e. independent from the zoom).
+     * @param x_min The min x-coord which is visible in the zoomable image pane,
+     * relative to the original image coordinates (i.e. independent from the
+     * zoom).
+     * @param y_min The min y-coord which is visible in the zoomable image pane,
+     * relative to the original image coordinates (i.e. independent from the
+     * zoom).
+     * @param x_max The max x-coord which is visible in the zoomable image pane,
+     * relative to the original image coordinates (i.e. independent from the
+     * zoom).
+     * @param y_max The max y-coord which is visible in the zoomable image pane,
+     * relative to the original image coordinates (i.e. independent from the
+     * zoom).
      */
     public static void drawDensitySoft(TMAspot ts, Graphics g, double z, int x_min, int y_min, int x_max, int y_max) {
         if (ts.getCenter().isShowingCellDensitySoft()) {
             List<TMApoint> tps = ts.getPoints();
-            int width = 10*Math.max(1, ts.getParam_r());
-            for (TMApoint tp: tps) {
+            int width = 10 * Math.max(1, ts.getParam_r());
+            for (TMApoint tp : tps) {
                 // if the point is in the viewport display it.
                 if (tp.x >= x_min && tp.y >= y_min && tp.x < x_max && tp.y < y_max) {
-                    Point2D center = new Point2D.Float((int) (z*(double) (tp.x)), (int) (z*(double) (tp.y)));
+                    Point2D center = new Point2D.Float((int) (z * (double) (tp.x)), (int) (z * (double) (tp.y)));
                     float[] dist = {0.0f, 1.0f};
                     Color[] colors = {new Color(0, 0, 0, 60), new Color(0, 0, 0, 0)};
-                    RadialGradientPaint p =  new RadialGradientPaint(center, (float) (z*width/2), dist, colors);
-                    ((Graphics2D)g).setPaint(p);
-                    ((Graphics2D)g).fillOval((int) (z*(double) (tp.x-width/2)), (int) (z*(double) (tp.y-width/2)), (int) (z*(double) (width)), (int) (z*(double) (width)));
+                    RadialGradientPaint p = new RadialGradientPaint(center, (float) (z * width / 2), dist, colors);
+                    ((Graphics2D) g).setPaint(p);
+                    ((Graphics2D) g).fillOval((int) (z * (double) (tp.x - width / 2)), (int) (z * (double) (tp.y - width / 2)), (int) (z * (double) (width)), (int) (z * (double) (width)));
                 }
             }
         }
     }
-    
+
     /**
      * returns the original image width.
+     *
      * @return The image width.
      */
     @Override
     public int getImageWidth() {
         return Image_Width;
     }
-    
+
     /**
      * returns the original image height.
+     *
      * @return The image height.
      */
     @Override
@@ -790,16 +994,20 @@ public class TMAspot_view_panel extends ZoomableImagePanel implements TMA_view_p
     }
 
     /**
-     * Returns the recent drawn polyline. Important for the drawing of including or excluding areas.
+     * Returns the recent drawn polyline. Important for the drawing of including
+     * or excluding areas.
+     *
      * @return The recently drawn polyline x-coords.
      */
     @Override
     public List<Integer> getRecentPolyline_x() {
         return RECENT_POLYLINE_X;
     }
-    
+
     /**
-     * Returns the recent drawn polyline. Important for the drawing of including or excluding areas.
+     * Returns the recent drawn polyline. Important for the drawing of including
+     * or excluding areas.
+     *
      * @return The recently drawn polyline y-coords.
      */
     @Override
@@ -808,7 +1016,8 @@ public class TMAspot_view_panel extends ZoomableImagePanel implements TMA_view_p
     }
 
     /**
-     * Indicates that the user does not want to draw an area anymore. The recent polyline is cleared.
+     * Indicates that the user does not want to draw an area anymore. The recent
+     * polyline is cleared.
      */
     @Override
     public void reliefRecentPolyLine() {
@@ -816,9 +1025,10 @@ public class TMAspot_view_panel extends ZoomableImagePanel implements TMA_view_p
         RECENT_POLYLINE_Y.clear();
         repaint();
     }
-    
+
     /**
      * Enables / disables the popup menu.
+     *
      * @param b If true, the popup menu is enabled. Otherwise disabled.
      */
     @Override
@@ -832,17 +1042,21 @@ public class TMAspot_view_panel extends ZoomableImagePanel implements TMA_view_p
 
     /**
      * Returns the currently displayed TMAspot.
+     *
      * @return The currently displayed TMAspot. Null if there is none.
      */
     @Override
     public TMAspot getTMAspot() {
         return ts;
     }
-    
+
     /**
-     * Sets the coordinates x, y of the image into the center of the current view. After calling, the
-     * user sees point x, y of the original image in the middle of the TMA view screen, at the same zoom level as before.
-     * If x, y is too close at the border, the image is scrolled to the nearest possible position.
+     * Sets the coordinates x, y of the image into the center of the current
+     * view. After calling, the user sees point x, y of the original image in
+     * the middle of the TMA view screen, at the same zoom level as before. If
+     * x, y is too close at the border, the image is scrolled to the nearest
+     * possible position.
+     *
      * @param x The x coordinate as original image coordinate.
      * @param y The y coordinate as original image coordinate.
      */
@@ -850,14 +1064,14 @@ public class TMAspot_view_panel extends ZoomableImagePanel implements TMA_view_p
     public void jumpToVisibleLocus(int x, int y) {
         JScrollPane jsp = t.getTMAViewContainer();
         Rectangle r = jsp.getViewport().getViewRect();
-        Point Pold = new Point(r.x + r.width/2, r.y + r.height/2);
-        int x_upperleft = (int)(x)-(int)(Pold.x/getZoom());
-        int y_upperleft = (int)(y)-(int)(Pold.y/getZoom());
-        r.setLocation((int)(x_upperleft*getZoom()), (int)(y_upperleft*getZoom()));
+        Point Pold = new Point(r.x + r.width / 2, r.y + r.height / 2);
+        int x_upperleft = (int) (x) - (int) (Pold.x / getZoom());
+        int y_upperleft = (int) (y) - (int) (Pold.y / getZoom());
+        r.setLocation((int) (x_upperleft * getZoom()), (int) (y_upperleft * getZoom()));
         jsp.getViewport().scrollRectToVisible(r);
-        
-        t.showTMAspotLocalZoom(x,y);
-        t.showTMAspotLocalZoomOnPreview(x,y);
+
+        t.showTMAspotLocalZoom(x, y);
+        t.showTMAspotLocalZoomOnPreview(x, y);
     }
-    
+
 }

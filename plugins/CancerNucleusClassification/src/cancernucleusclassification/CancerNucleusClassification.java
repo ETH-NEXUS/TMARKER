@@ -17,6 +17,7 @@ import graphcut.ConnectComponent;
 import graphcut.GraphCut;
 import graphcut.Terminal;
 import ij.ImagePlus;
+import ij.gui.PolygonRoi;
 import ij.plugin.filter.GaussianBlur;
 import java.awt.BasicStroke;
 import java.awt.Color;
@@ -347,6 +348,7 @@ public class CancerNucleusClassification extends javax.swing.JFrame implements T
         jPanel12.add(jCheckBox12, gridBagConstraints);
 
         jCheckBox13.setText(bundle.getString("CancerNucleusClassification.jCheckBox13.text")); // NOI18N
+        jCheckBox13.setEnabled(false);
         jCheckBox13.setName("jCheckBox13"); // NOI18N
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
@@ -2032,12 +2034,12 @@ public class CancerNucleusClassification extends javax.swing.JFrame implements T
                             try {
                                 
                                 // Classifier Creation
-                                performClassifierCreation(manager.getTMAspots());
+                                performClassifierCreation(manager.getTMAspots(), false);
                                 
                                 // Nucleus classification
                                 List<TMAspot> tss = new ArrayList<>();
                                 tss.add(manager.getVisibleTMAspot());
-                                performNucleusClassification(tss, false);
+                                performNucleusClassification(tss, false, false);
                                 manager.repaintVisibleTMAspot();
                                 
                                 Thread.sleep(5000);
@@ -2484,7 +2486,7 @@ public class CancerNucleusClassification extends javax.swing.JFrame implements T
                             BufferedImage patch;
                             if (ts.isNDPI() || I==null) {
 
-                                patch = ts.getSubimage((int)(tp.getX()-r), (int)(tp.getY()-r), getParam_patchsize(), getParam_patchsize(), getParam_patchsize(), BufferedImage.TYPE_INT_ARGB);
+                                patch = ts.getSubimage((int)(tp.getX()-r), (int)(tp.getY()-r), getParam_patchsize(), getParam_patchsize(), getParam_patchsize(), BufferedImage.TYPE_INT_ARGB, null);
                                 ImagePlus ip = new ImagePlus("Patch", patch);
                                 gb.blurGaussian(ip.getProcessor(), getParam_blur(), getParam_blur(), 0.02);
 
@@ -3046,6 +3048,7 @@ public class CancerNucleusClassification extends javax.swing.JFrame implements T
         jCheckBox6.setSelected(b);
     }
     
+    
     /**
      * Learns the two classifiers classifier_FG_BG and classifier_BEN_MAL on all selected TMAspots.
      * If a 1-Step classification is selected by the user, the first classifier will be null.
@@ -3054,20 +3057,34 @@ public class CancerNucleusClassification extends javax.swing.JFrame implements T
      * @param tss The TMAspots which provide training labels.
      */
     void performClassifierCreation(List<TMAspot> tss) {
+        performClassifierCreation(tss, true);
+    }
+    
+    /**
+     * Learns the two classifiers classifier_FG_BG and classifier_BEN_MAL on all selected TMAspots.
+     * If a 1-Step classification is selected by the user, the first classifier will be null.
+     * There has to be at least one trainings point for each relevant class on the selected TMAspots.
+     * Otherwise, nothing will be created and a popup window will appear to inform the user.
+     * @param testForSegmentations If true, the user might be asked for segmentations if there are none.
+     * @param tss The TMAspots which provide training labels.
+     */
+    void performClassifierCreation(List<TMAspot> tss, boolean testForSegmentations) {
         
-        if (getParam_useFeature_Segmentation() && !getParam_useFeature_SegmentationBuiltIn()) {
-            boolean segmentationsFound = true;
-            for (TMAspot ts: tss) {
-                for (TMApoint tp: ts.getPoints_GoldStandard()) {
-                    Rectangle rect = PatchRectangle(tp, getParam_patchsize());
-                    if (rect.x >= 0 && rect.y >= 0 && rect.x + rect.width < ts.getWidth() && rect.y + rect.height < ts.getHeight()) {
-                        segmentationsFound &= tp.getROI() != null;
+        if (testForSegmentations) {
+            if (getParam_useFeature_Segmentation() && !getParam_useFeature_SegmentationBuiltIn()) {
+                boolean segmentationsFound = true;
+                for (TMAspot ts: tss) {
+                    for (TMApoint tp: ts.getPoints_GoldStandard()) {
+                        Rectangle rect = PatchRectangle(tp, getParam_patchsize());
+                        if (rect.x >= 0 && rect.y >= 0 && rect.x + rect.width < ts.getWidth() && rect.y + rect.height < ts.getHeight()) {
+                            segmentationsFound &= tp.getROI() != null && tp.getRoi() != null && ((PolygonRoi)tp.getRoi()).getNCoordinates()>0;
+                        }
                     }
                 }
-            }
-            if (!segmentationsFound) {
-                int answer = JOptionPane.showConfirmDialog(this, "Some goldstandard training nuclei on selected TMA images\ndo not have segmentations.\nAre you sure to proceed?", "Segmentations missing", JOptionPane.YES_NO_CANCEL_OPTION, JOptionPane.WARNING_MESSAGE);
-                if (answer != JOptionPane.YES_OPTION) return;
+                if (!segmentationsFound) {
+                    int answer = JOptionPane.showConfirmDialog(this, "Some goldstandard training nuclei on selected TMA images\ndo not have segmentations.\nAre you sure to proceed?", "Segmentations missing", JOptionPane.YES_NO_CANCEL_OPTION, JOptionPane.WARNING_MESSAGE);
+                    if (answer != JOptionPane.YES_OPTION) return;
+                }
             }
         }
         
@@ -3226,7 +3243,7 @@ public class CancerNucleusClassification extends javax.swing.JFrame implements T
                 // For NDPI images, pick every nucleus by its subregregion patch separately.
                 if (ts.isNDPI()) {
                     // color patch
-                    bi_col = ts.getSubimage(rect.x, rect.y, rect.width, rect.height, Math.max(rect.width, rect.height));
+                    bi_col = ts.getSubimage(rect.x, rect.y, rect.width, rect.height, Math.max(rect.width, rect.height), null);
 
                     //Blur the image for smoother features
                     ip = new ImagePlus(" ", bi_col);
@@ -3516,7 +3533,7 @@ public class CancerNucleusClassification extends javax.swing.JFrame implements T
                     Logger.getLogger(TMAspot.class.getName()).log(Level.INFO, "Writing Patch Image " + ts.getTmpDir() + File.separator + "Patch_" + i + ".png");
                     File file = new File(ts.getTmpDir() + File.separator + "Patch_" + i + ".png");
                     file.deleteOnExit();
-                    ImageIO.write(ts.getSubimage(patches.get(i).x, patches.get(i).y, patches.get(i).width, patches.get(i).height, Math.max(patches.get(i).width, patches.get(i).height)), "PNG", file);
+                    ImageIO.write(ts.getSubimage(patches.get(i).x, patches.get(i).y, patches.get(i).width, patches.get(i).height, Math.max(patches.get(i).width, patches.get(i).height), null), "PNG", file);
                 } catch (IOException ex) {
                     Logger.getLogger(TMAspot.class.getName()).log(Level.SEVERE, null, ex);
                 }
@@ -3551,7 +3568,7 @@ public class CancerNucleusClassification extends javax.swing.JFrame implements T
                     Logger.getLogger(TMAspot.class.getName()).log(Level.INFO, "Writing Patch Image " + ts.getTmpDir() + File.separator + "Patch_" + i + ".png");
                     File file = new File(ts.getTmpDir() + File.separator + "Patch_" + i + ".png");
                     file.deleteOnExit();
-                    ImageIO.write(ts.getSubimage(patches.get(i).x, patches.get(i).y, patches.get(i).width, patches.get(i).height, Math.max(patches.get(i).width, patches.get(i).height)), "PNG", file);
+                    ImageIO.write(ts.getSubimage(patches.get(i).x, patches.get(i).y, patches.get(i).width, patches.get(i).height, Math.max(patches.get(i).width, patches.get(i).height), null), "PNG", file);
                 } catch (IOException ex) {
                     Logger.getLogger(TMAspot.class.getName()).log(Level.SEVERE, null, ex);
                 }
@@ -3663,22 +3680,35 @@ public class CancerNucleusClassification extends javax.swing.JFrame implements T
      * @param tss The TMAspots to be processed.
      */
      private void performNucleusClassification(List<TMAspot> tss, boolean asParallelThread) {
+         performNucleusClassification(tss, true, asParallelThread);
+     }
+     
+    /**
+     * Performs the nucleus classification on detected (non-goldstandard) TMALabels.
+     * If 1-step is selected, only the classifier benign/malignant is used.
+     * If 2-step is selected, the classifier foreground/background is used beforehand.
+     * @param testForSegmentations If true, the user might be asked for segmentations if there are none.
+     * @param tss The TMAspots to be processed.
+     */
+     private void performNucleusClassification(List<TMAspot> tss, boolean testForSegmentations, boolean asParallelThread) {
          
-         if (getParam_useFeature_Segmentation() && !getParam_useFeature_SegmentationBuiltIn()) {
-            boolean segmentationsFound = true;
-            for (TMAspot ts: tss) {
-                for (TMApoint tp: ts.getPoints()) {
-                    Rectangle rect = PatchRectangle(tp, getParam_patchsize());
-                    if (rect.x >= 0 && rect.y >= 0 && rect.x + rect.width < ts.getWidth() && rect.y + rect.height < ts.getHeight()) {
-                        segmentationsFound &= tp.getROI() != null;
+         if (testForSegmentations) {
+             if (getParam_useFeature_Segmentation() && !getParam_useFeature_SegmentationBuiltIn()) {
+                boolean segmentationsFound = true;
+                for (TMAspot ts: tss) {
+                    for (TMApoint tp: ts.getPoints()) {
+                        Rectangle rect = PatchRectangle(tp, getParam_patchsize());
+                        if (rect.x >= 0 && rect.y >= 0 && rect.x + rect.width < ts.getWidth() && rect.y + rect.height < ts.getHeight()) {
+                            segmentationsFound &= tp.getROI() != null;
+                        }
                     }
                 }
+                if (!segmentationsFound) {
+                    int answer = JOptionPane.showConfirmDialog(this, "Some nuclei on selected TMA images\ndo not have segmentations.\nAre you sure to proceed?", "Segmentations missing", JOptionPane.YES_NO_CANCEL_OPTION, JOptionPane.WARNING_MESSAGE);
+                    if (answer != JOptionPane.YES_OPTION) return;
+                }
             }
-            if (!segmentationsFound) {
-                int answer = JOptionPane.showConfirmDialog(this, "Some nuclei on selected TMA images\ndo not have segmentations.\nAre you sure to proceed?", "Segmentations missing", JOptionPane.YES_NO_CANCEL_OPTION, JOptionPane.WARNING_MESSAGE);
-                if (answer != JOptionPane.YES_OPTION) return;
-            }
-        }
+         }
          
         if (asParallelThread) {
             if (thread!=null) {
@@ -3712,7 +3742,7 @@ public class CancerNucleusClassification extends javax.swing.JFrame implements T
     static void classifyNuclei(CancerNucleusClassification cnc, TMAspot ts, Classifier classifier, boolean foregroundDetection, boolean respectROI, PluginManager manager, boolean asParallelThread) {
         if (classifier != null && ts != null) {
             List<TMApoint> tps;
-            if (respectROI) {
+            if (foregroundDetection) {
                 tps = ts.getPoints_Estimated(); // all estimated points for foreground background classification.
             } else {
                 tps = ts.getPoints_Estimated(TMALabel.LABEL_POS); // omit BG points for benign / malignant classification.
@@ -3798,9 +3828,9 @@ public class CancerNucleusClassification extends javax.swing.JFrame implements T
                         manager.setStatusMessageLabel(cnc.getPluginName() + ": Done.");
                         manager.setProgressbar(100);
                     } 
-                    if (foregroundDetection) {
-                        ts.deleteAllPoints(TMALabel.LABEL_BG, false);
-                    }
+                    //if (foregroundDetection) {
+                    //    ts.deleteAllPoints(TMALabel.LABEL_BG, false);
+                    //}
                     
                     manager.updateTMAspot(ts, ts == ts.getCenter().getVisibleTMAspot());
                     
@@ -3884,7 +3914,7 @@ public class CancerNucleusClassification extends javax.swing.JFrame implements T
                         
                         if (ts.isNDPI()) {
                             // color patch
-                            patch_col = ts.getSubimage(rect.x, rect.y, rect.width, rect.height, Math.max(rect.width, rect.height));
+                            patch_col = ts.getSubimage(rect.x, rect.y, rect.width, rect.height, Math.max(rect.width, rect.height), null);
 
                             //Blur the image for smoother features
                             ip = new ImagePlus(" ", patch_col);
@@ -4064,7 +4094,7 @@ public class CancerNucleusClassification extends javax.swing.JFrame implements T
                     
                     if (ts.isNDPI()) {
                         // color patch
-                        bi_col = ts.getSubimage(rect.x, rect.y, rect.width, rect.height, Math.max(rect.width, rect.height));
+                        bi_col = ts.getSubimage(rect.x, rect.y, rect.width, rect.height, Math.max(rect.width, rect.height), null);
 
                         //Blur the image for smoother features
                         ip = new ImagePlus(" ", bi_col);

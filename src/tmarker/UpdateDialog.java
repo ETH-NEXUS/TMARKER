@@ -6,13 +6,18 @@
 
 package tmarker;
 
+import com.meterware.httpunit.WebConversation;
+import com.meterware.httpunit.WebResponse;
 import edu.stanford.ejalbert.BrowserLauncher;
 import edu.stanford.ejalbert.exception.BrowserLaunchingInitializingException;
 import edu.stanford.ejalbert.exception.UnsupportedOperatingSystemException;
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.StringReader;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -20,7 +25,9 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
+import org.xml.sax.SAXException;
 import tmarker.misc.Download;
+import static tmarker.tmarker.logger;
 
 /**
  * The Window that pops up if the user choses to update TMARKER.
@@ -35,17 +42,13 @@ public class UpdateDialog extends javax.swing.JDialog {
     /**
      * Opens a new UpdateDialog and sets the text an buttons according to the current revision of the program.
      * @param parent The parent frame for this dialog box.
-     * @param thisRevision The current local revision (version) of this program.
-     * @param remoteRevision The remote revision (version) of the program.
      * @param modal True, if this dialog should be modal.
      */
-    private UpdateDialog(JFrame parent, String thisRevision, String remoteRevision, boolean modal) {
+     public UpdateDialog(JFrame parent, boolean modal) {
         super(parent, modal);
         t = ((tmarker)parent);
         initComponents();
-        this.remoteRevision = remoteRevision;
-        setButtons(thisRevision, remoteRevision);
-    }
+     }
     
     /**
      * Sets the Buttons and writes the text according to the versions that are locally and remotely available.
@@ -55,6 +58,19 @@ public class UpdateDialog extends javax.swing.JDialog {
     private void setButtons(String thisRevision, String remoteRevision) {
         String thisRevision_tmp = thisRevision;
         String remoteRevision_tmp = remoteRevision;
+        
+        if (remoteRevision == null) {
+            jLabel1.setVisible(false);
+            jLabel2.setVisible(false);
+            jButton1.setVisible(false);
+            jLabel3.setVisible(true);
+            jProgressBar1.setVisible(false);
+            jButton3.setVisible(true);
+            jProgressBar1.setEnabled(false);
+            return;
+        }
+        
+        
         while (thisRevision_tmp.length()>remoteRevision_tmp.length()) {
             remoteRevision_tmp = remoteRevision_tmp.replaceFirst("\\.", "\\.0");
         }
@@ -63,8 +79,8 @@ public class UpdateDialog extends javax.swing.JDialog {
         }
         int thisRevisionInt = Integer.parseInt(thisRevision_tmp.replaceAll("\\.", "").replaceAll("'", ""));
         int remoteRevisionInt = Integer.parseInt(remoteRevision_tmp.replaceAll("\\.", "").replaceAll("'", ""));
-        boolean connectionFailure = remoteRevisionInt < 0;
         isOutOfDate = remoteRevisionInt > thisRevisionInt;
+        boolean connectionFailure = remoteRevisionInt < 0;
         if (connectionFailure) {
             jLabel4.setText("");
             jLabel5.setText("");
@@ -180,6 +196,8 @@ public class UpdateDialog extends javax.swing.JDialog {
             jLabel6.setText("Update successful. Please restart TMARKER.");
             jButton2.setText("Restart");
             
+            
+            isOutOfDate = false;
         } catch(IOException | InterruptedException ex){
             jButton1.setEnabled(true);
             jLabel6.setText("Update NOT successful. " + ex.getMessage());
@@ -223,7 +241,6 @@ public class UpdateDialog extends javax.swing.JDialog {
         jButton3 = new javax.swing.JButton();
         jLabel6 = new javax.swing.JLabel();
 
-        setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
         setTitle("TMARKER Update Check");
         getContentPane().setLayout(new java.awt.GridBagLayout());
 
@@ -269,21 +286,17 @@ public class UpdateDialog extends javax.swing.JDialog {
         gridBagConstraints.insets = new java.awt.Insets(10, 20, 10, 20);
         getContentPane().add(jButton2, gridBagConstraints);
 
-        jLabel3.setText("Update check failed.");
+        jLabel3.setText("Update check failed. No internet connection?");
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
         gridBagConstraints.gridy = 7;
         gridBagConstraints.gridwidth = 2;
         gridBagConstraints.insets = new java.awt.Insets(10, 20, 10, 20);
         getContentPane().add(jLabel3, gridBagConstraints);
-
-        jLabel4.setText("jLabel4");
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridwidth = 2;
         gridBagConstraints.insets = new java.awt.Insets(10, 0, 0, 0);
         getContentPane().add(jLabel4, gridBagConstraints);
-
-        jLabel5.setText("jLabel5");
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
         gridBagConstraints.gridy = 1;
@@ -332,7 +345,7 @@ public class UpdateDialog extends javax.swing.JDialog {
             this.dispose();
         } else {
             try {
-                String cmd = "java -jar TMARKER.jar";
+                String cmd = "java -jar TMARKER.jar -w 5000";
                 Runtime.getRuntime().exec(cmd);
                 System.exit(0);
             } catch (IOException ex) {
@@ -361,30 +374,69 @@ public class UpdateDialog extends javax.swing.JDialog {
      * @param installAutomatically If true (and verbose is false), an update will be installed automatically. Else,
      * the user would be asked.
      */
-    public static void main(final JFrame parent, final String thisRevision, final String remoteRevision, final boolean verbose, final boolean installAutomatically) {
-        java.awt.EventQueue.invokeLater(new Runnable() {
+    public void main(final JFrame parent, final String thisRevision, final String remoteRevision, final boolean verbose, final boolean installAutomatically) {
+        this.remoteRevision = remoteRevision;
+        setButtons(thisRevision, remoteRevision);
+        pack();
+        setLocationRelativeTo(parent);
+        if (verbose) {
+            setVisible(true);
+        } else {
+            if (installAutomatically && isOutOfDate) {
+                downloadUpdateInNewThread();
+            } else if (isOutOfDate) {
+                setVisible(true);
+            }
+        }
+    }
+    
+    /**
+     * Checks online for updates and reports to the user if there is one. DOES
+     * NOT UPDATE TMARKER AUTOMATICALLY
+     *
+     * @param verbose If true, the result will be displayed in any case. If
+     * false the result will be displayed only if this TMARKER version is out of
+     * date.
+     * @param installAutomatically If true, an update will be installed
+     * automatically. Else, the user would be asked.
+     */
+    public void checkForUpdates(final boolean verbose, final boolean installAutomatically) {
+        final String thisRevision = tmarker.REVISION;
+        Thread thread = new Thread(new Runnable() {
             @Override
             public void run() {
-                final UpdateDialog dialog = new UpdateDialog(parent, thisRevision, remoteRevision, true);
-                dialog.addWindowListener(new java.awt.event.WindowAdapter() {
-                    @Override
-                    public void windowClosing(java.awt.event.WindowEvent e) {
-                        dialog.dispose();
-                    }
-                });
-                dialog.pack();
-                dialog.setLocationRelativeTo(parent);
-                if (verbose) {
-                    dialog.setVisible(true);
-                } else {
-                    if (installAutomatically && dialog.isOutOfDate) {
-                        dialog.downloadUpdateInNewThread();
-                    } else if (dialog.isOutOfDate) {
-                        dialog.setVisible(true);
-                    }
+            String remoteRevision_ = null;
+            try {
+                WebConversation wc = new WebConversation();
+                WebResponse resp = wc.getResponse("http://www.nexus.ethz.ch/content/dam/ethz/special-interest/dual/nexus-dam/software/TMARKER/vnuc.txt");
+                
+                // output is website with version number
+                String output = resp.getText();
+                if (tmarker.DEBUG > 3) {
+                    logger.log(java.util.logging.Level.INFO, output);
                 }
+
+                BufferedReader br = new BufferedReader(new StringReader(output));
+                String line = br.readLine().trim();
+                while (br.ready() && line.equals("")) {
+                    line = br.readLine().trim();
+                }
+                remoteRevision_ = line;
+            } catch (MalformedURLException ex) {
+                //Logger.getLogger(tmarker.class.getName()).log(Level.SEVERE, null, ex);
+            } catch (IOException ex) {
+                //Logger.getLogger(tmarker.class.getName()).log(Level.SEVERE, null, ex);
+            } catch (SAXException ex) {
+                //Logger.getLogger(tmarker.class.getName()).log(Level.SEVERE, null, ex);
+            } catch (Exception ex) {
+                //Logger.getLogger(tmarker.class.getName()).log(Level.SEVERE, null, ex);
+            } finally {
+                main(t, thisRevision, remoteRevision_, verbose, installAutomatically);
+            }
             }
         });
+            
+        thread.start();
     }
     
     // Variables declaration - do not modify//GEN-BEGIN:variables

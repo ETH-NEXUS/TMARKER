@@ -8,6 +8,7 @@ import de.lmu.ifi.dbs.jfeaturelib.features.LocalBinaryPatterns;
 import de.lmu.ifi.dbs.jfeaturelib.features.PHOG;
 import de.lmu.ifi.dbs.jfeaturelib.features.SURF;
 import ij.ImagePlus;
+import ij.gui.PolygonRoi;
 import ij.gui.Roi;
 import ij.process.ImageStatistics;
 import java.awt.*;
@@ -466,7 +467,7 @@ public class Superpixel implements Comparable {
             }
             // 1D-Signature as featurevector
             if (CNC.getParam_useFeature_Segmentation() && CNC.getParam_useFeature_1DSignature()) {
-                signature = Signature1D(roi, CNC.getParam_useFeature_1DSignature_scaleInvariant(), CNC.getParam_useFeature_1DSignature_rotationInvariant(), CNC.getParam_useFeature_1DSignature_derivative());
+                signature = Signature1D(roi, roi2, CNC.getParam_useFeature_1DSignature_scaleInvariant(), CNC.getParam_useFeature_1DSignature_rotationInvariant(), CNC.getParam_useFeature_1DSignature_derivative());
                 System.arraycopy(signature, 0, fvl, pos, signature.length);
                 pos += 16;
             }
@@ -839,7 +840,7 @@ public class Superpixel implements Comparable {
         int n_BG = 0;
         for (int i=0; i<bi_col.getWidth(); i++) {
             for (int j=0; j<bi_col.getHeight(); j++) {
-                if (roi.contains(i, j)) {
+                if (roi != null && roi.contains(i, j)) {
                     n_FG++;
                 } else {
                     n_BG++;
@@ -861,7 +862,7 @@ public class Superpixel implements Comparable {
         for (int i=0; i<bi_col.getWidth(); i++) {
             for (int j=0; j<bi_col.getHeight(); j++) {
                 col = bi_col.getPixel(i, j);
-                if (roi.contains(i, j)) {
+                if (roi != null && roi.contains(i, j)) {
                     R_FG[i_FG] = col[0];
                     G_FG[i_FG] = col[1];
                     B_FG[i_FG] = col[2];
@@ -919,14 +920,14 @@ public class Superpixel implements Comparable {
      * @param derivative Of true, not the distances are returned, but the differences between neighbored distances.
      * @return A 16-direction 1D Signature.
      */
-    public static double[] Signature1D(ROI roi, boolean scale_invariant, boolean rotation_invariant, boolean derivative) {
+    public static double[] Signature1D(ROI roi, Roi roi2, boolean scale_invariant, boolean rotation_invariant, boolean derivative) {
         
         double s_e_x=0, s_ne_x=0, s_n_x=0, s_nw_x=0, s_w_x=0, s_sw_x=0, s_s_x=0, s_se_x=0;
         double s_nee_x=0, s_nne_x=0, s_nnw_x=0, s_nww_x=0, s_sww_x=0, s_ssw_x=0, s_sse_x=0, s_see_x=0;
         double s_e_y=0, s_ne_y=0, s_n_y=0, s_nw_y=0, s_w_y=0, s_sw_y=0, s_s_y=0, s_se_y=0;
         double s_nee_y=0, s_nne_y=0, s_nnw_y=0, s_nww_y=0, s_sww_y=0, s_ssw_y=0, s_sse_y=0, s_see_y=0;
         
-        if (roi!=null) {
+        if (roi!=null && ((PolygonRoi)roi2).getNCoordinates()>0) {
             double roi_mx = roi.getAsImage().getWidth()/2; //centroid[0];
             double roi_my = roi.getAsImage().getHeight()/2; //centroid[1];
             // if centroid is not in roi, shift the centroid to the nearest point in roi.

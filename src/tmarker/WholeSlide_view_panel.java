@@ -30,6 +30,7 @@ import java.awt.Polygon;
 import java.awt.Rectangle;
 import java.awt.RenderingHints;
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -57,6 +58,7 @@ public class WholeSlide_view_panel extends ZoomableNDPIPanel implements TMA_view
     tmarker t = null;
     TMAspot ts = null;
     Point MouseLocus = new Point(0,0);
+    Polygon polygon_to_be_changed = null;
     int Image_Width = 0;
     int Image_Height = 0;
 
@@ -136,35 +138,86 @@ public class WholeSlide_view_panel extends ZoomableNDPIPanel implements TMA_view
     }// </editor-fold>//GEN-END:initComponents
 
     private void formMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_formMouseClicked
+        int image_x = (int) (evt.getX() / getZoom());
+        int image_y = (int) (evt.getY() / getZoom());
+        
         // if we are in background color correction modus, do this.
         if (t.isInBGCorrectionModus()) {
             t.performBGCorrection((int)(evt.getX()/getZoom()), (int)(evt.getY()/getZoom())); 
         } 
         // if we are in polygon drawing modus, do this.
         else if (evt.getClickCount() == 1 && (t.isInDrawIncludingAreaModus() || t.isInDrawExcludingAreaModus())) {
-            RECENT_POLYLINE_X.add((int)(evt.getX()/getZoom()));
-            RECENT_POLYLINE_Y.add((int)(evt.getY()/getZoom()));
+            
+            // If there is a point to add at the outline, add it
+            int w = TMAspot.POLYGON_NODE_WIDTH;
+            Polygon pol = ts.getAreaOnPoint(image_x, image_y, w);
+            if (pol!=null) {
+                if (!pol.contains(image_x-w, image_y) || !pol.contains(image_x, image_y-w) 
+                        || !pol.contains(image_x-w, image_y-w) || !pol.contains(image_x+w, image_y)
+                        || !pol.contains(image_x, image_y+w) || !pol.contains(image_x+w, image_y+w)
+                        || !pol.contains(image_x-w, image_y+w) || !pol.contains(image_x+w, image_y-w)) {
+                    // decide where to add the new point (it can't simply be added as a new point, the order plays a role).
+                    // That location is right, where the new point fits well into the first derivative of its neighbors (less than 10% deviance).
+                    int i=0;
+                    boolean locationFound = false;
+                    for (i=0; i<pol.npoints; i++) {
+                        double d_old = (1.0 * pol.xpoints[(i+1) % pol.npoints] - pol.xpoints[i]) / (1.0 * pol.ypoints[(i+1) % pol.npoints] - pol.ypoints[i]);
+                        double d_new1 = (1.0 * image_x - pol.xpoints[i]) / (1.0 * image_y - pol.ypoints[i]);
+                        double d_new2 = (1.0 * pol.xpoints[(i+1) % pol.npoints] - image_x) / (1.0 * pol.ypoints[(i+1) % pol.npoints] - image_y);
+                        
+                        if (d_old == 0) d_old = 0.000000001;
+                        if (Double.isInfinite(d_old)) d_old = Double.MAX_VALUE;
+                        if (Double.isInfinite(d_new1)) d_new1 = Double.MAX_VALUE;
+                        if (Double.isInfinite(d_new2)) d_new2 = Double.MAX_VALUE;
+                        
+                        
+                        if (Math.abs(Math.abs(d_old-d_new1)/d_old) <= 0.1 && Math.abs(Math.abs(d_old-d_new2)/d_old) <= 0.1) {
+                            locationFound = true;
+                            break;
+                        }
+                    }
+                    if (locationFound) {
+                        int[] xs = Arrays.copyOf(pol.xpoints, pol.npoints);
+                        int[] ys = Arrays.copyOf(pol.ypoints, pol.npoints);
+                        pol.reset();
+                        int offset = 0;
+                        for (int j=0; j<=xs.length; j++) {
+                            if (j==i+1) {
+                                pol.addPoint(image_x, image_y);
+                                offset = 1;
+                            } else {
+                                pol.addPoint(xs[j-offset], ys[j-offset]);
+                            }
+                        }
+                    }
+                }
+            } else {
+                // else add a new point for a new drawn polygon
+                RECENT_POLYLINE_X.add((int) (evt.getX() / getZoom()));
+                RECENT_POLYLINE_Y.add((int) (evt.getY() / getZoom()));
+            }
             repaint();
         } else if (evt.getClickCount() > 1 && (t.isInDrawIncludingAreaModus() || t.isInDrawExcludingAreaModus())) {
-            RECENT_POLYLINE_X.add((int)(evt.getX()/getZoom()));
-            RECENT_POLYLINE_Y.add((int)(evt.getY()/getZoom()));
-            int[] xs = new int[RECENT_POLYLINE_X.size()];
-            int[] ys = new int[RECENT_POLYLINE_Y.size()];
-            for (int i=0; i<RECENT_POLYLINE_X.size(); i++) {
-                xs[i] = RECENT_POLYLINE_X.get(i);
-                ys[i] = RECENT_POLYLINE_Y.get(i);
-            }
-            if (t.isInDrawIncludingAreaModus()) {
-                ts.getIncludingAreas().add(new Polygon(xs, ys, RECENT_POLYLINE_X.size()));
-            } else {
-                ts.getExcludingAreas().add(new Polygon(xs, ys, RECENT_POLYLINE_X.size()));
+            // finalize and add the newly drawn polygon at double click.
+            if (RECENT_POLYLINE_X.size()>2) {
+                int[] xs = new int[RECENT_POLYLINE_X.size()];
+                int[] ys = new int[RECENT_POLYLINE_Y.size()];
+                for (int i = 0; i < RECENT_POLYLINE_X.size(); i++) {
+                    xs[i] = RECENT_POLYLINE_X.get(i);
+                    ys[i] = RECENT_POLYLINE_Y.get(i);
+                }
+                if (t.isInDrawIncludingAreaModus()) {
+                    ts.getIncludingAreas().add(new Polygon(xs, ys, RECENT_POLYLINE_X.size()));
+                } else {
+                    ts.getExcludingAreas().add(new Polygon(xs, ys, RECENT_POLYLINE_X.size()));
+                }
             }
             RECENT_POLYLINE_X.clear();
             RECENT_POLYLINE_Y.clear();
             repaint();
-        } 
+        }
         // on normal double click, increase zoom
-        else if (evt.getClickCount() > 1 && (t.isInDrawIncludingAreaModus() || t.isInDrawExcludingAreaModus())) {
+        else if (evt.getClickCount() > 1 && !(t.isInDrawIncludingAreaModus() || t.isInDrawExcludingAreaModus())) {
             int amount = -3;
             Rectangle rect = getVisibleRect();
             double oldZoom = t.getZoom();
@@ -293,24 +346,67 @@ public class WholeSlide_view_panel extends ZoomableNDPIPanel implements TMA_view
 
     private void formMousePressed(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_formMousePressed
         MouseLocus = evt.getPoint();
+        
+        int image_x = (int) (evt.getX() / getZoom());
+        int image_y = (int) (evt.getY() / getZoom());
+        int w = TMAspot.POLYGON_NODE_WIDTH;
+        
+        polygon_to_be_changed = ts.getAreaOnPoint(image_x, image_y, w); 
     }//GEN-LAST:event_formMousePressed
 
     private void formMouseReleased(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_formMouseReleased
         setCursor(CURSOR_CROSS);
+        polygon_to_be_changed = null;
     }//GEN-LAST:event_formMouseReleased
 
     private void formMouseDragged(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_formMouseDragged
-        TMApoint p_old = ts.getPointAt((int)(MouseLocus.getX()/getZoom()), (int)(MouseLocus.getY()/getZoom()), ts.getParam_r(), true);
-        if (p_old!=null) {
-            p_old.x=(int)(evt.getX()/getZoom());
-            p_old.y=(int)(evt.getY()/getZoom());
+        int image_x = (int) (evt.getX() / getZoom());
+        int image_y = (int) (evt.getY() / getZoom());
+        
+        // if we are at a TMA point, drag it.
+        TMApoint p_old = ts.getPointAt((int) (MouseLocus.getX() / getZoom()), (int) (MouseLocus.getY() / getZoom()), ts.getParam_r(), true);
+        if (p_old != null) {
+            p_old.x = image_x;
+            p_old.y = image_y;
             if (t.getOptionDialog().isAutomaticESGSConversion()) {
                 p_old.setGoldStandard(t.getGSNumberForLabeling());
             }
             MouseLocus = evt.getPoint();
             repaint();
             ts.dispStainingInfo();
-        } else { 
+            
+            return;
+        } 
+        // if we are at a node of a newly drawn polygon, drag the node point.
+        int w = TMAspot.POLYGON_NODE_WIDTH;
+        if (!RECENT_POLYLINE_X.isEmpty()) {
+            for (int i=0; i<RECENT_POLYLINE_X.size(); i++) {
+                if (Math.abs(RECENT_POLYLINE_X.get(i)-(int) (MouseLocus.getX() / getZoom()))<=w/2 && Math.abs(RECENT_POLYLINE_Y.get(i)-(int) (MouseLocus.getY() / getZoom()))<=w/2) {
+                    RECENT_POLYLINE_X.remove(i);
+                    RECENT_POLYLINE_Y.remove(i);
+                    RECENT_POLYLINE_X.add(i,image_x);
+                    RECENT_POLYLINE_Y.add(i, image_y);
+                    MouseLocus = evt.getPoint();
+                    repaint();
+                    return;
+                }
+            }
+        }
+
+        // if we are at a node of a polygon, drag the node.
+        Polygon pol = polygon_to_be_changed; // it is assigned at mouseclick and relseased at mousereleased.
+        if (pol != null) {
+            for (int i=0; i<pol.npoints; i++) {
+                if (Math.abs(pol.xpoints[i]-(int) (MouseLocus.getX() / getZoom()))<=w/2 && Math.abs(pol.ypoints[i]-(int) (MouseLocus.getY() / getZoom()))<=w/2) {
+                    pol.xpoints[i] = image_x;
+                    pol.ypoints[i] = image_y;
+                    pol.invalidate();
+                    MouseLocus = evt.getPoint();
+                    repaint();
+                    return;
+                }
+            }
+        }
             setCursor(CURSOR_HAND);
             JScrollPane jsp = t.getTMAViewContainer();
             Point P = evt.getPoint();
@@ -319,20 +415,53 @@ public class WholeSlide_view_panel extends ZoomableNDPIPanel implements TMA_view
             Rectangle r = jsp.getViewport().getVisibleRect();
             r.setLocation(r.x+dx, r.y+dy);
             jsp.getViewport().scrollRectToVisible(r);
-        }
     }//GEN-LAST:event_formMouseDragged
 
     private void formMouseMoved(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_formMouseMoved
         try {
+            int image_x = (int) (evt.getX() / getZoom());
+            int image_y = (int) (evt.getY() / getZoom());
+            
             t.setStatusMessageLabel("x = " + Integer.toString((int)(evt.getX()/getZoom())) + ", y = " + Integer.toString((int)(evt.getY()/getZoom())));
             t.showTMAspotLocalZoom((int)(evt.getX()/getZoom()), (int)(evt.getY()/getZoom()));
             t.showTMAspotLocalZoomOnPreview((int)(evt.getX()/getZoom()), (int)(evt.getY()/getZoom()));
             if (t.isInDrawIncludingAreaModus() || t.isInDrawExcludingAreaModus() || t.isInDeleteAreaModus()) {
-               setCursor(CURSOR_HAND);
-            } else{
                 setCursor(CURSOR_CROSS);
-            }
-            if (ts.hasStainingEstimation()) {
+                int w = TMAspot.POLYGON_NODE_WIDTH;
+                
+                // if we are at a node of a newly drawn polygon, show the curser to move it.
+                if (!RECENT_POLYLINE_X.isEmpty()) {
+                    for (int i=0; i<RECENT_POLYLINE_X.size(); i++) {
+                        if (Math.abs(RECENT_POLYLINE_X.get(i)-image_x)<=w/2 && Math.abs(RECENT_POLYLINE_Y.get(i)-image_y)<=w/2) {
+                            setCursor(CURSOR_MOVE);
+                            break;
+                        }
+                    }
+                }
+                
+                // if we are on a polygon node, show the cursor to move it.
+                Polygon pol = ts.getAreaOnPoint(image_x, image_y, w);
+                if (pol!=null) {
+                    boolean nodeFound = false;
+                    for (int i=0; i<pol.npoints; i++) {
+                        if (Math.abs(pol.xpoints[i]-image_x)<=w/2 && Math.abs(pol.ypoints[i]-image_y)<=w/2) {
+                            nodeFound = true;
+                            setCursor(CURSOR_MOVE);
+                            break;
+                        }
+                    }
+                    // if we are at the border line of a polygon, show the "add a new polygon node" cursor.
+                    if (!nodeFound && (!pol.contains(image_x-w, image_y) || !pol.contains(image_x, image_y-w) 
+                            || !pol.contains(image_x-w, image_y-w) || !pol.contains(image_x+w, image_y)
+                            || !pol.contains(image_x, image_y+w) || !pol.contains(image_x+w, image_y+w)
+                            || !pol.contains(image_x-w, image_y+w) || !pol.contains(image_x+w, image_y-w))) {
+                        setCursor(CURSOR_DEFAULT);
+                    }
+                }
+                
+                
+            // if we are on a TMA point, show its summary in a tooltext.
+            } else if (ts.hasStainingEstimation()) {
                 TMApoint tp = ts.getPointAt((int)(evt.getX()/getZoom()), (int) (evt.getY()/getZoom()), ts.getParam_r(), true);
                 if (tp!=null) {
                     setCursor(CURSOR_HAND);

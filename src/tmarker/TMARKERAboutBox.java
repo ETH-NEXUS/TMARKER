@@ -12,10 +12,6 @@ import java.io.IOException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.JDialog;
-import javax.swing.JFrame;
-import javax.swing.JOptionPane;
-import javax.swing.JPanel;
-import javax.swing.WindowConstants;
 
 
 public class TMARKERAboutBox extends javax.swing.JDialog {
@@ -305,7 +301,12 @@ public class TMARKERAboutBox extends javax.swing.JDialog {
     }//GEN-LAST:event_appCiteLabelMouseClicked
 
     private void appVersionLabelMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_appVersionLabelMouseClicked
-        ((tmarker)getParent()).checkForUpdates(true, false);
+        UpdateDialog ud = ((tmarker)getParent()).ud;
+        if (ud == null) {
+            ud = new UpdateDialog((tmarker)getParent(), true);
+            ud.checkForUpdates(true, false);
+        }
+        ud.setVisible(true);
     }//GEN-LAST:event_appVersionLabelMouseClicked
 
     private void jLabel1MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jLabel1MouseClicked

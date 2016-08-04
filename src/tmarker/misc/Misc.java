@@ -1145,7 +1145,15 @@ public class Misc {
         ByteBuffer buffer = ByteBuffer.allocate((int)channel.size());
         channel.read(buffer);
         BufferedImage img = loadImage(buffer.array());
+        
+        //clean up
+        buffer.clear();
+        channel.close();
+        in.close();
+        //img.flush();
+        
         return img;
+        
         /*BufferedImage argbImg = new BufferedImage(img.getWidth(null), img.getHeight(null), BufferedImage.TYPE_INT_ARGB);
         java.awt.Graphics2D g2d = argbImg.createGraphics();
         g2d.drawImage(img, 0, 0, null);

@@ -5,6 +5,7 @@
 package stainingestimation;
 
 import java.awt.Point;
+import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ForkJoinTask;
@@ -23,6 +24,7 @@ public class StainingEstimationCoreFork extends RecursiveAction {
     private final TMARKERPluginManager tpm;
     private final StainingEstimation se;
     private final TMAspot ts;
+    private final BufferedImage ts_img;
     private final int radius;
     private final double blur;
     private final int tolerance;
@@ -57,6 +59,7 @@ public class StainingEstimationCoreFork extends RecursiveAction {
      * @param tpm The TMARKERPluginManager with access to the main program.
      * @param se The StainingEstimation instance, used for User chosen colors which are stored in the StainingEstimation instance.
      * @param ts The TMAspot to be processed.
+     * @param ts_img The BufferedImage of the TMAspot (if not NDPI). Can be null.
      * @param radius The radius of the nuclei.
      * @param blur The blurring applied to the channels prior to local maxima finding.
      * @param tolerance The tolerance used for local maxima finding.
@@ -83,10 +86,11 @@ public class StainingEstimationCoreFork extends RecursiveAction {
      * @param sizes The sizes of the processed sub-patches, expressed as points. Must be same size as offsets.
      * @param maxsize The maximum size of the sub-patches (edge length, only needed for NDPI, might be equal to the maximum patch-edge-size).
      */
-    public StainingEstimationCoreFork(TMARKERPluginManager tpm, StainingEstimation se, TMAspot ts, int radius, double blur, int tolerance, int TMblur_hema, int TMblur_dab, int TMblur_ch3, int t_hema, int t_dab, int t_ch3, boolean hide_legend, String myStain, boolean substractChannels, boolean invertCH1, boolean invertCH2, boolean invertCH3, boolean useThresholdMap, boolean respectAreas, List<TMApoint> brown_spots_total, List<Point> offsets, List<Point> sizes, int maxsize, int mStart, int mLength, boolean doFork, int[] progress_value) {
+    public StainingEstimationCoreFork(TMARKERPluginManager tpm, StainingEstimation se, TMAspot ts, BufferedImage ts_img, int radius, double blur, int tolerance, int TMblur_hema, int TMblur_dab, int TMblur_ch3, int t_hema, int t_dab, int t_ch3, boolean hide_legend, String myStain, boolean substractChannels, boolean invertCH1, boolean invertCH2, boolean invertCH3, boolean useThresholdMap, boolean respectAreas, List<TMApoint> brown_spots_total, List<Point> offsets, List<Point> sizes, int maxsize, int mStart, int mLength, boolean doFork, int[] progress_value) {
         this.tpm = tpm;
         this.se = se;
         this.ts = ts;
+        this.ts_img = ts_img;
         this.radius = radius;
         this.blur = blur;
         this.tolerance = tolerance;
@@ -131,7 +135,7 @@ public class StainingEstimationCoreFork extends RecursiveAction {
         for (int i=0; i<n_proc; i++) {
             split_adj = Math.min(split, offsets.size()-(mStart + i*split));
             if (split_adj>0) {
-                fjt.add(new StainingEstimationCoreFork(tpm, se, ts, radius, blur, tolerance, TMblur_hema, TMblur_dab, TMblur_ch3, t_hema, t_dab, t_ch3, hide_legend, myStain, substractChannels, invertCH1, invertCH2, invertCH3, useThresholdMap, respectAreas, brown_spots_total, offsets, sizes, maxsize, mStart + i*split, split_adj, false, progress_container));
+                fjt.add(new StainingEstimationCoreFork(tpm, se, ts, ts_img, radius, blur, tolerance, TMblur_hema, TMblur_dab, TMblur_ch3, t_hema, t_dab, t_ch3, hide_legend, myStain, substractChannels, invertCH1, invertCH2, invertCH3, useThresholdMap, respectAreas, brown_spots_total, offsets, sizes, maxsize, mStart + i*split, split_adj, false, progress_container));
             }
         }
         invokeAll(fjt);
@@ -147,7 +151,7 @@ public class StainingEstimationCoreFork extends RecursiveAction {
                 //tpm.setProgressbar((int)(1.0*progress_container[0]/mLength));
                 se.setProgressNumber_2(progress_container[0], offsets.size(), startTime);
 
-                StainingEstimation.tma_stainCore(se, ts, radius, blur, tolerance, TMblur_hema, TMblur_dab, TMblur_ch3, t_hema, t_dab, t_ch3, hide_legend, myStain, substractChannels, invertCH1, invertCH2, invertCH3, useThresholdMap, respectAreas, doFork, brown_spots_total, offset, size, maxsize);
+                StainingEstimation.tma_stainCore(se, ts, ts_img, radius, blur, tolerance, TMblur_hema, TMblur_dab, TMblur_ch3, t_hema, t_dab, t_ch3, hide_legend, myStain, substractChannels, invertCH1, invertCH2, invertCH3, useThresholdMap, respectAreas, doFork, brown_spots_total, offset, size, maxsize);
 
                 progress_container[0]++;
             }

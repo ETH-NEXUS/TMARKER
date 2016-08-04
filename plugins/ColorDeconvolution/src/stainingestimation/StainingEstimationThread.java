@@ -8,6 +8,7 @@ import java.awt.Cursor;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ForkJoinPool;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import plugins.TMARKERPluginManager;
@@ -112,7 +113,7 @@ public class StainingEstimationThread extends Thread {
             pool.shutdown();
 
             se.setProgressNumber(0, 0, 0);
-
+            
             System.out.println("StainingEstimation_Fork took " + (endTime - startTime) + 
                     " milliseconds.");
             

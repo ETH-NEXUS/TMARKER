@@ -171,6 +171,7 @@
                                 <Property name="text" type="java.lang.String" editor="org.netbeans.modules.i18n.form.FormI18nStringEditor">
                                   <ResourceString bundle="cancernucleusclassification/Bundle.properties" key="CancerNucleusClassification.jCheckBox13.text" replaceFormat="java.util.ResourceBundle.getBundle(&quot;{bundleNameSlashes}&quot;).getString(&quot;{key}&quot;)"/>
                                 </Property>
+                                <Property name="enabled" type="boolean" value="false"/>
                                 <Property name="name" type="java.lang.String" value="jCheckBox13" noResource="true"/>
                               </Properties>
                               <Constraints>

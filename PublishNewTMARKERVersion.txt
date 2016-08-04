@@ -1,5 +1,7 @@
 How to publish a new TMARKER version:
 
+- be sure the "whatsNew.txt" in the "dist" folder has the right version number on top
+
 - rename the "dist" folder of a TMARKER compilation (tmarker.jar and lib folder) to "TMARKER", and zip it to a zip called e.g. TMARKERv2.21665.zip (i.e. the version number in the name - just to have no confusion).
 
 - The zip file contains now one folder called TMARKER and this folder contains the jar file and the lib folder. This is important for the automatic update functionality.
