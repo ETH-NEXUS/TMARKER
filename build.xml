@@ -17,6 +17,11 @@
     	</propertyfile>
     </target>
     
+    <target name="-post-jar">
+    	<copy file="${dist.dir}/../whatsNew.txt"            
+                 tofile="${dist.dir}/whatsNew.txt"/>
+    </target>
+    
     <!--target name="-post-jar">
     	<copy todir="${dist.dir}">
             <fileset dir="${dist.dir}/.." includes="*.dll"/>
