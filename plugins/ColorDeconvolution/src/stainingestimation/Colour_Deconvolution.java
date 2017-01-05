@@ -421,9 +421,9 @@ public class Colour_Deconvolution implements PlugIn {
         /**
          * Generates the color vectors based on the staining protocol myStain.
          * @param myStain The staining protocol description, e.g. "H&E", "H&E 2", "H DAB", "Feulgen Light Green" or "Giemsa" "FastRed FastBlue DAB" (or others).
-         * @param MODx The RGB color array which is beeing generated for channel 1, size 3.
-         * @param MODy The RGB color array which is beeing generated for channel 2, size 3.
-         * @param MODz The RGB color array which is beeing generated for channel 3, size 3.
+         * @param MODx The RGB color array which is beeing filled for channel 1, size 3.
+         * @param MODy The RGB color array which is beeing filled for channel 2, size 3.
+         * @param MODz The RGB color array which is beeing filled for channel 3, size 3.
          * @param se The StainingEstimation instance, used for user value input, if myStaing = "User values".
          * @param ts The currently visible TMAspots, used for user value input, if myStaing = "User values".
          */
@@ -724,6 +724,7 @@ public class Colour_Deconvolution implements PlugIn {
 		}*/
         }
         
+        @Override
         public void run(String arg) {
 		ImagePlus imp = WindowManager.getCurrentImage();
 		if (imp==null){
