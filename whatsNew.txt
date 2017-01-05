@@ -1,3 +1,11 @@
+Version 2.151
+=============
+
+* openslide support for Mac/Linux (openslide needs to be installed on the machine, see Tools - Options).
+* removed bug of auto-updater.
+* minor bug fixes.
+
+
 Version 2.146
 =============
 

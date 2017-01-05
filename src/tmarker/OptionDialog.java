@@ -62,6 +62,7 @@ public class OptionDialog extends javax.swing.JDialog {
         jLabel7 = new javax.swing.JLabel();
         jTextField4 = new javax.swing.JTextField();
         jLabel8 = new javax.swing.JLabel();
+        jLabel9 = new javax.swing.JLabel();
         jPanel3 = new javax.swing.JPanel();
         jRadioButton1 = new javax.swing.JRadioButton();
         jRadioButton5 = new javax.swing.JRadioButton();
@@ -107,7 +108,7 @@ public class OptionDialog extends javax.swing.JDialog {
         gridBagConstraints.gridy = 0;
         gridBagConstraints.gridwidth = java.awt.GridBagConstraints.REMAINDER;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
-        gridBagConstraints.insets = new java.awt.Insets(10, 10, 3, 0);
+        gridBagConstraints.insets = new java.awt.Insets(10, 10, 3, 10);
         jPanel1.add(jLabel2, gridBagConstraints);
 
         buttonGroup3.add(jRadioButton7);
@@ -259,14 +260,14 @@ public class OptionDialog extends javax.swing.JDialog {
         gridBagConstraints.gridy = 9;
         gridBagConstraints.gridwidth = java.awt.GridBagConstraints.REMAINDER;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
-        gridBagConstraints.insets = new java.awt.Insets(0, 10, 3, 0);
+        gridBagConstraints.insets = new java.awt.Insets(0, 10, 3, 10);
         jPanel1.add(jLabel6, gridBagConstraints);
 
         jLabel7.setText(bundle.getString("OptionDialog.jLabel7.text")); // NOI18N
         jLabel7.setName("jLabel7"); // NOI18N
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 10;
+        gridBagConstraints.gridy = 11;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
         gridBagConstraints.insets = new java.awt.Insets(0, 10, 0, 5);
         jPanel1.add(jLabel7, gridBagConstraints);
@@ -275,7 +276,7 @@ public class OptionDialog extends javax.swing.JDialog {
         jTextField4.setName("jTextField4"); // NOI18N
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 1;
-        gridBagConstraints.gridy = 10;
+        gridBagConstraints.gridy = 11;
         gridBagConstraints.gridwidth = java.awt.GridBagConstraints.REMAINDER;
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
@@ -286,11 +287,21 @@ public class OptionDialog extends javax.swing.JDialog {
         jLabel8.setName("jLabel8"); // NOI18N
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 11;
+        gridBagConstraints.gridy = 12;
         gridBagConstraints.gridwidth = java.awt.GridBagConstraints.REMAINDER;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
-        gridBagConstraints.insets = new java.awt.Insets(3, 10, 10, 0);
+        gridBagConstraints.insets = new java.awt.Insets(3, 10, 10, 10);
         jPanel1.add(jLabel8, gridBagConstraints);
+
+        jLabel9.setText(bundle.getString("OptionDialog.jLabel9.text")); // NOI18N
+        jLabel9.setName("jLabel9"); // NOI18N
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 10;
+        gridBagConstraints.gridwidth = java.awt.GridBagConstraints.REMAINDER;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
+        gridBagConstraints.insets = new java.awt.Insets(0, 10, 0, 11);
+        jPanel1.add(jLabel9, gridBagConstraints);
 
         jTabbedPane1.addTab(bundle.getString("OptionDialog.jPanel1.TabConstraints.tabTitle"), jPanel1); // NOI18N
 
@@ -888,6 +899,7 @@ public class OptionDialog extends javax.swing.JDialog {
     private javax.swing.JLabel jLabel6;
     private javax.swing.JLabel jLabel7;
     private javax.swing.JLabel jLabel8;
+    private javax.swing.JLabel jLabel9;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel2;
     private javax.swing.JPanel jPanel3;

@@ -21,10 +21,6 @@
 
 package org.openslide;
 
-import java.io.InputStream;
-import java.io.IOException;
-import java.util.Properties;
-
 class OpenSlideJNI {
     private OpenSlideJNI() {
     }

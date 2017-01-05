@@ -12,7 +12,6 @@ import java.awt.Image;
 import java.awt.Polygon;
 import java.awt.image.BufferedImage;
 import java.io.*;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -21,8 +20,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.jar.JarEntry;
-import java.util.jar.JarInputStream;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.imageio.ImageIO;
@@ -368,7 +365,7 @@ public class TMAspot {
             } catch (Exception | java.lang.UnsatisfiedLinkError ex) {
                 tc.setCursor(Cursor.getDefaultCursor());
                 Logger.getLogger(TMAspot.class.getName()).log(Level.SEVERE, null, ex);
-                JOptionPane.showMessageDialog(tc, "The file " + filename + " could not be parsed.\n\n" + ex.getMessage(), "Error loading file", JOptionPane.ERROR_MESSAGE);
+                JOptionPane.showMessageDialog(tc, "The file " + filename + " could not be parsed.\n\nPossible reason: OpenSlide is not found on the specified path (Tools -> Options).\n\n" + ex.getMessage(), "Error loading file", JOptionPane.ERROR_MESSAGE);
                 return;
             }
         }

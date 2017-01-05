@@ -110,7 +110,7 @@ public class UpdateDialog extends javax.swing.JDialog {
             jLabel6.setText("Downloading...");
             
             //// download the new zipfile
-            final Download download = new Download(new URL("http://www.nexus.ethz.ch/content/dam/ethz/special-interest/dual/nexus-dam/software/TMARKER/TMARKERv" + remoteRevision + ".zip"), t.getProgramFolder());
+            final Download download = new Download(new URL("http://www.ethz.ch/content/dam/ethz/special-interest/dual/nexus-dam/software/TMARKER/TMARKERv" + remoteRevision + ".zip"), t.getProgramFolder());
             
             Thread downloadThread = new Thread(new Runnable() {
                 @Override
@@ -408,7 +408,7 @@ public class UpdateDialog extends javax.swing.JDialog {
             String remoteRevision_ = null;
             try {
                 WebConversation wc = new WebConversation();
-                WebResponse resp = wc.getResponse("http://www.nexus.ethz.ch/content/dam/ethz/special-interest/dual/nexus-dam/software/TMARKER/vnuc.txt");
+                WebResponse resp = wc.getResponse("http://www.ethz.ch/content/dam/ethz/special-interest/dual/nexus-dam/software/TMARKER/vnuc.txt");
                 
                 // output is website with version number
                 String output = resp.getText();
