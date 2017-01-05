@@ -12,6 +12,7 @@ import java.awt.Image;
 import java.awt.Polygon;
 import java.awt.image.BufferedImage;
 import java.io.*;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -20,6 +21,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.jar.JarEntry;
+import java.util.jar.JarInputStream;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.imageio.ImageIO;
@@ -346,13 +349,23 @@ public class TMAspot {
         setFilename(filename);
         if (filename.toLowerCase().endsWith("ndpi") || filename.toLowerCase().endsWith("svs")) {
             try {
+                
+                // load the native libraries necessary for openSlide.
+                if (!System.getProperty("os.name").startsWith("Windows") && tc.getOptionDialog().getParam_OpenSlideLibraryPath() != null) {
+                    System.load(tc.getOptionDialog().getParam_OpenSlideLibraryPath());
+                }
+                else {
+                    System.loadLibrary("openslide-jni");
+                }
+        
                 this.os = new OpenSlide(new File(filename));
+                
                 Map<String, String> props = os.getProperties();
                 Set<String> keys = props.keySet();
                 for (String key : keys) {
                     addProperty(key, props.get(key));
                 }
-            } catch (IOException | java.lang.UnsatisfiedLinkError ex) {
+            } catch (Exception | java.lang.UnsatisfiedLinkError ex) {
                 tc.setCursor(Cursor.getDefaultCursor());
                 Logger.getLogger(TMAspot.class.getName()).log(Level.SEVERE, null, ex);
                 JOptionPane.showMessageDialog(tc, "The file " + filename + " could not be parsed.\n\n" + ex.getMessage(), "Error loading file", JOptionPane.ERROR_MESSAGE);

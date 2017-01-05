@@ -67,17 +67,17 @@ public class PluginLoader {
     public static List<Pluggable> loadPlugins(File plugDir, ClassLoader parentClassLoader) throws IOException {
         if (plugDir.exists()) {
             
-            if (tmarker.DEBUG>0) Logger.getLogger(PluginLoader.class.getName()).log(Level.INFO, "  Try to load plugins from " + plugDir.getAbsolutePath());
+            if (tmarker.DEBUG>0) Logger.getLogger(PluginLoader.class.getName()).log(Level.INFO, "  Try to load plugins from {0}", plugDir.getAbsolutePath());
 
             File[] plugJars = plugDir.listFiles(new JARFileFilter());
 
-            if (tmarker.DEBUG>0) Logger.getLogger(PluginLoader.class.getName()).log(Level.INFO, "  " + plugJars.length + " plugin(s) listed.");
+            if (tmarker.DEBUG>0) Logger.getLogger(PluginLoader.class.getName()).log(Level.INFO, "  {0} plugin(s) listed.", plugJars.length);
 
             ClassLoader cl = new URLClassLoader(PluginLoader.fileArrayToURLArray(plugJars), parentClassLoader);
 
             List<Class<Pluggable>> plugClasses = PluginLoader.extractClassesFromJARs(plugJars, cl);
 
-            if (tmarker.DEBUG>0) Logger.getLogger(PluginLoader.class.getName()).log(Level.INFO, "  " + plugClasses.size() + " pluggable plugin(s) loaded.");
+            if (tmarker.DEBUG>0) Logger.getLogger(PluginLoader.class.getName()).log(Level.INFO, "  {0} pluggable plugin(s) loaded.", plugClasses.size());
 
             return PluginLoader.createPluggableObjects(plugClasses);
             
@@ -98,17 +98,17 @@ public class PluginLoader {
      * @throws IOException If a jar cannot be read.
      */
     public static List<Pluggable> loadPlugins(URL plugURL, String tmp_dir, String[] selectedPlugins, ClassLoader parentClassLoader) throws IOException {
-        if (tmarker.DEBUG>0) Logger.getLogger(PluginLoader.class.getName()).log(Level.INFO, "  Try to load plugins from " + plugURL);
+        if (tmarker.DEBUG>0) Logger.getLogger(PluginLoader.class.getName()).log(Level.INFO, "  Try to load plugins from {0}", plugURL);
         
         File[] plugJars = downloadSelectedJarFilesFromURL(plugURL, tmp_dir, selectedPlugins);
         
-        if (tmarker.DEBUG>0) Logger.getLogger(PluginLoader.class.getName()).log(Level.INFO, "  " + plugJars.length + " plugin(s) listed.");
+        if (tmarker.DEBUG>0) Logger.getLogger(PluginLoader.class.getName()).log(Level.INFO, "  {0} plugin(s) listed.", plugJars.length);
         
         ClassLoader cl = new URLClassLoader(PluginLoader.fileArrayToURLArray(plugJars), parentClassLoader);
         
         List<Class<Pluggable>> plugClasses = PluginLoader.extractClassesFromJARs(plugJars, cl);
         
-        if (tmarker.DEBUG>0) Logger.getLogger(PluginLoader.class.getName()).log(Level.INFO, "  " + plugClasses.size() + " pluggable plugin(s) loaded.");
+        if (tmarker.DEBUG>0) Logger.getLogger(PluginLoader.class.getName()).log(Level.INFO, "  {0} pluggable plugin(s) loaded.", plugClasses.size());
         
         return PluginLoader.createPluggableObjects(plugClasses);
     }
@@ -160,9 +160,9 @@ public class PluginLoader {
                 URL source = new URL(link);
                 URLConnection sourceConnection = source.openConnection();
                 sourceConnection.setRequestProperty("User-Agent", "Mozilla/5.0 (Macintosh; U; Intel Mac OS X 10.4; en-US; rv:1.9.2.2) Gecko/20100316 Firefox/3.6.2");
-                InputStream input = sourceConnection.getInputStream();
-                copyInputStreamToFile(input, destination);
-                input.close();
+                    try (InputStream input = sourceConnection.getInputStream()) {
+                        copyInputStreamToFile(input, destination);
+                    }
                 
                 files.add(destination);
                 } catch (Exception e) {
@@ -240,15 +240,15 @@ public class PluginLoader {
         int k=0;
         for (File jar : jars) {
             try {
-                if (tmarker.DEBUG>1) Logger.getLogger(PluginLoader.class.getName()).log(Level.INFO, "    Try to extract JARs from " + jar.getName() + "...");
+                if (tmarker.DEBUG>1) Logger.getLogger(PluginLoader.class.getName()).log(Level.INFO, "    Try to extract JARs from {0}...", jar.getName());
                 
                 tmarker.splashTextAndProgress(jar.getName(), (int) (40.0+0.20*100.0*k++/jars.length));
                 
                 classes.addAll(PluginLoader.extractClassesFromJAR(jar, cl));
                 
-                if (tmarker.DEBUG>1) Logger.getLogger(PluginLoader.class.getName()).log(Level.INFO, "    Try to extract JARs from " + jar.getName() + "... SUCCESS.");
+                if (tmarker.DEBUG>1) Logger.getLogger(PluginLoader.class.getName()).log(Level.INFO, "    Try to extract JARs from {0}... SUCCESS.", jar.getName());
             } catch (Exception e) {
-                if (tmarker.DEBUG>1) Logger.getLogger(PluginLoader.class.getName()).log(Level.INFO, "    Try to extract JARs from " + jar.getName() + "... FAILED.");
+                if (tmarker.DEBUG>1) Logger.getLogger(PluginLoader.class.getName()).log(Level.INFO, "    Try to extract JARs from {0}... FAILED.", jar.getName());
                 Logger.getLogger(PluginLoader.class.getName()).log(Level.SEVERE, null, e);
             }
         }
@@ -265,45 +265,45 @@ public class PluginLoader {
     @SuppressWarnings("unchecked")
     private static List<Class<Pluggable>> extractClassesFromJAR(final File jar, ClassLoader cl) throws IOException {
         List<Class<Pluggable>> classes = new ArrayList<>();
-        JarInputStream jaris = new JarInputStream(new FileInputStream(jar));
-        JarEntry ent;
-        boolean warning_shown = false;
-        while ((ent = jaris.getNextJarEntry()) != null) {
-            if (ent.getName().toLowerCase().endsWith(".class")) {
-                try {
-                    if (tmarker.DEBUG>2) Logger.getLogger(PluginLoader.class.getName()).log(Level.INFO, "      Try to extract " + ent.getName() + "..."); 
-                    
-                    Class<?> cls = cl.loadClass(ent.getName().substring(0, ent.getName().length() - 6).replace('/', '.'));
-                    
-                    if (tmarker.DEBUG>2) Logger.getLogger(PluginLoader.class.getName()).log(Level.INFO, "      Try to extract " + ent.getName() + "... SUCCESS."); 
-                    
-                    if (PluginLoader.isPluggableClass(cls)) {
-                        if (tmarker.DEBUG>2) Logger.getLogger(PluginLoader.class.getName()).log(Level.INFO, "        " + ent.getName() + " is pluggable."); 
+        try (JarInputStream jaris = new JarInputStream(new FileInputStream(jar))) {
+            JarEntry ent;
+            boolean warning_shown = false;
+            while ((ent = jaris.getNextJarEntry()) != null) {
+                if (ent.getName().toLowerCase().endsWith(".class")) {
+                    try {
+                        if (tmarker.DEBUG>2) Logger.getLogger(PluginLoader.class.getName()).log(Level.INFO, "      Try to extract {0}...", ent.getName()); 
                         
-                        classes.add((Class<Pluggable>) cls);
-                    } else {
-                        if (tmarker.DEBUG>2) Logger.getLogger(PluginLoader.class.getName()).log(Level.INFO, "        " + ent.getName() + " is not pluggable."); 
-                    }
-                } catch (ClassNotFoundException | NoClassDefFoundError ex) {
-                    if (tmarker.DEBUG>2) Logger.getLogger(PluginLoader.class.getName()).log(Level.INFO, "      Try to extract " + ent.getName() + "... FAILED."); 
-                    if (tmarker.DEBUG>0) System.err.println("Issue loading plugin " + jar.getName() + ". Error: Can't load Class " + ent.getName());
-                    if (!warning_shown && tmarker.DEBUG>5) {
-                        final JarEntry ent_final = ent;
-                        Thread thread = new Thread(new Runnable() {
-                            @Override
-                            public void run() {
-                                JOptionPane.showMessageDialog(null, "Issue loading plugin " + jar.getName() + ".\n\nError:\nCan't load Class " + ent_final.getName(), "Error Loading Plugin.", JOptionPane.ERROR_MESSAGE);
-                            }
-                        });
-                        thread.start();
+                        Class<?> cls = cl.loadClass(ent.getName().substring(0, ent.getName().length() - 6).replace('/', '.'));
                         
+                        if (tmarker.DEBUG>2) Logger.getLogger(PluginLoader.class.getName()).log(Level.INFO, "      Try to extract {0}... SUCCESS.", ent.getName());
+                        
+                        if (PluginLoader.isPluggableClass(cls)) {
+                            if (tmarker.DEBUG>2) Logger.getLogger(PluginLoader.class.getName()).log(Level.INFO, "        {0} is pluggable.", ent.getName());
+                            
+                            classes.add((Class<Pluggable>) cls);
+                        } else {
+                            if (tmarker.DEBUG>2) Logger.getLogger(PluginLoader.class.getName()).log(Level.INFO, "        {0} is not pluggable.", ent.getName());
+                        }
+                    } catch (ClassNotFoundException | NoClassDefFoundError ex) {
+                        if (tmarker.DEBUG>2) Logger.getLogger(PluginLoader.class.getName()).log(Level.INFO, "      Try to extract {0}... FAILED.", ent.getName());
+                        if (tmarker.DEBUG>0) System.err.println("Issue loading plugin " + jar.getName() + ". Error: Can't load Class " + ent.getName());
+                        if (!warning_shown && tmarker.DEBUG>5) {
+                            final JarEntry ent_final = ent;
+                            Thread thread = new Thread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    JOptionPane.showMessageDialog(null, "Issue loading plugin " + jar.getName() + ".\n\nError:\nCan't load Class " + ent_final.getName(), "Error Loading Plugin.", JOptionPane.ERROR_MESSAGE);
+                                }
+                            });
+                            thread.start();
+                            
+                        }
+                        warning_shown = true;
                     }
-                    warning_shown = true;
-                } 
+                }
+                jaris.closeEntry(); 
             }
-            jaris.closeEntry();
         }
-        jaris.close();
         return classes;
     }
 
@@ -315,7 +315,7 @@ public class PluginLoader {
      */
     private static boolean isPluggableClass(Class<?> cls) {
         for (Class<?> i : cls.getInterfaces()) {
-            if (tmarker.DEBUG>3) Logger.getLogger(PluginLoader.class.getName()).log(Level.INFO, "          Pluggable: " + Pluggable.class.toString()+ " - Interface: " + i.toString());
+            if (tmarker.DEBUG>3) Logger.getLogger(PluginLoader.class.getName()).log(Level.INFO, "          Pluggable: {0} - Interface: {1}", new Object[]{Pluggable.class.toString(), i.toString()});
             if (i.equals(Pluggable.class)) {
                 return true;
             }
@@ -333,15 +333,15 @@ public class PluginLoader {
         int k=0;
         for (Class<Pluggable> plug : pluggables) {
             try {
-                if (tmarker.DEBUG>1) Logger.getLogger(PluginLoader.class.getName()).log(Level.INFO, "    Try to create instance from " + plug.getName() + "...");
+                if (tmarker.DEBUG>1) Logger.getLogger(PluginLoader.class.getName()).log(Level.INFO, "    Try to create instance from {0}...", plug.getName());
                 
                 tmarker.splashTextAndProgress("create " + plug.getName(), (int) (60.0+0.2*100.0*k++/pluggables.size()));
                 
                 plugs.add(plug.newInstance());
                 
-                if (tmarker.DEBUG>1) Logger.getLogger(PluginLoader.class.getName()).log(Level.INFO, "    Try to create instance from " + plug.getName() + "... SUCCESS.");
+                if (tmarker.DEBUG>1) Logger.getLogger(PluginLoader.class.getName()).log(Level.INFO, "    Try to create instance from {0}... SUCCESS.", plug.getName());
             } catch (Error | Exception e) {
-                if (tmarker.DEBUG>1) Logger.getLogger(PluginLoader.class.getName()).log(Level.INFO, "    Try to create instance from " + plug.getName() + "... FAILED.");
+                if (tmarker.DEBUG>1) Logger.getLogger(PluginLoader.class.getName()).log(Level.INFO, "    Try to create instance from {0}... FAILED.", plug.getName());
                 Logger.getLogger(PluginLoader.class.getName()).log(Level.SEVERE, "Can't instantiate plugin: " + plug.getName(), e);
             }
         }

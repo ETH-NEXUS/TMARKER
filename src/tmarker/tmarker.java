@@ -1876,35 +1876,32 @@ public final class tmarker extends javax.swing.JFrame {
                     List<String> propKeys = new ArrayList<>(keys);
                     Collections.sort(propKeys);
                     String props = "";
-                    for (Iterator<String> it = propKeys.iterator(); it.hasNext();) {
-                        String key = it.next();
+                    for (String key : propKeys) {
                         props += key + "=" + pr.get(key) + "\n";
                     }
-                    logger.log(java.util.logging.Level.INFO, "System Properties:\n" + props);
+                    logger.log(java.util.logging.Level.INFO, "System Properties:\n{0}", props);
 
                     // Memory
                     // Get current size of heap in bytes
-                    logger.log(java.util.logging.Level.INFO, "Current Heap Space: " + (Runtime.getRuntime().totalMemory() / 1024 / 1024) + " MB.");
+                    logger.log(java.util.logging.Level.INFO, "Current Heap Space: {0} MB.", (Runtime.getRuntime().totalMemory() / 1024 / 1024));
                     // Get maximum size of heap in bytes. The heap cannot grow beyond this size.
                     // Any attempt will result in an OutOfMemoryException.
-                    logger.log(java.util.logging.Level.INFO, "Max Heap Space: " + (Runtime.getRuntime().maxMemory() / 1024 / 1024) + " MB.");
+                    logger.log(java.util.logging.Level.INFO, "Max Heap Space: {0} MB.", (Runtime.getRuntime().maxMemory() / 1024 / 1024));
                     // Get amount of free memory within the heap in bytes. This size will increase 
                     // after garbage collection and decrease as new objects are created.
-                    logger.log(java.util.logging.Level.INFO, "Free Heap Space: " + (Runtime.getRuntime().freeMemory() / 1024 / 1024) + " MB.");
+                    logger.log(java.util.logging.Level.INFO, "Free Heap Space: {0} MB.", (Runtime.getRuntime().freeMemory() / 1024 / 1024));
 
                     String[] its = ImageIO.getWriterFormatNames();
                     String imgformats = "";
-                    for (int i = 0; i < its.length; i++) {
-                        imgformats += its[i] + "\n";
+                    for (String it : its) {
+                        imgformats += it + "\n";
                     }
-                    logger.log(java.util.logging.Level.INFO, "Accepted image file types:\n" + imgformats);
+                    logger.log(java.util.logging.Level.INFO, "Accepted image file types:\n{0}", imgformats);
 
-                    logger.log(java.util.logging.Level.INFO, "Temp Directory: " + frame.getTmpDir());
+                    logger.log(java.util.logging.Level.INFO, "Temp Directory: {0}", frame.getTmpDir());
 
                     int processors = Runtime.getRuntime().availableProcessors();
-                    logger.log(java.util.logging.Level.INFO, Integer.toString(processors) + " processor"
-                            + (processors != 1 ? "s are " : " is ")
-                            + "available");
+                    logger.log(java.util.logging.Level.INFO, "{0} processor{1}available", new Object[]{Integer.toString(processors), processors != 1 ? "s are " : " is "});
                 }
             }
         });
@@ -2064,7 +2061,7 @@ public final class tmarker extends javax.swing.JFrame {
     // End of variables declaration//GEN-END:variables
 
     public static void openWebsite(String url) {
-        Logger.getLogger(tmarker.class.getName()).log(Level.INFO, "Trying to open " + url + ".");
+        Logger.getLogger(tmarker.class.getName()).log(Level.INFO, "Trying to open {0}.", url);
         try {
             Desktop.getDesktop().browse(URI.create(url));
         } catch (IOException ex) {
@@ -2741,7 +2738,7 @@ public final class tmarker extends javax.swing.JFrame {
             // second-and-a-half: try to find the spots that could not be mached on the relative location specified in the xml
             if (!newspots.isEmpty()) {
                 for (int i = newspots.size() - 1; i >= 0; i--) {
-                    logger.log(java.util.logging.Level.INFO, file.getParent() + File.separator + newspots.get(i).getOriginalImagename());
+                    logger.log(java.util.logging.Level.INFO, "{0}{1}{2}", new Object[]{file.getParent(), File.separator, newspots.get(i).getOriginalImagename()});
                     if (new File(file.getParent() + File.separator + newspots.get(i).getOriginalImagename()).exists()) {
                         TMAspot ts = new TMAspot(t, file.getParent() + File.separator + newspots.get(i).getOriginalImagename());
                         ts.adoptParams(newspots.get(i), false);
@@ -2756,7 +2753,7 @@ public final class tmarker extends javax.swing.JFrame {
             // third: try to find the images in the same folder like xml
             if (!newspots.isEmpty()) {
                 for (int i = newspots.size() - 1; i >= 0; i--) {
-                    logger.log(java.util.logging.Level.INFO, file.getParent() + File.separator + newspots.get(i).getName());
+                    logger.log(java.util.logging.Level.INFO, "{0}{1}{2}", new Object[]{file.getParent(), File.separator, newspots.get(i).getName()});
                     if (new File(file.getParent() + File.separator + newspots.get(i).getName()).exists()) {
                         TMAspot ts = new TMAspot(t, file.getParent() + File.separator + newspots.get(i).getName());
                         ts.adoptParams(newspots.get(i), false);
@@ -2941,7 +2938,7 @@ public final class tmarker extends javax.swing.JFrame {
 
                     // third: try to find the images as specified in image name column
                     if (ts == null) {
-                        logger.log(java.util.logging.Level.INFO, "Try to find " + prop.getProperty(headers.get(imagename_ind)));
+                        logger.log(java.util.logging.Level.INFO, "Try to find {0}", prop.getProperty(headers.get(imagename_ind)));
                         if (new File(prop.getProperty(headers.get(imagename_ind))).exists()) {
                             ts = new TMAspot(t, prop.getProperty(headers.get(imagename_ind)));
                             ts.setProperties(prop);
@@ -2952,7 +2949,7 @@ public final class tmarker extends javax.swing.JFrame {
 
                     // fourth: try to find the images in the same folder like csv
                     if (ts == null) {
-                        logger.log(java.util.logging.Level.INFO, "Try to find " + file.getParent() + File.separator + Misc.FilePathStringtoFilename(prop.getProperty(headers.get(imagename_ind))));
+                        logger.log(java.util.logging.Level.INFO, "Try to find {0}{1}{2}", new Object[]{file.getParent(), File.separator, Misc.FilePathStringtoFilename(prop.getProperty(headers.get(imagename_ind)))});
                         if (new File(file.getParent() + File.separator + Misc.FilePathStringtoFilename(prop.getProperty(headers.get(imagename_ind)))).exists()) {
                             ts = new TMAspot(t, file.getParent() + File.separator + Misc.FilePathStringtoFilename(prop.getProperty(headers.get(imagename_ind))));
                             ts.setProperties(prop);
@@ -3033,7 +3030,7 @@ public final class tmarker extends javax.swing.JFrame {
             }
             bufRdr.close();
         } catch (Exception ex) {
-            logger.log(java.util.logging.Level.WARNING, "Error Loading File " + file.getName());
+            logger.log(java.util.logging.Level.WARNING, "Error Loading File {0}", file.getName());
         } finally {
             t.setStatusMessageLabel(oldStatusText);
             t.setProgressbar(0);
@@ -3073,8 +3070,8 @@ public final class tmarker extends javax.swing.JFrame {
         allowed_ext.add("tif");
         allowed_ext.add("tiff");
         String[] its = ImageIO.getReaderFormatNames();
-        for (int i = 0; i < its.length; i++) {
-            allowed_ext.add(its[i].toLowerCase());
+        for (String it : its) {
+            allowed_ext.add(it.toLowerCase());
         }
 
         allowed_ext.add("ndpi");
@@ -4013,6 +4010,7 @@ public final class tmarker extends javax.swing.JFrame {
      * @param file The file to be saved.
      * @param asSingleFiles If true, every TMAspot is written in an own XML file, named as the TMAspot. Otherwise
      * one XML containing all TMAspots is written (can be very large).
+     * @return True, if everything was successful.
      */
     public static boolean SaveAsXML(tmarker t, File file, boolean asSingleFiles) {
         if (file == null) {
@@ -4572,7 +4570,7 @@ public final class tmarker extends javax.swing.JFrame {
                 // always write to different location
                 File fileOut = new File(t.getProgramFolder() + File.separator + name);
                 //File fileOut = new File(localDLLPath + name);
-                logger.info("Writing dll to: " + fileOut.getAbsolutePath());
+                logger.log(Level.INFO, "Writing dll to: {0}", fileOut.getAbsolutePath());
                 out = FileUtils.openOutputStream(fileOut);
                 IOUtils.copy(in, out);
                 in.close();
@@ -5992,6 +5990,7 @@ public final class tmarker extends javax.swing.JFrame {
         appProps.setProperty("OD.checkForUpdatesOnStart", Boolean.toString(od.checkForUpdatesOnStart()));
         appProps.setProperty("OD.installUpdatesAutomatically", Boolean.toString(od.installUpdatesAutomatically()));
         appProps.setProperty("OD.columnSeparator", od.getParam_ColumnSeparator());
+        appProps.setProperty("OD.openSlideLibraryPath", od.getParam_OpenSlideLibraryPath());
         appProps.setProperty("BCD.useColor", Boolean.toString(bcd.getUseColor()));
         if (plugSel!=null) {
             appProps.setProperty("PS.selectedPlugins", Misc.ArrayToString(plugSel.getParam_loadedPlugins(), ";"));
@@ -6017,7 +6016,7 @@ public final class tmarker extends javax.swing.JFrame {
      * be restored in the next program start.
      */
     private void storeParameterValues() {
-        FileOutputStream out = null;
+        FileOutputStream out;
         try {
             Properties appProps = new Properties();
             try {
@@ -6052,9 +6051,9 @@ public final class tmarker extends javax.swing.JFrame {
     private void restoreParameterValues(boolean only_plugins) {
         try {
             Properties appProps = new Properties();
-            FileInputStream in = new FileInputStream(getProgramFolder() + File.separator + "tmarker.conf");
-            appProps.load(in);
-            in.close();
+            try (FileInputStream in = new FileInputStream(getProgramFolder() + File.separator + "tmarker.conf")) {
+                appProps.load(in);
+            }
             restoreParameterValues(appProps, only_plugins);
         } catch (Exception ex) {
             logger.log(java.util.logging.Level.WARNING, "File tmarker.conf not found. TMARKER default parameters used.");
@@ -6180,6 +6179,10 @@ public final class tmarker extends javax.swing.JFrame {
             if (value != null) {
                 od.setParam_ColumnSeparator(value);
             }
+            value = appProps.getProperty("OD.openSlideLibraryPath");
+            if (value != null) {
+                od.setParam_OpenSlideLibraryPath(value);
+            }
             value = appProps.getProperty("BCD.useColor");
             if (value != null) {
                 bcd.setUseColor(Boolean.parseBoolean(value));
@@ -6243,6 +6246,7 @@ public final class tmarker extends javax.swing.JFrame {
         od.setCheckForUpdatesOnStart(true);
         od.setInstallUpdatesAutomatically(true);
         od.setParam_ColumnSeparator(";");
+        od.setParam_OpenSlideLibraryPath("/usr/local/lib/openslide-java/libopenslide-jni.jnilib");
 
         bcd.setUseColor(true);
         
@@ -6343,7 +6347,7 @@ public final class tmarker extends javax.swing.JFrame {
             }
 
             if (DEBUG > 0) {
-                logger.log(Level.INFO, plugins.size() + " plugin(s) found (step 1 of 2).");
+                logger.log(Level.INFO, "{0} plugin(s) found (step 1 of 2).", plugins.size());
             }
 
             // add the plugin manager
@@ -6397,7 +6401,7 @@ public final class tmarker extends javax.swing.JFrame {
             } //System.setSecurityManager(new TMARKERSecurityManager());
 
             if (DEBUG > 0) {
-                logger.log(Level.INFO, (jMenu5.getItemCount() - 3) + " plugin(s) loaded (step 2 of 2).");
+                logger.log(Level.INFO, "{0} plugin(s) loaded (step 2 of 2).", (jMenu5.getItemCount() - 3));
             }
 
         } catch (IOException ex) {

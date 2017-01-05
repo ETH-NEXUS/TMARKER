@@ -58,6 +58,10 @@ public class OptionDialog extends javax.swing.JDialog {
         jTextField3 = new javax.swing.JTextField();
         jLabel4 = new javax.swing.JLabel();
         jLabel5 = new javax.swing.JLabel();
+        jLabel6 = new javax.swing.JLabel();
+        jLabel7 = new javax.swing.JLabel();
+        jTextField4 = new javax.swing.JTextField();
+        jLabel8 = new javax.swing.JLabel();
         jPanel3 = new javax.swing.JPanel();
         jRadioButton1 = new javax.swing.JRadioButton();
         jRadioButton5 = new javax.swing.JRadioButton();
@@ -246,6 +250,47 @@ public class OptionDialog extends javax.swing.JDialog {
         gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
         gridBagConstraints.insets = new java.awt.Insets(10, 10, 0, 10);
         jPanel1.add(jLabel5, gridBagConstraints);
+
+        jLabel6.setFont(new java.awt.Font("Tahoma", 1, 11)); // NOI18N
+        jLabel6.setText(bundle.getString("OptionDialog.jLabel6.text")); // NOI18N
+        jLabel6.setName("jLabel6"); // NOI18N
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 9;
+        gridBagConstraints.gridwidth = java.awt.GridBagConstraints.REMAINDER;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
+        gridBagConstraints.insets = new java.awt.Insets(0, 10, 3, 0);
+        jPanel1.add(jLabel6, gridBagConstraints);
+
+        jLabel7.setText(bundle.getString("OptionDialog.jLabel7.text")); // NOI18N
+        jLabel7.setName("jLabel7"); // NOI18N
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 10;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
+        gridBagConstraints.insets = new java.awt.Insets(0, 10, 0, 5);
+        jPanel1.add(jLabel7, gridBagConstraints);
+
+        jTextField4.setText(bundle.getString("OptionDialog.jTextField4.text")); // NOI18N
+        jTextField4.setName("jTextField4"); // NOI18N
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 1;
+        gridBagConstraints.gridy = 10;
+        gridBagConstraints.gridwidth = java.awt.GridBagConstraints.REMAINDER;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
+        gridBagConstraints.insets = new java.awt.Insets(0, 0, 0, 10);
+        jPanel1.add(jTextField4, gridBagConstraints);
+
+        jLabel8.setText(bundle.getString("OptionDialog.jLabel8.text")); // NOI18N
+        jLabel8.setName("jLabel8"); // NOI18N
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 11;
+        gridBagConstraints.gridwidth = java.awt.GridBagConstraints.REMAINDER;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
+        gridBagConstraints.insets = new java.awt.Insets(3, 10, 10, 0);
+        jPanel1.add(jLabel8, gridBagConstraints);
 
         jTabbedPane1.addTab(bundle.getString("OptionDialog.jPanel1.TabConstraints.tabTitle"), jPanel1); // NOI18N
 
@@ -784,6 +829,22 @@ public class OptionDialog extends javax.swing.JDialog {
     }
     
     /**
+     * Returns the user specified path to the OpenSlide Java library, e.g. "/usr/local/lib/openslide-java/libopenslide-jni.jnilib".
+     * @return The absolute path to the OpenSlide Java library.
+     */
+    public String getParam_OpenSlideLibraryPath() {
+        return jTextField4.getText();
+    }
+    
+    /**
+     * Sets the user specified path to the OpenSlide Java library, e.g. "/usr/local/lib/openslide-java/libopenslide-jni.jnilib".
+     * @param path The absolute path to the OpenSlide Java library.
+     */
+    public void setParam_OpenSlideLibraryPath(String path) {
+        jTextField4.setText(path);
+    }
+    
+    /**
      * Returns the maximum heap space memory available.
      * @return The max heap space memory available for computation in byte.
      */
@@ -824,6 +885,9 @@ public class OptionDialog extends javax.swing.JDialog {
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;
     private javax.swing.JLabel jLabel5;
+    private javax.swing.JLabel jLabel6;
+    private javax.swing.JLabel jLabel7;
+    private javax.swing.JLabel jLabel8;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel2;
     private javax.swing.JPanel jPanel3;
@@ -841,6 +905,7 @@ public class OptionDialog extends javax.swing.JDialog {
     private javax.swing.JTextField jTextField1;
     private javax.swing.JTextField jTextField2;
     private javax.swing.JTextField jTextField3;
+    private javax.swing.JTextField jTextField4;
     private org.jdesktop.beansbinding.BindingGroup bindingGroup;
     // End of variables declaration//GEN-END:variables
 
