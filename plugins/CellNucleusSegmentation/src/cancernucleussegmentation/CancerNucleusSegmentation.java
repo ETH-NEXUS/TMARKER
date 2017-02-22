@@ -62,7 +62,7 @@ public class CancerNucleusSegmentation extends javax.swing.JFrame implements Plu
 
     // For Plugin handling
     PluginManager manager = null;
-    private static final String PLUGINNAME = "Cancer Nucleus Segmentation";
+    private static final String PLUGINNAME = "Nucleus Segmentation";
     private static final String PLUGINVERSION = "1." + java.util.ResourceBundle.getBundle("cancernucleussegmentation/Bundle").getString("build");
 
     /**
@@ -406,8 +406,7 @@ public class CancerNucleusSegmentation extends javax.swing.JFrame implements Plu
         });
         jPanel4.add(jButton5);
 
-        java.util.ResourceBundle bundle = java.util.ResourceBundle.getBundle("cancernucleusclassification/Bundle"); // NOI18N
-        jButton7.setText(bundle.getString("CancerNucleusClassification.jButton5.text")); // NOI18N
+        jButton7.setText("Save Segmentation...");
         jButton7.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 jButton7ActionPerformed(evt);
@@ -474,7 +473,7 @@ public class CancerNucleusSegmentation extends javax.swing.JFrame implements Plu
         jPanel3.add(jLabel6, gridBagConstraints);
 
         buttonGroup2.add(jRadioButton14);
-        jRadioButton14.setText(bundle.getString("CancerNucleusClassification.jRadioButton14.text")); // NOI18N
+        jRadioButton14.setText("Superpixel Segmentation (slower)");
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
         gridBagConstraints.gridy = 11;
@@ -486,7 +485,7 @@ public class CancerNucleusSegmentation extends javax.swing.JFrame implements Plu
 
         buttonGroup2.add(jRadioButton13);
         jRadioButton13.setSelected(true);
-        jRadioButton13.setText(bundle.getString("CancerNucleusClassification.jRadioButton13.text")); // NOI18N
+        jRadioButton13.setText("Graphcut Segmentation (faster)");
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
         gridBagConstraints.gridy = 12;
@@ -529,8 +528,8 @@ public class CancerNucleusSegmentation extends javax.swing.JFrame implements Plu
         gridBagConstraints.insets = new java.awt.Insets(5, 5, 0, 0);
         jPanel3.add(jCheckBox4, gridBagConstraints);
 
-        jCheckBox6.setText(bundle.getString("CancerNucleusClassification.jCheckBox6.text")); // NOI18N
-        jCheckBox6.setToolTipText(bundle.getString("CancerNucleusClassification.jCheckBox6.toolTipText")); // NOI18N
+        jCheckBox6.setText("<html>Respect 'including' or'excluding' ROI (if any)</html>");
+        jCheckBox6.setToolTipText("<html>If selected, regions of interest are considered for nucleus segmentation.<br> If there are no ROIs, the whole image is considered.<br> ROI are defined in the TMARKER main window.</html>");
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
         gridBagConstraints.gridy = 6;

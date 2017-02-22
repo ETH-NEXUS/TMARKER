@@ -122,6 +122,8 @@ public class PluginLoader {
      * @throws IOException From the function "copyURLToFile".
      */
     public static File[] downloadSelectedJarFilesFromURL(URL url, String tmp_dir, String[] selectedPlugins) throws IOException {
+        System.setProperty("http.agent", "");
+                
         Document doc = Jsoup.connect(url.toString()).userAgent("Mozilla/5.0 (Macintosh; Intel Mac OS X 10_9_2) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/33.0.1750.152 Safari/537.36").get();
         //Document doc = Jsoup.connect(url.toString()).get();
         //System.out.println(doc.body());
@@ -149,6 +151,7 @@ public class PluginLoader {
                 tmarker.splashTextAndProgress("dwnl " + name, (int) (20.0+0.2*100.0*k++/elems.size()));
             
                 File destination = new File(fname);
+                //destination.createNewFile();
                 destination.deleteOnExit();
                 
                 // Possibility 1: doesnt work, since the connection is blocked (Access denied, 403), due to robot protection.
@@ -159,14 +162,17 @@ public class PluginLoader {
                 //URL source = new URL(url.getProtocol() + "://" + url.getHost() + link); // former days... (before April 2016, ETH cms 6 change)
                 URL source = new URL(link);
                 URLConnection sourceConnection = source.openConnection();
-                sourceConnection.setRequestProperty("User-Agent", "Mozilla/5.0 (Macintosh; U; Intel Mac OS X 10.4; en-US; rv:1.9.2.2) Gecko/20100316 Firefox/3.6.2");
-                    try (InputStream input = sourceConnection.getInputStream()) {
+                //sourceConnection.setRequestProperty("User-Agent", "Mozilla/5.0 (Macintosh; U; Intel Mac OS X 10.4; en-US; rv:1.9.2.2) Gecko/20100316 Firefox/3.6.2");
+                try (InputStream input = sourceConnection.getInputStream()) {
                         copyInputStreamToFile(input, destination);
                     }
                 
                 files.add(destination);
                 } catch (Exception e) {
-                    if (tmarker.DEBUG>0) Logger.getLogger(PluginLoader.class.getName()).log(Level.INFO, e.getMessage());
+                    if (tmarker.DEBUG>0) {
+                        Logger.getLogger(PluginLoader.class.getName()).log(Level.WARNING, e.getMessage());
+                        e.printStackTrace();
+                    }
        
                 }
             }

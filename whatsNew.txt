@@ -1,3 +1,9 @@
+Version 2.152
+=============
+
+* bug fix concerning loading the online plugins. This should be possible again.
+
+
 Version 2.151
 =============
 

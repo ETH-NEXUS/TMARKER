@@ -1738,7 +1738,7 @@ public final class tmarker extends javax.swing.JFrame {
      * @param args the command line arguments
      */
     public static void main(String args[]) {
-        int debug = 0; // SET THIS TO 0 IF YOU COMPILE FOR PUBLIC DISTRIBUTION OTHERWISE 1-5 FOR LESS OR MORE DEBUG INFO
+        int debug = 5; // SET THIS TO 0 IF YOU COMPILE FOR PUBLIC DISTRIBUTION OTHERWISE 1-5 FOR LESS OR MORE DEBUG INFO
 
         File file = null;
         if (args.length > 0) {
@@ -6342,7 +6342,9 @@ public final class tmarker extends javax.swing.JFrame {
                 try {
                     plugins = PluginLoader.loadPlugins(new URL("http://www.nexus.ethz.ch/equipment_tools/software/tmarker/Plugins.html"), getTmpDir(), plugSel.getParam_loadedPlugins(), Thread.currentThread().getContextClassLoader());
                 } catch (Exception e) {
-                    //e.printStackTrace();
+                    if (DEBUG > 0) {
+                        e.printStackTrace();
+                    }
                 }
             }
 
