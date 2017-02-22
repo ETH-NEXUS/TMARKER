@@ -163,6 +163,8 @@ public class PluginLoader {
                 URL source = new URL(link);
                 URLConnection sourceConnection = source.openConnection();
                 //sourceConnection.setRequestProperty("User-Agent", "Mozilla/5.0 (Macintosh; U; Intel Mac OS X 10.4; en-US; rv:1.9.2.2) Gecko/20100316 Firefox/3.6.2");
+                sourceConnection.setRequestProperty("User-Agent","Mozilla/5.0 ( compatible ) ");
+                sourceConnection.setRequestProperty("Accept","*/*");
                 try (InputStream input = sourceConnection.getInputStream()) {
                         copyInputStreamToFile(input, destination);
                     }

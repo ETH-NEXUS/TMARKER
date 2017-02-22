@@ -1738,7 +1738,7 @@ public final class tmarker extends javax.swing.JFrame {
      * @param args the command line arguments
      */
     public static void main(String args[]) {
-        int debug = 5; // SET THIS TO 0 IF YOU COMPILE FOR PUBLIC DISTRIBUTION OTHERWISE 1-5 FOR LESS OR MORE DEBUG INFO
+        int debug = 0; // SET THIS TO 0 IF YOU COMPILE FOR PUBLIC DISTRIBUTION OTHERWISE 1-5 FOR LESS OR MORE DEBUG INFO
 
         File file = null;
         if (args.length > 0) {
@@ -3981,11 +3981,11 @@ public final class tmarker extends javax.swing.JFrame {
     public String getProgramFolder() {
         String folder = (String) System.getProperties().get("sun.java.command");
         if (!"tmarker.tmarker".equals(folder)) {
-            int i = folder.lastIndexOf("TMARKER.jar");
+            int i = folder.toLowerCase().lastIndexOf("tmarker.jar");
             if (i>=0) {
                 folder = folder.substring(0, i+11).trim();
             }
-            String[] folderarr = folder.split("TMARKER.jar");
+            String[] folderarr = folder.toLowerCase().split("tmarker.jar");
             if (folderarr.length==0) {
                 folder = "";
             } else {
@@ -3996,6 +3996,7 @@ public final class tmarker extends javax.swing.JFrame {
                 file = new File(System.getProperties().get("user.dir") + fs + folder);
             }
             folder = file.getAbsolutePath();
+            System.out.println("FOLDER FOLDER FOLDER " + folder);
         } else {
             folder = (String) System.getProperties().get("user.dir");
         }
